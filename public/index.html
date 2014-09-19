@@ -1,0 +1,87 @@
+<!doctype html>
+
+<!-- ASSIGN OUR ANGULAR MODULE -->
+<html ng-app="seoApp">
+<head>
+    <!-- META -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Optimize mobile viewport -->
+
+    <title>Node/Seo-Worker</title>
+
+    <!-- SCROLLS -->
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css"><!-- load bootstrap -->
+    <style>
+        body 					{ padding-top:20px; }
+        table {
+            margin: 50px; /* Поля вокруг текста */
+
+        }
+        th {
+            border: 1px solid black;
+            padding: 10px; /* Поля вокруг текста */
+        }
+        td {
+            border: 1px solid black;
+        }
+        #span-error {
+            color: red;
+        }
+        #table-cell {
+            overflow-y:scroll; width:1000px; height:80px;
+        }
+    </style>
+
+    <!-- SPELLS -->
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script><!-- load jquery -->
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.0.8/angular.min.js"></script><!-- load angular -->
+    <script src="core.js"></script>
+
+</head>
+<!-- SET THE CONTROLLER AND GET ALL TODOS -->
+<body ng-controller="mainController">
+<div class="container">
+
+    <!-- HEADER AND site COUNT -->
+    <div class="jumbotron text-center">
+        <h1>На данный момент добавлено <span class="label label-info">{{ sites.length }}</span> сайтов.</h1>
+    </div>
+
+    <!-- FORM TO CREATE SITE -->
+    <div id="site-form" class="row">
+        <div class="col-sm-8 col-sm-offset-2 text-center">
+            <form>
+                <div class="form-group">
+
+                    <!-- BIND THIS VALUE TO formData.url IN ANGULAR -->
+                    <input type="text" class="form-control input-lg text-center" placeholder="Введите адрес сайта" ng-model="formData.url">
+                    <span id="span-error" ng-bind="error.msg"/>
+                </div>
+
+                <!-- createSite() WILL CREATE NEW SITE -->
+                <button type="submit" class="btn btn-primary btn-lg" ng-click="createSite()">Добавть новый сайт</button>
+
+            </form>
+        </div>
+    </div>
+
+    <!-- SITE LIST -->
+    <!-- LOOP OVER THE SITES IN $scope.sites -->
+    <table>
+        <tr>
+            <th>Дата</th>
+            <th>Адрес</th>
+            <th>Html</th>
+        </tr>
+        <tr ng-repeat="s in sites" ng-click="click(s)">
+            <td>{{s.date_create}}</td>
+            <td>{{s.url}}</td>
+            <td><div  id="table-cell" >{{s.raw_html}}</div></td>
+        </tr>
+    </table>
+
+
+</div>
+
+</body>
+</html>
