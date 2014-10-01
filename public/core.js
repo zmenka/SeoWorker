@@ -1,6 +1,7 @@
 /**
  * Created by zmenka on 19.09.14.
  */
+
 var seoApp = angular.module('seoApp', []);
 
 function mainController($scope, $http, $window) {
@@ -40,3 +41,5 @@ function mainController($scope, $http, $window) {
     }
 
 }
+
+module.exports = seoApp;

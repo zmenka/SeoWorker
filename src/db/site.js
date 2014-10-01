@@ -12,3 +12,5 @@ var Site = mongoose.model('Site', {
     date_create: Date,
     path: String
 });
+
+module.exports = Site;
