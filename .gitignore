@@ -1,4 +1,7 @@
-
-/public/files
-node_modules
+!.gitkeep
+app/files
+logs/*
+node_modules/
+bower_components/
+tmp
 .idea
