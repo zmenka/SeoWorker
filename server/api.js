@@ -34,8 +34,8 @@ module.exports = function Api(app) {
     });
 
 // create Site
-    app.post('/api/sites/', function (req, res, next) {
-        console.log('/api/site', req.body);
+    app.post('/api/sites', function (req, res, next) {
+        console.log('/api/sites', req.body);
         res.statusCode = 200;
         // скачиваем по адресу html
         var options = {

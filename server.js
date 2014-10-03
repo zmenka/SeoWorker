@@ -12,7 +12,7 @@ var app = express();
 new Api(app);
 new DbInit();
 
-app.set('port', process.env.PORT || 5000);
+app.set('port', process.env.PORT || 3000);
 app.use(logger('dev'));
 app.use(bodyParser.urlencoded({
     extended: true

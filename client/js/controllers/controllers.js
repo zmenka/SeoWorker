@@ -4,14 +4,6 @@
 
 var seoControllers = angular.module('seoControllers', []);
 
-seoControllers.controller('MainCtrl', ['$route', '$routeParams', '$location',
-    function($route, $routeParams, $location) {
-        this.$route = $route;
-        this.$location = $location;
-        this.$routeParams = $routeParams;
-
-    }]);
-
 
 seoControllers.controller('SitesCtrl', ['$scope', 'Site',
     function ($scope, Site) {
@@ -23,8 +15,16 @@ seoControllers.controller('SitesCtrl', ['$scope', 'Site',
 
         // when submitting the add site, send the text to the node API
         $scope.createSite = function () {
-            new Site();
-            $scope.sites = Site.query();
+            $scope.error.msg = "";
+            console.log($scope.formData);
+            new Site($scope.formData).$save(
+                function() {
+                    $scope.formData = {};
+                    $scope.error.msg = "";
+                    console.log('site is saved');
+                    $scope.sites = Site.query();
+                    });
+
         };
 
         $scope.click = function (site) {

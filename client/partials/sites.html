@@ -1,28 +1,21 @@
-<div class="container-fluid">
-    xxxxxxx
-  <div class="row">
-    <div class="col-md-2">
-      <!--Sidebar content-->
-
+<div ng-controller="SitesCtrl">
+  <div >
+    <div>
         На данный момент добавлено <span class="label label-info">{{ sites.length }}</span> сайтов.
 
         <form>
             <div >
-
-                <!-- BIND THIS VALUE TO formData.url IN ANGULAR -->
                 <input type="text" placeholder="Введите адрес сайта" ng-model="formData.url">
                 <span id="span-error" ng-bind="error.msg"/>
             </div>
 
-            <!-- createSite() WILL CREATE NEW SITE -->
+
             <button type="submit" class="btn btn-primary btn-lg" ng-click="createSite()">Добавть новый сайт</button>
 
         </form>
 
     </div>
-    <div class="col-md-10">
-      <!--Body content-->
-
+    <div>
         <table>
             <tr>
                 <th>Дата</th>
