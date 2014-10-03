@@ -8,7 +8,7 @@ var seoApp = angular.module('seoApp', [
   'seoServices'
 ]);
 
-phonecatApp.config(['$routeProvider',
+seoApp.config(['$routeProvider',
   function($routeProvider) {
     $routeProvider.
       when('/sites', {

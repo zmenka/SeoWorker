@@ -57,7 +57,7 @@ module.exports = function Api(app) {
                 console.log("содержимое сайте получено! ", content);
 
                 //запишем в файл
-                var fileDir = path.dirname(require.main.filename) + "/public/files/";
+                var fileDir = path.dirname(require.main.filename) + "/client/files/";
                 var fileName = req.body.url + "_" + date_create + ".html";
                 fs.writeFile(fileDir + fileName, content, function (err) {
                     if (err) {
@@ -79,14 +79,7 @@ module.exports = function Api(app) {
                         res.statusCode = 440;
                         res.send(err);
                     }
-                    // return all
-                    Site.find({}).sort({"date_create": -1}).exec(function (err, sites) {
-                        if (err) {
-                            res.statusCode = 440;
-                            res.send(err);
-                        }
-                        res.json(sites);
-                    });
+                    res.json("ok");
                 });
             });
         });
@@ -100,8 +93,8 @@ module.exports = function Api(app) {
     });
 
 // application -------------------------------------------------------------
-    app.get('*', function (req, res) {
-        //res.sendfile('./src/public/index.html'); // load the single view file (angular will handle the page changes on the front-end)
-        res.redirect('/#' + req.originalUrl);
-    });
+//    app.get('*', function (req, res) {
+//        //res.sendfile('./src/public/index.html'); // load the single view file (angular will handle the page changes on the front-end)
+//        //res.redirect('/#' + req.originalUrl);
+//    });
 }

@@ -4,6 +4,15 @@
 
 var seoControllers = angular.module('seoControllers', []);
 
+seoControllers.controller('MainCtrl', ['$route', '$routeParams', '$location',
+    function($route, $routeParams, $location) {
+        this.$route = $route;
+        this.$location = $location;
+        this.$routeParams = $routeParams;
+
+    }]);
+
+
 seoControllers.controller('SitesCtrl', ['$scope', 'Site',
     function ($scope, Site) {
 
@@ -19,7 +28,7 @@ seoControllers.controller('SitesCtrl', ['$scope', 'Site',
         };
 
         $scope.click = function (site) {
-            var url = 'files/' + site.path;
+            var url = 'client/files/' + site.path;
             console.log(url);
             $window.open(url);
         }
