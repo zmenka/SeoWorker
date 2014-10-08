@@ -5,8 +5,8 @@
 var seoControllers = angular.module('seoControllers', []);
 
 
-seoControllers.controller('SitesCtrl', ['$scope', 'Site',
-    function ($scope, Site) {
+seoControllers.controller('SitesCtrl', ['$scope', 'Site', 'Test',
+    function ($scope, Site, Test) {
 
         $scope.formData = {};
         $scope.sites = Site.query();
@@ -17,14 +17,19 @@ seoControllers.controller('SitesCtrl', ['$scope', 'Site',
         $scope.createSite = function () {
             $scope.error.msg = "";
             console.log($scope.formData);
-            new Site($scope.formData).$save(
-                function() {
-                    $scope.formData = {};
-                    $scope.error.msg = "";
-                    console.log('site is saved');
-                    $scope.sites = Site.query();
-                    });
-
+//            Site.save({ showName: "showName" },
+//                function() {
+//                    $scope.formData = {};
+//                    $scope.error.msg = "";
+//                    console.log('site is saved');
+//                    $scope.sites = Site.query();
+//                },
+//                function(response) {
+//                    console.log('site is saved', response);
+//                });
+            Test.createSite($scope.formData).success(function() {
+                console.log('site is saved');
+            });
         };
 
         $scope.click = function (site) {

@@ -5,14 +5,17 @@
 
         <form>
             <div >
-                <input type="text" placeholder="Введите адрес сайта" ng-model="formData.url">
+                <input  type="text" placeholder="Введите адрес сайта" ng-model="formData.url">
+
                 <span id="span-error" ng-bind="error.msg"/>
             </div>
 
 
-            <button type="submit" class="btn btn-primary btn-lg" ng-click="createSite()">Добавть новый сайт</button>
+            <button method="post" type="submit" class="btn btn-primary btn-lg" ng-click="createSite()">Добавть новый сайт</button>
 
         </form>
+
+
 
     </div>
     <div>
