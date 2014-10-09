@@ -17,19 +17,19 @@ seoControllers.controller('SitesCtrl', ['$scope', 'Site', 'Test',
         $scope.createSite = function () {
             $scope.error.msg = "";
             console.log($scope.formData);
-//            Site.save({ showName: "showName" },
-//                function() {
-//                    $scope.formData = {};
-//                    $scope.error.msg = "";
-//                    console.log('site is saved');
-//                    $scope.sites = Site.query();
-//                },
-//                function(response) {
-//                    console.log('site is saved', response);
-//                });
-            Test.createSite($scope.formData).success(function() {
-                console.log('site is saved');
-            });
+            Site.save($scope.formData,
+                function() {
+                    $scope.formData = {};
+                    $scope.error.msg = "";
+                    console.log('site is saved');
+                    $scope.sites = Site.query();
+                },
+                function(response) {
+                    console.log('site is saved WITH ERROR!', response);
+                });
+//            Test.createSite($scope.formData).success(function() {
+//                console.log('site is saved');
+//            });
         };
 
         $scope.click = function (site) {

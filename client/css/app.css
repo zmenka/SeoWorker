@@ -1,16 +1,19 @@
 /* app css stylesheet */
 
 body {
-  padding-top: 20px;
+
+    margin: 50px;
 }
 
 table {
-    margin: 50px; /* Поля вокруг текста */
+    margin: 20px 0 0 0;
 }
+
 th {
     border: 1px solid black;
     padding: 10px; /* Поля вокруг текста */
 }
+
 td {
     border: 1px solid black;
 }
@@ -19,4 +22,8 @@ td {
 }
 #table-cell {
     overflow-y:scroll; width:1000px; height:80px;
+}
+
+.input-width {
+    width: 500px;
 }

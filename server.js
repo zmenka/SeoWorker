@@ -9,9 +9,6 @@ var DbInit = require("./server/db/db_init")
 
 var app = express();
 
-new Api(app);
-new DbInit();
-
 app.set('port', process.env.PORT || 3000);
 app.disable("x-powered-by");
 app.disable('etag');
@@ -21,10 +18,14 @@ app.use(bodyParser.urlencoded({
     extended: true
 }));
 app.use(bodyParser.json());
+app.use(bodyParser.json({ type: 'application/vnd.api+json' }));
 app.use(cookieParser());
 
 app.use(express.static(path.join(__dirname, 'client')));
 app.use('/bower_components/', express.static(__dirname + '/bower_components/'))
+
+new Api(app);
+new DbInit();
 
 app.listen(app.get('port'), function() {
     console.log('Express server listening on port ' + app.get('port'));

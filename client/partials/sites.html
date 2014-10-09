@@ -1,19 +1,17 @@
 <div ng-controller="SitesCtrl">
   <div >
     <div>
-        На данный момент добавлено <span class="label label-info">{{ sites.length }}</span> сайтов.
+        <h3>На данный момент добавлено <span class="label label-info">{{ sites.length }}</span> сайтов.</h3>
 
-        <form>
-            <div >
-                <input  type="text" placeholder="Введите адрес сайта" ng-model="formData.url">
+        <form class="form-group">
+            <input class="form-control input-width" type="text" placeholder="Введите адрес сайта" ng-model="formData.url">
 
                 <span id="span-error" ng-bind="error.msg"/>
-            </div>
-
+        </form>
 
             <button method="post" type="submit" class="btn btn-primary btn-lg" ng-click="createSite()">Добавть новый сайт</button>
 
-        </form>
+
 
 
 
