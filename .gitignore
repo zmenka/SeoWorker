@@ -1,5 +1,5 @@
 !.gitkeep
-app/files
+client/files/
 logs/*
 node_modules/
 bower_components/
