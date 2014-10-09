@@ -5,8 +5,8 @@
 var seoControllers = angular.module('seoControllers', []);
 
 
-seoControllers.controller('SitesCtrl', ['$scope', 'Site', 'Test',
-    function ($scope, Site, Test) {
+seoControllers.controller('SitesCtrl', ['$scope', '$window', 'Site', 'Test',
+    function ($scope, $window,  Site) {
 
         $scope.formData = {};
         $scope.sites = Site.query();
@@ -27,13 +27,11 @@ seoControllers.controller('SitesCtrl', ['$scope', 'Site', 'Test',
                 function(response) {
                     console.log('site is saved WITH ERROR!', response);
                 });
-//            Test.createSite($scope.formData).success(function() {
-//                console.log('site is saved');
-//            });
+
         };
 
         $scope.click = function (site) {
-            var url = 'client/files/' + site.path;
+            var url = 'files/' + site.path;
             console.log(url);
             $window.open(url);
         }

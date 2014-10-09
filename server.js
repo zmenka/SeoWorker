@@ -22,6 +22,7 @@ app.use(bodyParser.json({ type: 'application/vnd.api+json' }));
 app.use(cookieParser());
 
 app.use(express.static(path.join(__dirname, 'client')));
+app.use(express.static(path.join(__dirname, 'client/files')));
 app.use('/bower_components/', express.static(__dirname + '/bower_components/'))
 
 new Api(app);
