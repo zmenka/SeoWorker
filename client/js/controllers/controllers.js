@@ -8,7 +8,7 @@ var seoControllers = angular.module('seoControllers', []);
 seoControllers.controller('SitesCtrl', ['$scope', '$window', 'Site', 'Test',
     function ($scope, $window,  Site) {
 
-        $scope.formData = {};
+        $scope.formData = {url: 'ya.ru'};
         $scope.sites = Site.query();
         $scope.error = {msg: ""};
 
