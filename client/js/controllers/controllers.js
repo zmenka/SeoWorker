@@ -8,7 +8,7 @@ var seoControllers = angular.module('seoControllers', []);
 seoControllers.controller('SitesCtrl', ['$scope', '$window', 'Site', 'Test',
     function ($scope, $window,  Site) {
 
-        $scope.formData = {url: 'ya.ru'};
+        $scope.formData = {url: 'facebook.com'};
         $scope.sites = Site.query();
         $scope.error = {msg: ""};
 
@@ -16,7 +16,7 @@ seoControllers.controller('SitesCtrl', ['$scope', '$window', 'Site', 'Test',
         // when submitting the add site, send the text to the node API
         $scope.createSite = function () {
             $scope.error.msg = "";
-            console.log($scope.formData);
+            //console.log($scope.formData);
             Site.save($scope.formData,
                 function() {
                     $scope.formData = {};

@@ -6,6 +6,7 @@ var seoServices = angular.module('seoServices', ['ngResource']);
 
 seoServices.factory('Site', ['$resource',
   function($resource){
+
       return $resource('/api/sites/:_id');
   }]);
 
