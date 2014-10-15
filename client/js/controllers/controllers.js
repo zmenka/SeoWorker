@@ -5,11 +5,11 @@
 var seoControllers = angular.module('seoControllers', []);
 
 
-seoControllers.controller('SitesCtrl', ['$scope', '$window', 'Site', 'Test',
-    function ($scope, $window,  Site) {
+seoControllers.controller('SitesCtrl', ['$scope', '$window', 'SiteService',
+    function ($scope, $window,  SiteService) {
 
         $scope.formData = {url: 'facebook.com'};
-        $scope.sites = Site.query();
+        $scope.sites = SiteService.query();
         $scope.error = {msg: ""};
 
 
@@ -17,12 +17,12 @@ seoControllers.controller('SitesCtrl', ['$scope', '$window', 'Site', 'Test',
         $scope.createSite = function () {
             $scope.error.msg = "";
             //console.log($scope.formData);
-            Site.save($scope.formData,
+            SiteService.save($scope.formData,
                 function() {
                     $scope.formData = {};
                     $scope.error.msg = "";
                     console.log('site is saved');
-                    $scope.sites = Site.query();
+                    $scope.sites = SiteService.query();
                 },
                 function(response) {
                     console.log('site is saved WITH ERROR!', response);
@@ -31,9 +31,12 @@ seoControllers.controller('SitesCtrl', ['$scope', '$window', 'Site', 'Test',
         };
 
         $scope.click = function (site) {
-            var url = 'files/' + site.path;
-            console.log(url);
-            $window.open(url);
+            var site = SiteService.get({ id: site._id }, function() {
+                
+            });
+//            var url = 'files/' + site.path;
+//            console.log(url);
+//            $window.open(url);
         }
 
     }]);

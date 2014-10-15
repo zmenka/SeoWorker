@@ -20,8 +20,12 @@ td {
 #span-error {
     color: red;
 }
-#table-cell {
-    overflow-y:scroll; width:1000px; height:80px;
+.table-cell {
+    overflow:auto; width:1000px; height:80px;
+}
+
+.table-cell-small {
+    max-width: 300px;
 }
 
 .input-width {

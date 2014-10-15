@@ -19,10 +19,10 @@
                 <th>Адрес</th>
                 <th>Html</th>
             </tr>
-            <tr ng-repeat="s in sites" ng-click="click(s)">
+            <tr ng-repeat="s in sites" >
                 <td>{{s.date_create}}</td>
-                <td>{{s.url}}</td>
-                <td><div  id="table-cell" >{{s.raw_html}}</div></td>
+                <td><div  class="table-cell table-cell-small" >{{s.url}}</div></td>
+                <td ng-click="click(s)"><div  class="table-cell" >{{s.raw_html}}</div></td>
             </tr>
         </table>
 

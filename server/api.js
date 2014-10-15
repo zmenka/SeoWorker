@@ -1,5 +1,15 @@
 var Searcher = require("./searcher");
-var Site = require("./db/site");
+var SeoParser = require("./seo_parser");
+var SiteMongo = require("./db/site_mongo");
+
+var callback = function (data, response) {
+    response.json(data);
+};
+
+var errback = function (err, response) {
+    response.statusCode = 440;
+    response.send(err);
+};
 
 module.exports = function Api(app) {
     this.app = app;
@@ -12,21 +22,24 @@ module.exports = function Api(app) {
     app.get('/api/sites', function (req, res, next) {
         console.log('/api/sites ALL');
         // use mongoose to get all sites in the database
-        Site.find({}).sort({"date_create": -1}).exec(function (err, sites) {
+        new SiteMongo().getSites(function (sites) {
+            callback(sites, res);
+        }, function (err) {
+            errback(err, res);
+        })
 
-            // if there is an error retrieving, send the error. nothing after res.send(err) will execute
-            if (err)
-                res.send(err)
-
-            res.json(sites); // return all sites in JSON format
-        });
     });
 
     app.get('/api/sites/:id', function (req, res, next) {
         console.log('/api/sites/:id', req.params);
-        Site.findById(req.params.id, function (err, show) {
-            if (err) return next(err);
-            res.send(show);
+        new SiteMongo().getSite(req.params.id, function (site) {
+            new SeoParser().parseHtml(site.raw_html, function (dom) {
+                callback("ok", res);
+            }, function (err) {
+                errback(err, res);
+            })
+        }, function (err) {
+            errback(err, res);
         });
     });
 
@@ -36,21 +49,19 @@ module.exports = function Api(app) {
         res.statusCode = 200;
 
         var searcher = new Searcher();
-        searcher.saveSite(req.body.url,
-            function () {
-                res.json("ok");
+        searcher.getContentByUrl(req.body.url,
+            function (body) {
+                new SiteMongo().saveSite(req.body.url, body, function () {
+                    callback("ok", res);
+                }, function (err) {
+                    errback(err, res);
+                });
+
             },
             function (err) {
-                res.statusCode = 440;
-                console.log("create site error: ", err)
-                res.send(err);
+                errback(err, res);
             });
 
     });
 
-// application -------------------------------------------------------------
-//    app.get('*', function (req, res) {
-//        //res.sendfile('./src/public/index.html'); // load the single view file (angular will handle the page changes on the front-end)
-//        //res.redirect('/#' + req.originalUrl);
-//    });
 }

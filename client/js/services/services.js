@@ -4,10 +4,10 @@
 
 var seoServices = angular.module('seoServices', ['ngResource']);
 
-seoServices.factory('Site', ['$resource',
+seoServices.factory('SiteService', ['$resource',
   function($resource){
 
-      return $resource('/api/sites/:_id');
+      return $resource('/api/sites/:id');
   }]);
 
 seoServices.factory('Test', ['$http',
