@@ -1,4 +1,5 @@
 var htmlparser = require("htmlparser2");
+var select = require('soupselect').select;
 
 function SeoParser() {
     console.log('Parser init');
