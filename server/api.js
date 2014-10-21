@@ -32,8 +32,9 @@ module.exports = function Api(app) {
     app.get('/api/sites/:id', function (req, res, next) {
         console.log('/api/sites/:id', req.params);
         new SiteMongo().getSite(req.params.id, function (site) {
-            SeoParameters.titleCS('Добро пожаловать на Фейсбук', site.raw_html, function (cs) {
-                console.log(cs);
+            var params = new SeoParameters();
+            params.init('Добро пожаловать на Фейсбук', site.raw_html, function () {
+                params.titleCS();
                 callback(site, res);
             }, function (err) {
                 errback(err, res);

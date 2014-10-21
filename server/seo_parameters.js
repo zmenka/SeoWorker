@@ -8,7 +8,7 @@ var regexpSplit = /[\s,\s-\s,\.;:/\(\)!\?\[\]{}_\\\|~<>*\+=]+/;
 /*
  среднее совпадение двух фраз
  */
-SeoParameters.complianceStrings = function (text1, text2) {
+SeoParameters.prototype.complianceStrings = function (text1, text2) {
     var matchWords = 0;
     // - плохо очитывается!!!
     var words1 = text1.toLowerCase().split(regexpSplit).filter(function (e) {
@@ -36,14 +36,14 @@ SeoParameters.complianceStrings = function (text1, text2) {
     }
 }
 
-SeoParameters.titleCS = function (keyText, rawHtml, callback, errback) {
-    SeoParser.getTag('title',rawHtml, function (titles){
-        if (!titles || titles.length !=1){
-            errback();
-        }
+SeoParameters.prototype.init = function (keyText, rawHtml, callback, errback) {
+    this.keyText = keyText;
+    this.parser = new SeoParser();
+    this.parser.initDom(rawHtml, callback, errback);
+}
 
-        callback(SeoParameters.complianceStrings(titles[0].children[0].data, keyText));
-    }, errback);
+SeoParameters.prototype.titleCS = function () {
+    return this.complianceStrings(this.parser.getTag('title')[0].children[0].data, this.keyText)
 }
 
 module.exports = SeoParameters;
