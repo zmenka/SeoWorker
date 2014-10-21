@@ -1,7 +1,6 @@
 var Searcher = require("./searcher");
-var SeoParser = require("./seo_parser");
 var SiteMongo = require("./db/site_mongo");
-
+var SeoParameters = require("./seo_parameters");
 var callback = function (data, response) {
     response.json(data);
 };
@@ -33,14 +32,15 @@ module.exports = function Api(app) {
     app.get('/api/sites/:id', function (req, res, next) {
         console.log('/api/sites/:id', req.params);
         new SiteMongo().getSite(req.params.id, function (site) {
-            new SeoParser().parseHtml(site.raw_html, function (dom) {
-                callback("ok", res);
+            SeoParameters.titleCS('Добро пожаловать на Фейсбук', site.raw_html, function (cs) {
+                console.log(cs);
+                callback(site, res);
             }, function (err) {
                 errback(err, res);
-            })
+            });
         }, function (err) {
             errback(err, res);
-        });
+        })
     });
 
 // create Site

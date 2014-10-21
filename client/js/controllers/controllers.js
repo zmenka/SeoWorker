@@ -32,11 +32,11 @@ seoControllers.controller('SitesCtrl', ['$scope', '$window', 'SiteService',
 
         $scope.click = function (site) {
             var site = SiteService.get({ id: site._id }, function() {
-                
+                var url = 'files/' + site.path;
+                console.log(url);
+                $window.open(url);
             });
-//            var url = 'files/' + site.path;
-//            console.log(url);
-//            $window.open(url);
+
         }
 
     }]);
