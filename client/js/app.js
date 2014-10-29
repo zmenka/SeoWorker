@@ -6,7 +6,9 @@ var seoApp = angular.module('seoApp', [
     'ngRoute',
     'ngResource',
     'seoControllers',
-    'seoServices'
+    'seoServices',
+    'seoDirectives',
+    'mgcrea.ngStrap'
 
 ]);
 

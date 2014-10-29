@@ -12,20 +12,25 @@ table {
 th {
     border: 1px solid black;
     padding: 10px; /* Поля вокруг текста */
+
 }
 
 td {
     border: 1px solid black;
 }
-#span-error {
+.span-error {
     color: red;
 }
 .table-cell {
-    overflow:auto; width:1000px; height:80px;
+    overflow:auto; width:800px; height:80px; padding: 10px;
 }
 
 .table-cell-small {
     max-width: 300px;
+}
+
+.table-cell-supersmall {
+    max-width: 100px;
 }
 
 .input-width {

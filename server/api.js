@@ -32,13 +32,8 @@ module.exports = function Api(app) {
     app.get('/api/sites/:id', function (req, res, next) {
         console.log('/api/sites/:id', req.params);
         new SiteMongo().getSite(req.params.id, function (site) {
-            var params = new SeoParameters();
-            params.init('Добро пожаловать на Фейсбук', site.raw_html, function () {
-                params.titleCS();
-                callback(site, res);
-            }, function (err) {
-                errback(err, res);
-            });
+
+            callback(site, res);
         }, function (err) {
             errback(err, res);
         })
@@ -63,6 +58,34 @@ module.exports = function Api(app) {
                 errback(err, res);
             });
 
+    });
+
+    app.post('/api/calculation', function (req, res, next) {
+        console.log('/api/calculation', req.body);
+        if (!req.body.site_id || !req.body.key_words){
+            errback("не найдены параметры site_id или key_words", res);
+            return;
+        }
+        new SiteMongo().getSite(req.body.site_id, function (site) {
+            var params = new SeoParameters();
+            params.init(req.body.key_words, site.raw_html, function () {
+                var titleCS = params.tagCS("title");
+                var h1CS = params.tagCS("h1");
+                var h3CS = params.tagCS("h3");
+                var params_res = [
+                    {name: "titleCS", val: titleCS },
+                    {name: "h1CS", val: h1CS },
+                    {name: "h3CS", val: h3CS }
+                ];
+                callback(params_res, res);
+            }, function (err1) {
+                console.log("Ошбика при подсчете titleCS", err);
+                errback(err1, res);
+            });
+
+        }, function (err) {
+            errback(err, res);
+        })
     });
 
 }

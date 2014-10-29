@@ -4,7 +4,7 @@ function SeoParameters() {
     console.log('SeoParameters init');
 };
 
-var regexpSplit = /[\s,\s-\s,\.;:/\(\)!\?\[\]{}_\\\|~<>*\+=]+/;
+var regexpSplit = /[\s,\-\.;:/\(\)!\?\[\]{}_\\\|~<>*\+=]+/;
 /*
  среднее совпадение двух фраз
  */
@@ -26,13 +26,14 @@ SeoParameters.prototype.complianceStrings = function (text1, text2) {
     if (words2.length > maxLength) {
         maxLength = words2.length;
     }
-    console.log('averageMatch', text1, text2);
-    console.log(words1, words2);
-    console.log(maxLength, matchWords)
+    console.log('параметр по среднему, 1 фраза', text1, '2 фраза ', text2);
+    console.log(words1.toString());
+    console.log(words2.toString());
+    console.log("макс длина", maxLength, "совпадающие слова", matchWords)
     if (maxLength > 0) {
-        return matchWords * 100 / maxLength;
+        return (matchWords * 100 / maxLength).toFixed(2) + '%';
     } else {
-        return 0;
+        return "Ошибка в длине!";
     }
 }
 
@@ -43,7 +44,40 @@ SeoParameters.prototype.init = function (keyText, rawHtml, callback, errback) {
 }
 
 SeoParameters.prototype.titleCS = function () {
-    return this.complianceStrings(this.parser.getTag('title')[0].children[0].data, this.keyText)
+    if (this.parser.getTag('title')) {
+        return this.complianceStrings(this.parser.getTag('title')[0].children[0].data, this.keyText)
+    }
+    return 'Нет тега';
+}
+
+SeoParameters.prototype.h1CS = function () {
+    console.log("!!", this.parser.getTag('h1'), "&&&");
+    if (this.parser.getTag('h1').length>0) {
+        return this.complianceStrings(this.parser.getTag('h1')[0].children[0].data, this.keyText)
+    }
+    return 'Нет тега';
+}
+
+SeoParameters.prototype.tagCS = function (tag) {
+    if (this.parser.getTag(tag).length>0) {
+        //console.log(this.parser.getTag(tag)[0].children);
+        data = getData(this.parser.getTag(tag)[0].children);
+        return this.complianceStrings(data, this.keyText)
+    }
+    return 'Нет тега ' + tag;
+}
+
+function getData(obj) {
+    var out = '';
+    for (var j=0; j< obj.length; j++) {
+        if (obj[j].hasOwnProperty('children')) {
+            out += getData(obj[j].children);
+        }
+        if (obj[j].hasOwnProperty('data')) {
+            out += obj[j].data;
+        }
+    }
+    return out;
 }
 
 module.exports = SeoParameters;

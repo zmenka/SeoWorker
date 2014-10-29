@@ -10,11 +10,11 @@ seoServices.factory('SiteService', ['$resource',
       return $resource('/api/sites/:id');
   }]);
 
-seoServices.factory('Test', ['$http',
+seoServices.factory('Params', ['$http',
     function($http){
         return {
-            createSite: function(site) {
-                return $http.post('/api/sites', {"url": "ya.ru"});
+            calculation: function(params) {
+                return $http.post('/api/calculation', params);
 
             }
         };
