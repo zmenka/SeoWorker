@@ -71,11 +71,35 @@ module.exports = function Api(app) {
             params.init(req.body.key_words, site.raw_html, function () {
                 var titleCS = params.tagCS("title");
                 var h1CS = params.tagCS("h1");
+                var h2CS = params.tagCS("h2");
                 var h3CS = params.tagCS("h3");
+                var h2Count = params.tagCount("h2");
+                var h3Count = params.tagCount("h3");
+                var h3AvgCS = params.tagAvgCS("h3");
+                var titleLength = params.tagLengthAll("title");
+                var h1Length = params.tagLengthAll("h1");
+                var h2Length = params.tagLengthAll("h2");
+                var h2LengthFirst = params.tagLengthFirst("h2");
+                var h2LengthAvg = params.tagLengthAvg("h2");
+                var h3Length = params.tagLengthAll("h3");
+                var h3LengthFirst = params.tagLengthFirst("h3");
+                var h3LengthAvg = params.tagLengthAvg("h3");
                 var params_res = [
                     {name: "titleCS", val: titleCS },
                     {name: "h1CS", val: h1CS },
-                    {name: "h3CS", val: h3CS }
+                    {name: "h2CS", val: h2CS },
+                    {name: "h3CS", val: h3CS },
+                    {name: "h2Count", val: h2Count },
+                    {name: "h3Count", val: h3Count },
+                    {name: "h3AvgCS", val: h3AvgCS },
+                    {name: "titleLength", val: titleLength },
+                    {name: "h1Length", val: h1Length },
+                    {name: "h2Length", val: h2Length },
+                    {name: "h2LengthFirst", val: h2LengthFirst },
+                    {name: "h2LengthAvg", val: h2LengthAvg },
+                    {name: "h3Length", val: h3Length },
+                    {name: "h3LengthFirst", val: h3LengthFirst },
+                    {name: "h3LengthAvg", val: h3LengthAvg }
                 ];
                 callback(params_res, res);
             }, function (err1) {
