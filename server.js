@@ -5,7 +5,7 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
 var Api = require("./server/api");
-var DbInit = require("./server/db/db_init")
+var DbInit = require("./server/db/mongo/db_init")
 
 var app = express();
 

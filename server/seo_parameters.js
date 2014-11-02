@@ -60,7 +60,7 @@ SeoParameters.prototype.tagCS = function (tag) {
     return 'Нет тега ' + tag;
 }
 //средний процент вхождения фразы среди всех тэгов tag
-SeoParameters.prototype.tagAvgCS = function (tag) {
+SeoParameters.prototype.tagCSAvg = function (tag) {
     var cnt = 0;
     if (this.parser.getTag(tag).length>0) {
         for (i in this.parser.getTag(tag)) {

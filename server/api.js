@@ -1,5 +1,5 @@
 var Searcher = require("./searcher");
-var SiteMongo = require("./db/site_mongo");
+var PgSites = require("./db/postgres/pg_sites");
 var SeoParameters = require("./seo_parameters");
 var callback = function (data, response) {
     response.json(data);
@@ -21,7 +21,7 @@ module.exports = function Api(app) {
     app.get('/api/sites', function (req, res, next) {
         console.log('/api/sites ALL');
         // use mongoose to get all sites in the database
-        new SiteMongo().getSites(function (sites) {
+        new PgSites().getSites(function (sites) {
             callback(sites, res);
         }, function (err) {
             errback(err, res);
@@ -31,7 +31,7 @@ module.exports = function Api(app) {
 
     app.get('/api/sites/:id', function (req, res, next) {
         console.log('/api/sites/:id', req.params);
-        new SiteMongo().getSite(req.params.id, function (site) {
+        new PgSites().getSite(req.params.id, function (site) {
 
             callback(site, res);
         }, function (err) {
@@ -47,7 +47,7 @@ module.exports = function Api(app) {
         var searcher = new Searcher();
         searcher.getContentByUrl(req.body.url,
             function (body) {
-                new SiteMongo().saveSite(req.body.url, body, function () {
+                new PgSites().saveSite(req.body.url, body, function () {
                     callback("ok", res);
                 }, function (err) {
                     errback(err, res);
@@ -66,7 +66,7 @@ module.exports = function Api(app) {
             errback("не найдены параметры site_id или key_words", res);
             return;
         }
-        new SiteMongo().getSite(req.body.site_id, function (site) {
+        new PgSites().getSite(req.body.site_id, function (site) {
             var params = new SeoParameters();
             params.init(req.body.key_words, site.raw_html, function () {
                 var titleCS = params.tagCS("title");
@@ -75,7 +75,7 @@ module.exports = function Api(app) {
                 var h3CS = params.tagCS("h3");
                 var h2Count = params.tagCount("h2");
                 var h3Count = params.tagCount("h3");
-                var h3AvgCS = params.tagAvgCS("h3");
+                var h3CSAvg = params.tagCSAvg("h3");
                 var titleLength = params.tagLengthAll("title");
                 var h1Length = params.tagLengthAll("h1");
                 var h2Length = params.tagLengthAll("h2");
@@ -91,7 +91,7 @@ module.exports = function Api(app) {
                     {name: "h3CS", val: h3CS },
                     {name: "h2Count", val: h2Count },
                     {name: "h3Count", val: h3Count },
-                    {name: "h3AvgCS", val: h3AvgCS },
+                    {name: "h3CSAvg", val: h3CSAvg },
                     {name: "titleLength", val: titleLength },
                     {name: "h1Length", val: h1Length },
                     {name: "h2Length", val: h2Length },

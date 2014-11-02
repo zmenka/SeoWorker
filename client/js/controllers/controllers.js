@@ -29,7 +29,7 @@ seoControllers.controller('SitesCtrl', ['$scope', '$window', 'SiteService', 'Par
 
         $scope.getParams = function (site) {
             site.params = 'грузятся...';
-            Params.calculation({ site_id: site._id , key_words: $scope.formData.keyWords})
+            Params.calculation({ site_id: site.id , key_words: $scope.formData.keyWords})
                 .then(function (res) {
 //                var url = 'files/' + site.path;
 //                console.log(url);
