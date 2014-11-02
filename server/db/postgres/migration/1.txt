@@ -1,0 +1,9 @@
+DROP TABLE IF EXISTS sites;
+CREATE TABLE sites
+(
+  id serial primary key,
+  url character varying,
+  date_create timestamp with time zone,
+  raw_html character varying,
+  path character varying
+);
