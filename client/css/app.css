@@ -5,21 +5,30 @@ body {
     margin: 50px;
 }
 
-table {
+table.sites {
     margin: 20px 0 0 0;
 }
 
-th {
+table.sites th {
     border: 1px solid black;
     padding: 10px; /* Поля вокруг текста */
 
 }
 
-td {
+table.sites td {
     border: 1px solid black;
 }
 .span-error {
     color: red;
+}
+.tree-title {
+    font-size: 20px;
+}
+.settings-label-width {
+    width: 150px;
+}
+.tree-addbutton {
+    margin-right: 11px;
 }
 .table-cell {
     overflow:auto; width:800px; height:80px; padding: 10px;
@@ -35,4 +44,46 @@ td {
 
 .input-width {
     width: 400px;
+}
+
+.spinner {
+  width: 100px;
+  height: 100px;
+  background-image: url("../img/spin100x100.gif");
+  overflow: hidden;
+  position: absolute;
+  z-index: 1000;
+  margin: 50% 0 0 50%;
+}
+.spinner-small {
+    width: 34px;
+    height: 34px;
+    background-image: url("../img/spin34x34.gif");
+}
+
+.tree-node {
+    border: 1px solid #dae2ea;
+    background: #f8faff;
+    color: #7c9eb2;
+}
+.tree-node-content {
+    margin: 10px;
+}
+.tree-handle {
+    padding: 10px;
+    background: #428bca;
+    color: #FFF;
+    margin-right: 10px;
+}
+
+.angular-ui-tree-handle {
+    cursor: pointer;
+}
+
+.angular-ui-tree-placeholder {
+    background: #f0f9ff;
+    border: 2px dashed #bed2db;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
 }

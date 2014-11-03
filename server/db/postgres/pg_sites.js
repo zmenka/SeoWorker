@@ -28,7 +28,7 @@ PgSites.prototype.saveSite = function (url, raw_html, callback, errback) {
             VALUES ($1, $2, $3, $4);",
                 [url, date_create, raw_html, fileName],
                 function (res) {
-                    console.log("site saved in pg: ");
+                    console.log("site saved in pg");
                     callback();
                 },
                 function (err) {

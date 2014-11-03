@@ -5,7 +5,6 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
 var Api = require("./server/api");
-var DbInit = require("./server/db/mongo/db_init")
 
 var app = express();
 
@@ -26,7 +25,6 @@ app.use(express.static(path.join(__dirname, 'client/files')));
 app.use('/bower_components/', express.static(__dirname + '/bower_components/'))
 
 new Api(app);
-new DbInit();
 
 app.listen(app.get('port'), function() {
     console.log('Express server listening on port ' + app.get('port'));

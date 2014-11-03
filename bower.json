@@ -11,6 +11,8 @@
     "angular-resource": "~1.2.x",
     "angular-animate": "~1.2.x",
     "angular-bootstrap": "~0.11.2",
-    "angular-strap": "~2.1.2"
+    "angular-strap": "~2.1.2",
+    "angular-ui-tree": "~2.1.5",
+    "angular-motion": "~0.3.4"
   }
 }

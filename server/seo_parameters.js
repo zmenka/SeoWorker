@@ -10,7 +10,7 @@ var regexpSplit = /[\s,\-\.;:/\(\)!\?\[\]{}_\\\|~<>*\+=]+/;
  */
 SeoParameters.prototype.complianceStringsVal = function (text1, text2) {
     var matchWords = 0;
-    // - плохо очитывается!!!
+    // - плохо cчитывается!!!
     var words1 = text1.toLowerCase().split(regexpSplit).filter(function (e) {
         return e
     });

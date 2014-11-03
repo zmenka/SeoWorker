@@ -1,3 +1,8 @@
+DROP DATABASE IF EXISTS seo;
+CREATE DATABASE seo;
+
+\c seo;
+
 DROP TABLE IF EXISTS sites;
 CREATE TABLE sites
 (
