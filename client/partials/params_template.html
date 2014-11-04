@@ -1,7 +1,8 @@
 <div class="form-inline"   >
-  <label class="control-label" bs-tooltip  data-placement="bottom" data-title="{{param.name}}"
-      data-type="info" data-animation="am-fade-and-scale">
-    {{param.name}}: 
+  <label class="control-label" bs-tooltip  data-placement="left" data-title="{{param.description}}"
+      data-animation="am-fade-and-scale">
+    {{param.ru_name}}: 
   </label>
-  <span>{{param.val}}</span>
+  <span ng-show="param.success">{{param.val}}</span>
+  <span !ng-show="param.success">{{param.err}}</span>
 </div>

@@ -1,50 +1,61 @@
-<div ng-controller="MainCtrl" class="container">
-  <div class="col-md-4 panel panel-default">
-    
-    <h3>Список сайтов:
-      <a class="pull-right btn btn-primary btn-xs tree-addbutton" nodrag ng-click="collapsed=!collapsed"
-       ng-model="collapsed">
-        <span class="glyphicon glyphicon-plus"></span>
-      </a>
-      <span ng-show="loading" class="spinner"></span>
-    </h3>
-    
-    <div ng-show="collapsed">
-      <form class="form-inline">
-        <input type="text" class="form-control" style="width:288px" ng-model="formData.url" placeholder="Введите url сайта">
-        <button type="submit" class="btn btn-primary" ng-click="collapsed=!collapsed; newSite();">OK</button>
-      </form>
-    </div>
-    
-    <div ng-show="sites && sites.length>0"  ui-tree data-drag-enabled="false">
-      <ol ui-tree-nodes ng-model="sites">
-        <li ng-repeat="node in sites" ui-tree-node collapsed="true" ng-include="'partials/tree_template.html'"></li>
-      </ol>
+<div ng-controller="MainCtrl" class="container" >
+  
+  <div class="col-md-4">
+    <span ng-show="loading" class="spinner"></span>
+    <div class="panel panel-success">
+      <div class="panel-heading">Список сайтов
+        <a class="pull-right btn btn-primary btn-xs tree-addbutton" nodrag ng-click="collapsed=!collapsed"
+         ng-model="collapsed">
+          <span class="glyphicon glyphicon-plus"></span>
+        </a>
+      </div>
+      <div class="panel-body">
+        <div ng-show="collapsed">
+          <form class="form-inline">
+            <input type="text" class="form-control" style="width:257px" ng-model="formData.url" placeholder="Введите url сайта">
+            <button type="submit" class="btn btn-primary" ng-click="collapsed=!collapsed; newSite();">OK</button>
+          </form>
+        </div>
+        
+        <div ng-show="sites && sites.length>0"  ui-tree data-drag-enabled="false">
+          <ol ui-tree-nodes ng-model="sites">
+            <li ng-repeat="node in sites" ui-tree-node collapsed="true" ng-include="'partials/tree_template.html'"></li>
+          </ol>
+        </div>
+      </div>
     </div>
   </div>
   <div  class="col-md-8">
-    <div class="panel panel-default panel-body">
-      <h3 style="margin-top: 0px;">Настройки:</h3>  
-      <div class="form-inline">
-        <label class="control-label">Выбранный сайт: </label>
-        <span ng-show="formData.site">{{formData.site.url}}</span>
-        <span ng-show="!formData.site" >не выбран</span>
-      </div>
-      <br>
-      <div class="form-inline">
-          <label class="control-label">Ключевая фраза: </label>
-          <input type="text" class="form-control" style="width:400px;" ng-model="formData.keyWords" >          
-      </div>
-      <br>
-      <button type="button" class="btn btn-primary" ng-click="getParams()">Посчитать</button>
+    <div class="panel panel-success ">
+      <div class="panel-heading">Настройки</div> 
+      <div class="panel-body">
+        <div class="form-inline">
+          <label class="control-label">Выбранный сайт: </label>
+          <span ng-show="formData.site">{{formData.site.url}}</span>
+          <span ng-show="!formData.site" >не выбран</span>
+        </div>
+        <br>
+        <div class="form-inline">
+            <label class="control-label">Ключевая фраза: </label>
+            <input type="text" class="form-control" style="width:400px;" ng-model="formData.keyWords" >          
+        </div>
+        <br>
+        <button type="button" class="btn btn-primary" ng-click="getParams()">Рассчитать параметры</button>
+      </div> 
+      
     </div>
-    <div class="panel panel-default panel-body">
-      <h3 style="margin-top: 0px;">Параметры:</h3>  
-      <div ng-show="params" class="panel panel-default panel-body"  style="width:300px;">
-        <ul  class="list-group" >
-          <li class="list-group-item  panel-heading" ng-repeat="param in params" ng-include="'partials/params_template.html'">
-          </li>
-        </ul>
+    <div class="panel panel-info ">
+      <div class="panel-heading">
+        Параметры<br>
+        (для пояснения наведите курсор на название параметра)
+      </div> 
+      <div class="panel-body">
+        <div ng-show="params" class="panel panel-default panel-body" >
+          <ul  class="list-group" >
+            <li class="list-group-item  panel-heading" ng-repeat="param in params" ng-include="'partials/params_template.html'">
+            </li>
+          </ul>
+        </div>
       </div>
     </div>
   </div>

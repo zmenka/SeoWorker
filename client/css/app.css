@@ -1,8 +1,19 @@
 /* app css stylesheet */
 
-body {
+.app-content {
+  background-color: #f8faff;
+  padding-top: 20px;
+}
 
-    margin: 50px;
+.app-header {
+padding-top: 10px;
+padding-bottom: 10px;
+font-size: 24px;
+text-align: left;
+text-shadow: 0 1px 0 rgba(0,0,0,.1);
+background-color: #3071a9;
+color: #fff;
+top: 0;
 }
 
 table.sites {
@@ -53,7 +64,7 @@ table.sites td {
   overflow: hidden;
   position: absolute;
   z-index: 1000;
-  margin: 50% 0 0 50%;
+  margin: 50% 0 0 100%;
 }
 .spinner-small {
     width: 34px;

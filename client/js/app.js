@@ -10,7 +10,8 @@ var seoApp = angular.module('seoApp', [
     'seoDirectives',
     'mgcrea.ngStrap.popover',
     'mgcrea.ngStrap.tooltip',
-    'ui.tree'
+    'ui.tree',
+    'ngAnimate'
     
 ]);
 

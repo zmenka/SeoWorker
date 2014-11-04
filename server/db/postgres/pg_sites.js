@@ -42,7 +42,7 @@ PgSites.prototype.getSites = function (callback, errback) {
     PG.query("SELECT * FROM sites ORDER BY date_create desc;",
         [],
         function (res) {
-            console.log("sites count from pg: ", res.rows.count);
+            console.log("sites count from pg: ", res.rows.length);
             callback(res.rows);
         },
         function (err) {
@@ -54,7 +54,11 @@ PgSites.prototype.getSite = function (id, callback, errback) {
     PG.query("SELECT * FROM sites WHERE id = $1;",
         [id],
         function (res) {
-            console.log("site from pg: ", res);
+          if (!res.rows || res.rows.length != 1) {
+            errback("getSite, error: не найдено сайта!");
+            return;
+          }
+            console.log("site resieved from pg ");
             callback(res.rows[0]);
         },
         function (err) {

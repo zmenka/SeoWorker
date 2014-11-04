@@ -38,7 +38,7 @@ PG.prototype.transact = function (query, params, callback, errback, endTransacti
         if (endTransaction) {
             //disconnect after successful commit
             _this.client.query('COMMIT', function (res) {
-                console.log("results of commit:", res);
+                //console.log("results of commit:", res);
                 console.log("call callback after commit");
                 _this.client.end.bind(_this.client);
                 callback(result);

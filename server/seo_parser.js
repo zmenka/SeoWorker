@@ -6,13 +6,14 @@ function SeoParser() {
 };
 
 SeoParser.prototype.initDom = function (rawHtml, callback, errback ) {
+  _this = this;
     var handler = new htmlparser.DomHandler(function (error, dom) {
         if (error) {
             errback('error with pars html ' + error);
         }
         else {
             console.log("DOM done");
-            SeoParser.prototype.dom = dom;
+            _this.dom = dom;
             callback();
         }
 
@@ -24,7 +25,7 @@ SeoParser.prototype.initDom = function (rawHtml, callback, errback ) {
 }
 
 SeoParser.prototype.getTag = function (tagName ) {
-    return select(SeoParser.prototype.dom, tagName);
+    return select(this.dom, tagName);
 
 }
 
