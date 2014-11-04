@@ -79,6 +79,7 @@ table.sites td {
 }
 .tree-node-content {
     margin: 10px;
+    overflow: hidden;
 }
 .tree-handle {
     padding: 10px;
