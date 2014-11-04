@@ -80,6 +80,7 @@ table.sites td {
 .tree-node-content {
     margin: 10px;
     overflow: hidden;
+    word-wrap: break-word;
 }
 .tree-handle {
     padding: 10px;
