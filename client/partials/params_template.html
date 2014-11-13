@@ -3,6 +3,6 @@
       data-animation="am-fade-and-scale">
     {{param.ru_name}}: 
   </label>
-  <span ng-show="param.success">{{param.val}}</span>
+  <span ng-show="param.success" ng-bind-html='param.val'></span>
   <span !ng-show="param.success">{{param.err}}</span>
 </div>

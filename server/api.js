@@ -69,7 +69,7 @@ module.exports = function Api(app) {
         try {
           new PgSites().getSite(req.body.site_id, function (site) {
               var params = new SeoParameters();
-              params.init(req.body.key_words, site.raw_html, function () {
+              params.init(req.body.key_words, site.url, site.raw_html, function () {
                   var params_res = params.getAllParams();
                   callback(params_res, res);
               }, function (err1) {

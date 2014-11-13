@@ -26,10 +26,12 @@ SeoParameters.prototype.complianceStringsVal = function (text1, text2) {
     if (words2.length > maxLength) {
         maxLength = words2.length;
     }
+    /*
     console.log('параметр по среднему, 1 фраза', text1, '2 фраза ', text2);
     console.log(words1.toString());
     console.log(words2.toString());
     console.log("макс длина", maxLength, "совпадающие слова", matchWords)
+    */
     if (maxLength > 0) {
         return (matchWords * 100 / maxLength);
     } else {
@@ -41,8 +43,9 @@ SeoParameters.prototype.complianceStrings = function (text1, text2) {
     var res = this.complianceStringsVal(text1,text2);
     return res.toFixed(2) + '%';
 }
-SeoParameters.prototype.init = function (keyText, rawHtml, callback, errback) {
+SeoParameters.prototype.init = function (keyText, url, rawHtml, callback, errback) {
     this.keyText = keyText;
+    this.url = url;
     this.parser = new SeoParser();
     this.parser.initDom(rawHtml, callback, errback);
 }
@@ -137,22 +140,24 @@ SeoParameters.prototype.getAllParams = function () {
   h3LengthAvg.ru_name = "Длина в символах h3 avg"; 
   h3LengthAvg.description = "Взвешенная длина в символах тега h3";
 
+  var sList = this.tryCatch(this.getSearchPicksConcat, []);
+  sList.name = "sList";
+  sList.ru_name = "Выдача"; 
+  sList.description = "Посиковая выдача на страничке (google,yandex)";
+
   var params = [
-         titleCS, h1CS, h2CS, h3CS, h2Count, h3Count,
+         sList,titleCS, h1CS, h2CS, h3CS, h2Count, h3Count,
          h2CSAvg, h3CSAvg, titleLength, h1Length, 
          h2Length, h2LengthFirst, h2LengthAvg, 
          h3Length, h3LengthFirst, h3LengthAvg
   ];
   return params;
-}
-
-
-
+}  
 //процент вхождения фразы в первом тэге tag
 SeoParameters.prototype.tagCSFirst = function (tag) {
     
     if (this.parser.getTag(tag).length>0) {
-        console.log("процент вхождения фразы для ", tag);
+        //console.log("процент вхождения фразы для ", tag);
         var data = getData(this.parser.getTag(tag)[0].children);
         return this.complianceStrings(data, this.keyText)
     }
@@ -164,7 +169,7 @@ SeoParameters.prototype.tagCS = function (tag) {
     var res = [];
     if (tags.length>0) {
         for (var i=0; i<tags.length; i++) {
-            console.log("процент вхождения фразы для ", tag, i);
+            //console.log("процент вхождения фразы для ", tag, i);
             var data = getData(tags[i].children);
             var num = 1 + i;
             res.push(this.complianceStrings(data, this.keyText))
@@ -182,6 +187,10 @@ SeoParameters.prototype.prettyTagCS = function (tag) {
       res1 += i + " - "  + res[i-1] + "; ";
   }
   return res1;
+}
+//this.parser.getTag
+SeoParameters.prototype.getTag = function (tag) {
+  return this.parser.getTag(tag);
 }
 //средний процент вхождения фразы среди всех тэгов tag
 SeoParameters.prototype.tagCSAvg = function (tag) {
@@ -255,6 +264,66 @@ function getData(obj) {
         }
     }
     return out;
+}
+
+//по 
+SeoParameters.prototype.getSearchSystem = function (url) {
+    if(url.indexOf('google') > -1)
+        return 'google';
+    if(url.indexOf('yandex') > -1)
+        return 'yandex';
+    return undefined;
+}
+//получаем поисковыую выдачу
+//{url: .. , title: .. ,}
+//TODO это реклама?
+SeoParameters.prototype.getSearchPicks = function () {
+    var searchSystem = this.getSearchSystem(this.url);
+    if (searchSystem == undefined)
+        return undefined;
+    var res = [];
+    var aHref = '';
+    //маска построения результата выдачи 
+    //в зависимости от посиковой системы
+    var aMask = '';
+    if (searchSystem == 'google')
+        aMask = 'li h3 a';
+    if (searchSystem == 'yandex')
+        aMask = 'h2 a';
+    //парсим страницу
+    var a = this.getTag(aMask);
+    //получаем URL-ы и title-ы
+    for (i in a){
+        var el = {};
+        var tmp = a[i];
+        //если нет атрибутов, то выходим
+        if(!tmp.hasOwnProperty('attribs'))
+            continue;
+        //если не отображается, то выходим
+        if(tmp.attribs['style'] == 'display:none')
+            continue;
+        //если нет URL-а, то выходим
+        if(tmp.attribs['href'] == undefined)
+            continue;
+        //получаем URL
+        el.url = tmp.attribs['href'];
+        //получаем title
+        el.title = getData(tmp);
+        //кладем в результат
+        res.push(el);
+    }
+    return res;
+}
+//получаем строку из списка выдачи + ссылка
+SeoParameters.prototype.getSearchPicksConcat = function () {
+    var aHref = '';
+    //парсим страницу
+    var a = this.getSearchPicks();
+    //получаем URL-ы и title-ы
+    for (i in a){
+        aHref = aHref + '<br>' + a[i].title + ' - <a href = "' + a[i].url + '" >' + 'ссылка' + '</a>'; 
+    }
+    return aHref;
 }
 
 module.exports = SeoParameters;
