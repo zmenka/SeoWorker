@@ -35,7 +35,7 @@ Searcher.prototype.getContentByUrl = function (url, callback, errback) {
             url: url,
             followAllRedirects: true,
             headers: {
-                'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.153 Safari/537.36',
+                 'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.153 Safari/537.36',
                 'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
                 'Accept-Charset': 'utf-8;q=0.7,*;q=0.5',
                 'Connection': 'keep-alive',

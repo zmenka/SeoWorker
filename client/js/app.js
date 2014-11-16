@@ -10,14 +10,18 @@ var seoApp = angular.module('seoApp', [
     'seoDirectives',
     'mgcrea.ngStrap.popover',
     'mgcrea.ngStrap.tooltip',
+    'mgcrea.ngStrap.modal',
     'ui.tree',
     'ngAnimate',
     'ngSanitize'
     
 ]);
 
-seoApp.config([ '$routeProvider',
-    function ($routeProvider) {
+seoApp.config(['$modalProvider', '$routeProvider',
+    function ($modalProvider, $routeProvider) {
+        angular.extend($modalProvider.defaults, {
+            html: true
+        });
         $routeProvider
             .when('/', {
                 templateUrl: 'partials/main.html',
@@ -26,6 +30,10 @@ seoApp.config([ '$routeProvider',
             .when('/sites', {
                 templateUrl: 'partials/sites.html',
                 controller: 'SitesCtrl'
+            })
+            .when('/captcha_test', {
+                templateUrl: 'partials/captcha_test.html',
+                controller: 'CaptchaTestCtrl'
             })
             .otherwise({
                 redirectTo: '/'

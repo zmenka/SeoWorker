@@ -29,4 +29,14 @@ SeoParser.prototype.getTag = function (tagName ) {
 
 }
 
+SeoParser.prototype.getByClassName = function (className ) {
+    return select(this.dom, '.' + className);
+
+}
+SeoParser.prototype.getById = function (id ) {
+    return select(this.dom, '#' + id);
+
+}
+
+
 module.exports = SeoParser;

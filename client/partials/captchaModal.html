@@ -1,0 +1,23 @@
+<div class="modal" tabindex="-1" role="dialog" data-animation="am-fade-and-scale">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header" ng-show="title">
+                <button type="button" class="close" ng-click="answer(false); $hide()">&times;</button>
+                <h4 class="modal-title" ng-bind="title"></h4>
+            </div>
+            <div id="modalContentDiv" class="modal-body modalText">
+                <div class="form-group">
+                    <img ng-src='{{content}}'>
+                </div>
+                <div class="form-group">
+                    <input type="text" class="form-control" style="max-width:250px"
+                           placeholder="Введите, пожалуйста, капчу" ng-model="captcha">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" ng-click="answer(true, captcha)">Ok</button>
+                    <button type="button" class="btn btn-default" ng-click="answer(false)">Отмена</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

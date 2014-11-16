@@ -1,10 +1,23 @@
-var PG = require("./server/db/postgres/pg");
+var BunSearcher = require("./server/bun_searcher");
+//var fileName = path.dirname(require.main.filename) + "/client/files/CAPTCHA/0.html";
+//fs.readFile(fileName, function (err, data) {
+//    if (err) throw 'Ошибка при чтении файла ' + err;
+//    new BunSearcher().checkCaptcha(data)
+//})
+//new BunSearcher().sendCaptcha({}, function (res) {
+//    console.log('res')
+//
+//}, function (err) {
+//    console.log(err)
+//})
 
-PG.query('INSE123RT INTO sites(date_create) VALUES($1);', [new Date()], function(res){
-        console.log("res", res);
-}, function(err){
-    console.log("ERROR", err)
-})
+//var PG = require("./server/db/postgres/pg");
+
+//PG.query('INSE123RT INTO sites(date_create) VALUES($1);', [new Date()], function(res){
+//        console.log("res", res);
+//}, function(err){
+//    console.log("ERROR", err)
+//})
 
 //var pg = new PG(function(){
 //

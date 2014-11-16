@@ -1,0 +1,25 @@
+<div ng-controller="CaptchaTestCtrl" class="container" >
+    <h3>Тестирование капчи</h3>
+    <div class="form-group">
+        Для тестирования капчи нажмите "Начать".
+        <br>
+        Сервер пошлет заведомо "плохой" запрос поисковику,поисковик вернет капчу.
+        <br>
+        Вам выведется модальное окно с изображением капчи, где нужно ввести то, что
+        изображено на рисунке и нажать "ОК".
+        <br>
+        Затем сервер повторно отправит запрос и вернет результат.
+        <br>
+        Если Вы введете капчу неправильно, Вам заново выведется модальное окно.
+    </div>
+    <div class="form-group">
+        <label>Тестовый адрес</label>
+        <input type="text" class="form-control" style="max-width: 800px;" ng-model="test_url">
+    </div>
+    <div class="form-group">
+        <label >Текущее состояние</label>
+        <textarea rows="2" style="resize:none; max-width: 800px;" ng-disabled="true" class="form-control" ng-model="state"/>
+    </div>
+
+    <button type="submit" class="btn btn-primary" ng-click="test()">Начать</button>
+</div>

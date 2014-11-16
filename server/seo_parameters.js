@@ -59,6 +59,14 @@ SeoParameters.prototype.tryCatch = function (func, params) {
     }
 };
 
+SeoParameters.prototype.parse = function () {
+    var sList = this.tryCatch(this.getSearchPicksArray, []);
+    sList.name = "sList";
+    sList.ru_name = "Выдача";
+    sList.description = "Поисковая выдача на страничке (google,yandex)";
+    return sList;
+}
+
 SeoParameters.prototype.getAllParams = function () {
   var titleCS = this.tryCatch(this.tagCSFirst, ["title"]);
   titleCS.name = "titleCS";
@@ -322,6 +330,18 @@ SeoParameters.prototype.getSearchPicksConcat = function () {
     //получаем URL-ы и title-ы
     for (i in a){
         aHref = aHref + '<br>' + a[i].title + ' - <a href = "' + a[i].url + '" >' + 'ссылка' + '</a>'; 
+    }
+    return aHref;
+}
+
+//получаем массив ссылок из списка выдачи + ссылка
+SeoParameters.prototype.getSearchPicksArray = function () {
+    var aHref = [];
+    //парсим страницу
+    var a = this.getSearchPicks();
+    //получаем URL-ы и title-ы
+    for (i in a){
+        aHref = aHref.push({title: a[i].title, url: a[i].url});
     }
     return aHref;
 }
