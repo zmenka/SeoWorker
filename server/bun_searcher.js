@@ -110,11 +110,11 @@ BunSearcher.prototype.test = function (data, headers, callback, errback) {
 
             _this.getCaptcha(raw_html,
                 function (captcha) {
-                    fs.writeFile(fileDir + fileName, raw_html, function (err) {
-                        if (err) {
-                            errback("Ошибка при сохранении в файл " + err);
-                        } else {
-                            console.log("Файл сохранен в ", fileName);
+//                    fs.writeFile(fileDir + fileName, raw_html, function (err) {
+//                        if (err) {
+//                            errback("Ошибка при сохранении в файл " + err);
+//                        } else {
+//                            console.log("Файл сохранен в ", fileName);
                             if (captcha) {
                                 callback({captcha: true, res: captcha, cookies: cookies});
                             } else {
@@ -122,7 +122,7 @@ BunSearcher.prototype.test = function (data, headers, callback, errback) {
                                 callback({captcha: false, res: raw_html, cookies: cookies});
                             }
 
-                        }
+//                        }
                     });
 
 
