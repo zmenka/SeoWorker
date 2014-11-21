@@ -1,10 +1,14 @@
-var PG = require("./server/db/postgres/pg");
+var PgSearch = require("./server/db/postgres/pg_search");
 
-PG.query('INSE123RT INTO sites(date_create) VALUES($1);', [new Date()], function(res){
-        console.log("res", res);
-}, function(err){
-    console.log("ERROR", err)
-})
+new PgSearch().saveSearch('test', 'searchSystem', url, raw_html)
+
+//var PG = require("./server/db/postgres/pg");
+//
+//PG.query('INSE123RT INTO sites(date_create) VALUES($1);', [new Date()], function(res){
+//        console.log("res", res);
+//}, function(err){
+//    console.log("ERROR", err)
+//})
 
 //var pg = new PG(function(){
 //

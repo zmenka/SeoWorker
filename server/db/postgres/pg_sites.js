@@ -29,7 +29,8 @@ PgSites.prototype.saveSite = function (url, raw_html, callback, errback) {
                 [url, date_create, raw_html, fileName],
                 function (res) {
                     console.log("site saved in pg");
-                    callback();
+                    console.log(id);
+                    callback(id);
                 },
                 function (err) {
                     errback("PG.saveSite " + err);
@@ -58,7 +59,7 @@ PgSites.prototype.getSite = function (id, callback, errback) {
             errback("getSite, error: не найдено сайта!");
             return;
           }
-            console.log("site resieved from pg ");
+            console.log("site received from pg ");
             callback(res.rows[0]);
         },
         function (err) {

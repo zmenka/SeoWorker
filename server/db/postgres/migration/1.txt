@@ -3,12 +3,26 @@ CREATE DATABASE seo;
 
 \c seo;
 
-DROP TABLE IF EXISTS sites;
+DROP TABLE IF EXISTS search CASCADE;
+CREATE TABLE search
+(
+  ID serial primary key,
+  QUERY character varying,                   -- Текст запроса (например: 'телевизоры Екатеринбург')
+  SEARCH_SYSTEM character varying,           -- Поисковая система (например: 'google')
+  SITE_ID integer,                           -- ID страницы сайта, с которой получали поисковую выдачу
+  DATE_CREATE timestamp with time zone       -- Время создания записи
+);
+
+DROP TABLE IF EXISTS sites CASCADE;
 CREATE TABLE sites
 (
-  id serial primary key,
-  url character varying,
-  date_create timestamp with time zone,
-  raw_html character varying,
-  path character varying
+  ID serial primary key,
+  URL character varying,                     -- URL страницы сайта
+  RAW_HTML character varying,                -- HTML-содержимое страницы
+  PATH character varying,                    -- путь до файла с HTML-содержимым
+  SEARCH_ID integer references search(id),   -- ID запроса, по которому получена страница сайта
+  DATE_CREATE timestamp with time zone       -- Время создания записи
 );
+
+-- создаем ссылочку на Страницу с которой получали поисковую выдачу
+ALTER TABLE search ADD CONSTRAINT search_site_fkey FOREIGN KEY (SITE_ID) REFERENCES sites (ID) MATCH FULL;
