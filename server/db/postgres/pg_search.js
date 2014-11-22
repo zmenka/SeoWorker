@@ -1,9 +1,33 @@
 /**
- * Created by bryazginnn on 14.11.14.
+ * Created by bryazginnn on 22.11.14.
+ * 
+ *  
+ *  var PgSearch = require("./server/db/postgres/pg_search");
+ *  var search = new PgSearch();
+ * 
+ *  //вставить строку в таблицу search
+ *  search.insert (
+ *      <condition_id>,
+ *      <html_id>,
+ *      <callback>,
+ *      <errback>
+ *  ) 
+ *    returns <new search_id>
+ * 
+ *  //получить все строки из search
+ *  search.list (<callback>,<errback>) 
+ *    returns [{search_id , condition_id , ...}, ...]
+ * 
+ *  //получить строку из search с помощью search_id
+ *  search.get (<search_id>,<callback>,<errback>) 
+ *    returns {search_id , condition_id , ...}
+ * 
+ *  //получить строки из search с помощью condition_id
+ *  search.find (<condition_id>,<callback>,<errback>) 
+ *    returns [{search_id , condition_id , ...}, ...]
  */
 
 var PG = require('./pg');
-var PgSites = require('./pg_sites');
 var fs = require('fs');
 var path = require('path');
 
@@ -11,61 +35,75 @@ function PgSearch() {
 
 };
 
-PgSearch.prototype.saveSearch = function (query, search_system, url, raw_html, callback, errback) {
+PgSearch.prototype.insert = function (condition_id, html_id, callback, errback) {
 
-    new PgSites().saveSite(
-        url, 
-        raw_html,
-        function(res){
-            console.log("PgSearch.prototype.saveSearch");
-            console.log("res");
-            console.log(res);
-            var date_create = new Date();
-            var site_id = res;
-            console.log("Сохранена страница сайта id = ", site_id);
-            // create a Site
-            PG.query("INSERT INTO search (query, search_system, site_id, date_create)\
-            VALUES ($1, $2, $3, $4);",
-                [query, search_system, site_id, date_create],
+    var date_create = new Date();
+    // create a Url
+    var db = new PG(
+        function(){
+            db.transact(
+                "INSERT INTO search (condition_id, html_id, date_create) VALUES ($1, $2, $3);",
+                [condition_id, html_id, date_create],
                 function (res) {
-                    console.log("search saved in pg");
-                    callback();
+                    db.transact(
+                        "SELECT currval(pg_get_serial_sequence('search','search_id'))",
+                        [],
+                        function(res){
+                            console.log("param saved");
+                            callback(res.rows[0].currval);
+                        },
+                        function(err){
+                            console.log('PgSearch.prototype.insert 1');
+                            console.log(err);
+                        },
+                        true)
                 },
                 function (err) {
-                    errback("PgSearch.saveSearch, pg error" + err);
-                });
+                    console.log('PgSearch.prototype.insert 2');
+                    console.log(err); 
+                }
+            );
         },
         function(err){
-            errback("PgSearch.saveSite" + err);
+            console.log('PgSearch.prototype.insert 3');
+            console.log(err);
         }
     );
 }
 
-PgSearch.prototype.getSearchList = function (callback, errback) {
+PgSearch.prototype.list = function (callback, errback) {
     PG.query("SELECT * FROM search ORDER BY date_create desc;",
         [],
         function (res) {
-            console.log("search count from pg: ", res.rows.length);
             callback(res.rows);
         },
         function (err) {
-            errback("PgSearch.getSearchList, pg error" + err);
+            console.log('PgSearch.prototype.list');
+            console.log(err);
         })
 }
 
-PgSearch.prototype.getSearch = function (id, callback, errback) {
-    PG.query("SELECT * FROM search WHERE id = $1;",
+PgSearch.prototype.get = function (id, callback, errback) {
+    PG.query("SELECT * FROM search WHERE search_id = $1;",
         [id],
         function (res) {
-          if (!res.rows || res.rows.length != 1) {
-            errback("PgSearch.getSearch, error: не найдено такой записи!");
-            return;
-          }
-            console.log("search received from pg ");
             callback(res.rows[0]);
         },
         function (err) {
-            errback("PgSearch.getSearch, pg error" + err);
+            console.log('PgSearch.prototype.get');
+            console.log(err);
+        })
+}
+
+PgSearch.prototype.find = function (condition_id, callback, errback) {
+    PG.query("SELECT * FROM search WHERE condition_id = $1;",
+        [condition_id],
+        function (res) {
+            callback(res.rows);
+        },
+        function (err) {
+            console.log('PgSearch.prototype.find');
+            console.log(err);
         })
 }
 

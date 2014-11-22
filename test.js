@@ -1,6 +1,18 @@
-var PgSearch = require("./server/db/postgres/pg_search");
-
-new PgSearch().saveSearch('test', 'searchSystem', url, raw_html)
+var PgRoles = require("./server/db/postgres/pg_roles");
+var roles = new PgRoles();
+ 
+ //получить все строки из roles
+roles.find (
+   'admiN',
+   function(res){
+      r = res;
+      console.log('res');
+      console.log(res);
+  }, 
+  function(err){
+      console.log('err');
+      console.log(err);  
+  }); 
 
 //var PG = require("./server/db/postgres/pg");
 //
