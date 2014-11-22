@@ -1,4 +1,4 @@
-var BunSearcher = require("./server/bun_searcher");
+//var BunSearcher = require("./server/bun_searcher");
 //var fileName = path.dirname(require.main.filename) + "/client/files/CAPTCHA/0.html";
 //fs.readFile(fileName, function (err, data) {
 //    if (err) throw 'Ошибка при чтении файла ' + err;
@@ -13,6 +13,24 @@ var BunSearcher = require("./server/bun_searcher");
 
 //var PG = require("./server/db/postgres/pg");
 
+var PgRoles = require("./server/db/postgres/pg_roles");
+var roles = new PgRoles();
+ 
+ //получить все строки из roles
+roles.find (
+   'admiN',
+   function(res){
+      r = res;
+      console.log('res');
+      console.log(res);
+  }, 
+  function(err){
+      console.log('err');
+      console.log(err);  
+  }); 
+
+//var PG = require("./server/db/postgres/pg");
+//
 //PG.query('INSE123RT INTO sites(date_create) VALUES($1);', [new Date()], function(res){
 //        console.log("res", res);
 //}, function(err){
