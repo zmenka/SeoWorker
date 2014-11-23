@@ -1,6 +1,9 @@
-var Searcher = require("./searcher");
-var PgSites = require("./db/postgres/pg_sites");
-var SeoParameters = require("./seo_parameters");
+var PgUsurls = require("./db/postgres/pg_usurls");
+var PgTasks = require("./db/postgres/pg_tasks");
+var PgSearch = require("./db/postgres/pg_search");
+
+var Core = require("./core");
+
 var BunSearcher = require("./bun_searcher");
 var callback = function (data, response) {
     response.json(data);
@@ -18,98 +21,88 @@ module.exports = function Api(app) {
 
 // api ---------------------------------------------------------------------
 
-// get all sites
-    app.get('/api/sites', function (req, res, next) {
-        console.log('/api/sites ALL');
-        // use mongoose to get all sites in the database
-        new PgSites().getSites(function (sites) {
-            callback(sites, res);
-        }, function (err) {
-            errback(err, res);
-        })
+// get all sites and tasks
+    app.get('/api/user_sites_and_tasks', function (req, res, next) {
+        console.log('/api/user_sites_and_tasks');
+
+        new PgUsurls().listWithTasks()
+            .then(function (sites) {
+                callback(sites, res);
+            })
+            .catch(function (err) {
+                errback(err, res);
+            })
 
     });
 
-    app.get('/api/sites/:id', function (req, res, next) {
-        console.log('/api/sites/:id', req.params);
-        new PgSites().getSite(req.params.id, function (site) {
-
-            callback(site, res);
-        }, function (err) {
-            errback(err, res);
-        })
-    });
-
-// create Site
-    app.post('/api/sites', function (req, res, next) {
-        console.log('/api/sites create', req.body);
+    app.post('/api/create_site', function (req, res, next) {
+        console.log('/api/create_site', req.body);
         res.statusCode = 200;
 
-        var searcher = new Searcher();
-        searcher.getContentByUrl(req.body.url,
-            function (body) {
-                new PgSites().saveSite(req.body.url, body, function () {
-                    callback("ok", res);
-                }, function (err) {
-                    errback(err, res);
-                });
+        if (!req.body.url) {
+            errback("не найден параметр url ", res);
+            return;
+        }
 
-            },
-            function (err) {
+        new PgUsurls().insertWithUrl(req.body.url)
+            .then(function (db_res) {
+                callback(db_res, res);
+            })
+            .catch(function (err) {
                 errback(err, res);
-            });
+            })
+    });
+
+    app.post('/api/create_task', function (req, res, next) {
+        console.log('/api/create_site', req.body);
+        res.statusCode = 200;
+
+        if (!req.body.usurl_id || !req.body.condition_query) {
+            errback("не найдены параметры usurl_id или condition_query", res);
+            return;
+        }
+
+        new PgTasks().insertWithCondition(req.body.usurl_id, req.body.condition_query, 2)
+            .then(function (db_res) {
+                callback(db_res, res);
+            })
+            .catch(function (err) {
+                errback(err, res);
+            })
+    });
+
+    app.get('/api/calc_params', function (req, res, next) {
+        console.log('/api/calc_params', req.params);
+        if (!req.params.condition_id) {
+            errback("не найдены параметры condition_id", res);
+            return;
+        }
+        new Core().calcParams(req.params.condition_id)
+            .then(function (params) {
+                callback(params, res);
+
+            })
+            .catch(function (err) {
+                errback(err, res);
+            })
 
     });
 
-    app.post('/api/calculation', function (req, res, next) {
-        console.log('/api/calculation', req.body);
-        if (!req.body.site_id || !req.body.key_words) {
-            errback("не найдены параметры site_id или key_words", res);
+    app.get('/api/get_params', function (req, res, next) {
+        console.log('/api/get_params', req.params);
+        if (!req.params.condition_id) {
+            errback("не найдены параметры condition_id", res);
             return;
         }
-        try {
-            new PgSites().getSite(req.body.site_id, function (site) {
-                var params = new SeoParameters();
-                params.init(req.body.key_words, site.url, site.raw_html, function () {
-                    var params_res = params.getAllParams();
-                    callback(params_res, res);
-                }, function (err1) {
-                    console.log("Ошбика при подсчете titleCS", err);
-                    errback(err1, res);
-                });
+        new PgSearch().listWithParams(req.params.condition_id)
+            .then(function (params) {
+                callback(params, res);
 
-            }, function (err) {
+            })
+            .catch(function (err) {
                 errback(err, res);
             })
-        } catch (e) {
-            errback(e, res);
-        }
-    });
 
-    app.post('/api/parse', function (req, res, next) {
-        console.log('/api/parse', req.body);
-        if (!req.body.site_id || !req.body.key_words) {
-            errback("не найдены параметры site_id или key_words", res);
-            return;
-        }
-        try {
-            new PgSites().getSite(req.body.site_id, function (site) {
-                var params = new SeoParameters();
-                params.init(req.body.key_words, site.url, site.raw_html, function () {
-                    var params_res = params.parse();
-
-                    callback(params_res, res);
-                }, function (err1) {
-                    console.log("Ошбика при подсчете titleCS", err);
-                    errback(err1, res);
-                });
-
-            }, function (err) {
-                errback(err, res);
-            })
-        } catch (e) {
-            errback(e, res);
-        }
     });
 
 

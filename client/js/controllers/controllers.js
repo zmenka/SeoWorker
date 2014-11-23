@@ -2,85 +2,25 @@
 /* Controllers */
 var seoControllers = angular.module('seoControllers', []);
 
-seoControllers.controller('SitesCtrl', ['$scope', '$window', 'SiteService', 'Params',
-    function ($scope, $window, SiteService, Params) {
-
-        $scope.formData = {url: 'facebook.com', keyWords: 'Добро пожаловать'};
-        $scope.error = {msg: ""};
-
-        var load = function () {
-            SiteService.query({},
-                function (result) {
-                    console.log('sites are reseived');
-                    $scope.sites = result;
-                },
-                function (response) {
-                    console.log('get sites return ERROR!', response);
-                    $scope.sites = [];
-                });
-        };
-        load();
-
-
-        // when submitting the add site, send the text to the node API
-        $scope.createSite = function () {
-            $scope.error.msg = "";
-            //console.log($scope.formData);
-            SiteService.save($scope.formData,
-                function () {
-                    $scope.formData = {};
-                    $scope.error.msg = "";
-                    console.log('site is saved');
-                    load();
-                },
-                function (response) {
-                    console.log('site is saved WITH ERROR!', response);
-                });
-
-        };
-
-        $scope.getParams = function (site) {
-            site.params = 'грузятся...';
-            Params.calculation({ site_id: site.id, key_words: $scope.formData.keyWords})
-                .then(function (res) {
-//                var url = 'files/' + site.path;
-//                console.log(url);
-//                $window.open(url);
-                    console.log("параметры получены");
-                    site.params = '';
-                    for (var key in res.data) {
-                        site.params += res.data[key].name + ': ' + res.data[key].val + '<br>';
-                    }
-
-
-                })
-                .catch(function (err) {
-                    console.log("параметры НЕ получены, ", err)
-                    site.params = 'ошибка при получении';
-                })
-        }
-
-    }]);
-
-
-seoControllers.controller('MainCtrl', ['$scope', 'SiteService', 'Params', 'CaptchaModal',
-    function ($scope, SiteService, Params, CaptchaModal) {
-
-        $scope.formData = {keyWords: 'Добро пожаловать', site: null, url: ""};
+seoControllers.controller('MainCtrl', ['$scope', 'Api', 'CaptchaModal',
+    function ($scope, Api, CaptchaModal) {
+        $scope.formData = { url: ""};
+        $scope.site = null;
         $scope.sites = [];
+        $scope.origin_site = null;
         $scope.params = [];
         $scope.loading = false;
 
         var load = function () {
             $scope.loading = true;
-            SiteService.query({},
-                function (result) {
+            Api.user_sites_and_tasks()
+                .then(function (res) {
                     console.log('sites are reseived');
-                    $scope.sites = createTree(result);
+                    $scope.sites = createTree(res.data);
                     $scope.loading = false;
-                },
-                function (response) {
-                    console.log('get sites return ERROR!', response);
+                })
+                .catch(function (err) {
+                    console.log('get sites return ERROR!', err);
                     $scope.sites = [];
                     $scope.loading = false;
                 });
@@ -95,32 +35,45 @@ seoControllers.controller('MainCtrl', ['$scope', 'SiteService', 'Params', 'Captc
             for (var i = 0; i < sites.length; i++) {
                 var f = function (site) {
                     //console.log("site", site);
-                    var domen = sites[i].url.match(/(?:http:\/\/|https:\/\/|)(?:www.|)([^\/]+)\/?(.*)/)[1];
-                    //console.log("domen", domen);
+                    //var domen = sites[i].url.match(/(?:http:\/\/|https:\/\/|)(?:www.|)([^\/]+)\/?(.*)/)[1];
+                    //console.log("dom
+                    // en", domen);
+
                     var result = tree.filter(function (v) {
-                        return v.title === domen;
+                        return v.title === site.url;
                     })
                     //console.log("match", result);
-                    var s = {title: sites[i].url, nodes: [], id: sites[i].id, url: sites[i].url,
-                        date_create: sites[i].date_create, raw_html: sites[i].raw_html};
-                    if (result.length > 0) {
-                        result[0].nodes.push(s);
+                    if (!site.task_id) {
+                        var s = null
                     } else {
-                        tree.push({title: domen, nodes: [s]});
+                        var s = {title: site.condition_query, nodes: [], usurl_id: site.usurl_id, task_id: site.task_id, url: site.url,
+                            condition_id: site.condition_id, condition_query: site.condition_query};
                     }
+                    var row
+                    if (result.length > 0) {
+                        row = result[0];
+                    } else {
+                        row = {title: site.url, usurl_id: site.usurl_id, nodes: []}
+                        tree.push(row)
+                    }
+                    if (s) {
+                        row.nodes.push(s)
+                    }
+
+
                 };
                 f(sites[i]);
             }
-            //console.log(sites, tree);
+            console.log(sites, tree);
             return tree;
         };
 
         $scope.getParams = function () {
-            if (!$scope.formData.keyWords || !$scope.formData.site) {
+            if (!$scope.site) {
                 return;
             }
             $scope.loading = true;
-            Params.calculation($scope.formData.site.id,  $scope.formData.keyWords)
+            Api.get_params($scope.site.condition_id)
                 .then(function (res) {
 //                var url = 'files/' + site.path;
 //                console.log(url);
@@ -136,6 +89,28 @@ seoControllers.controller('MainCtrl', ['$scope', 'SiteService', 'Params', 'Captc
                 })
         }
 
+        $scope.calcParams = function () {
+            if (!$scope.site) {
+                return;
+            }
+            $scope.loading = true;
+            Api.calc_params($scope.site.condition_id)
+                .then(function (res) {
+//                var url = 'files/' + site.path;
+//                console.log(url);
+//                $window.open(url);
+                    console.log("параметры получены");
+                    $scope.params = res.data;
+                    $scope.loading = false;
+                })
+                .catch(function (err) {
+                    console.log("параметры НЕ получены, ", err)
+                    $scope.params = [];
+                    $scope.loading = false;
+                })
+        }
+
+
         $scope.remove = function (scope) {
             //console.log("remove");
             scope.remove();
@@ -146,36 +121,68 @@ seoControllers.controller('MainCtrl', ['$scope', 'SiteService', 'Params', 'Captc
             scope.toggle();
         };
 
+        $scope.addTask = function (params) {
+            console.log("addTask", params);
+
+            if (!params.usurl_id || !params.condition_query) {
+                return;
+            }
+            $scope.loading = true;
+            Api.create_task(params.usurl_id, params.condition_query)
+                .then(function () {
+                    console.log('task is saved');
+                    load();
+                    $scope.loading = false;
+                })
+                .catch(function (response) {
+                    console.log('task is saved WITH ERROR!', response);
+                    $scope.loading = false;
+                })
+        };
+
         $scope.newSite = function () {
-            //console.log("newSite");
+            console.log("newSite");
             if (!$scope.formData.url) {
                 return;
             }
             $scope.loading = true;
-            SiteService.save({url: $scope.formData.url},
-                function () {
+            Api.create_site($scope.formData.url)
+                .then(function () {
                     $scope.formData.url = "";
                     console.log('site is saved');
                     load();
                     $scope.loading = false;
-                },
-                function (response) {
+                })
+                .catch(function (response) {
                     console.log('site is saved WITH ERROR!', response);
                     $scope.loading = false;
-                }
-            );
+                })
         };
 
         $scope.select = function (scope) {
             //console.log("select");
             var nodeData = scope.$modelValue;
-            if (nodeData.id) {
-                $scope.formData.site = nodeData;
+            if (nodeData.task_id) {
+                $scope.site = JSON.parse(JSON.stringify(nodeData));
+                $scope.origin_site = nodeData;
                 $scope.params = [];
             }
-            ;
+
         };
 
+        $scope.changeSettings = function () {
+            var res = false;
+            if ($scope.site) {
+                //console.log("site_origin", $scope.origin_site, $scope.site)
+                if (JSON.stringify($scope.origin_site) != JSON.stringify($scope.site))
+                    res = true;
+            }
+            return res;
+        }
+
+        $scope.saveSettings = function () {
+
+        }
 
     }]);
 
@@ -188,13 +195,13 @@ seoControllers.controller('CaptchaTestCtrl', ['$scope', 'CaptchaModal', 'Captcha
 
         $scope.test = function () {
             $scope.state = "Посылаем запрос к яндексу"
-            Captcha.test($scope.test_url, $scope.captcha, $scope.cookies )
+            Captcha.test($scope.test_url, $scope.captcha, $scope.cookies)
                 .then(function (res) {
                     console.log("первый результат", res.data)
                     $scope.cookies = res.data.cookies;
 
-                    if (res.data.captcha){
-                        $scope.captcha  = res.data.res;
+                    if (res.data.captcha) {
+                        $scope.captcha = res.data.res;
                         $scope.state = "Получили капчу" + JSON.stringify($scope.captcha);
 
                         CaptchaModal.show($scope.captcha.img)
@@ -209,8 +216,8 @@ seoControllers.controller('CaptchaTestCtrl', ['$scope', 'CaptchaModal', 'Captcha
                                 }
                             })
                     } else {
-                        $scope.captcha  = null;
-                        $scope.state = "Запрос сервера завершен нормально" ;
+                        $scope.captcha = null;
+                        $scope.state = "Запрос сервера завершен нормально";
                     }
 
                 })

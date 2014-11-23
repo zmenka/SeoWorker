@@ -4,25 +4,27 @@
 
 var seoServices = angular.module('seoServices', ['ngResource']);
 
-seoServices.factory('SiteService', ['$resource',
-    function ($resource) {
-
-        return $resource('/api/sites/:id');
-    }]);
-
-seoServices.factory('Params', ['$http',
+seoServices.factory('Api', ['$http',
     function ($http) {
         return {
-            calculation: function (site_id , key_words) {
-                return $http.post('/api/calculation', {site_id:site_id,key_words:key_words });
-
+            user_sites_and_tasks: function () {
+                return $http.get('/api/user_sites_and_tasks', {});
             },
-            parse: function (site_id , key_words) {
-                return $http.post('/api/parse', {site_id:site_id,key_words:key_words });
-
+            create_site: function (url) {
+                return $http.post('/api/create_site', {url:url});
+            },
+            create_task: function (usurl_id, condition_query) {
+                return $http.post('/api/create_site', {usurl_id:usurl_id, condition_query:condition_query});
+            },
+            calc_params: function (condition_id) {
+                return $http.get('/api/calc_params', {condition_id:condition_id});
+            },
+            get_params: function (condition_id) {
+                return $http.get('/api/get_params', {condition_id:condition_id});
             }
         };
     }]);
+
 seoServices.factory('Captcha', ['$http',
     function ($http) {
         return {

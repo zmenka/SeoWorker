@@ -76,8 +76,8 @@ CREATE TABLE users
 );
 -- Уникальнай ключ
 CREATE UNIQUE INDEX UIDX_users_user_login ON users (USER_LOGIN);
-CREATE UNIQUE INDEX UIDX_users_user_email ON users (USER_EMAIL);
-CREATE UNIQUE INDEX UIDX_users_user_phone ON users (USER_PHONE);
+--CREATE UNIQUE INDEX UIDX_users_user_email ON users (USER_EMAIL);
+--CREATE UNIQUE INDEX UIDX_users_user_phone ON users (USER_PHONE);
 
 /* Страницы пользователей */
 DROP TABLE IF EXISTS usurls CASCADE;
@@ -110,8 +110,8 @@ CREATE TABLE sengines
 CREATE UNIQUE INDEX UIDX_sengines_name ON sengines (SENGINE_NAME);
 -- Данные
 INSERT INTO sengines (SENGINE_ID,SENGINE_NAME,SENGINE_QMASK,DATE_CREATE) VALUES
-  (1,'Google','https://www.google.ru/search?sourceid=chrome-psyapi2&ion=1&espv=2&ie=UTF-8&q=<query>',NOW()),
-  (2,'Yandex','http://yandex.ru/yandsearch?lr=54&msid=22867.23836.1416633491.94937&text=<query>&csg=146%2C5271%2C6%2C16%2C0%2C0%2C0',NOW())
+  (1,'Google','https://www.google.ru/search?q=',NOW()),
+  (2,'Yandex','http://yandex.ru/yandsearch?text=',NOW())
 ;
 
 /* Условия поиска/анализа/подсчета параметров */
@@ -150,7 +150,7 @@ CREATE TABLE params
 (
   PARAM_ID          SERIAL PRIMARY KEY,
   -- Содержимое странички выдачи поискового запроса
-  HTML_ID           INT REFERENCES usurls (USURL_ID) NOT NULL,
+  HTML_ID           INT REFERENCES htmls (HTML_ID) NOT NULL,
   -- Условия для анализа
   CONDITION_ID      INT REFERENCES conditions (CONDITION_ID) NOT NULL,
   -- Параметры
@@ -167,14 +167,14 @@ CREATE TABLE search
 (
   SEARCH_ID         SERIAL PRIMARY KEY,
   -- Содержимое странички выдачи поискового запроса
-  HTML_ID           INT REFERENCES usurls (USURL_ID) NOT NULL,
+  HTML_ID           INT REFERENCES htmls (HTML_ID) NOT NULL,
   -- Условия для анализа
   CONDITION_ID      INT REFERENCES conditions (CONDITION_ID) NOT NULL,
   -- Время создания записи
   DATE_CREATE       TIMESTAMP WITH TIME ZONE NOT NULL
 );
 -- Уникальнай ключ
-CREATE UNIQUE INDEX UIDX_search_html_cond ON search (HTML_ID,CONDITION_ID);
+--CREATE UNIQUE INDEX UIDX_search_html_cond ON search (HTML_ID,CONDITION_ID);
 
 /* Содержимое поисковой выдачи */
 DROP TABLE IF EXISTS scontents CASCADE;
@@ -184,7 +184,7 @@ CREATE TABLE scontents
   -- Поисковой запрос
   SEARCH_ID         INT REFERENCES search (SEARCH_ID) NOT NULL,
   -- Содержимое странички выдачи поискового запроса
-  HTML_ID           INT REFERENCES usurls (USURL_ID) NOT NULL,
+  HTML_ID           INT REFERENCES htmls (HTML_ID) NOT NULL,
   -- Позиция        
   POSITION          INT NOT NULL,
   -- Реклама?
@@ -193,5 +193,5 @@ CREATE TABLE scontents
   DATE_CREATE       TIMESTAMP WITH TIME ZONE NOT NULL
 );
 -- Уникальнай ключ
-CREATE UNIQUE INDEX UIDX_scontents_html_search ON scontents (HTML_ID,SEARCH_ID);
+--CREATE UNIQUE INDEX UIDX_scontents_html_search ON scontents (HTML_ID,SEARCH_ID);
 CREATE UNIQUE INDEX UIDX_scontents_search_n ON scontents (SEARCH_ID,POSITION);

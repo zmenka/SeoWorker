@@ -1,5 +1,5 @@
 var request = require('request');
-
+var Q = require('q')
 function Searcher() {
     console.log('searcher init');
 };
@@ -7,7 +7,8 @@ function Searcher() {
 Searcher.lastCallTime = new Date();
 Searcher.callInterval = 4000;
 
-Searcher.prototype.getContentByUrl = function (url, callback, errback) {
+Searcher.prototype.getContentByUrl = function (url) {
+    var deferred = Q.defer();
     var diffDates = new Date().getTime() - Searcher.lastCallTime.getTime();
     var timerInterval = 0;
     console.log("diffDates", diffDates);
@@ -22,7 +23,7 @@ Searcher.prototype.getContentByUrl = function (url, callback, errback) {
 
         this.url = url;
         if (!url) {
-            errback("Url is empty");
+            deferred.reject("Searcher.prototype.getContentByUrl Url is empty");
         }
         //добавим http
         if (url.indexOf("http") < 0) {
@@ -45,15 +46,15 @@ Searcher.prototype.getContentByUrl = function (url, callback, errback) {
         };
         request(options, function (error, response, body) {
             if (error) {
-                errback('Ошибка при получении html' + error.toString());
+                deferred.reject('Searcher.prototype.getContentByUrl Ошибка при получении html' + error.toString());
             } else {
                 console.log("Содержимое сайте получено! ");//, body);
-                callback(body);
+                deferred.resolve(body);
             }
 
         });
     }, timerInterval);
-
+    return deferred.promise;
 };
 
 module.exports = Searcher;

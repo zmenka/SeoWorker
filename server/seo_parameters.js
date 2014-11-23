@@ -1,3 +1,4 @@
+var Q = require("q")
 var SeoParser = require("./seo_parser");
 
 function SeoParameters() {
@@ -43,11 +44,20 @@ SeoParameters.prototype.complianceStrings = function (text1, text2) {
     var res = this.complianceStringsVal(text1,text2);
     return res.toFixed(2) + '%';
 }
-SeoParameters.prototype.init = function (keyText, url, rawHtml, callback, errback) {
+SeoParameters.prototype.init = function (keyText, url, rawHtml) {
+    _this = this
+    var deferred = Q.defer();
     this.keyText = keyText;
     this.url = url;
     this.parser = new SeoParser();
-    this.parser.initDom(rawHtml, callback, errback);
+    this.parser.initDom(rawHtml,
+        function (){
+            deferred.resolve(_this);
+        },
+        function (err){
+            deferred.reject('SeoParameters.prototype.init err '+ err)
+        });
+    return deferred.promise;
 }
 
 SeoParameters.prototype.tryCatch = function (func, params) {

@@ -3,10 +3,23 @@
     <span class="glyphicon" ng-class="{'glyphicon-chevron-right': collapsed, 'glyphicon-chevron-down': !collapsed}"></span>
   </a>
   {{node.title}}
-  <a class="pull-right btn btn-danger btn-xs" nodrag ng-click="remove(this)">
+    <a class="pull-right btn btn-primary btn-xs" nodrag ng-hide="node.task_id" ng-click="wantAddTask=!wantAddTask">
+        <span class="glyphicon glyphicon-plus"></span>
+    </a>
+<!--
+    <a class="pull-right btn btn-danger btn-xs" nodrag ng-click="remove(this)">
     <span class="glyphicon glyphicon-remove"></span>
   </a>
+  -->
+    <div ng-show="wantAddTask">
+        <br>
+        <form class="form-inline">
+            <input type="text" class="form-control" style="width:246px" ng-model="node.condition_query" placeholder="Введите ключевую фразу">
+            <button type="submit" class="btn btn-primary" ng-click="wantAddTask=!wantAddTask; addTask(node);">OK</button>
+        </form>
+    </div>
 </div>
+
 <ol ui-tree-nodes="" ng-model="node.nodes" ng-class="{hidden: collapsed}">
   <li ng-repeat="node in node.nodes" ui-tree-node  ng-include="'partials/tree_template.html'">
   </li>

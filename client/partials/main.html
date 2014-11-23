@@ -30,18 +30,21 @@
       <div class="panel-body">
         <div class="form-inline">
           <label class="control-label" >Выбранный сайт: </label>
-          <span ng-show="formData.site" style="word-wrap: break-word">{{formData.site.url}}</span>
-          <span ng-show="!formData.site" >не выбран</span>
+          <span ng-show="site" style="word-wrap: break-word">{{site.url}}</span>
+          <span ng-show="!site" >не выбран</span>
         </div>
         <br>
         <div class="form-inline">
             <label class="control-label">Ключевая фраза: </label>
-            <input type="text" class="form-control" style="width:400px;" ng-model="formData.keyWords" >          
+            <input type="text" class="form-control" style="width:400px;" ng-model="site.condition_query" >
         </div>
         <br>
-        <button type="button" class="btn btn-primary" ng-click="getParams()">Рассчитать параметры</button>
+        <button type="button" class="btn btn-primary" ng-show="changeSettings()" ng-click="saveSettings()">Cохранить настройки</button>
+        <button type="button" class="btn btn-primary" ng-show="site && !changeSettings()" ng-click="getParams()">Получить данные</button>
+          <a class="btn btn-success "ng-show="site && !changeSettings()" ng-click="calcParams()">
+              <span class="glyphicon glyphicon-refresh"></span>
+          </a>
 
-        <a href="#/captcha_test">Тестировать капчу</a>
       </div> 
       
     </div>
@@ -51,6 +54,7 @@
         (для пояснения наведите курсор на название параметра)
       </div> 
       <div class="panel-body">
+          {{params}}
         <div ng-show="params" class="panel panel-default panel-body" >
           <ul  class="list-group" >
             <li class="list-group-item  panel-heading" ng-repeat="param in params" ng-include="'partials/params_template.html'">
