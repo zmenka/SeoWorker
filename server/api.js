@@ -68,7 +68,7 @@ module.exports = function Api(app) {
             return;
         }
         try {
-            new Searcher().getSite(req.body.site_id, function (site) {
+            new PgSites().getSite(req.body.site_id, function (site) {
                 var params = new SeoParameters();
                 params.init(req.body.key_words, site.url, site.raw_html, function () {
                     var params_res = params.getAllParams();
@@ -93,7 +93,7 @@ module.exports = function Api(app) {
             return;
         }
         try {
-            new Searcher().getSite(req.body.site_id, function (site) {
+            new PgSites().getSite(req.body.site_id, function (site) {
                 var params = new SeoParameters();
                 params.init(req.body.key_words, site.url, site.raw_html, function () {
                     var params_res = params.parse();

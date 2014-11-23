@@ -49,14 +49,6 @@ function PgUsers() {
 
 };
 
- *      <user_login>,
- *      <user_password>,
- *      <role_id>,
- *      <user_fname>,
- *      <user_iname>,
- *      <user_oname>,
- *      <user_email>,
- *      <user_phone>,
 PgUsers.prototype.insert = function (
     user_login, 
     user_password, 
@@ -81,7 +73,8 @@ PgUsers.prototype.insert = function (
                       user_iname,\
                       user_oname,\
                       user_email,\
-                      user_phone) VALUES ($1,$2,$3,$4,$5,$6,$7,$8);",
+                      user_phone,\
+                      date_create) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9);",
                 [user_login, 
                     user_password, 
                     role_id,
@@ -89,7 +82,8 @@ PgUsers.prototype.insert = function (
                     user_iname,
                     user_oname,
                     user_email,
-                    user_phone],
+                    user_phone,
+                    date_create],
                 function (res) {
                     db.transact(
                         "SELECT currval(pg_get_serial_sequence('users','user_id'))",

@@ -177,8 +177,8 @@ CREATE TABLE search
 CREATE UNIQUE INDEX UIDX_search_html_cond ON search (HTML_ID,CONDITION_ID);
 
 /* Содержимое поисковой выдачи */
-DROP TABLE IF EXISTS scontent CASCADE;
-CREATE TABLE scontent
+DROP TABLE IF EXISTS scontents CASCADE;
+CREATE TABLE scontents
 (
   SCONTENT_ID       SERIAL PRIMARY KEY,
   -- Поисковой запрос
@@ -193,5 +193,5 @@ CREATE TABLE scontent
   DATE_CREATE       TIMESTAMP WITH TIME ZONE NOT NULL
 );
 -- Уникальнай ключ
-CREATE UNIQUE INDEX UIDX_scontent_html_search ON scontent (HTML_ID,SEARCH_ID);
-CREATE UNIQUE INDEX UIDX_scontent_search_n ON scontent (SEARCH_ID,POSITION);
+CREATE UNIQUE INDEX UIDX_scontents_html_search ON scontents (HTML_ID,SEARCH_ID);
+CREATE UNIQUE INDEX UIDX_scontents_search_n ON scontents (SEARCH_ID,POSITION);
