@@ -55,7 +55,7 @@ PgScontent.prototype.insert = function (search_id, html_id, position, is_commerc
                 [], true)
         })
         .then(function (res) {
-            console.log("param saved");
+            console.log("PgScontent saved");
             return res.rows[0].currval;
         })
         .catch(function (err) {

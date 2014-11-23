@@ -53,7 +53,7 @@ PgSearch.prototype.insert = function (condition_id, html_id) {
                 [], true)
         })
         .then(function (res) {
-            console.log("param saved");
+            console.log("PgSearch saved");
             return res.rows[0].currval;
         })
 
@@ -104,13 +104,13 @@ PgSearch.prototype.find = function (condition_id, callback, errback) {
 }
 
 PgSearch.prototype.listWithParams = function(condition_id) {
-    return PG.query("SELECT * FROM search ORDER BY date_create desc;",
+    return PG.query("SELECT * FROM search WHERE  condition_id = $1  ORDER BY date_create desc;",
         [condition_id])
         .then(function (res) {
             return res.rows;
         })
         .catch(function (err) {
-            throw 'PgSearch.prototype.find' + err;
+            throw 'PgSearch.prototype.listWithParams' + err;
         })
 }
 

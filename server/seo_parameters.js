@@ -45,14 +45,14 @@ SeoParameters.prototype.complianceStrings = function (text1, text2) {
     return res.toFixed(2) + '%';
 }
 SeoParameters.prototype.init = function (keyText, url, rawHtml) {
-    _this = this
+    _this1 = this;
     var deferred = Q.defer();
     this.keyText = keyText;
     this.url = url;
     this.parser = new SeoParser();
     this.parser.initDom(rawHtml,
         function (){
-            deferred.resolve(_this);
+            deferred.resolve(_this1);
         },
         function (err){
             deferred.reject('SeoParameters.prototype.init err '+ err)
@@ -158,17 +158,17 @@ SeoParameters.prototype.getAllParams = function () {
   h3LengthAvg.ru_name = "Длина в символах h3 avg"; 
   h3LengthAvg.description = "Взвешенная длина в символах тега h3";
 
-  var sList = this.tryCatch(this.getSearchPicksConcat, []);
-  sList.name = "sList";
-  sList.ru_name = "Выдача"; 
-  sList.description = "Посиковая выдача на страничке (google,yandex)";
+//  var sList = this.tryCatch(this.getSearchPicksConcat, []);
+//  sList.name = "sList";
+//  sList.ru_name = "Выдача";
+//  sList.description = "Посиковая выдача на страничке (google,yandex)";
 
-  var params = [
-         sList,titleCS, h1CS, h2CS, h3CS, h2Count, h3Count,
+  var params = {params: [
+         titleCS, h1CS, h2CS, h3CS, h2Count, h3Count,
          h2CSAvg, h3CSAvg, titleLength, h1Length, 
          h2Length, h2LengthFirst, h2LengthAvg, 
          h3Length, h3LengthFirst, h3LengthAvg
-  ];
+  ]};
   return params;
 }  
 //процент вхождения фразы в первом тэге tag
@@ -308,10 +308,11 @@ SeoParameters.prototype.getSearchPicks = function () {
         aMask = 'li h3 a';
     if (searchSystem == 'yandex')
         aMask = 'h2 a';
+    console.log(searchSystem, aMask)
     //парсим страницу
     var a = this.getTag(aMask);
     //получаем URL-ы и title-ы
-    for (i in a){
+    for (var i in a){
         var el = {};
         var tmp = a[i];
         //если нет атрибутов, то выходим
@@ -338,22 +339,12 @@ SeoParameters.prototype.getSearchPicksConcat = function () {
     //парсим страницу
     var a = this.getSearchPicks();
     //получаем URL-ы и title-ы
-    for (i in a){
+    for (var i in a){
         aHref = aHref + '<br>' + a[i].title + ' - <a href = "' + a[i].url + '" >' + 'ссылка' + '</a>'; 
     }
     return aHref;
 }
 
-//получаем массив ссылок из списка выдачи + ссылка
-SeoParameters.prototype.getSearchPicksArray = function () {
-    var aHref = [];
-    //парсим страницу
-    var a = this.getSearchPicks();
-    //получаем URL-ы и title-ы
-    for (i in a){
-        aHref = aHref.push({title: a[i].title, url: a[i].url});
-    }
-    return aHref;
-}
+
 
 module.exports = SeoParameters;

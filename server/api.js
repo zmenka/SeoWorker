@@ -44,7 +44,7 @@ module.exports = function Api(app) {
             return;
         }
 
-        new PgUsurls().insertWithUrl(req.body.url)
+        new PgUsurls().insertWithUrl(2, req.body.url)
             .then(function (db_res) {
                 callback(db_res, res);
             })
@@ -71,13 +71,13 @@ module.exports = function Api(app) {
             })
     });
 
-    app.get('/api/calc_params', function (req, res, next) {
-        console.log('/api/calc_params', req.params);
-        if (!req.params.condition_id) {
-            errback("не найдены параметры condition_id", res);
+    app.post('/api/calc_params', function (req, res, next) {
+        console.log('/api/calc_params', req.body);
+        if (!req.body.condition_id) {
+            errback("не найдены параметры condition_id ", res);
             return;
         }
-        new Core().calcParams(req.params.condition_id)
+        new Core().calcParams(req.body.condition_id,req.body.captcha, req.headers, 2)
             .then(function (params) {
                 callback(params, res);
 
@@ -88,13 +88,13 @@ module.exports = function Api(app) {
 
     });
 
-    app.get('/api/get_params', function (req, res, next) {
-        console.log('/api/get_params', req.params);
-        if (!req.params.condition_id) {
+    app.post('/api/get_params', function (req, res, next) {
+        console.log('/api/get_params', req.body);
+        if (!req.body.condition_id) {
             errback("не найдены параметры condition_id", res);
             return;
         }
-        new PgSearch().listWithParams(req.params.condition_id)
+        new PgSearch().listWithParams(req.body.condition_id)
             .then(function (params) {
                 callback(params, res);
 

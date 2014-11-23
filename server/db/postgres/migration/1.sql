@@ -72,7 +72,9 @@ CREATE TABLE users
   -- Телефон пользователя
   USER_PHONE        VARCHAR(20),
   -- Время создания записи
-  DATE_CREATE       TIMESTAMP WITH TIME ZONE NOT NULL
+  DATE_CREATE       TIMESTAMP WITH TIME ZONE NOT NULL,
+  -- Куки пользователя
+  COOKIES     TEXT,
 );
 -- Уникальнай ключ
 CREATE UNIQUE INDEX UIDX_users_user_login ON users (USER_LOGIN);

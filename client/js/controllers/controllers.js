@@ -10,6 +10,7 @@ seoControllers.controller('MainCtrl', ['$scope', 'Api', 'CaptchaModal',
         $scope.origin_site = null;
         $scope.params = [];
         $scope.loading = false;
+        $scope.captcha = null;
 
         var load = function () {
             $scope.loading = true;
@@ -94,19 +95,36 @@ seoControllers.controller('MainCtrl', ['$scope', 'Api', 'CaptchaModal',
                 return;
             }
             $scope.loading = true;
-            Api.calc_params($scope.site.condition_id)
+            Api.calc_params($scope.site.condition_id,$scope.captcha )
                 .then(function (res) {
-//                var url = 'files/' + site.path;
-//                console.log(url);
-//                $window.open(url);
-                    console.log("параметры получены");
-                    $scope.params = res.data;
+                    console.log("параметры получены", res.data);
+                    $scope.params = res.data.params;
                     $scope.loading = false;
+                    $scope.captcha = null;
                 })
                 .catch(function (err) {
-                    console.log("параметры НЕ получены, ", err)
-                    $scope.params = [];
                     $scope.loading = false;
+                    $scope.captcha = null;
+
+                    if (err.data.captcha) {
+                        $scope.captcha = err.data.captcha;
+                        console.log("Получили капчу" ,err.data);
+
+                        CaptchaModal.show($scope.captcha.img)
+                            .then(function (result) {
+                                if (result.answer && result.captcha) {
+                                    console.log('Капча введена, посылаем повторно запрос.')
+
+                                    $scope.captcha.rep = result.captcha;
+                                    $scope.calcParams();
+                                } else {
+                                    console.log('Вы не ввели капчу или нажали "Отмена". Попробуйте еще раз.')
+                                }
+                            })
+                    } else {
+                        console.log("параметры НЕ получены, ", err)
+                        $scope.params = [];
+                    }
                 })
         }
 

@@ -12,7 +12,7 @@ function PG() {
     var _this = this;
     this.client = new Client(Config.postgres);
     this.client.connect();
-    console.log("connection to pg created");
+    //console.log("connection to pg created");
     this.client.query('BEGIN', function (err, result) {
         if (err) {
             _this.rollback();
@@ -51,12 +51,12 @@ PG.prototype.transact = function (query, params, endTransaction) {
             //disconnect after successful commit
             _this.client.query('COMMIT', function (res) {
                 //console.log("results of commit:", res);
-                console.log("call callback after commit");
+                //console.log("call callback after commit");
                 _this.client.end.bind(_this.client);
                 deferred.resolve(result);
             });
         } else {
-            console.log("call callback");
+            //console.log("call callback");
             deferred.resolve(result);
         }
 

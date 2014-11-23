@@ -98,6 +98,7 @@ PgHtmls.prototype.insertWithUrl = function (html, url) {
                             [])
                     })
                     .then(function (res) {
+
                         return res.rows[0].currval;
 
                     })
@@ -119,6 +120,7 @@ PgHtmls.prototype.insertWithUrl = function (html, url) {
                 [], true)
         })
         .then(function (res) {
+            console.log("insertWithUrl saved")
             return res.rows[0].currval;
         })
 

@@ -1,3 +1,4 @@
+var PgConditions = require("./db/postgres/pg_conditions");
 var PgSearch = require("./db/postgres/pg_search");
 var PgScontent = require("./db/postgres/pg_scontent");
 var PgHtmls = require("./db/postgres/pg_htmls");
@@ -13,15 +14,21 @@ function Core() {
 };
 
 
-Core.prototype.calcParams = function (condition_id) {
+Core.prototype.calcParams = function (condition_id, captcha, headers, user_id) {
     var search_id;
+    var url;
+    var condition;
+    var raw_html;
     return new PgConditions().getWithSengines(condition_id)
-        .then(function (condition) {
-            var url = condition.sengine_qmask + condition.condition_query;
+        .then(function (condition_res) {
+            condition = condition_res
+            url = condition.sengine_qmask + encodeURIComponent(condition.condition_query);
 
-            return new Searcher().getContentByUrl(url)
+            return new Searcher().getContentByUrlOrCaptcha(url, captcha, headers, user_id)
         })
-        .then(function (raw_html) {
+
+        .then(function (res) {
+            raw_html = res.html;
             return new PgHtmls().insertWithUrl(raw_html, url)
         })
         .then(function (html_id) {
@@ -32,28 +39,35 @@ Core.prototype.calcParams = function (condition_id) {
             return new SeoParameters().init(condition.condition_query, url, raw_html)
         })
         .then(function (params) {
-            var links = params.getSearchPicksArray();
+            var links = params.getSearchPicks();
             console.log("получили ", links.length, " ссылок")
             var promises = [];
-            for (var i = 1; i <= links.length; i++) {
-                promises.push(
-                    (function (link, position) {
-                        console.log("сейчас обрабатывается ссылка ", link, position)
-                        var deferred = Q.defer();
-                        return new Searcher().getContentByUrl(link.url)
-                            .then(function (raw_html) {
+            for (var i = 1; i <= 1; i++) {//links.length
 
-                                return new PgHtmls().insertWithUrl(raw_html, link)
+                (function (link, position) {
+                    console.log("сейчас обрабатывается ссылка ", link, position)
+                    promises.push((function (link, position) {
+                        var current_html_id;
+                        var current_html;
+                        return new Searcher().getContentByUrl(link.url)
+                            .then(function (res) {
+                                current_html = res.html
+                                return new PgHtmls().insertWithUrl(current_html, link.url)
                             })
                             .then(function (html_id) {
+                                current_html_id = html_id;
                                 return new PgScontent().insert(search_id, html_id, position, false)
                             })
                             .then(function (scontent_id) {
-                                deferred.resolve(scontent_id);
+                                return new SeoParameters().init(condition.condition_query, link.url, current_html)
                             })
-                        return deferred.promise;
-                    })(links[i - 1], i)
-                )
+                            .then(function (params) {
+                                var link_params = params.getAllParams()
+                                return new PgParams().insert(condition_id, current_html_id, link_params)
+                            })
+                    })(link, position))
+                })(links[i - 1], i)
+
 
             }
 
@@ -64,9 +78,13 @@ Core.prototype.calcParams = function (condition_id) {
             return new PgSearch().listWithParams(condition_id)
         })
 
+        .catch(function (res) {
+            if (res.captcha) {
+                throw res;
+            } else {
+                throw 'Core.prototype.calcParams' + res;
+            }
 
-        .catch(function (err) {
-            errback(err);
         })
 }
 

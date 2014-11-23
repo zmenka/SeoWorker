@@ -78,7 +78,7 @@ pgusers.insert(
 //pgconditions.list( function(res){r = res;console.log('res');console.log(res);}, function(err){console.log('err'); console.log(err);});
 //pgsearch.list( function(res){r = res;console.log('res');console.log(res);}, function(err){console.log('err'); console.log(err);});
 //pgscontent.list( function(res){r = res;console.log('res');console.log(res);}, function(err){console.log('err'); console.log(err);});
-pgtasks.insertWithCondition(1, "qwe", 2)
+pgparams.insert(8, 12, {params:[]})
 
     .then(function(res){
         console.log(res)
