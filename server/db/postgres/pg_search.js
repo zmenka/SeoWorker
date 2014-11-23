@@ -104,9 +104,18 @@ PgSearch.prototype.find = function (condition_id, callback, errback) {
 }
 
 PgSearch.prototype.listWithParams = function(condition_id) {
-    return PG.query("SELECT * FROM search WHERE  condition_id = $1  ORDER BY date_create desc;",
+    return PG.query("SELECT * FROM search S " +
+    "JOIN scontents SC " +
+    "ON S.SEARCH_ID = SC.SEARCH_ID " +
+    "JOIN params P " +
+    "ON P.HTML_ID = SC.HTML_ID " +
+    "AND S.CONDITION_ID = P.CONDITION_ID " +
+    "WHERE " +
+    "S.SEARCH_ID = (SELECT SEARCH_ID FROM search WHERE S.CONDITION_ID = $1 ORDER BY DATE_CREATE DESC LIMIT 1) " +
+    "ORDER BY SC.POSITION;",
         [condition_id])
         .then(function (res) {
+            console.log("PgSearch.prototype.listWithParams")
             return res.rows;
         })
         .catch(function (err) {

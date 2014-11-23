@@ -13,8 +13,8 @@ var seoApp = angular.module('seoApp', [
     'mgcrea.ngStrap.modal',
     'ui.tree',
     'ngAnimate',
-    'ngSanitize'
-    
+    'ngSanitize',
+    'nvd3ChartDirectives'
 ]);
 
 seoApp.config(['$modalProvider', '$routeProvider',

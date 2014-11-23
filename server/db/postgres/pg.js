@@ -38,6 +38,7 @@ PG.prototype.rollback = function () {
 
 PG.prototype.transact = function (query, params, endTransaction) {
     var _this = this;
+    var date = new Date()
     var deferred = Q.defer();
     endTransaction = endTransaction || false;
     this.client.query(query, params, function (err, result) {
@@ -53,9 +54,11 @@ PG.prototype.transact = function (query, params, endTransaction) {
                 //console.log("results of commit:", res);
                 //console.log("call callback after commit");
                 _this.client.end.bind(_this.client);
+                console.log(-date.getTime()+(new Date().getTime()))
                 deferred.resolve(result);
             });
         } else {
+            console.log(-date.getTime()+(new Date().getTime()))
             //console.log("call callback");
             deferred.resolve(result);
         }
@@ -66,6 +69,7 @@ PG.prototype.transact = function (query, params, endTransaction) {
 
 PG.query = function PG(query, params) {
     var deferred = Q.defer();
+    var date = new Date();
     var client = new pg.Client(Config.postgres);
     client.connect(function(err) {
         if(err) {
@@ -78,6 +82,7 @@ PG.query = function PG(query, params) {
                 return;
             }
             client.end();
+            console.log(-date.getTime()+(new Date().getTime()))
             deferred.resolve(result);
         });
     });

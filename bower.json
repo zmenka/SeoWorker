@@ -14,6 +14,9 @@
     "angular-strap": "~2.1.2",
     "angular-ui-tree": "~2.1.5",
     "angular-motion": "~0.3.4",
-    "angular-sanitize": "~1.2.x"
+    "angular-sanitize": "~1.2.x",
+    "d3": "~3.4.13",
+    "nvd3": "~1.1.15-beta",
+    "angularjs-nvd3-directives": "~0.0.7"
   }
 }

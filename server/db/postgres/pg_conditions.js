@@ -88,14 +88,15 @@ PgConditions.prototype.get = function (id, callback, errback) {
 
 PgConditions.prototype.getWithSengines = function (id) {
     return PG.query("SELECT * FROM conditions " +
-            " LEFT JOIN sengines ON sengines.sengine_id = conditions.sengine_id " +
+            " JOIN sengines ON sengines.sengine_id = conditions.sengine_id " +
             " WHERE condition_id = $1;",
         [id])
         .then(function (res) {
+            console.log("getWithSengines")
             return res.rows[0];
         })
         .catch(function (err) {
-            throw 'PgConditions.prototype.get';
+            throw 'PgConditions.prototype.get' + err;
 
         })
 }

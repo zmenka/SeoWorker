@@ -51,11 +51,21 @@
     <div class="panel panel-info ">
       <div class="panel-heading">
         Параметры<br>
-        (для пояснения наведите курсор на название параметра)
+        (для просмотра других графиков выберите другой параметр)
       </div> 
       <div class="panel-body">
-          {{params}}
-        <div ng-show="params" class="panel panel-default panel-body" >
+          <select ng-show="params" ng-model="chart" class="form-control" style=" margin-left:50px; width: 300px"
+                  ng-change="values = [chart]" ng-options="p as p.key for p in params"></select>
+          <nvd3-line-chart ng-show="params"
+                  data="values"
+                  width="700"
+                  height="350"
+                  showXAxis="true"
+                  showYAxis="true"
+                  tooltips="true"
+                  interactive="true">
+          </nvd3-line-chart>
+        <div ng-show="false" class="panel panel-default panel-body" >
           <ul  class="list-group" >
             <li class="list-group-item  panel-heading" ng-repeat="param in params" ng-include="'partials/params_template.html'">
             </li>

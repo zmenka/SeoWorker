@@ -78,10 +78,16 @@ pgusers.insert(
 //pgconditions.list( function(res){r = res;console.log('res');console.log(res);}, function(err){console.log('err'); console.log(err);});
 //pgsearch.list( function(res){r = res;console.log('res');console.log(res);}, function(err){console.log('err'); console.log(err);});
 //pgscontent.list( function(res){r = res;console.log('res');console.log(res);}, function(err){console.log('err'); console.log(err);});
-pgparams.insert(8, 12, {params:[]})
-
+var SeoParameters = require("./server/seo_parameters")
+var domUtils = require("htmlparser").DomUtils;
+pghtmls.get(159)//53
     .then(function(res){
-        console.log(res)
+        console.log("html_id", res.html_id)
+        return new SeoParameters().init("test", "yandex",res.html )
+    })
+    .then(function(params){
+//        console.log(domUtils.getElementsByTagName("div"))
+        console.log(params.getTag("a"))
     })
     .catch(function(err){
         console.log(err)

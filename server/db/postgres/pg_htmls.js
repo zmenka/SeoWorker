@@ -98,7 +98,7 @@ PgHtmls.prototype.insertWithUrl = function (html, url) {
                             [])
                     })
                     .then(function (res) {
-
+                        console.log("insertWithUrl")
                         return res.rows[0].currval;
 
                     })
@@ -142,16 +142,16 @@ PgHtmls.prototype.list = function (callback, errback) {
         })
 }
 
-PgHtmls.prototype.get = function (id, callback, errback) {
-    PG.query("SELECT * FROM htmls WHERE html_id = $1;",
-        [id],
-        function (res) {
-            callback(res.rows[0]);
-        },
-        function (err) {
-            console.log('PgHtmls.prototype.get');
+PgHtmls.prototype.get = function (id) {
+    return PG.query("SELECT * FROM htmls WHERE html_id = $1;",
+        [id])
+        .then(function (res) {
+            console.log("PgHtmls.prototype.get ")
+            return res.rows[0];
+        })
+        .catch(function (err) {
+            throw 'PgHtmls.prototype.get ' + err;
             console.log(err);
-            errback(err)
         })
 }
 

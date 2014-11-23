@@ -4,13 +4,14 @@ var SeoParser = require('./seo_parser')
 var PgUsers = require('./db/postgres/pg_users')
 var Q = require('q')
 function Searcher() {
-    console.log('searcher init');
+    //console.log('searcher init');
 };
 
 Searcher.lastCallTime = new Date();
 Searcher.callInterval = 4000;
 
 Searcher.prototype.getContentByUrl = function (url, captcha, client_headers, cookies) {
+    var date = new Date()
     var deferred = Q.defer();
     var diffDates = new Date().getTime() - Searcher.lastCallTime.getTime();
     var timerInterval = 10;
@@ -27,6 +28,7 @@ Searcher.prototype.getContentByUrl = function (url, captcha, client_headers, coo
         if (!url) {
             deferred.reject("Searcher.prototype.getContentByUrl Url is empty");
         }
+
         //добавим http
         if (url.indexOf("http") < 0) {
             url = "http://" + url;
@@ -43,7 +45,7 @@ Searcher.prototype.getContentByUrl = function (url, captcha, client_headers, coo
             'accept-language': 'ru-RU,ru;q=0.8,en-US;q=0.6,en;q=0.4'
         }
         if (client_headers) {
-            console.log("добавлены заголовки пользователя", client_headers);
+            console.log("добавлены заголовки пользователя")//, client_headers);
             headers['connection'] = client_headers['connection'];
             headers['accept'] = client_headers['accept'];
             headers['user-agent'] = client_headers['user-agent']
@@ -69,7 +71,7 @@ Searcher.prototype.getContentByUrl = function (url, captcha, client_headers, coo
         }
 
         if (cookies) {
-            console.log("saved cookies", cookies)
+            console.log("saved cookies")//, cookies)
             for (var i in cookies) {
                 j.setCookie(cookies[i].key + "=" + cookies[i].value, options.url);
             }
@@ -81,8 +83,9 @@ Searcher.prototype.getContentByUrl = function (url, captcha, client_headers, coo
             if (error) {
                 deferred.reject('Searcher.prototype.getContentByUrl Ошибка при получении html ' + error.toString());
             } else {
+                console.log(-date.getTime()+(new Date().getTime()))
                 console.log("Содержимое сайте получено: ", options.url);//, body);
-                console.log("response.headers", response.request.headers['cookie'])
+                //console.log("response.headers", response.request.headers['cookie'])
                 var cookies = j.getCookies(options.url)
                 deferred.resolve({html: body, cookies: cookies});
             }
@@ -95,7 +98,6 @@ Searcher.prototype.getContentByUrl = function (url, captcha, client_headers, coo
 };
 
 Searcher.prototype.getContentByUrlOrCaptcha = function (url, captcha, client_headers, user_id) {
-
     _this = this;
     var content
     return new PgUsers().get(user_id)
@@ -133,6 +135,7 @@ Searcher.prototype.getContentByUrlOrCaptcha = function (url, captcha, client_hea
 }
 
 Searcher.prototype.getCaptcha = function (raw_html) {
+    var date = new Date()
     var deferred = Q.defer();
     var parser = new SeoParser();
     parser.initDom(raw_html,
@@ -148,6 +151,7 @@ Searcher.prototype.getCaptcha = function (raw_html) {
                     //console.log('retpath', retpath[0].attribs.value);
                     var form = parser.getTag('.b-captcha form');
                     //console.log('form.action', form[0].attribs.action);
+                    console.log(-date.getTime()+(new Date().getTime()))
                     console.log('Капча!!!!');
                     deferred.resolve(
                         {
@@ -162,6 +166,7 @@ Searcher.prototype.getCaptcha = function (raw_html) {
                 deferred.reject("problems with captcha", tags);
                 return;
             }
+            console.log(-date.getTime()+(new Date().getTime()))
             console.log("Капчи не нашлось")
             deferred.resolve(null);
             return;

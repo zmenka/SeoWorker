@@ -10,7 +10,7 @@ var SeoParameters = require("./seo_parameters");
 var Q = require("q");
 
 function Core() {
-    console.log('core init');
+   // console.log('core init');
 };
 
 
@@ -42,7 +42,7 @@ Core.prototype.calcParams = function (condition_id, captcha, headers, user_id) {
             var links = params.getSearchPicks();
             console.log("получили ", links.length, " ссылок")
             var promises = [];
-            for (var i = 1; i <= 1; i++) {//links.length
+            for (var i = 1; i <= links.length; i++) {//links.length
 
                 (function (link, position) {
                     console.log("сейчас обрабатывается ссылка ", link, position)
@@ -52,7 +52,7 @@ Core.prototype.calcParams = function (condition_id, captcha, headers, user_id) {
                         return new Searcher().getContentByUrl(link.url)
                             .then(function (res) {
                                 current_html = res.html
-                                return new PgHtmls().insertWithUrl(current_html, link.url)
+                                return new PgHtmls().insertWithUrl(escape(current_html), link.url)
                             })
                             .then(function (html_id) {
                                 current_html_id = html_id;
@@ -74,6 +74,7 @@ Core.prototype.calcParams = function (condition_id, captcha, headers, user_id) {
             return Q.all(promises)
         })
         .then(function (res) {
+            console.log(res)
             console.log("параметры успешгно посчитаны")
             return new PgSearch().listWithParams(condition_id)
         })
@@ -82,6 +83,8 @@ Core.prototype.calcParams = function (condition_id, captcha, headers, user_id) {
             if (res.captcha) {
                 throw res;
             } else {
+                console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+                console.log(res, res.stack)
                 throw 'Core.prototype.calcParams' + res;
             }
 

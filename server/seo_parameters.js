@@ -2,7 +2,7 @@ var Q = require("q")
 var SeoParser = require("./seo_parser");
 
 function SeoParameters() {
-    console.log('SeoParameters init');
+    //console.log('SeoParameters init');
 };
 
 var regexpSplit = /[\s,\-\.;:/\(\)!\?\[\]{}_\\\|~<>*\+=]+/;
@@ -42,16 +42,19 @@ SeoParameters.prototype.complianceStringsVal = function (text1, text2) {
 //получаем строку с процентом вхождения фразы text2 в text1
 SeoParameters.prototype.complianceStrings = function (text1, text2) {
     var res = this.complianceStringsVal(text1,text2);
-    return res.toFixed(2) + '%';
+    return res.toFixed(2) ;//+ '%';
 }
 SeoParameters.prototype.init = function (keyText, url, rawHtml) {
     _this1 = this;
+    var date = new Date()
     var deferred = Q.defer();
     this.keyText = keyText;
     this.url = url;
     this.parser = new SeoParser();
     this.parser.initDom(rawHtml,
         function (){
+            console.log("SeoParameters.prototype.init");
+            console.log(-date.getTime()+(new Date().getTime()))
             deferred.resolve(_this1);
         },
         function (err){
@@ -88,15 +91,15 @@ SeoParameters.prototype.getAllParams = function () {
   h1CS.ru_name = "СССЗ(h1)"; 
   h1CS.description = "Среднее совпадение ключевой фразы с тегом h1.";
   
-  var h2CS = this.tryCatch(this.prettyTagCS, ["h2"]);
-  h2CS.name = "h2CS";
-  h2CS.ru_name = "СССЗ(h2)"; 
-  h2CS.description = "Среднее совпадение ключевой фразы с тегами h2.";
-  
-  var h3CS = this.tryCatch(this.prettyTagCS, ["h3"]);
-  h3CS.name = "h3CS";
-  h3CS.ru_name = "СССЗ(h3)"; 
-  h3CS.description = "Среднее совпадение ключевой фразы с тегами h3.";
+//  var h2CS = this.tryCatch(this.prettyTagCS, ["h2"]);
+//  h2CS.name = "h2CS";
+//  h2CS.ru_name = "СССЗ(h2)";
+//  h2CS.description = "Среднее совпадение ключевой фразы с тегами h2.";
+//
+//  var h3CS = this.tryCatch(this.prettyTagCS, ["h3"]);
+//  h3CS.name = "h3CS";
+//  h3CS.ru_name = "СССЗ(h3)";
+//  h3CS.description = "Среднее совпадение ключевой фразы с тегами h3.";
   
   var h2Count = this.tryCatch(this.tagCount, ["h2"]);
   h2Count.name = "h2Count";
@@ -164,7 +167,9 @@ SeoParameters.prototype.getAllParams = function () {
 //  sList.description = "Посиковая выдача на страничке (google,yandex)";
 
   var params = {params: [
-         titleCS, h1CS, h2CS, h3CS, h2Count, h3Count,
+         titleCS, h1CS,
+//      h2CS, h3CS,
+         h2Count, h3Count,
          h2CSAvg, h3CSAvg, titleLength, h1Length, 
          h2Length, h2LengthFirst, h2LengthAvg, 
          h3Length, h3LengthFirst, h3LengthAvg
@@ -220,7 +225,7 @@ SeoParameters.prototype.tagCSAvg = function (tag) {
             var data = getData(tags[i].children);
             cnt += this.complianceStringsVal(data, this.keyText)
         }
-        return (cnt/tags.length).toFixed(2) + '%';;
+        return (cnt/tags.length).toFixed(2) ;//+ '%';;
     }
     throw new Error( 'Нет тега ' + tag);
 }
@@ -325,7 +330,8 @@ SeoParameters.prototype.getSearchPicks = function () {
         if(tmp.attribs['href'] == undefined)
             continue;
         //получаем URL
-        el.url = tmp.attribs['href'];
+        var match = tmp.attribs['href'].match(/^\/*(\w.+)/)[1]
+        el.url =  match
         //получаем title
         el.title = getData(tmp);
         //кладем в результат

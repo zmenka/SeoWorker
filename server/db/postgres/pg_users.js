@@ -117,6 +117,7 @@ PgUsers.prototype.get = function (id) {
     return PG.query("SELECT * FROM users WHERE user_id = $1;",
         [id])
         .then(function (res) {
+            console.log("PgUsers.prototype.get")
             return res.rows[0];
         })
         .catch(function (err) {
