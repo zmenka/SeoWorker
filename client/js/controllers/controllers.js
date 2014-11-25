@@ -119,7 +119,7 @@ seoControllers.controller('MainCtrl', ['$scope', 'Api', 'CaptchaModal',
 
                 }
             }
-            console.log(diagram)
+            console.log(data, diagram)
             $scope.chart = diagram[0]
             $scope.values = [diagram[0]]
             return diagram;

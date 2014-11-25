@@ -78,6 +78,7 @@ PG.query = function PG(query, params) {
         }
         client.query(query, params, function(err, result) {
             if(err) {
+                client.end();
                 deferred.reject(err);
                 return;
             }

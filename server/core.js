@@ -1,7 +1,8 @@
 var PgConditions = require("./db/postgres/pg_conditions");
 var PgSearch = require("./db/postgres/pg_search");
-var PgScontent = require("./db/postgres/pg_scontent");
+var PgScontents = require("./db/postgres/pg_scontents");
 var PgHtmls = require("./db/postgres/pg_htmls");
+var PgSpages = require("./db/postgres/pg_spages");
 var PgParams = require("./db/postgres/pg_params");
 
 var Searcher = require("./searcher");
@@ -19,23 +20,43 @@ Core.prototype.calcParams = function (condition_id, captcha, headers, user_id) {
     var url;
     var condition;
     var raw_html;
+    var sites_count = 0;
+    var page = 0;
+    var spage_id;
     return new PgConditions().getWithSengines(condition_id)
         .then(function (condition_res) {
-            condition = condition_res
-            url = condition.sengine_qmask + encodeURIComponent(condition.condition_query);
+            return new PgConditions().getCurrentSearchPage(condition_id, new Date(new Date() - 10 * 60000))
+                .then(function (res) {
+                    condition = condition_res
+                    if (res){
+                        if (res.page_number > 1){
+                            throw 'уже все скачено'
+                        }
+                        page = res.page_number + 1
+                        sites_count = res.count;
+                        return res.search_id
+
+                    } else {
+                        return new PgSearch().insert(condition_id)
+                    }
+
+                })
+        })
+        .then(function (search_id_res) {
+            search_id = search_id_res
+            url = condition.sengine_qmask + encodeURIComponent(condition.condition_query) + "&p=" + page;
 
             return new Searcher().getContentByUrlOrCaptcha(url, captcha, headers, user_id)
         })
-
         .then(function (res) {
             raw_html = res.html;
             return new PgHtmls().insertWithUrl(raw_html, url)
         })
         .then(function (html_id) {
-            return new PgSearch().insert(condition_id, html_id)
+            return new PgSpages().insert(search_id, html_id, page)
         })
-        .then(function (search_id_res) {
-            search_id = search_id_res
+        .then(function (spage_id_res) {
+            spage_id = spage_id_res;
             return new SeoParameters().init(condition.condition_query, url, raw_html)
         })
         .then(function (params) {
@@ -56,7 +77,7 @@ Core.prototype.calcParams = function (condition_id, captcha, headers, user_id) {
                             })
                             .then(function (html_id) {
                                 current_html_id = html_id;
-                                return new PgScontent().insert(search_id, html_id, position, false)
+                                return new PgScontents().insert(spage_id, html_id, position + parseInt(sites_count), false)
                             })
                             .then(function (scontent_id) {
                                 return new SeoParameters().init(condition.condition_query, link.url, current_html)

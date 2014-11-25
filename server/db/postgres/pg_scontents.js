@@ -2,12 +2,12 @@
  * Created by bryazginnn on 22.11.14.
  *
  *
- *  var PgScontent = require("./server/db/postgres/pg_scontents");
- *  var scontents = new PgScontent();
+ *  var PgScontents = require("./server/db/postgres/pg_scontents");
+ *  var scontents = new PgScontents();
  *
  *  //вставить строку в таблицу scontents
  *  scontents.insert (
- *      <search_id>,
+ *      <spage_id>,
  *      <html_id>,
  *      <position>,
  *      <is_commercial>,
@@ -18,26 +18,26 @@
  *
  *  //получить все строки из scontents
  *  scontents.list (<callback>,<errback>)
- *    returns [{scontent_id , search_id , ...}, ...]
+ *    returns [{scontent_id , spage_id , ...}, ...]
  *
  *  //получить строку из scontents с помощью scontent_id
  *  scontents.get (<scontent_id>,<callback>,<errback>)
- *    returns {scontent_id , search_id , ...}
+ *    returns {scontent_id , spage_id , ...}
  *
- *  //получить строки из scontents с помощью search_id
- *  scontents.find (<search_id>,<callback>,<errback>)
- *    returns [{scontent_id , search_id , ...}, ...]
+ *  //получить строки из scontents с помощью spage_id
+ *  scontents.find (<spage_id>,<callback>,<errback>)
+ *    returns [{scontent_id , spage_id , ...}, ...]
  */
 
 var PG = require('./pg');
 var fs = require('fs');
 var path = require('path');
 
-function PgScontent() {
+function PgScontents() {
 
 };
 
-PgScontent.prototype.insert = function (search_id, html_id, position, is_commercial) {
+PgScontents.prototype.insert = function (spage_id, html_id, position, is_commercial) {
 
     var date_create = new Date();
     // create a Url
@@ -46,8 +46,8 @@ PgScontent.prototype.insert = function (search_id, html_id, position, is_commerc
         .then(function (db_res) {
             db = db_res
             return  db.transact(
-                "INSERT INTO scontents (search_id, html_id, position, is_commercial, date_create) VALUES ($1, $2, $3, $4, $5);",
-                [search_id, html_id, position, is_commercial, date_create])
+                "INSERT INTO scontents (spage_id, html_id, position, is_commercial, date_create) VALUES ($1, $2, $3, $4, $5);",
+                [spage_id, html_id, position, is_commercial, date_create])
         })
         .then(function (res) {
             return db.transact(
@@ -55,52 +55,52 @@ PgScontent.prototype.insert = function (search_id, html_id, position, is_commerc
                 [], true)
         })
         .then(function (res) {
-            console.log("PgScontent saved");
+            console.log("PgScontents saved");
             return res.rows[0].currval;
         })
         .catch(function (err) {
-            throw 'PgScontent.prototype.insert 1';
+            throw 'PgScontents.prototype.insert 1';
         }
     );
 }
 
-PgScontent.prototype.list = function (callback, errback) {
+PgScontents.prototype.list = function (callback, errback) {
     PG.query("SELECT * FROM scontents ORDER BY date_create desc;",
         [],
         function (res) {
             callback(res.rows);
         },
         function (err) {
-            console.log('PgScontent.prototype.list');
+            console.log('PgScontents.prototype.list');
             console.log(err);
             errback(err)
         })
 }
 
-PgScontent.prototype.get = function (id, callback, errback) {
+PgScontents.prototype.get = function (id, callback, errback) {
     PG.query("SELECT * FROM scontents WHERE scontent_id = $1;",
         [id],
         function (res) {
             callback(res.rows[0]);
         },
         function (err) {
-            console.log('PgScontent.prototype.get');
+            console.log('PgScontents.prototype.get');
             console.log(err);
             errback(err)
         })
 }
 
-PgScontent.prototype.find = function (search_id, callback, errback) {
-    PG.query("SELECT * FROM scontents WHERE search_id = $1;",
-        [search_id],
+PgScontents.prototype.find = function (spage_id, callback, errback) {
+    PG.query("SELECT * FROM scontents WHERE spage_id = $1;",
+        [spage_id],
         function (res) {
             callback(res.rows);
         },
         function (err) {
-            console.log('PgScontent.prototype.find');
+            console.log('PgScontents.prototype.find');
             console.log(err);
             errback(err)
         })
 }
 
-module.exports = PgScontent;
+module.exports = PgScontents;

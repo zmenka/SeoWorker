@@ -19,7 +19,7 @@ var PgUsers      = require("./server/db/postgres/pg_users");
 var PgTasks      = require("./server/db/postgres/pg_tasks");
 var PgSengines   = require("./server/db/postgres/pg_sengines");
 var PgSearch     = require("./server/db/postgres/pg_search");
-var PgScontent   = require("./server/db/postgres/pg_scontent");
+var PgScontent   = require("./server/db/postgres/pg_scontents");
 var PgRoles      = require("./server/db/postgres/pg_roles");
 var PgParams     = require("./server/db/postgres/pg_params");
 var PgHtmls      = require("./server/db/postgres/pg_htmls");
@@ -78,20 +78,31 @@ pgusers.insert(
 //pgconditions.list( function(res){r = res;console.log('res');console.log(res);}, function(err){console.log('err'); console.log(err);});
 //pgsearch.list( function(res){r = res;console.log('res');console.log(res);}, function(err){console.log('err'); console.log(err);});
 //pgscontent.list( function(res){r = res;console.log('res');console.log(res);}, function(err){console.log('err'); console.log(err);});
-var SeoParameters = require("./server/seo_parameters")
-var domUtils = require("htmlparser").DomUtils;
-pghtmls.get(159)//53
-    .then(function(res){
-        console.log("html_id", res.html_id)
-        return new SeoParameters().init("test", "yandex",res.html )
-    })
+//var SeoParameters = require("./server/seo_parameters")
+//var domUtils = require("htmlparser").DomUtils;
+//pghtmls.get(159)//53
+//    .then(function(res){
+//        console.log("html_id", res.html_id)
+//        return new SeoParameters().init("test", "yandex",res.html )
+//    })
+//    .then(function(params){
+////        console.log(domUtils.getElementsByTagName("div"))
+//        console.log(params.getTag("a"))
+//    })
+//    .catch(function(err){
+//        console.log(err)
+//    });
+pgconditions.getCurrentSearchPage(1, new Date())//53
+
     .then(function(params){
 //        console.log(domUtils.getElementsByTagName("div"))
-        console.log(params.getTag("a"))
+        console.log(params)
     })
     .catch(function(err){
         console.log(err)
     });
+
+console.log(new Date().toISOString());
 //var PG = require("./server/db/postgres/pg");
 //
 //PG.query('INSE123RT INTO sites(date_create) VALUES($1);', [new Date()], function(res){

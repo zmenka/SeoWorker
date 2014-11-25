@@ -169,7 +169,7 @@ CREATE TABLE search
 (
   SEARCH_ID         SERIAL PRIMARY KEY,
   -- Содержимое странички выдачи поискового запроса
-  HTML_ID           INT REFERENCES htmls (HTML_ID) NOT NULL,
+  --HTML_ID           INT REFERENCES htmls (HTML_ID) NOT NULL,
   -- Условия для анализа
   CONDITION_ID      INT REFERENCES conditions (CONDITION_ID) NOT NULL,
   -- Время создания записи
@@ -179,21 +179,37 @@ CREATE TABLE search
 --CREATE UNIQUE INDEX UIDX_search_html_cond ON search (HTML_ID,CONDITION_ID);
 
 /* Содержимое поисковой выдачи */
-DROP TABLE IF EXISTS scontents CASCADE;
-CREATE TABLE scontents
+DROP TABLE IF EXISTS spages CASCADE;
+CREATE TABLE spages
 (
-  SCONTENT_ID       SERIAL PRIMARY KEY,
+  SPAGE_ID       SERIAL PRIMARY KEY,
   -- Поисковой запрос
   SEARCH_ID         INT REFERENCES search (SEARCH_ID) NOT NULL,
   -- Содержимое странички выдачи поискового запроса
   HTML_ID           INT REFERENCES htmls (HTML_ID) NOT NULL,
-  -- Позиция        
+  -- Номер страницы
+  PAGE_NUMBER       INT NOT NULL,
+  -- Время создания записи
+  DATE_CREATE       TIMESTAMP WITH TIME ZONE NOT NULL
+);
+
+/* Содержимое поисковой выдачи */
+DROP TABLE IF EXISTS scontents CASCADE;
+CREATE TABLE scontents
+(
+  SCONTENT_ID       SERIAL PRIMARY KEY,
+  -- Страница поискового запроса
+  SPAGE_ID         INT REFERENCES spages (SPAGE_ID) NOT NULL,
+  -- Содержимое странички выдачи поискового запроса
+  HTML_ID           INT REFERENCES htmls (HTML_ID) NOT NULL,
+  -- Позиция
   POSITION          INT NOT NULL,
   -- Реклама?
   IS_COMMERCIAL     BOOL DEFAULT FALSE NOT NULL,
   -- Время создания записи
   DATE_CREATE       TIMESTAMP WITH TIME ZONE NOT NULL
 );
+
 -- Уникальнай ключ
 --CREATE UNIQUE INDEX UIDX_scontents_html_search ON scontents (HTML_ID,SEARCH_ID);
 CREATE UNIQUE INDEX UIDX_scontents_search_n ON scontents (SEARCH_ID,POSITION);

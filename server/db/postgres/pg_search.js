@@ -35,7 +35,7 @@ function PgSearch() {
 
 };
 
-PgSearch.prototype.insert = function (condition_id, html_id) {
+PgSearch.prototype.insert = function (condition_id) {
 
     var date_create = new Date();
     // create a Url
@@ -44,8 +44,8 @@ PgSearch.prototype.insert = function (condition_id, html_id) {
         .then(function (db_res) {
             db = db_res
             return db.transact(
-                "INSERT INTO search (condition_id, html_id, date_create) VALUES ($1, $2, $3);",
-                [condition_id, html_id, date_create])
+                "INSERT INTO search (condition_id, date_create) VALUES ($1, $2);",
+                [condition_id, date_create])
         })
         .then(function (res) {
             return db.transact(
@@ -105,14 +105,16 @@ PgSearch.prototype.find = function (condition_id, callback, errback) {
 
 PgSearch.prototype.listWithParams = function(condition_id) {
     return PG.query("SELECT * FROM search S " +
-    "JOIN scontents SC " +
-    "ON S.SEARCH_ID = SC.SEARCH_ID " +
-    "JOIN params P " +
-    "ON P.HTML_ID = SC.HTML_ID " +
-    "AND S.CONDITION_ID = P.CONDITION_ID " +
-    "WHERE " +
-    "S.SEARCH_ID = (SELECT SEARCH_ID FROM search WHERE S.CONDITION_ID = $1 ORDER BY DATE_CREATE DESC LIMIT 1) " +
-    "ORDER BY SC.POSITION;",
+            "JOIN spages SP " +
+            "ON S.SEARCH_ID = SP.SEARCH_ID " +
+            "JOIN scontents SC " +
+            "ON SP.SPAGE_ID = SC.SPAGE_ID " +
+            "JOIN params P " +
+            "ON P.HTML_ID = SC.HTML_ID " +
+            "AND S.CONDITION_ID = P.CONDITION_ID " +
+            "WHERE " +
+            "S.SEARCH_ID = (SELECT SEARCH_ID FROM search WHERE S.CONDITION_ID = $1 ORDER BY DATE_CREATE DESC LIMIT 1) " +
+            "ORDER BY SC.POSITION;",
         [condition_id])
         .then(function (res) {
             console.log("PgSearch.prototype.listWithParams")

@@ -101,6 +101,41 @@ PgConditions.prototype.getWithSengines = function (id) {
         })
 }
 
+PgConditions.prototype.getCurrentSearchPage = function (condition_id, date_old) {
+    return PG.query("SELECT \
+                MAX(P.PAGE_NUMBER) AS PAGE_NUMBER, COUNT(P.SPAGE_ID) AS COUNT, P.SEARCH_ID \
+            FROM \
+                spages P \
+                JOIN scontents SC \
+                    ON P.SPAGE_ID = SC.SPAGE_ID \
+            WHERE  \
+            P.SEARCH_ID =  \
+                (  \
+                    SELECT  \
+                        S.SEARCH_ID  \
+                    FROM  \
+                        search S  \
+                    WHERE  \
+                        S.CONDITION_ID = $1 \
+                        AND S.DATE_CREATE >= '" +  date_old.toISOString() + "' \
+                    ORDER BY S.DATE_CREATE DESC \
+                    LIMIT 1 \
+                ) \
+            GROUP BY P.SEARCH_ID \
+            ;" ,
+        [condition_id])
+        .then(function (res) {
+            console.log("getCurrentSearchPage")
+            return res.rows[0];
+        })
+        .catch(function (err) {
+            console.log(err)
+            throw 'PgConditions.prototype.get' + err;
+
+        })
+}
+
+
 PgConditions.prototype.find = function (condition_query, sengine_id) {
     return PG.query("SELECT * FROM conditions WHERE condition_query = $1 and sengine_id = $2;",
         [condition_query, sengine_id]
