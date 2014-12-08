@@ -2,7 +2,8 @@
   <a class="btn btn-success btn-xs" ng-if="node.nodes && node.nodes.length > 0" nodrag ng-click="toggle(this)">
     <span class="glyphicon" ng-class="{'glyphicon-chevron-right': collapsed, 'glyphicon-chevron-down': !collapsed}"></span>
   </a>
-  {{node.title}}
+    <span ng-hide="node.task_id">{{node.title}}</span>
+    <span ng-show="node.task_id"  style="font-weight: normal; color:black">{{node.title}}</span>
     <a class="pull-right btn btn-primary btn-xs" nodrag ng-hide="node.task_id" ng-click="wantAddTask=!wantAddTask">
         <span class="glyphicon glyphicon-plus"></span>
     </a>
@@ -13,9 +14,9 @@
   -->
     <div ng-show="wantAddTask">
         <br>
-        <form class="form-inline">
-            <input type="text" class="form-control" style="width:246px" ng-model="node.condition_query" placeholder="Введите ключевую фразу">
-            <button type="submit" class="btn btn-primary" ng-click="wantAddTask=!wantAddTask; addTask(node);">OK</button>
+        <form class="form-inline" style="margin: 3px">
+            <input type="text" class="form-control" style="width:224px" ng-model="node.condition_query" placeholder="Введите ключевую фразу">
+            <button type="submit" class="pull-right btn btn-primary" style="margin-top: 3px" ng-click="wantAddTask=!wantAddTask; addTask(node);">OK</button>
         </form>
     </div>
 </div>

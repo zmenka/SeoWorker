@@ -68,14 +68,17 @@ CREATE TABLE users
   -- Отчество пользователя
   USER_ONAME        VARCHAR(50),
   -- Почтовый ящик пользователя
-  USER_EMAIL        VARCHAR(100) NOT NULL,
+  USER_EMAIL        VARCHAR(100),
   -- Телефон пользователя
   USER_PHONE        VARCHAR(20),
   -- Время создания записи
   DATE_CREATE       TIMESTAMP WITH TIME ZONE NOT NULL,
   -- Куки пользователя
-  COOKIES     TEXT,
+  COOKIES     TEXT
 );
+
+INSERT INTO users(USER_ID, USER_LOGIN, USER_PASSWORD, ROLE_ID, DATE_CREATE) VALUES
+    (1, 'admin', 'c4ca4238a0b923820dcc509a6f75849b', 1, NOW());
 -- Уникальнай ключ
 CREATE UNIQUE INDEX UIDX_users_user_login ON users (USER_LOGIN);
 --CREATE UNIQUE INDEX UIDX_users_user_email ON users (USER_EMAIL);
@@ -212,4 +215,4 @@ CREATE TABLE scontents
 
 -- Уникальнай ключ
 --CREATE UNIQUE INDEX UIDX_scontents_html_search ON scontents (HTML_ID,SEARCH_ID);
-CREATE UNIQUE INDEX UIDX_scontents_search_n ON scontents (SEARCH_ID,POSITION);
+CREATE UNIQUE INDEX UIDX_scontents_search_n ON scontents (SPAGE_ID,POSITION);

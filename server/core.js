@@ -44,7 +44,7 @@ Core.prototype.calcParams = function (condition_id, captcha, headers, user_id) {
         })
         .then(function (search_id_res) {
             search_id = search_id_res
-            url = condition.sengine_qmask + encodeURIComponent(condition.condition_query) + "&p=" + page;
+            url = condition.sengine_qmask + (condition.condition_query) + "&p=" + page;
 
             return new Searcher().getContentByUrlOrCaptcha(url, captcha, headers, user_id)
         })
@@ -53,17 +53,21 @@ Core.prototype.calcParams = function (condition_id, captcha, headers, user_id) {
             return new PgHtmls().insertWithUrl(raw_html, url)
         })
         .then(function (html_id) {
+            console.log('!!!!', search_id, html_id, page)
             return new PgSpages().insert(search_id, html_id, page)
         })
         .then(function (spage_id_res) {
             spage_id = spage_id_res;
+
             return new SeoParameters().init(condition.condition_query, url, raw_html)
         })
         .then(function (params) {
+
             var links = params.getSearchPicks();
             console.log("получили ", links.length, " ссылок")
+            var length = links.length<10 ? links.length: 10;
             var promises = [];
-            for (var i = 1; i <= links.length; i++) {//links.length
+            for (var i = 1; i <= length; i++) {//links.length
 
                 (function (link, position) {
                     console.log("сейчас обрабатывается ссылка ", link, position)
@@ -92,7 +96,7 @@ Core.prototype.calcParams = function (condition_id, captcha, headers, user_id) {
 
             }
 
-            return Q.all(promises)
+            return Q.allSettled(promises)
         })
         .then(function (res) {
             console.log(res)
@@ -104,8 +108,8 @@ Core.prototype.calcParams = function (condition_id, captcha, headers, user_id) {
             if (res.captcha) {
                 throw res;
             } else {
-                console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-                console.log(res, res.stack)
+
+                console.error(res, res.stack)
                 throw 'Core.prototype.calcParams' + res;
             }
 

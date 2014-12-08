@@ -60,7 +60,7 @@ Searcher.prototype.getContentByUrl = function (url, captcha, client_headers, coo
             followAllRedirects: true,
             headers: headers,
             jar: j,
-            timeout: 5000
+            timeout: 15000
         };
 
         var properties = null;
@@ -71,7 +71,7 @@ Searcher.prototype.getContentByUrl = function (url, captcha, client_headers, coo
         }
 
         if (cookies) {
-            console.log("saved cookies")//, cookies)
+            console.log("saved cookies", cookies)
             for (var i in cookies) {
                 j.setCookie(cookies[i].key + "=" + cookies[i].value, options.url);
             }

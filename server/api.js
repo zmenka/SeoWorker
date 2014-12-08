@@ -44,7 +44,7 @@ module.exports = function Api(app) {
             return;
         }
 
-        new PgUsurls().insertWithUrl(2, req.body.url)
+        new PgUsurls().insertWithUrl(req.body.url)
             .then(function (db_res) {
                 callback(db_res, res);
             })
@@ -77,7 +77,7 @@ module.exports = function Api(app) {
             errback("не найдены параметры condition_id ", res);
             return;
         }
-        new Core().calcParams(req.body.condition_id,req.body.captcha, req.headers, 2)
+        new Core().calcParams(req.body.condition_id,req.body.captcha, req.headers, 1)
             .then(function (params) {
                 callback(params, res);
 

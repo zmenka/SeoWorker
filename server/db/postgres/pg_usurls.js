@@ -79,8 +79,9 @@ PgUsurls.prototype.insert = function (user_id, url_id, callback, errback) {
     );
 }
 
-PgUsurls.prototype.insertWithUrl = function (user_id, url) {
+PgUsurls.prototype.insertWithUrl = function (url, user_id) {
     _this = this;
+    user_id = user_id || 1;
     var date_create = new Date();
     // create a Url
     var db;

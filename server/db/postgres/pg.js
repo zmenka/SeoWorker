@@ -10,12 +10,12 @@ var Client = require('pg').Client;
 function PG() {
     var deferred = Q.defer();
     var _this = this;
-    this.client = new Client(Config.postgres);
-    this.client.connect();
+    _this.client = new Client(Config.postgres);
+    _this.client.connect();
     //console.log("connection to pg created");
-    this.client.query('BEGIN', function (err, result) {
+    _this.client.query('BEGIN', function (err, result) {
         if (err) {
-            _this.rollback();
+            _this.rollback(_this.client);
             deferred.reject(err);
             return;
         }
@@ -24,15 +24,13 @@ function PG() {
     });
     return deferred.promise;
 }
-PG.prototype.rollback = function () {
-    var _this = this;
+PG.prototype.rollback = function (client) {
     //terminating a client connection will
     //automatically rollback any uncommitted transactions
     //so while it's not technically mandatory to call
     //ROLLBACK it is cleaner and more correct
-    this.client.query('ROLLBACK', function () {
-        console.log('ROLLBACK')
-        _this.client.end();
+    client.query('ROLLBACK', function () {
+        client.end();
     });
 };
 
@@ -41,9 +39,9 @@ PG.prototype.transact = function (query, params, endTransaction) {
     var date = new Date()
     var deferred = Q.defer();
     endTransaction = endTransaction || false;
-    this.client.query(query, params, function (err, result) {
+    _this.client.query(query, params, function (err, result) {
         if (err) {
-            _this.rollback();
+            _this.rollback(_this.client);
             deferred.reject(err);
             return;
         }
@@ -58,7 +56,7 @@ PG.prototype.transact = function (query, params, endTransaction) {
                 deferred.resolve(result);
             });
         } else {
-            console.log(-date.getTime()+(new Date().getTime()))
+            //console.log(-date.getTime()+(new Date().getTime()))
             //console.log("call callback");
             deferred.resolve(result);
         }
@@ -70,20 +68,33 @@ PG.prototype.transact = function (query, params, endTransaction) {
 PG.query = function PG(query, params) {
     var deferred = Q.defer();
     var date = new Date();
-    var client = new pg.Client(Config.postgres);
-    client.connect(function(err) {
-        if(err) {
-            deferred.reject('could not connect to postgres', err);
+    pg.connect(Config.postgres, function (err, client, done) {
+        var handleError = function (err1) {
+            // no error occurred, continue with the request
+            if (!err1) {
+                return false;
+            }
+
+            // An error occurred, remove the client from the connection pool.
+            // A truthy value passed to done will remove the connection from the pool
+            // instead of simply returning it to be reused.
+            // In this case, if we have successfully received a client (truthy)
+            // then it will be removed from the pool.
+            done(client);
+            deferred.reject('postgres query error ', err1);
+            return true;
+        };
+
+        if (handleError(err)) {
             return;
         }
-        client.query(query, params, function(err, result) {
-            if(err) {
-                client.end();
-                deferred.reject(err);
+
+        client.query(query, params, function (err, result) {
+            if (handleError(err)) {
                 return;
             }
-            client.end();
-            console.log(-date.getTime()+(new Date().getTime()))
+            done();
+            console.log(-date.getTime() + (new Date().getTime()))
             deferred.resolve(result);
         });
     });

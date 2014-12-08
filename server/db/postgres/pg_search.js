@@ -113,7 +113,7 @@ PgSearch.prototype.listWithParams = function(condition_id) {
             "ON P.HTML_ID = SC.HTML_ID " +
             "AND S.CONDITION_ID = P.CONDITION_ID " +
             "WHERE " +
-            "S.SEARCH_ID = (SELECT SEARCH_ID FROM search WHERE S.CONDITION_ID = $1 ORDER BY DATE_CREATE DESC LIMIT 1) " +
+            "S.SEARCH_ID = (SELECT SEARCH_ID FROM search WHERE CONDITION_ID = $1 ORDER BY DATE_CREATE DESC LIMIT 1) " +
             "ORDER BY SC.POSITION;",
         [condition_id])
         .then(function (res) {

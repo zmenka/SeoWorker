@@ -116,11 +116,11 @@ PgHtmls.prototype.insertWithUrl = function (html, url) {
         })
         .then(function (res) {
             return db.transact(
-                "SELECT currval(pg_get_serial_sequence('htmls','html_id'))",
+                "SELECT currval(pg_get_serial_sequence('htmls','html_id'));",
                 [], true)
         })
         .then(function (res) {
-            console.log("insertWithUrl saved")
+            console.log("insertWithUrl saved", res.rows[0].currval)
             return res.rows[0].currval;
         })
 
