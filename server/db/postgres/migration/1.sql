@@ -58,7 +58,7 @@ CREATE TABLE users
   -- Логин пользователя
   USER_LOGIN        VARCHAR(50) NOT NULL,
   -- Пароль пользователя (md5)
-  USER_PASSWORD     VARCHAR(32) NOT NULL,
+  USER_PASSWORD     VARCHAR(50 NOT NULL,
   -- Роль пользователя
   ROLE_ID           INT REFERENCES roles(ROLE_ID),
   -- Фамилия пользователя
@@ -78,7 +78,7 @@ CREATE TABLE users
 );
 
 INSERT INTO users(USER_ID, USER_LOGIN, USER_PASSWORD, ROLE_ID, DATE_CREATE) VALUES
-    (1, 'admin', 'c4ca4238a0b923820dcc509a6f75849b', 1, NOW());
+    (1, 'admin', '$2a$08$lwNvtznfKh953Xbg.S4jyu02KES.Ohqd/B6NwGdkwVzf0Q4A73q3O', 1, NOW());
 -- Уникальнай ключ
 CREATE UNIQUE INDEX UIDX_users_user_login ON users (USER_LOGIN);
 --CREATE UNIQUE INDEX UIDX_users_user_email ON users (USER_EMAIL);

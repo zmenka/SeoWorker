@@ -14,8 +14,7 @@ var errback = function (err, response) {
     response.send(err);
 };
 
-module.exports = function Api(app) {
-    this.app = app;
+module.exports = function Api(app, passport) {
 
 // routes ======================================================================
 
@@ -121,4 +120,36 @@ module.exports = function Api(app) {
         }
     });
 
+    app.post('/api/login', function(req, res, next) {
+            passport.authenticate('login', function(err, user, info) {
+                if (err) { return next(err) }
+                if (!user) {
+                    return errback({ message: info.message }, res);
+                }
+                req.logIn(user, function(err) {
+                    if (err) { return next(err); }
+                    return callback({ message: info.message }, res);
+                });
+            })(req, res, next);
+        }
+    );
+
+    app.get('/api/logout', function(req, res){
+        console.log('/api/logout');
+        req.logout();
+        return callback("logout ok", res);
+    });
+
+    app.post('/api/register', function(req, res, next) {
+        passport.authenticate('register', function(err, user, info) {
+            if (err) { return next(err) }
+            if (!user) {
+                return errback({ message: info.message }, res);
+            }
+            req.logIn(user, function(err) {
+                if (err) { return next(err); }
+                return callback({ message: info.message }, res);
+            });
+        })(req, res, next);
+    });
 }

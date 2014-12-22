@@ -44,18 +44,33 @@
 var PG = require('./pg');
 var fs = require('fs');
 var path = require('path');
+var bcrypt   = require('bcrypt-nodejs');
 
 function PgUsers() {
 
 };
 
-PgUsers.prototype.insert = function (user_login, user_password, role_id, user_fname, user_iname, user_oname, user_email, user_phone, callback, errback) {
+// generating a hash
+PgUsers.prototype.generateHash = function(password) {
+    return bcrypt.hashSync(password, bcrypt.genSaltSync(8), null);
+};
+
+// checking if password is valid
+PgUsers.prototype.validPassword = function(password, savedPassword) {
+    return bcrypt.compareSync(password, savedPassword);
+};
+
+PgUsers.prototype.insert = function (user_login, user_password, role_id, user_fname, user_iname, user_oname, user_email, user_phone) {
 
     var date_create = new Date();
-    // create a Url
-    var db = new PG(
-        function () {
-            db.transact(
+    var password = this.generateHash(user_password);
+
+    var db;
+    return new PG()
+
+        .then(function (db_res) {
+            db = db_res
+            return db.transact(
                 "INSERT INTO users (user_login, \
                       user_password, \
                       role_id,\
@@ -66,39 +81,29 @@ PgUsers.prototype.insert = function (user_login, user_password, role_id, user_fn
                       user_phone,\
                       date_create) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9);",
                 [user_login,
-                    user_password,
+                    password,
                     role_id,
                     user_fname,
                     user_iname,
                     user_oname,
                     user_email,
                     user_phone,
-                    date_create],
-                function (res) {
-                    db.transact(
-                        "SELECT currval(pg_get_serial_sequence('users','user_id'))",
-                        [],
-                        function (res) {
-                            console.log("user saved");
-                            callback(res.rows[0].currval);
-                        },
-                        function (err) {
-                            console.log('PgUsers.prototype.insert 1');
-                            console.log(err);
-                        },
-                        true)
-                },
-                function (err) {
-                    console.log('PgUsers.prototype.insert 2');
-                    console.log(err);
-                }
-            );
-        },
-        function (err) {
-            console.log('PgUsers.prototype.insert 3');
-            console.log(err);
-        }
-    );
+                    date_create]
+            )
+        })
+        .then(function (res) {
+            return db.transact(
+                "SELECT currval(pg_get_serial_sequence('users','user_id'))",
+                [], true
+            )
+        })
+        .then(function (res) {
+            console.log('PgUsers.prototype.insert');
+            return res.rows[0].currval;
+        })
+        .catch(function (err) {
+            throw 'PgUsers.prototype.insert ' + err
+        })
 }
 
 PgUsers.prototype.list = function (callback, errback) {
@@ -126,17 +131,19 @@ PgUsers.prototype.get = function (id) {
         })
 }
 
-PgUsers.prototype.findByLogin = function (val, callback, errback) {
-    PG.query("SELECT * FROM users WHERE user_login = $1;",
-        [val],
-        function (res) {
-            callback(res.rows);
-        },
-        function (err) {
-            console.log('PgUsers.prototype.findByLogin');
+PgUsers.prototype.getByLogin = function (login) {
+    return PG.query("SELECT * FROM users WHERE user_login = $1;",
+        [login])
+        .then(function (res) {
+            console.log("PgUsers.prototype.getByLogin")
+            return res.rows[0];
+        })
+        .catch(function (err) {
+            throw 'PgUsers.prototype.getByLogin' + err;
             console.log(err);
         })
 }
+
 PgUsers.prototype.findByEmail = function (val, callback, errback) {
     PG.query("SELECT * FROM users WHERE user_email = $1;",
         [val],

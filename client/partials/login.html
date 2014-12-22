@@ -1,0 +1,21 @@
+<h1>Вход</h1>
+
+<div class="alerts-container"></div>
+<!-- LOGIN FORM -->
+<form >
+    <div class="form-group">
+        <label>Логин</label>
+        <input type="text" class="form-control" ng-model="form.login">
+    </div>
+    <div class="form-group">
+        <label>Пароль</label>
+        <input type="password" class="form-control" ng-model="form.password">
+    </div>
+
+    <button type="button" class="btn btn-warning btn-lg"  ng-click="login(form)">Войти</button>
+</form>
+
+<hr>
+
+<p>Хотите зарегистрироваться? <a href="#/register">Регистрация</a></p>
+<p>Или перейдите на <a href="#/sites">Главную</a>.</p>

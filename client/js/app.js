@@ -11,10 +11,12 @@ var seoApp = angular.module('seoApp', [
     'mgcrea.ngStrap.popover',
     'mgcrea.ngStrap.tooltip',
     'mgcrea.ngStrap.modal',
+    'mgcrea.ngStrap.alert',
     'ui.tree',
     'ngAnimate',
     'ngSanitize',
-    'nvd3ChartDirectives'
+    'nvd3ChartDirectives',
+    'ngCookies'
 ]);
 
 seoApp.config(['$modalProvider', '$routeProvider',
@@ -23,19 +25,46 @@ seoApp.config(['$modalProvider', '$routeProvider',
             html: true
         });
         $routeProvider
-            .when('/', {
-                templateUrl: 'partials/main.html',
-                controller: 'MainCtrl'
-            })
             .when('/sites', {
                 templateUrl: 'partials/sites.html',
-                controller: 'SitesCtrl'
+                controller: 'SitesCtrl',
+                authenticate: true
             })
-            .when('/captcha_test', {
-                templateUrl: 'partials/captcha_test.html',
-                controller: 'CaptchaTestCtrl'
+            .when('/settings', {
+                templateUrl: 'partials/settings.html',
+                controller: 'SettingsCtrl',
+                authenticate: true
             })
+            .when('/login', {
+                templateUrl: 'partials/login.html',
+                controller: 'AuthCtrl',
+                authenticate: false
+            })
+            .when('/register', {
+                templateUrl: 'partials/register.html',
+                controller: 'AuthCtrl',
+                authenticate: false
+            })
+            .when('/logout', {
+                redirectTo: '/login',
+                authenticate: false
+            })
+//            .when('/captcha_test', {
+//                templateUrl: 'partials/captcha_test.html',
+//                controller: 'CaptchaTestCtrl'
+//            })
             .otherwise({
-                redirectTo: '/'
+                redirectTo: '/sites'
             });
+    }]);
+
+seoApp.run(['$rootScope', '$location', 'Authenticate',
+    function ($rootScope, $location, Authenticate) {
+        $rootScope.$on("$routeChangeStart", function (event, next, current) {
+            console.log('$routeChangeStart', next.authenticate)
+            if ((typeof(next.authenticate) === "undefined" || next.authenticate)
+                && !Authenticate.isAuthenticated) {
+                $location.path("/login");
+            }
+        })
     }]);

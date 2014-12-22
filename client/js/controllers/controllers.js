@@ -1,8 +1,13 @@
 'use strict';
 /* Controllers */
 var seoControllers = angular.module('seoControllers', []);
-
-seoControllers.controller('MainCtrl', ['$scope', 'Api', 'CaptchaModal',
+seoControllers.controller('MainCtrl', ['$scope', 'Authenticate',
+    function ($scope, Authenticate) {
+        $scope.isSignedIn = function () {
+            return Authenticate.isAuthenticated;
+        };
+    }]);
+seoControllers.controller('SitesCtrl', ['$scope', 'Api', 'CaptchaModal',
     function ($scope, Api, CaptchaModal) {
         $scope.formData = { url: ""};
         $scope.site = null;
@@ -89,22 +94,24 @@ seoControllers.controller('MainCtrl', ['$scope', 'Api', 'CaptchaModal',
                     $scope.loading = false;
                 })
         }
-        $scope.prettyDiagram = function (data){
-            if (!data){
+        $scope.prettyDiagram = function (data) {
+            if (!data) {
                 return
             }
             var diagram = []
-            for (var key in data){
+            for (var key in data) {
                 var position = data[key].position;
                 for (var key1 in data[key].param.params) {
                     var current_par = data[key].param.params[key1]
-                    if (current_par.success){
+                    if (current_par.success) {
                         var result = diagram.filter(function (v) {
                             return v.key === current_par.ru_name;
                         })
-                        var serial = {key: current_par.ru_name, values:[[position,current_par.val]]}
-                        if (result.length>0) {
-                            result[0].values.push([position,current_par.val])
+                        var serial = {key: current_par.ru_name, values: [
+                            [position, current_par.val]
+                        ]}
+                        if (result.length > 0) {
+                            result[0].values.push([position, current_par.val])
 
                         } else {
                             diagram.push(serial)
@@ -123,7 +130,7 @@ seoControllers.controller('MainCtrl', ['$scope', 'Api', 'CaptchaModal',
                 return;
             }
             $scope.loading = true;
-            Api.calc_params($scope.site.condition_id,$scope.captcha )
+            Api.calc_params($scope.site.condition_id, $scope.captcha)
                 .then(function (res) {
                     console.log("параметры получены", res.data);
                     $scope.params = res.data.params;
@@ -136,7 +143,7 @@ seoControllers.controller('MainCtrl', ['$scope', 'Api', 'CaptchaModal',
 
                     if (err.data.captcha) {
                         $scope.captcha = err.data.captcha;
-                        console.log("Получили капчу" ,err.data);
+                        console.log("Получили капчу", err.data);
 
                         CaptchaModal.show($scope.captcha.img)
                             .then(function (result) {
@@ -230,6 +237,72 @@ seoControllers.controller('MainCtrl', ['$scope', 'Api', 'CaptchaModal',
 
         }
 
+    }]);
+
+seoControllers.controller('SettingsCtrl', ['$scope',
+    function ($scope ) {
+
+    }]);
+
+seoControllers.controller('AuthCtrl', ['$scope', '$http', '$location', '$cookies', '$alert', 'Authenticate',
+    function ($scope, $http, $location, $cookies, $alert, Authenticate) {
+
+        var isSignedIn = false;
+
+        $scope.isError = false;
+
+//        $scope.alert = {
+//            "title": "Ошибка",
+//            "content": "123",
+//            "type": "info",
+//            "show": true
+//        };
+
+        $scope.isSignedIn = function () {
+            return Authenticate.isAuthenticated;
+        };
+        $scope.logout = function () {
+            Authenticate.logout()
+                .success(function () {
+                    Authenticate.isAuthenticated = false;
+                    $location.path("/login");
+                }).error(function () {
+                });
+        };
+        $scope.login = function (user) {
+            Authenticate.login(user)
+                .success(function (data, status, header) {
+                    console.log("$scope.login ", data)
+                    Authenticate.isAuthenticated = true
+                    $location.path("/sites");
+                }).error(function (data) {
+                    console.log("$scope.login error ", data)
+                    if (data.message) {
+                        $alert({title: 'Внимание!', content: data.message,
+                            placement: 'top', type: 'danger', show: true,
+                            duration: '3',
+                            container: '.alerts-container'
+                        });
+                    }
+                });
+        };
+        $scope.register = function (user) {
+            Authenticate.register(user)
+                .success(function (data, status, header) {
+                    console.log("$scope.register", data)
+                    Authenticate.isAuthenticated = true
+                    $location.path("/sites");
+                }).error(function (data) {
+                    console.log("$scope.register error ", data)
+                    if (data.message) {
+                        $alert({title: 'Внимание!', content: data.message,
+                            placement: 'top', type: 'danger', show: true,
+                            duration: '3',
+                            container: '.alerts-container'
+                        });
+                    }
+                });
+        };
     }]);
 
 seoControllers.controller('CaptchaTestCtrl', ['$scope', 'CaptchaModal', 'Captcha',

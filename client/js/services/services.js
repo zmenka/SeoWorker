@@ -20,7 +20,7 @@ seoServices.factory('Api', ['$http',
                 return $http.post('/api/calc_params', {condition_id: condition_id, captcha: captcha});
             },
             get_params: function (condition_id) {
-                return $http.post('/api/get_params',{condition_id: condition_id});
+                return $http.post('/api/get_params', {condition_id: condition_id});
             }
         };
     }]);
@@ -54,4 +54,34 @@ seoServices.service('CaptchaModal', function ($modal, $rootScope, $q) {
 
     return confirm;
 })
+seoServices.factory('Authenticate', ['$http', '$cookies',
+    function ($http, $cookies) {
+        console.log('Authenticate $cookies', $cookies);
+        var authenticated = $cookies.user ? true : false;
+
+        var login = function (userData) {
+            console.log('Authenticate login ', userData)
+            var promise = $http.post("/api/login", userData);
+            return promise;
+        };
+
+        var logout = function () {
+            return $http.get("/api/logout");
+        };
+
+
+        var register = function (userData) {
+            console.log('Authenticate register ', userData)
+            var promise = $http.post("/api/register", userData);
+            return promise;
+
+        }
+
+        return {
+            login: login,
+            logout: logout,
+            isAuthenticated: authenticated,
+            register: register
+        }
+    }]);
 
