@@ -57,7 +57,7 @@ seoServices.service('CaptchaModal', function ($modal, $rootScope, $q) {
 seoServices.factory('Authenticate', ['$http',
     function ($http) {
 
-        var isAuthenticated = false;
+        var isAuthenticated = null;
 
         var initAuth = function () {
             return $http.get("/api/check_auth")

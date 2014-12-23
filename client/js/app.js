@@ -60,21 +60,33 @@ seoApp.config(['$modalProvider', '$routeProvider',
 
 seoApp.run(['$rootScope', '$location', '$window', 'Authenticate',
     function ($rootScope, $location, $window, Authenticate) {
-        Authenticate.initAuth()
-            .then(function (result) {
-                Authenticate.isAuthenticated = result.data;
-                console.log("Authenticate.isAuthenticated", Authenticate.isAuthenticated)
+        $rootScope.$on("$routeChangeStart", function (event, next, current) {
+            console.log(Authenticate.isAuthenticated)
+            if (Authenticate.isAuthenticated == null ) {
+                Authenticate.initAuth()
+                    .then(function (result) {
+                        Authenticate.isAuthenticated = result.data == 'true' ? true : false;
+                        console.log("Authenticate.isAuthenticated", Authenticate.isAuthenticated)
 
-                $rootScope.$on("$routeChangeStart", function (event, next, current) {
 
-                    if ((typeof(next.authenticate) === "undefined" || next.authenticate)
-                        && !Authenticate.isAuthenticated) {
-                        console.log("redirect to login")
-                        $location.path("/login");
-                    }
-                })
-            }).catch(function (err) {
-                console.log("initAuth error ", err)
-            });
-
+                    }).catch(function (err) {
+                        Authenticate.isAuthenticated = false;
+                        console.log("initAuth error ", err)
+                    })
+                    .then(function () {
+                        console.log("$routeChangeStart init ", next.authenticate, Authenticate.isAuthenticated)
+                        if ((typeof(next.authenticate) === "undefined" || next.authenticate) && Authenticate.isAuthenticated == false) {
+                            console.log("redirect to login")
+                            $location.path("/login");
+                        }
+                    })
+            } else {
+                console.log("$routeChangeStart", next.authenticate, Authenticate.isAuthenticated)
+                if ((typeof(next.authenticate) === "undefined" || next.authenticate)
+                    && !Authenticate.isAuthenticated) {
+                    console.log("redirect to login")
+                    $location.path("/login");
+                }
+            }
+        })
     }]);
