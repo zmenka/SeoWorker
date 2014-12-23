@@ -137,6 +137,7 @@ module.exports = function Api(app, passport) {
     app.get('/api/logout', function(req, res){
         console.log('/api/logout');
         req.logout();
+
         return callback("logout ok", res);
     });
 
@@ -152,4 +153,11 @@ module.exports = function Api(app, passport) {
             });
         })(req, res, next);
     });
+
+    app.get('/api/check_auth', function(req, res, next) {
+        // if user is authenticated in the session, carry on
+        console.log('/api/check_auth', req.isAuthenticated())
+        callback(req.isAuthenticated(), res);
+    });
+
 }

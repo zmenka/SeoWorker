@@ -58,13 +58,23 @@ seoApp.config(['$modalProvider', '$routeProvider',
             });
     }]);
 
-seoApp.run(['$rootScope', '$location', 'Authenticate',
-    function ($rootScope, $location, Authenticate) {
-        $rootScope.$on("$routeChangeStart", function (event, next, current) {
-            console.log('$routeChangeStart', next.authenticate)
-            if ((typeof(next.authenticate) === "undefined" || next.authenticate)
-                && !Authenticate.isAuthenticated) {
-                $location.path("/login");
-            }
-        })
+seoApp.run(['$rootScope', '$location', '$window', 'Authenticate',
+    function ($rootScope, $location, $window, Authenticate) {
+        Authenticate.initAuth()
+            .then(function (result) {
+                Authenticate.isAuthenticated = result.data;
+                console.log("Authenticate.isAuthenticated", Authenticate.isAuthenticated)
+
+                $rootScope.$on("$routeChangeStart", function (event, next, current) {
+
+                    if ((typeof(next.authenticate) === "undefined" || next.authenticate)
+                        && !Authenticate.isAuthenticated) {
+                        console.log("redirect to login")
+                        $location.path("/login");
+                    }
+                })
+            }).catch(function (err) {
+                console.log("initAuth error ", err)
+            });
+
     }]);

@@ -54,10 +54,16 @@ seoServices.service('CaptchaModal', function ($modal, $rootScope, $q) {
 
     return confirm;
 })
-seoServices.factory('Authenticate', ['$http', '$cookies',
-    function ($http, $cookies) {
-        console.log('Authenticate $cookies', $cookies);
-        var authenticated = $cookies.user ? true : false;
+seoServices.factory('Authenticate', ['$http',
+    function ($http) {
+
+        var isAuthenticated = false;
+
+        var initAuth = function () {
+            return $http.get("/api/check_auth")
+
+        };
+
 
         var login = function (userData) {
             console.log('Authenticate login ', userData)
@@ -80,7 +86,8 @@ seoServices.factory('Authenticate', ['$http', '$cookies',
         return {
             login: login,
             logout: logout,
-            isAuthenticated: authenticated,
+            isAuthenticated: isAuthenticated,
+            initAuth: initAuth,
             register: register
         }
     }]);

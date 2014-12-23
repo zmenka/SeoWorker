@@ -247,20 +247,6 @@ seoControllers.controller('SettingsCtrl', ['$scope',
 seoControllers.controller('AuthCtrl', ['$scope', '$http', '$location', '$cookies', '$alert', 'Authenticate',
     function ($scope, $http, $location, $cookies, $alert, Authenticate) {
 
-        var isSignedIn = false;
-
-        $scope.isError = false;
-
-//        $scope.alert = {
-//            "title": "Ошибка",
-//            "content": "123",
-//            "type": "info",
-//            "show": true
-//        };
-
-        $scope.isSignedIn = function () {
-            return Authenticate.isAuthenticated;
-        };
         $scope.logout = function () {
             Authenticate.logout()
                 .success(function () {

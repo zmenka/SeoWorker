@@ -4,30 +4,46 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var passport = require('passport');
-var expressSession = require('express-session');
+var session = require('express-session');
+var pg = require('pg')
+var pgSession = require('connect-pg-simple')(session);
 
+var Config = require('./server/config');
 var Api = require("./server/api");
 var app = express();
 
-require('./server/passport')(passport); // pass passport for configuration
-// required for passport
-app.use(expressSession({ secret: 'rewrweksdfklgirojkfsddfg',
-    saveUninitialized: true,
-    resave: true})); // session secret
-app.use(passport.initialize());
-app.use(passport.session()); // persistent login sessions
 
-app.set('port', process.env.PORT || 3000);
-app.disable("x-powered-by");
-app.disable('etag');
-app.use(express.compress());
 app.use(logger('dev'));
 app.use(bodyParser.urlencoded({
     extended: true
 }));
 app.use(bodyParser.json());
 app.use(bodyParser.json({ type: 'application/vnd.api+json' }));
-app.use(cookieParser());
+app.use(bodyParser.urlencoded({extended: true}))
+app.use(cookieParser(Config.passport_key));
+
+app.use(session({
+    store: new pgSession({
+        pg : pg,
+        conString : Config.postgres,
+        tableName : 'session'
+    }),
+    saveUninitialized: true,
+    resave: false,
+    secret: Config.passport_key,
+    cookie: {httpOnly: true,  maxAge: 30 * 24 * 60 * 60 * 1000 } // 30 days
+}));
+
+require('./server/passport')(passport); // pass passport for configuration
+app.use(passport.initialize());
+app.use(passport.session()); // persistent login sessions
+
+
+
+app.set('port', process.env.PORT || 3000);
+app.disable("x-powered-by");
+app.disable('etag');
+
 
 app.use(express.static(path.join(__dirname, 'client')));
 app.use(express.static(path.join(__dirname, 'client/files')));
