@@ -14,8 +14,10 @@ seoControllers.controller('SitesCtrl', ['$scope', 'Api', 'CaptchaModal',
         $scope.sites = [];
         $scope.origin_site = null;
         $scope.params = [];
+        $scope.params1 = [];
         $scope.loading = false;
         $scope.captcha = null;
+        $scope.oneAtATime = true;
 
         var load = function () {
             $scope.loading = true;
@@ -86,11 +88,13 @@ seoControllers.controller('SitesCtrl', ['$scope', 'Api', 'CaptchaModal',
 //                $window.open(url);
                     console.log("параметры получены");
                     $scope.params = $scope.prettyDiagram(res.data);
+                    $scope.params1 = $scope.prettyTable(res.data);
                     $scope.loading = false;
                 })
                 .catch(function (err) {
                     console.log("параметры НЕ получены, ", err)
                     $scope.params = [];
+                    $scope.params1 = [];
                     $scope.loading = false;
                 })
         }
@@ -120,11 +124,26 @@ seoControllers.controller('SitesCtrl', ['$scope', 'Api', 'CaptchaModal',
 
                 }
             }
-            console.log(data, diagram)
+            console.log("prettyDiagram", data, diagram)
             $scope.chart = diagram[0]
             $scope.values = [diagram[0]]
             return diagram;
         }
+
+        $scope.prettyTable = function (data) {
+            if (!data) {
+                return
+            }
+            var table = []
+            for (var key in data) {
+                table.push({url: data[key].url, params: data[key].param.params, surl: data[key].surl})
+            }
+            console.log("prettyTable", data, table)
+            $scope.chart1 = table[0]
+            $scope.values1 = $scope.chart1.params
+            return table;
+        }
+
         $scope.calcParams = function () {
             if (!$scope.site) {
                 return;
@@ -219,6 +238,7 @@ seoControllers.controller('SitesCtrl', ['$scope', 'Api', 'CaptchaModal',
                 $scope.site = JSON.parse(JSON.stringify(nodeData));
                 $scope.origin_site = nodeData;
                 $scope.params = [];
+                $scope.params1 = [];
             }
 
         };
@@ -239,10 +259,182 @@ seoControllers.controller('SitesCtrl', ['$scope', 'Api', 'CaptchaModal',
 
     }]);
 
-seoControllers.controller('SettingsCtrl', ['$scope',
-    function ($scope ) {
+seoControllers.controller('SettingsCtrl', ['$scope', 'Api', 'CaptchaModal',
+    function ($scope, Api, CaptchaModal) {
+        $scope.formData = { url: ""};
+        $scope.site = null;
+        $scope.sites = [];
+        $scope.origin_site = null;
+        $scope.params = [];
+        $scope.loading = false;
+        //true - site, false - task
+        $scope.siteOrTask = true;
+
+        $scope.sengines = [];
+
+        var load = function () {
+            $scope.loading = true;
+            Api.user_sites_and_tasks()
+                .then(function (res) {
+                    console.log('sites are reseived');
+                    $scope.sites = createTree(res.data);
+                })
+                .then(function () {
+                    return Api.sengines()
+                })
+                .then(function (res1) {
+                    console.log('sengines are reseived');
+                    $scope.sengines = res1.data;
+                    $scope.loading = false;
+                })
+                .catch(function (err) {
+                    console.log('get sites return ERROR!', err);
+                    $scope.sites = [];
+                    $scope.loading = false;
+                });
+        };
+        load();
+
+        var createTree = function (sites) {
+            if (!sites) {
+                return [];
+            }
+            var tree = [];
+            for (var i = 0; i < sites.length; i++) {
+                var f = function (site) {
+                    //console.log("site", site);
+                    //var domen = sites[i].url.match(/(?:http:\/\/|https:\/\/|)(?:www.|)([^\/]+)\/?(.*)/)[1];
+                    //console.log("dom
+                    // en", domen);
+
+                    var result = tree.filter(function (v) {
+                        return v.title === site.url;
+                    })
+                    //console.log("match", result);
+                    if (!site.task_id) {
+                        var s = null
+                    } else {
+                        var s = {title: site.condition_query, nodes: [], usurl_id: site.usurl_id, task_id: site.task_id, url: site.url,
+                            condition_id: site.condition_id, condition_query: site.condition_query, sengine_id: site.sengine_id};
+                    }
+                    var row
+                    if (result.length > 0) {
+                        row = result[0];
+                    } else {
+                        row = {title: site.url, url: site.url, usurl_id: site.usurl_id, nodes: []}
+                        tree.push(row)
+                    }
+                    if (s) {
+                        row.nodes.push(s)
+                    }
+
+
+                };
+                f(sites[i]);
+            }
+            console.log("sites ", sites, " tree ", tree);
+            return tree;
+        };
+
+        $scope.remove = function (scope) {
+            //console.log("remove");
+            scope.remove();
+        };
+
+        $scope.toggle = function (scope) {
+            //console.log("toggle");
+            scope.toggle();
+        };
+
+        $scope.addTask = function (params) {
+            console.log("addTask", params);
+
+            if (!params.usurl_id || !params.condition_query || !params.sengine_id) {
+                return;
+            }
+            $scope.loading = true;
+            Api.create_task(params.usurl_id, params.condition_query, params.sengine_id)
+                .then(function () {
+                    console.log('task is saved');
+
+                    load();
+                    $scope.loading = false;
+                    $scope.site = null;
+                })
+                .catch(function (response) {
+                    console.log('task is saved WITH ERROR!', response);
+                    $scope.loading = false;
+                })
+        };
+
+        $scope.saveTask = function (params) {
+            console.log("saveTask", params);
+
+            if (!params.task_id || !params.condition_query || !params.sengine_id) {
+                return;
+            }
+            $scope.loading = true;
+            Api.save_task(params.task_id, params.condition_query, params.sengine_id)
+                .then(function () {
+                    console.log('task is saved');
+                    load();
+
+                    $scope.loading = false;
+                })
+                .catch(function (response) {
+                    console.log('task is saved WITH ERROR!', response);
+                    $scope.loading = false;
+                })
+        };
+
+
+        $scope.newSite = function () {
+            console.log("newSite");
+            if (!$scope.formData.url) {
+                return;
+            }
+            $scope.loading = true;
+            Api.create_site($scope.formData.url)
+                .then(function () {
+                    $scope.formData.url = "";
+                    console.log('site is saved');
+                    load();
+                    $scope.loading = false;
+                })
+                .catch(function (response) {
+                    console.log('site is saved WITH ERROR!', response);
+                    $scope.loading = false;
+                })
+        };
+
+        $scope.select = function (scope) {
+            //console.log("select");
+            var nodeData = scope.$modelValue;
+            if (nodeData.task_id) {
+                $scope.siteOrTask = false
+                $scope.site = JSON.parse(JSON.stringify(nodeData));
+                $scope.origin_site = nodeData;
+                $scope.params = [];
+            } else {
+                $scope.siteOrTask = true;
+                $scope.site = JSON.parse(JSON.stringify(nodeData));
+            }
+            console.log("select", $scope.site)
+
+        };
+
+        $scope.changeSettings = function () {
+            var res = false;
+            if ($scope.site) {
+                //console.log("site_origin", $scope.origin_site, $scope.site)
+                if (JSON.stringify($scope.origin_site) != JSON.stringify($scope.site))
+                    res = true;
+            }
+            return res;
+        }
 
     }]);
+
 
 seoControllers.controller('AuthCtrl', ['$scope', '$http', '$location', '$cookies', '$alert', 'Authenticate',
     function ($scope, $http, $location, $cookies, $alert, Authenticate) {

@@ -1,27 +1,13 @@
 <div ui-tree-handle class="tree-node tree-node-content" ng-click="select(this)">
-  <a class="btn btn-success btn-xs" ng-if="node.nodes && node.nodes.length > 0" nodrag ng-click="toggle(this)">
-    <span class="glyphicon" ng-class="{'glyphicon-chevron-right': collapsed, 'glyphicon-chevron-down': !collapsed}"></span>
-  </a>
-    <span ng-hide="node.task_id">{{node.title}}</span>
-    <span ng-show="node.task_id"  style="font-weight: normal; color:black">{{node.title}}</span>
-    <a class="pull-right btn btn-primary btn-xs" nodrag ng-hide="node.task_id" ng-click="wantAddTask=!wantAddTask">
-        <span class="glyphicon glyphicon-plus"></span>
+    <a class="btn btn-success btn-xs" ng-if="node.nodes && node.nodes.length > 0" nodrag ng-click="toggle(this)">
+        <span class="glyphicon"
+              ng-class="{'glyphicon-chevron-right': collapsed, 'glyphicon-chevron-down': !collapsed}"></span>
     </a>
-<!--
-    <a class="pull-right btn btn-danger btn-xs" nodrag ng-click="remove(this)">
-    <span class="glyphicon glyphicon-remove"></span>
-  </a>
-  -->
-    <div ng-show="wantAddTask">
-        <br>
-        <form class="form-inline" style="margin: 3px">
-            <input type="text" class="form-control" style="width:224px" ng-model="node.condition_query" placeholder="Введите ключевую фразу">
-            <button type="submit" class="pull-right btn btn-primary" style="margin-top: 3px" ng-click="wantAddTask=!wantAddTask; addTask(node);">OK</button>
-        </form>
-    </div>
+    <span ng-hide="node.task_id"> {{node.title}}</span>
+    <span ng-show="node.task_id" style="color: #808080;"> {{node.title}}</span>
 </div>
 
 <ol ui-tree-nodes="" ng-model="node.nodes" ng-class="{hidden: collapsed}">
-  <li ng-repeat="node in node.nodes" ui-tree-node  ng-include="'partials/tree_template.html'">
-  </li>
+    <li ng-repeat="node in node.nodes" ui-tree-node ng-include="'partials/tree_template.html'">
+    </li>
 </ol>

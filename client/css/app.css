@@ -98,3 +98,7 @@ table.sites td {
     -moz-box-sizing: border-box;
     box-sizing: border-box;
 }
+
+.link {
+    overflow: hidden; width: 400px; white-space: nowrap; text-overflow: ellipsis;
+}

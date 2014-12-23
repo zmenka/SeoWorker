@@ -106,8 +106,8 @@ PgTasks.prototype.insertWithCondition = function (usurl_id, condition_query, sen
                     })
             } else {
                 return _this.find(usurl_id, conds[0].condition_id)
-                    .then(function(tasks){
-                        if (tasks.length > 0 ){
+                    .then(function (tasks) {
+                        if (tasks.length > 0) {
                             throw "такие условия для этого сайта уже есть!"
                             return
                         }
@@ -134,6 +134,25 @@ PgTasks.prototype.insertWithCondition = function (usurl_id, condition_query, sen
         .catch(function (err) {
             console.log('PgTasks.prototype.insert ' + err);
             console.log(err);
+            throw err
+        });
+}
+
+PgTasks.prototype.updateWithCondition = function (task_id, condition_query, sengine_id) {
+    _this = this;
+
+    return PG.query(
+        "UPDATE conditions SET condition_query= $1, sengine_id =  $2 WHERE CONDITION_ID = (SELECT T.CONDITION_ID FROM tasks T WHERE T.task_id = $3);",
+        [condition_query, sengine_id, task_id])
+        .then(function (res) {
+            console.log("PgTasks.prototype.updateWithCondition");
+            return res;
+        })
+
+        .catch(function (err) {
+            console.log('PgTasks.prototype.updateWithCondition ')
+            console.log(err);
+            throw err
         });
 }
 
@@ -165,13 +184,13 @@ PgTasks.prototype.find = function (usurl_id, condition_id) {
     return PG.query("SELECT * FROM tasks WHERE usurl_id =$1 AND condition_id = $2;",
         [usurl_id, condition_id])
 
-        .then(    function (res) {
+        .then(function (res) {
             return res.rows;
         })
-        .catch (function (err) {
-            throw 'PgTasks.prototype.findByCondition' + err;
-            console.log(err);
-        })
+        .catch(function (err) {
+        throw 'PgTasks.prototype.findByCondition' + err;
+        console.log(err);
+    })
 }
 
 PgTasks.prototype.findByUsurl = function (val, callback, errback) {

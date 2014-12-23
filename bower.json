@@ -6,7 +6,7 @@
     "angular": "1.2.x",
     "angular-mocks": "~1.2.x",
     "jquery": "1.10.2",
-    "bootstrap": "~3.2.0",
+    "bootstrap": "~3.3.1",
     "angular-route": "~1.2.x",
     "angular-resource": "~1.2.x",
     "angular-animate": "~1.2.x",

@@ -44,7 +44,7 @@ Core.prototype.calcParams = function (condition_id, captcha, headers, user_id) {
         })
         .then(function (search_id_res) {
             search_id = search_id_res
-            url = condition.sengine_qmask + (condition.condition_query) + "&p=" + page;
+            url = condition.sengine_qmask + encodeURIComponent(condition.condition_query) + "&p=" + page;
 
             return new Searcher().getContentByUrlOrCaptcha(url, captcha, headers, user_id)
         })

@@ -194,14 +194,16 @@ PgUsurls.prototype.findByUser = function (val, callback, errback) {
 }
 
 PgUsurls.prototype.listWithTasks = function () {
-    return PG.query("SELECT usurls.*, urls.*, tasks.task_id, conditions.*  " +
+    return PG.query("SELECT usurls.*, urls.*, tasks.task_id, conditions.*, sengines.*  " +
             " FROM usurls " +
             "LEFT JOIN tasks on usurls.usurl_id = tasks.usurl_id " +
             "LEFT JOIN conditions on conditions.condition_id = tasks.condition_id " +
+            "LEFT JOIN sengines on sengines.sengine_id = conditions.sengine_id " +
             "LEFT JOIN urls on usurls.url_id = urls.url_id " +
             "ORDER BY tasks.date_create desc;",
         [])
         .then( function (res) {
+            console.log('PgUsurls.prototype.listWithTasks')
             return res.rows;
         })
         .catch(function (err) {

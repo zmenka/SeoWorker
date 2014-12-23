@@ -26,15 +26,15 @@ function PgSengines() {
 
 };
 
-PgSengines.prototype.list = function (callback, errback) {
-    PG.query("SELECT * FROM sengines ORDER BY date_create desc;",
-        [],
-        function (res) {
-            callback(res.rows);
-        },
-        function (err) {
-            console.log('PgSengines.prototype.list');
-            console.log(err);
+PgSengines.prototype.list = function () {
+    return PG.query("SELECT * FROM sengines;",
+        [])
+        .then( function (res) {
+            console.log('PgSengines.prototype.list')
+            return res.rows;
+        })
+        .catch(function (err) {
+            throw 'PgSengines.prototype.list' + err;
         })
 }
 

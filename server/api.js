@@ -1,7 +1,7 @@
 var PgUsurls = require("./db/postgres/pg_usurls");
 var PgTasks = require("./db/postgres/pg_tasks");
 var PgSearch = require("./db/postgres/pg_search");
-
+var PgSengines = require("./db/postgres/pg_sengines");
 var Core = require("./core");
 
 var BunSearcher = require("./bun_searcher");
@@ -34,6 +34,19 @@ module.exports = function Api(app, passport) {
 
     });
 
+    app.get('/api/sengines', function (req, res, next) {
+        console.log('/api/sengines');
+
+        new PgSengines().list()
+            .then(function (sites) {
+                callback(sites, res);
+            })
+            .catch(function (err) {
+                errback(err, res);
+            })
+
+    });
+
     app.post('/api/create_site', function (req, res, next) {
         console.log('/api/create_site', req.body);
         res.statusCode = 200;
@@ -56,12 +69,30 @@ module.exports = function Api(app, passport) {
         console.log('/api/create_site', req.body);
         res.statusCode = 200;
 
-        if (!req.body.usurl_id || !req.body.condition_query) {
-            errback("не найдены параметры usurl_id или condition_query", res);
+        if (!req.body.usurl_id || !req.body.condition_query || !req.body.sengine_id) {
+            errback("не найдены параметры usurl_id или condition_query or sengine_id", res);
             return;
         }
 
-        new PgTasks().insertWithCondition(req.body.usurl_id, req.body.condition_query, 2)
+        new PgTasks().insertWithCondition(req.body.usurl_id, req.body.condition_query, req.body.sengine_id)
+            .then(function (db_res) {
+                callback(db_res, res);
+            })
+            .catch(function (err) {
+                errback(err, res);
+            })
+    });
+
+    app.post('/api/save_task', function (req, res, next) {
+        console.log('/api/save_task', req.body);
+        res.statusCode = 200;
+
+        if (!req.body.task_id || !req.body.condition_query || !req.body.sengine_id) {
+            errback("не найдены параметры task_id или condition_query or sengine_id", res);
+            return;
+        }
+
+        new PgTasks().updateWithCondition(req.body.task_id, req.body.condition_query, req.body.sengine_id)
             .then(function (db_res) {
                 callback(db_res, res);
             })

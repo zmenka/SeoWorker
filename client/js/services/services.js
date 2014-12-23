@@ -10,11 +10,19 @@ seoServices.factory('Api', ['$http',
             user_sites_and_tasks: function () {
                 return $http.get('/api/user_sites_and_tasks', {});
             },
+            sengines: function () {
+                return $http.get('/api/sengines', {});
+            },
             create_site: function (url) {
                 return $http.post('/api/create_site', {url: url});
             },
-            create_task: function (usurl_id, condition_query) {
-                return $http.post('/api/create_task', {usurl_id: usurl_id, condition_query: condition_query});
+            create_task: function (usurl_id, condition_query, sengine_id) {
+                return $http.post('/api/create_task', {usurl_id: usurl_id,
+                    condition_query: condition_query, sengine_id:sengine_id});
+            },
+            save_task: function (task_id, condition_query, sengine_id) {
+                return $http.post('/api/save_task', {task_id: task_id,
+                    condition_query: condition_query, sengine_id:sengine_id});
             },
             calc_params: function (condition_id, captcha) {
                 return $http.post('/api/calc_params', {condition_id: condition_id, captcha: captcha});

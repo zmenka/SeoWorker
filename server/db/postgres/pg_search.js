@@ -104,11 +104,24 @@ PgSearch.prototype.find = function (condition_id, callback, errback) {
 }
 
 PgSearch.prototype.listWithParams = function(condition_id) {
-    return PG.query("SELECT * FROM search S " +
+    return PG.query("SELECT " +
+            "U.URL," +
+            "USP.URL AS SURL," +
+            "P.PARAM," +
+            "SC.POSITION " +
+            "FROM search S " +
             "JOIN spages SP " +
             "ON S.SEARCH_ID = SP.SEARCH_ID " +
+            "JOIN htmls HSP " +
+            "ON HSP.HTML_ID = SP.HTML_ID " +
+            "JOIN urls USP " +
+            "ON USP.URL_ID = HSP.URL_ID " +
             "JOIN scontents SC " +
             "ON SP.SPAGE_ID = SC.SPAGE_ID " +
+            "JOIN htmls H " +
+            "ON H.HTML_ID = SC.HTML_ID " +
+            "JOIN urls U " +
+            "ON U.URL_ID = H.URL_ID " +
             "JOIN params P " +
             "ON P.HTML_ID = SC.HTML_ID " +
             "AND S.CONDITION_ID = P.CONDITION_ID " +
