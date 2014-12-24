@@ -104,7 +104,7 @@ module.exports = function Api(app, passport) {
     app.post('/api/calc_params', function (req, res, next) {
         console.log('/api/calc_params', req.body);
         if (!serverFree){
-            errback("Сервер занят, попробуйте позже.");
+            errback("Сервер занят, попробуйте позже.", res);
             return;
         }
         if (!req.body.condition_id) {
