@@ -100,22 +100,35 @@ module.exports = function Api(app, passport) {
                 errback(err, res);
             })
     });
-
+    var serverFree = true;
     app.post('/api/calc_params', function (req, res, next) {
         console.log('/api/calc_params', req.body);
-        if (!req.body.condition_id) {
-            errback("не найдены параметры condition_id ", res);
+        if (!serverFree){
+            errback("Сервер занят, попробуйте позже.");
             return;
         }
-        new Core().calcParams(req.body.condition_id,req.body.captcha, req.headers, 1)
-            .then(function (params) {
-                callback(params, res);
-
-            })
-            .catch(function (err) {
-                errback(err, res);
-            })
-
+        if (!req.body.condition_id) {
+            errback("Не найден параметр condition_id.", res);
+            return;
+        }
+        serverFree = false;
+        try {
+            return new Core().calcParams(req.body.condition_id, req.body.captcha, req.headers, 1)
+                .then(function () {
+                    return  new Core().calcParams(req.body.condition_id, null, req.headers, 1)
+                })
+                .then(function () {
+                    callback("ok", res);
+                    serverFree = true
+                })
+                .catch(function (err) {
+                    serverFree = true
+                    errback(err, res);
+                })
+        }catch (err){
+            errback(err, res);
+        }
+        serverFree = true
     });
 
     app.post('/api/get_params', function (req, res, next) {

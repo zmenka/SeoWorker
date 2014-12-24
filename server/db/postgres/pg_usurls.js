@@ -111,7 +111,7 @@ PgUsurls.prototype.insertWithUrl = function (url, user_id) {
                 return _this.findByUrl(urls[0].url_id)
                     .then(function (sites) {
                         if (sites.length > 0) {
-                            throw "у этого пользователя уже есть такой сайт!"
+                            throw "У этого пользователя уже есть такой сайт!"
                             return;
                         }
                         return new PG()
@@ -133,11 +133,12 @@ PgUsurls.prototype.insertWithUrl = function (url, user_id) {
                 [], true)
         })
         .then(function (res) {
-            console.log("usurl saved");
+            console.log("PgUsurls.prototype.insertWithUrl");
             return res.rows[0].currval;
         })
         .catch(function (err) {
-            throw 'PgUsurls.prototype.insert ' + err;
+            console.log('PgUsurls.prototype.insert ' + err)
+            throw err;
 
         });
 }

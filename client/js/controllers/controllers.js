@@ -7,8 +7,8 @@ seoControllers.controller('MainCtrl', ['$scope', 'Authenticate',
             return Authenticate.isAuthenticated;
         };
     }]);
-seoControllers.controller('SitesCtrl', ['$scope', 'Api', 'CaptchaModal',
-    function ($scope, Api, CaptchaModal) {
+seoControllers.controller('SitesCtrl', ['$scope', '$alert', 'Api', 'CaptchaModal',
+    function ($scope, $alert,  Api, CaptchaModal) {
         $scope.formData = { url: ""};
         $scope.site = null;
         $scope.sites = [];
@@ -31,12 +31,17 @@ seoControllers.controller('SitesCtrl', ['$scope', 'Api', 'CaptchaModal',
                     console.log('get sites return ERROR!', err);
                     $scope.sites = [];
                     $scope.loading = false;
+                    $alert({title: 'Внимание!', content: "Ошибка при получении списка сайтов: " + err,
+                        placement: 'top', type: 'danger', show: true,
+                        duration: '3',
+                        container: '.alerts-container'
+                    });
                 });
         };
         load();
 
         var createTree = function (sites) {
-            if (!sites) {
+            if (!sites || sites.length==0) {
                 return [];
             }
             var tree = [];
@@ -77,18 +82,28 @@ seoControllers.controller('SitesCtrl', ['$scope', 'Api', 'CaptchaModal',
         };
 
         $scope.getParams = function () {
-            if (!$scope.site) {
+            if (!$scope.site || !$scope.site.condition_id) {
+                $alert({title: 'Внимание!', content: "Нет всех необходимых данных для запроса.",
+                    placement: 'top', type: 'danger', show: true,
+                    duration: '3',
+                    container: '.alerts-container'
+                });
                 return;
             }
             $scope.loading = true;
-            Api.get_params($scope.site.condition_id)
+            return Api.get_params($scope.site.condition_id)
                 .then(function (res) {
 //                var url = 'files/' + site.path;
 //                console.log(url);
 //                $window.open(url);
                     console.log("параметры получены");
-                    $scope.params = $scope.prettyDiagram(res.data);
-                    $scope.params1 = $scope.prettyTable(res.data);
+                    if (res.data && res.data.length>0){
+                        $scope.params = $scope.prettyDiagram(res.data);
+                        $scope.params1 = $scope.prettyTable(res.data);
+                    } else {
+                        $scope.params = [];
+                        $scope.params1 = [];
+                    }
                     $scope.loading = false;
                 })
                 .catch(function (err) {
@@ -96,10 +111,15 @@ seoControllers.controller('SitesCtrl', ['$scope', 'Api', 'CaptchaModal',
                     $scope.params = [];
                     $scope.params1 = [];
                     $scope.loading = false;
+                    $alert({title: 'Внимание!', content: "Параметры не получены: " + err.data,
+                        placement: 'top', type: 'danger', show: true,
+                        duration: '3',
+                        container: '.alerts-container'
+                    });
                 })
         }
         $scope.prettyDiagram = function (data) {
-            if (!data) {
+            if (!data || data.length==0) {
                 return
             }
             var diagram = []
@@ -131,7 +151,7 @@ seoControllers.controller('SitesCtrl', ['$scope', 'Api', 'CaptchaModal',
         }
 
         $scope.prettyTable = function (data) {
-            if (!data) {
+            if (!data || data.length==0) {
                 return
             }
             var table = []
@@ -146,15 +166,21 @@ seoControllers.controller('SitesCtrl', ['$scope', 'Api', 'CaptchaModal',
 
         $scope.calcParams = function () {
             if (!$scope.site) {
+                $alert({title: 'Внимание!', content: "Нет всех необходимых данных для запроса.",
+                    placement: 'top', type: 'danger', show: true,
+                    duration: '3',
+                    container: '.alerts-container'
+                });
                 return;
             }
             $scope.loading = true;
+
             Api.calc_params($scope.site.condition_id, $scope.captcha)
                 .then(function (res) {
                     console.log("параметры получены", res.data);
-                    $scope.params = res.data.params;
                     $scope.loading = false;
                     $scope.captcha = null;
+                    $scope.getParams();
                 })
                 .catch(function (err) {
                     $scope.loading = false;
@@ -178,57 +204,19 @@ seoControllers.controller('SitesCtrl', ['$scope', 'Api', 'CaptchaModal',
                     } else {
                         console.log("параметры НЕ получены, ", err)
                         $scope.params = [];
+                        $scope.params1 = [];
+                        $alert({title: 'Внимание!', content: "Параметры не получены: " + err.data,
+                            placement: 'top', type: 'danger', show: true,
+                            duration: '3',
+                            container: '.alerts-container'
+                        });
                     }
                 })
         }
 
-
-        $scope.remove = function (scope) {
-            //console.log("remove");
-            scope.remove();
-        };
-
         $scope.toggle = function (scope) {
             //console.log("toggle");
             scope.toggle();
-        };
-
-        $scope.addTask = function (params) {
-            console.log("addTask", params);
-
-            if (!params.usurl_id || !params.condition_query) {
-                return;
-            }
-            $scope.loading = true;
-            Api.create_task(params.usurl_id, params.condition_query)
-                .then(function () {
-                    console.log('task is saved');
-                    load();
-                    $scope.loading = false;
-                })
-                .catch(function (response) {
-                    console.log('task is saved WITH ERROR!', response);
-                    $scope.loading = false;
-                })
-        };
-
-        $scope.newSite = function () {
-            console.log("newSite");
-            if (!$scope.formData.url) {
-                return;
-            }
-            $scope.loading = true;
-            Api.create_site($scope.formData.url)
-                .then(function () {
-                    $scope.formData.url = "";
-                    console.log('site is saved');
-                    load();
-                    $scope.loading = false;
-                })
-                .catch(function (response) {
-                    console.log('site is saved WITH ERROR!', response);
-                    $scope.loading = false;
-                })
         };
 
         $scope.select = function (scope) {
@@ -243,24 +231,10 @@ seoControllers.controller('SitesCtrl', ['$scope', 'Api', 'CaptchaModal',
 
         };
 
-        $scope.changeSettings = function () {
-            var res = false;
-            if ($scope.site) {
-                //console.log("site_origin", $scope.origin_site, $scope.site)
-                if (JSON.stringify($scope.origin_site) != JSON.stringify($scope.site))
-                    res = true;
-            }
-            return res;
-        }
-
-        $scope.saveSettings = function () {
-
-        }
-
     }]);
 
-seoControllers.controller('SettingsCtrl', ['$scope', 'Api', 'CaptchaModal',
-    function ($scope, Api, CaptchaModal) {
+seoControllers.controller('SettingsCtrl', ['$scope', '$alert', 'Api',
+    function ($scope, $alert,  Api) {
         $scope.formData = { url: ""};
         $scope.site = null;
         $scope.sites = [];
@@ -291,6 +265,11 @@ seoControllers.controller('SettingsCtrl', ['$scope', 'Api', 'CaptchaModal',
                     console.log('get sites return ERROR!', err);
                     $scope.sites = [];
                     $scope.loading = false;
+                    $alert({title: 'Внимание!', content: "Список сайтов не получен: " + err.data,
+                        placement: 'top', type: 'danger', show: true,
+                        duration: '3',
+                        container: '.alerts-container'
+                    });
                 });
         };
         load();
@@ -350,6 +329,11 @@ seoControllers.controller('SettingsCtrl', ['$scope', 'Api', 'CaptchaModal',
             console.log("addTask", params);
 
             if (!params.usurl_id || !params.condition_query || !params.sengine_id) {
+                $alert({title: 'Внимание!', content: "Не заполнены все необходимые поля. " ,
+                    placement: 'top', type: 'danger', show: true,
+                    duration: '3',
+                    container: '.alerts-container'
+                });
                 return;
             }
             $scope.loading = true;
@@ -364,6 +348,11 @@ seoControllers.controller('SettingsCtrl', ['$scope', 'Api', 'CaptchaModal',
                 .catch(function (response) {
                     console.log('task is saved WITH ERROR!', response);
                     $scope.loading = false;
+                    $alert({title: 'Внимание!', content: "Новая задача не создана: " + response.data,
+                        placement: 'top', type: 'danger', show: true,
+                        duration: '3',
+                        container: '.alerts-container'
+                    });
                 })
         };
 
@@ -371,6 +360,11 @@ seoControllers.controller('SettingsCtrl', ['$scope', 'Api', 'CaptchaModal',
             console.log("saveTask", params);
 
             if (!params.task_id || !params.condition_query || !params.sengine_id) {
+                $alert({title: 'Внимание!', content: "Нет всех необходимых полей. " ,
+                    placement: 'top', type: 'danger', show: true,
+                    duration: '3',
+                    container: '.alerts-container'
+                });
                 return;
             }
             $scope.loading = true;
@@ -384,6 +378,11 @@ seoControllers.controller('SettingsCtrl', ['$scope', 'Api', 'CaptchaModal',
                 .catch(function (response) {
                     console.log('task is saved WITH ERROR!', response);
                     $scope.loading = false;
+                    $alert({title: 'Внимание!', content: "Изменения не сохранены: " + response.data ,
+                        placement: 'top', type: 'danger', show: true,
+                        duration: '3',
+                        container: '.alerts-container'
+                    });
                 })
         };
 
@@ -391,6 +390,11 @@ seoControllers.controller('SettingsCtrl', ['$scope', 'Api', 'CaptchaModal',
         $scope.newSite = function () {
             console.log("newSite");
             if (!$scope.formData.url) {
+                $alert({title: 'Внимание!', content: "Не заполнены все необходимые поля. " ,
+                    placement: 'top', type: 'danger', show: true,
+                    duration: '3',
+                    container: '.alerts-container'
+                });
                 return;
             }
             $scope.loading = true;
@@ -403,6 +407,11 @@ seoControllers.controller('SettingsCtrl', ['$scope', 'Api', 'CaptchaModal',
                 })
                 .catch(function (response) {
                     console.log('site is saved WITH ERROR!', response);
+                    $alert({title: 'Внимание!', content: "Новый сайт не добавлен: " + response.data ,
+                        placement: 'top', type: 'danger', show: true,
+                        duration: '3',
+                        container: '.alerts-container'
+                    });
                     $scope.loading = false;
                 })
         };

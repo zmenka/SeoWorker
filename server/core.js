@@ -30,7 +30,7 @@ Core.prototype.calcParams = function (condition_id, captcha, headers, user_id) {
                     condition = condition_res
                     if (res){
                         if (res.page_number > 1){
-                            throw 'уже все скачено'
+                            throw 'Данные уже обновлены.'
                         }
                         page = res.page_number + 1
                         sites_count = res.count;
@@ -65,7 +65,8 @@ Core.prototype.calcParams = function (condition_id, captcha, headers, user_id) {
 
             var links = params.getSearchPicks();
             console.log("получили ", links.length, " ссылок")
-            var length = links.length<10 ? links.length: 10;
+//            var length = links.length<10 ? links.length: 10;
+            var length = links.length;
             var promises = [];
             for (var i = 1; i <= length; i++) {//links.length
 
@@ -100,8 +101,8 @@ Core.prototype.calcParams = function (condition_id, captcha, headers, user_id) {
         })
         .then(function (res) {
             console.log(res)
-            console.log("параметры успешгно посчитаны")
-            return new PgSearch().listWithParams(condition_id)
+            console.log("параметры успешно посчитаны")
+//            return new PgSearch().listWithParams(condition_id)
         })
 
         .catch(function (res) {
@@ -109,8 +110,8 @@ Core.prototype.calcParams = function (condition_id, captcha, headers, user_id) {
                 throw res;
             } else {
 
-                console.error(res, res.stack)
-                throw 'Core.prototype.calcParams' + res;
+                console.error('Core.prototype.calcParams ', res, res.stack)
+                throw  res;
             }
 
         })

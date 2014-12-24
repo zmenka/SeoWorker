@@ -86,7 +86,7 @@ CREATE TABLE users
 );
 
 INSERT INTO users(USER_ID, USER_LOGIN, USER_PASSWORD, ROLE_ID, DATE_CREATE) VALUES
-    (1, 'admin', '$2a$08$lwNvtznfKh953Xbg.S4jyu02KES.Ohqd/B6NwGdkwVzf0Q4A73q3O', 1, NOW());
+    (1, 'admin', '$2a$08$4XJPFR7jk7yuwrvqVOAdYuv0LTjeyYN6tmY5JMIdb4OsZAut45XxW', 1, NOW());
 -- Уникальнай ключ
 CREATE UNIQUE INDEX UIDX_users_user_login ON users (USER_LOGIN);
 --CREATE UNIQUE INDEX UIDX_users_user_email ON users (USER_EMAIL);

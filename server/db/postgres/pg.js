@@ -10,27 +10,33 @@ var Client = require('pg').Client;
 function PG() {
     var deferred = Q.defer();
     var _this = this;
-    _this.client = new Client(Config.postgres);
-    _this.client.connect();
-    //console.log("connection to pg created");
-    _this.client.query('BEGIN', function (err, result) {
+    pg.connect(Config.postgres, function(err, client, done) {
         if (err) {
-            _this.rollback(_this.client);
             deferred.reject(err);
             return;
         }
-        deferred.resolve(_this);
-
-    });
+        _this.client = client;
+        _this.done = done;
+        client.query('BEGIN', function(err) {
+            if (err) {
+                return _this.rollback(client, done);
+                deferred.reject(err);
+                return;
+            }
+            deferred.resolve(_this);
+        })
+    })
     return deferred.promise;
 }
-PG.prototype.rollback = function (client) {
-    //terminating a client connection will
-    //automatically rollback any uncommitted transactions
-    //so while it's not technically mandatory to call
-    //ROLLBACK it is cleaner and more correct
-    client.query('ROLLBACK', function () {
-        client.end();
+PG.prototype.rollback = function (client, done) {
+    //if there was a problem rolling back the query
+    //something is seriously messed up.  Return the error
+    //to the done function to close & remove this client from
+    //the pool.  If you leave a client in the pool with an unaborted
+    //transaction weird, hard to diagnose problems might happen.
+    client.query('ROLLBACK', function (err) {
+        console.log(err)
+        return done(err);
     });
 };
 
@@ -39,29 +45,29 @@ PG.prototype.transact = function (query, params, endTransaction) {
     var date = new Date()
     var deferred = Q.defer();
     endTransaction = endTransaction || false;
-    _this.client.query(query, params, function (err, result) {
-        if (err) {
-            _this.rollback(_this.client);
-            deferred.reject(err);
-            return;
-        }
+    process.nextTick(function() {
+        _this.client.query(query, params, function (err, result) {
+            if (err) {
+                _this.rollback(_this.client, _this.done);
+                deferred.reject(err);
+                return;
+            }
 
-        if (endTransaction) {
-            //disconnect after successful commit
-            _this.client.query('COMMIT', function (res) {
-                //console.log("results of commit:", res);
-                //console.log("call callback after commit");
-                _this.client.end.bind(_this.client);
-                console.log(-date.getTime()+(new Date().getTime()))
+            if (endTransaction) {
+                //disconnect after successful commit
+                _this.client.query('COMMIT', function (err, res) {
+                    _this.done(err);
+                    console.log(-date.getTime() + (new Date().getTime()))
+                    deferred.resolve(result);
+                });
+            } else {
+                //console.log(-date.getTime()+(new Date().getTime()))
+                //console.log("call callback");
                 deferred.resolve(result);
-            });
-        } else {
-            //console.log(-date.getTime()+(new Date().getTime()))
-            //console.log("call callback");
-            deferred.resolve(result);
-        }
+            }
 
-    });
+        });
+    })
     return deferred.promise;
 }
 

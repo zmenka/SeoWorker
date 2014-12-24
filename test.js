@@ -11,64 +11,64 @@
 //    console.log(err)
 //})
 
-//var PG = require("./server/db/postgres/pg");
+var PG = require("./server/db/postgres/pg");
 
-var PgUsurls     = require("./server/db/postgres/pg_usurls");
-var PgUrls       = require("./server/db/postgres/pg_urls");
-var PgUsers      = require("./server/db/postgres/pg_users");
-var PgTasks      = require("./server/db/postgres/pg_tasks");
-var PgSengines   = require("./server/db/postgres/pg_sengines");
-var PgSearch     = require("./server/db/postgres/pg_search");
-var PgScontent   = require("./server/db/postgres/pg_scontents");
-var PgRoles      = require("./server/db/postgres/pg_roles");
-var PgParams     = require("./server/db/postgres/pg_params");
-var PgHtmls      = require("./server/db/postgres/pg_htmls");
+var PgUsurls = require("./server/db/postgres/pg_usurls");
+var PgUrls = require("./server/db/postgres/pg_urls");
+var PgUsers = require("./server/db/postgres/pg_users");
+var PgTasks = require("./server/db/postgres/pg_tasks");
+var PgSengines = require("./server/db/postgres/pg_sengines");
+var PgSearch = require("./server/db/postgres/pg_search");
+var PgScontent = require("./server/db/postgres/pg_scontents");
+var PgRoles = require("./server/db/postgres/pg_roles");
+var PgParams = require("./server/db/postgres/pg_params");
+var PgHtmls = require("./server/db/postgres/pg_htmls");
 var PgConditions = require("./server/db/postgres/pg_conditions");
 
-var pgusurls     = new PgUsurls    ();
-var pgurls       = new PgUrls    ();
-var pgusers      = new PgUsers     ();
-var pgtasks      = new PgTasks     ();
-var pgsengines   = new PgSengines  ();
-var pgsearch     = new PgSearch    ();
-var pgscontent   = new PgScontent  ();
-var pgroles      = new PgRoles     ();
-var pgparams     = new PgParams    ();
-var pghtmls      = new PgHtmls     ();
+var pgusurls = new PgUsurls();
+var pgurls = new PgUrls();
+var pgusers = new PgUsers();
+var pgtasks = new PgTasks();
+var pgsengines = new PgSengines();
+var pgsearch = new PgSearch();
+var pgscontent = new PgScontent();
+var pgroles = new PgRoles();
+var pgparams = new PgParams();
+var pghtmls = new PgHtmls();
 var pgconditions = new PgConditions();
- /*
-pgroles.list(
-   function(res){
-      r = res;
-      console.log('res');
-      console.log(res);
-  }, 
-  function(err){
-      console.log('err');
-      console.log(err);  
-      
-  }); */
- //получить все строки из roles
- /*
-pgusers.insert(
-    'user_login',
-    'user_password',
-    1,
-    'user_fname',
-    'user_iname',
-    'user_oname',
-    'user_email',
-    'user_phone',
-   function(res){
-      r = res;
-      console.log('res');
-      console.log(res);
-  }, 
-  function(err){
-      console.log('err');
-      console.log(err);  
-  }); 
-  */
+/*
+ pgroles.list(
+ function(res){
+ r = res;
+ console.log('res');
+ console.log(res);
+ },
+ function(err){
+ console.log('err');
+ console.log(err);
+
+ }); */
+//получить все строки из roles
+/*
+ pgusers.insert(
+ 'user_login',
+ 'user_password',
+ 1,
+ 'user_fname',
+ 'user_iname',
+ 'user_oname',
+ 'user_email',
+ 'user_phone',
+ function(res){
+ r = res;
+ console.log('res');
+ console.log(res);
+ },
+ function(err){
+ console.log('err');
+ console.log(err);
+ });
+ */
 //pgusers.list( function(res){r = res;console.log('res');console.log(res);}, function(err){console.log('err'); console.log(err);});
 //pgurls.list( function(res){r = res;console.log('res');console.log(res);}, function(err){console.log('err'); console.log(err);});
 //pgusurls.list( function(res){r = res;console.log('res');console.log(res);}, function(err){console.log('err'); console.log(err);});
@@ -92,17 +92,17 @@ pgusers.insert(
 //    .catch(function(err){
 //        console.log(err)
 //    });
-pgconditions.getCurrentSearchPage(1, new Date())//53
-
-    .then(function(params){
-//        console.log(domUtils.getElementsByTagName("div"))
-        console.log(params)
-    })
-    .catch(function(err){
-        console.log(err)
-    });
-
-console.log(new Date().toISOString());
+//pgconditions.getCurrentSearchPage(1, new Date())//53
+//
+//    .then(function(params){
+////        console.log(domUtils.getElementsByTagName("div"))
+//        console.log(params)
+//    })
+//    .catch(function(err){
+//        console.log(err)
+//    });
+//
+//console.log(new Date().toISOString());
 //var PG = require("./server/db/postgres/pg");
 //
 //PG.query('INSE123RT INTO sites(date_create) VALUES($1);', [new Date()], function(res){
@@ -154,3 +154,30 @@ console.log(new Date().toISOString());
 //];
 //console.log(getData(obj))
 //console.log(SeoParams.averageMatch('Мама мыла раму голубой тряпкой', 'Мыла ли мама эту раму губкой, или чем-то другим?'))
+
+//
+//var db;
+//var urls
+//return new PG()
+//    .then(function (db_res) {
+//        db = db_res
+//        return db.transact(
+//            "INSERT INTO urls (url, date_create) VALUES ($1, $2);",
+//            ['qwe', new Date()])
+//    })
+//    .then(function (res) {
+//        return db.transact(
+//            "SELECT currval(pg_get_serial_sequence('urls','url_id'))",
+//            [], true)
+//    })
+//    .then(function (res) {
+//        console.log("url saved", res.rows[0].currval);
+//        return res.rows[0].currval;
+//    })
+//    .catch(function (err) {
+//        console.log(err)
+//        throw 'PgUsurls.prototype.insert ' + err;
+//
+//    });
+var bcrypt   = require('bcrypt-nodejs');
+console.log(bcrypt.hashSync('seoTest', bcrypt.genSaltSync(8), null));
