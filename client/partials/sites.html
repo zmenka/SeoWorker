@@ -73,8 +73,8 @@
                             Параметры сайтов из выборки
                         </accordion-heading>
 
-                        <select ng-model="chart1" class="form-control" style="  width: 300px"
-                                ng-change="values1 = chart1.params" ng-options="p as p.url for p in params1"></select>
+                        <select ng-model="chart1" class="form-control" style="  width: 500px"
+                                ng-change="values1 = chart1.params" ng-options="p as p.name for p in params1"></select>
                         <br>
 
                         <div class="form-inline">
@@ -95,7 +95,7 @@
                             </label>
 
                             <div class="link form-group">
-                                <a ng-href="{{chart1.url}}" style="">{{chart1.url}}</a>
+                                <a ng-href="{{chart1.surl}}" style="">{{chart1.surl}}</a>
                             </div>
                         </div>
                         <br>

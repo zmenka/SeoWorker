@@ -156,7 +156,8 @@ seoControllers.controller('SitesCtrl', ['$scope', '$alert', 'Api', 'CaptchaModal
             }
             var table = []
             for (var key in data) {
-                table.push({url: data[key].url, params: data[key].param.params, surl: data[key].surl})
+                var name = data[key].url.length > 60 ? data[key].url.substr(0, 60) + '...' : data[key].url
+                table.push({url:  data[key].url, name: name, params: data[key].param.params, surl: data[key].surl})
             }
             console.log("prettyTable", data, table)
             $scope.chart1 = table[0]
