@@ -86,7 +86,7 @@ CREATE TABLE users
 );
 
 INSERT INTO users(USER_ID, USER_LOGIN, USER_PASSWORD, ROLE_ID, DATE_CREATE, COOKIES) VALUES
-    (, 'admin', '$2a$08$4XJPFR7jk7yuwrvqVOAdYuv0LTjeyYN6tmY5JMIdb4OsZAut45XxW', 1, NOW(),
+    (1, 'admin', '$2a$08$4XJPFR7jk7yuwrvqVOAdYuv0LTjeyYN6tmY5JMIdb4OsZAut45XxW', 1, NOW(),
     '[{"key":"ys","value":"wprid.1419427651139315-812962877619844847732558-9-020-p1","path":"/","domain":"yandex.ru","creation":"2014-12-24T13:27:31.132Z","hostOnly":false,"lastAccessed":"2014-12-24T13:27:31.688Z"},
      {"key":"yandexuid","value":"7003070151419348786","hostOnly":true,"domain":"yandex.ru","path":"/","pathIsDefault":true,"lastAccessed":"2014-12-24T13:27:31.688Z","creation":"2014-12-24T13:27:31.133Z"},
      {"key":"spravka","value":"dD0xNDE5MzQ4OTg0O2k9MTg4LjIyNi4yLjE4Mjt1PTE0MTkzNDg5ODQwNjI5NTU5OTk7aD0wMzdiODZkMmQ2YzljN2FhMGU1MzVhZTM1OWRjNzliNg==","hostOnly":true,"domain":"yandex.ru","path":"/","pathIsDefault":true,"lastAccessed":"2014-12-24T13:27:31.688Z","creation":"2014-12-24T13:27:31.133Z"}]');
