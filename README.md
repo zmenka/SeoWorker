@@ -29,3 +29,5 @@ cd seo-worker
 npm install
 
 node start
+
+http://help.friendsplus.me/article/56-i-am-getting-error-error-uncaught-securityerror-failed-to-read-the-localstorage-property-from-window-access-is-denied-for-this-document

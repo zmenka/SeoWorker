@@ -33,9 +33,9 @@
                            ng-model="site.condition_query">
                 </div>
                 <br>
-                <button type="button" class="btn btn-primary" ng-show="site " ng-click="getParams()">Получить данные
+                <button type="button" class="btn btn-primary" ng-disabled="loading" ng-show="site " ng-click="getParams()">Получить данные
                 </button>
-                <a class="btn btn-success " ng-show="site && !changeSettings()" ng-click="calcParams()">
+                <a class="btn btn-success " ng-disabled="loading" ng-show="site" ng-click="calcParams()">
                     <span class="glyphicon glyphicon-refresh"></span>
                 </a>
 

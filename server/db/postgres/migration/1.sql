@@ -2,13 +2,13 @@ DROP DATABASE IF EXISTS seo;
 CREATE DATABASE seo;
 
 \c seo;
-DROP TABLE IF EXISTS session CASCADE;
+    DROP TABLE IF EXISTS session CASCADE;
 CREATE TABLE session (
   sid varchar NOT NULL COLLATE "default",
   sess json NOT NULL,
   expire timestamp(6) NOT NULL
-)
-WITH (OIDS=FALSE);
+);
+
 ALTER TABLE "session" ADD CONSTRAINT "session_pkey" PRIMARY KEY ("sid") NOT DEFERRABLE INITIALLY IMMEDIATE;
 
 /* Хранилище страниц */
@@ -66,7 +66,7 @@ CREATE TABLE users
   -- Логин пользователя
   USER_LOGIN        VARCHAR(50) NOT NULL,
   -- Пароль пользователя (md5)
-  USER_PASSWORD     VARCHAR(50 NOT NULL,
+  USER_PASSWORD     VARCHAR NOT NULL,
   -- Роль пользователя
   ROLE_ID           INT REFERENCES roles(ROLE_ID),
   -- Фамилия пользователя
