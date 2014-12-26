@@ -179,5 +179,41 @@ var pgconditions = new PgConditions();
 //        throw 'PgUsurls.prototype.insert ' + err;
 //
 //    });
-var bcrypt   = require('bcrypt-nodejs');
-console.log(bcrypt.hashSync('seoTest', bcrypt.genSaltSync(8), null));
+//var bcrypt   = require('bcrypt-nodejs');
+//console.log(bcrypt.hashSync('seoTest', bcrypt.genSaltSync(8), null));
+
+var SeoParser = require("./server/seo_parser");
+var parser = new SeoParser();
+//new PgHtmls().get(668)
+//    .then(function (res) {
+//        console.log('html получен', res);
+//        parser.initDom(res.html,
+//            function (){
+//                console.log(parser.getTag('div h1'))
+//            },
+//            function (err){
+//                console.log(err)
+//            });
+//    })
+//    .catch(function (err) {
+//        console.log(err)
+//    });
+
+var Searcher = require('./server/searcher')
+new Searcher().getContentByUrl('http://akulaweb.ru/')
+    .then(function (res) {
+        console.log(res)
+    })
+
+var iconv = require('iconv-lite');
+var request = require('request');
+request({
+        url:'http://akulaweb.ru/',
+        encoding: null
+    },
+    function(err, resp, body){
+        var bodyWithCorrectEncoding = iconv.decode(body, 'utf-8');
+        console.log('iconv-lite', body);
+    }
+);
+

@@ -98,7 +98,7 @@ PgTasks.prototype.insertWithCondition = function (usurl_id, condition_query, sen
                     .then(function (res) {
                         return db.transact(
                             "SELECT currval(pg_get_serial_sequence('conditions','condition_id'))",
-                            [])
+                            [], true)
                     })
                     .then(function (res) {
                         console.log("condition saved");
@@ -117,9 +117,13 @@ PgTasks.prototype.insertWithCondition = function (usurl_id, condition_query, sen
             }
         })
         .then(function (condition_id) {
-            return db.transact(
-                "INSERT INTO tasks (condition_id, usurl_id, date_create) VALUES ($1, $2, $3);",
-                [condition_id, usurl_id, date_create])
+            return new PG()
+                .then(function (db_res) {
+                    db = db_res;
+                    return db.transact(
+                        "INSERT INTO tasks (condition_id, usurl_id, date_create) VALUES ($1, $2, $3);",
+                        [condition_id, usurl_id, date_create])
+                })
         })
         .then(function (res) {
             return  db.transact(
@@ -140,10 +144,35 @@ PgTasks.prototype.insertWithCondition = function (usurl_id, condition_query, sen
 
 PgTasks.prototype.updateWithCondition = function (task_id, condition_query, sengine_id) {
     _this = this;
+    var condition_id;
+    return new PgConditions().find(condition_query, sengine_id)
+        .then(function (conds) {
+            if (conds.length == 0) {
+                return new PgConditions().insert(condition_query, sengine_id)
+            } else if (conds.length == 1) {
+                console.log('такие условия уже где-то были')
+                return conds[0].condition_id
+            } else {
+                throw "Повторение одинаковый условий."
+                return
+            }
+        })
+        .then(function (condition_id_res) {
+            condition_id = condition_id_res
+            return  PG.query(
+                "SELECT * FROM  tasks WHERE condition_id= $1 AND  usurl_id = (SELECT T.usurl_id FROM tasks T WHERE T.task_id = $2);",
+                [condition_id, task_id ])
+        })
+        .then(function (tasks) {
+            if (tasks.rows.length != 0) {
 
-    return PG.query(
-        "UPDATE conditions SET condition_query= $1, sengine_id =  $2 WHERE CONDITION_ID = (SELECT T.CONDITION_ID FROM tasks T WHERE T.task_id = $3);",
-        [condition_query, sengine_id, task_id])
+                throw "У данной страницы уже есть такие условия.";
+                return;
+            }
+            return PG.query(
+                "UPDATE tasks SET condition_id= $1 WHERE task_id=$2;",
+                [condition_id, task_id])
+        })
         .then(function (res) {
             console.log("PgTasks.prototype.updateWithCondition");
             return res;
@@ -185,12 +214,13 @@ PgTasks.prototype.find = function (usurl_id, condition_id) {
         [usurl_id, condition_id])
 
         .then(function (res) {
+            console.log('PgTasks.prototype.findByCondition')
             return res.rows;
         })
         .catch(function (err) {
-        throw 'PgTasks.prototype.findByCondition' + err;
-        console.log(err);
-    })
+            throw 'PgTasks.prototype.findByCondition' + err;
+            console.log('PgTasks.prototype.findByCondition error: ', err);
+        })
 }
 
 PgTasks.prototype.findByUsurl = function (val, callback, errback) {
@@ -205,14 +235,15 @@ PgTasks.prototype.findByUsurl = function (val, callback, errback) {
         })
 }
 
-PgTasks.prototype.findByCondition = function (val, callback, errback) {
-    PG.query("SELECT * FROM tasks WHERE condition_id = $1;",
-        [val],
-        function (res) {
-            callback(res.rows);
-        },
-        function (err) {
-            console.log('PgTasks.prototype.findByCondition');
+PgTasks.prototype.findByCondition = function (val) {
+    return PG.query("SELECT * FROM tasks WHERE condition_id = $1;",
+        [val])
+        .then(function (res) {
+            console.log('PgTasks.prototype.findByCondition')
+            return res.rows;
+        })
+        .catch(function (err) {
+            throw 'PgTasks.prototype.findByCondition err ' + err;
             console.log(err);
         })
 }

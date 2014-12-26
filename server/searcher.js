@@ -1,4 +1,5 @@
 var request = require('request');
+var iconv = require('iconv-lite');
 var path = require('path');
 var SeoParser = require('./seo_parser')
 var PgUsers = require('./db/postgres/pg_users')
@@ -50,17 +51,17 @@ Searcher.prototype.getContentByUrl = function (url, captcha, client_headers, coo
             headers['accept'] = client_headers['accept'];
             headers['user-agent'] = client_headers['user-agent']
             headers['content-type'] = client_headers['content-type'];
-            headers['accept-encoding'] = client_headers['accept-language-encoding'];
-            headers['accept-language'] = client_headers['accept'];
+            headers['accept-encoding'] = client_headers['accept-encoding'];
+            headers['accept-language'] = client_headers['accept-language'];
         }
         var j = request.jar()
 
         var options = {
             url: url,
             followAllRedirects: true,
-            headers: headers,
             jar: j,
-            timeout: 15000
+            timeout: 15000,
+            encoding: null
         };
 
         var properties = null;
@@ -68,6 +69,7 @@ Searcher.prototype.getContentByUrl = function (url, captcha, client_headers, coo
             //properties = { 'key': encodeURIComponent(captcha.key), 'retpath': encodeURIComponent(captcha.retpath), 'rep': encodeURIComponent(captcha.rep) };
             options.url = 'http://yandex.ru/checkcaptcha?key=' + encodeURIComponent(captcha.key) + '&retpath='
                 + encodeURIComponent(captcha.retpath) + '&rep=' + encodeURIComponent(captcha.rep);
+            options.headers = headers;
         }
 
         if (cookies) {
@@ -84,10 +86,12 @@ Searcher.prototype.getContentByUrl = function (url, captcha, client_headers, coo
                 deferred.reject('Searcher.prototype.getContentByUrl Ошибка при получении html ' + error.toString());
             } else {
                 console.log(-date.getTime()+(new Date().getTime()))
-                console.log("Содержимое сайте получено: ", options.url);//, body);
+
+                var bodyWithCorrectEncoding = iconv.decode(body, 'utf-8');
                 //console.log("response.headers", response.request.headers['cookie'])
                 var cookies = j.getCookies(options.url)
-                deferred.resolve({html: body, cookies: cookies});
+                console.log("Содержимое сайте получено: ", options.url)//, bodyWithCorrectEncoding);
+                deferred.resolve({html: bodyWithCorrectEncoding, cookies: cookies});
             }
 
         })

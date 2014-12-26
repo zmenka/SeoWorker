@@ -31,6 +31,7 @@ Core.prototype.calcParams = function (condition_id, captcha, headers, user_id) {
                     if (res){
                         if (res.page_number > 1){
                             throw 'Данные уже обновлены.'
+                            return
                         }
                         page = res.page_number + 1
                         sites_count = res.count;
