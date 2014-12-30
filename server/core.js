@@ -11,7 +11,7 @@ var SeoParameters = require("./seo_parameters");
 var Q = require("q");
 
 function Core() {
-   // console.log('core init');
+    // console.log('core init');
 };
 
 
@@ -28,8 +28,8 @@ Core.prototype.calcParams = function (condition_id, captcha, headers, user_id) {
             return new PgConditions().getCurrentSearchPage(condition_id, new Date(new Date() - 10 * 60000))
                 .then(function (res) {
                     condition = condition_res
-                    if (res){
-                        if (res.page_number > 1){
+                    if (res) {
+                        if (res.page_number > 1) {
                             throw 'Данные уже обновлены.'
                             return
                         }
@@ -95,7 +95,6 @@ Core.prototype.calcParams = function (condition_id, captcha, headers, user_id) {
                     })(link, position))
                 })(links[i - 1], i)
 
-
             }
 
             return Q.allSettled(promises)
@@ -115,6 +114,37 @@ Core.prototype.calcParams = function (condition_id, captcha, headers, user_id) {
                 throw  res;
             }
 
+        })
+}
+
+Core.prototype.calcParamsByUrl = function (url, condition_id) {
+    var condition;
+    var current_html_id;
+    var current_html;
+    return new PgConditions().getWithSengines(condition_id)
+        .then(function (condition_res) {
+            condition = condition_res;
+            return new Searcher().getContentByUrl(url)
+        })
+        .then(function (res) {
+            current_html = res.html
+            return new PgHtmls().insertWithUrl(escape(current_html), url)
+        })
+        .then(function (html_id) {
+            current_html_id = html_id;
+            return new SeoParameters().init(condition.condition_query, url, current_html)
+        })
+        .then(function (params) {
+            var link_params = params.getAllParams()
+            return new PgParams().insert(condition_id, current_html_id, link_params)
+        })
+        .then(function (res) {
+            console.log(res)
+            console.log("параметры САЙТА успешно посчитаны")
+        })
+        .catch(function (res) {
+            console.error('Core.prototype.calcParamsByUrl ', res, res.stack)
+            throw  res;
         })
 }
 

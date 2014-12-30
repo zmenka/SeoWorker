@@ -118,10 +118,10 @@ Searcher.prototype.getContentByUrlOrCaptcha = function (url, captcha, client_hea
 
         .then(function (res) {
             content = res
-            return new PgUsers().updateCookies(user_id, JSON.stringify(res.cookies))
-        })
-
-        .then(function (res) {
+//            return new PgUsers().updateCookies(user_id, JSON.stringify(res.cookies))
+//        })
+//
+//        .then(function (res) {
             return _this.getCaptcha(content.html)
         })
         .catch(function (error) {

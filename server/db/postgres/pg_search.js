@@ -138,4 +138,28 @@ PgSearch.prototype.listWithParams = function(condition_id) {
         })
 }
 
+PgSearch.prototype.siteWithParams = function(url_id, condition_id) {
+    return PG.query("SELECT " +
+            "U.URL, " +
+            "P.PARAM " +
+            "FROM " +
+            "htmls H " +
+            "JOIN urls U " +
+            "ON U.URL_ID = H.URL_ID " +
+            "JOIN params P " +
+            "ON P.HTML_ID = H.HTML_ID " +
+            "WHERE " +
+            "P.CONDITION_ID = $1 " +
+            "AND U.URL_ID = $2 " +
+            "ORDER BY H.DATE_CREATE DESC LIMIT 1;",
+        [condition_id,url_id])
+        .then(function (res) {
+            console.log("PgSearch.prototype.siteWithParams")
+            return res.rows;
+        })
+        .catch(function (err) {
+            throw 'PgSearch.prototype.siteWithParams' + err;
+        })
+}
+
 module.exports = PgSearch;

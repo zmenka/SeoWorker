@@ -8,13 +8,16 @@ seoControllers.controller('MainCtrl', ['$scope', 'Authenticate',
         };
     }]);
 seoControllers.controller('SitesCtrl', ['$scope', '$alert', 'Api', 'CaptchaModal',
-    function ($scope, $alert,  Api, CaptchaModal) {
+    function ($scope, $alert, Api, CaptchaModal) {
         $scope.formData = { url: ""};
         $scope.site = null;
         $scope.sites = [];
         $scope.origin_site = null;
         $scope.params = [];
         $scope.params1 = [];
+        $scope.chart = null;
+       $scope.values = null;
+        $scope.site_params = null;
         $scope.loading = false;
         $scope.captcha = null;
         $scope.oneAtATime = true;
@@ -41,7 +44,7 @@ seoControllers.controller('SitesCtrl', ['$scope', '$alert', 'Api', 'CaptchaModal
         load();
 
         var createTree = function (sites) {
-            if (!sites || sites.length==0) {
+            if (!sites || sites.length == 0) {
                 return [];
             }
             var tree = [];
@@ -59,14 +62,14 @@ seoControllers.controller('SitesCtrl', ['$scope', '$alert', 'Api', 'CaptchaModal
                     if (!site.task_id) {
                         var s = null
                     } else {
-                        var s = {title: site.condition_query, nodes: [], usurl_id: site.usurl_id, task_id: site.task_id, url: site.url,
+                        var s = {title: site.condition_query, nodes: [], usurl_id: site.usurl_id, url_id: site.url_id, task_id: site.task_id, url: site.url,
                             condition_id: site.condition_id, condition_query: site.condition_query};
                     }
                     var row
                     if (result.length > 0) {
                         row = result[0];
                     } else {
-                        row = {title: site.url, usurl_id: site.usurl_id, nodes: []}
+                        row = {title: site.url, usurl_id: site.usurl_id, url_id: site.url_id, nodes: []}
                         tree.push(row)
                     }
                     if (s) {
@@ -82,7 +85,7 @@ seoControllers.controller('SitesCtrl', ['$scope', '$alert', 'Api', 'CaptchaModal
         };
 
         $scope.getParams = function () {
-            if (!$scope.site || !$scope.site.condition_id) {
+            if (!$scope.site || !$scope.site.condition_id || !$scope.site.url_id) {
                 $alert({title: 'Внимание!', content: "Нет всех необходимых данных для запроса.",
                     placement: 'top', type: 'danger', show: true,
                     duration: '3',
@@ -91,18 +94,25 @@ seoControllers.controller('SitesCtrl', ['$scope', '$alert', 'Api', 'CaptchaModal
                 return;
             }
             $scope.loading = true;
-            return Api.get_params($scope.site.condition_id)
+            return Api.get_params($scope.site.url_id, $scope.site.condition_id)
                 .then(function (res) {
 //                var url = 'files/' + site.path;
 //                console.log(url);
 //                $window.open(url);
-                    console.log("параметры получены");
-                    if (res.data && res.data.length>0){
-                        $scope.params = $scope.prettyDiagram(res.data);
-                        $scope.params1 = $scope.prettyTable(res.data);
+                    console.log("параметры получены", res);
+                    if (res.data && res.data.all_params && res.data.all_params.length > 0
+                        && res.data.site_params && res.data.site_params.length > 0) {
+                        $scope.params = $scope.prettyDiagram(res.data.all_params, res.data.site_params[0]);
+                        $scope.chart = null
+                        $scope.values = null
+                        $scope.params1 = $scope.prettyTable(res.data.all_params, res.data.site_params[0]);
+                        $scope.chart1 = null
+                        $scope.values1= null
+                        $scope.site_params = res.data.site_params[0]
                     } else {
                         $scope.params = [];
                         $scope.params1 = [];
+                        $scope.site_params = null;
                     }
                     $scope.loading = false;
                 })
@@ -110,6 +120,7 @@ seoControllers.controller('SitesCtrl', ['$scope', '$alert', 'Api', 'CaptchaModal
                     console.log("параметры НЕ получены, ", err)
                     $scope.params = [];
                     $scope.params1 = [];
+                    $scope.site_params = null;
                     $scope.loading = false;
                     $alert({title: 'Внимание!', content: "Параметры не получены: " + err.data,
                         placement: 'top', type: 'danger', show: true,
@@ -118,8 +129,9 @@ seoControllers.controller('SitesCtrl', ['$scope', '$alert', 'Api', 'CaptchaModal
                     });
                 })
         }
-        $scope.prettyDiagram = function (data) {
-            if (!data || data.length==0) {
+        $scope.prettyDiagram = function (data, site_data) {
+
+            if (!data || data.length == 0 || !site_data ) {
                 return
             }
             var diagram = []
@@ -128,14 +140,18 @@ seoControllers.controller('SitesCtrl', ['$scope', '$alert', 'Api', 'CaptchaModal
                 for (var key1 in data[key].param.params) {
                     var current_par = data[key].param.params[key1]
                     if (current_par.success) {
+                        var cur_val = parseFloat(current_par.val)
                         var result = diagram.filter(function (v) {
                             return v.key === current_par.ru_name;
                         })
                         var serial = {key: current_par.ru_name, values: [
-                            [position, current_par.val]
-                        ]}
+                            [position, cur_val]
+                        ], yrange: 0}
                         if (result.length > 0) {
-                            result[0].values.push([position, current_par.val])
+                            if (cur_val > result[0].yrange) {
+                                result[0].yrange = cur_val;
+                            }
+                            result[0].values.push([position, cur_val])
 
                         } else {
                             diagram.push(serial)
@@ -144,24 +160,48 @@ seoControllers.controller('SitesCtrl', ['$scope', '$alert', 'Api', 'CaptchaModal
 
                 }
             }
-            console.log("prettyDiagram", data, diagram)
-            $scope.chart = diagram[0]
-            $scope.values = [diagram[0]]
-            return diagram;
+            var diagramExt = [];
+            for (var key in diagram) {
+                var result = site_data.param.params.filter(function (v) {
+                    return v.ru_name === diagram[key].key;
+                })
+                if (result.length > 0 && result[0].success) {
+                    diagramExt.push({key: diagram[key].key,
+                        values: [
+                            diagram[key],
+                            {
+                                key: 'Ваш сайт',
+                                values: [
+                                    [0, parseFloat(result[0].val)],
+                                    [diagram[key].values[diagram[key].values.length - 1][0], parseFloat(result[0].val)]
+                                ],
+                                color: 'red'
+                            }
+                        ]
+                    })
+                }
+            }
+
+            console.log("prettyDiagram", diagramExt, diagram)
+//            $scope.chart = null
+//            $scope.values = $scope.chart.values;
+            return diagramExt;
         }
 
-        $scope.prettyTable = function (data) {
-            if (!data || data.length==0) {
+        $scope.prettyTable = function (data, site_data) {
+            if (!data || data.length == 0 || !site_data) {
                 return
             }
             var table = []
             for (var key in data) {
                 var name = data[key].url.length > 60 ? data[key].url.substr(0, 60) + '...' : data[key].url
-                table.push({url:  data[key].url, name: name, params: data[key].param.params, surl: data[key].surl})
+                table.push({url: data[key].url, name: name, params: data[key].param.params, surl: data[key].surl})
             }
+
+            table.push({url: site_data.url, name: 'Ваш сайт', params: site_data.param.params, surl: "-"})
             console.log("prettyTable", data, table)
-            $scope.chart1 = table[0]
-            $scope.values1 = $scope.chart1.params
+//            $scope.chart1 = table[0]
+//            $scope.values1 = $scope.chart1.params
             return table;
         }
 
@@ -176,7 +216,7 @@ seoControllers.controller('SitesCtrl', ['$scope', '$alert', 'Api', 'CaptchaModal
             }
             $scope.loading = true;
 
-            Api.calc_params($scope.site.condition_id, $scope.captcha)
+            Api.calc_params($scope.site.url, $scope.site.condition_id, $scope.captcha)
                 .then(function (res) {
                     console.log("параметры получены", res.data);
                     $scope.loading = false;
@@ -235,7 +275,7 @@ seoControllers.controller('SitesCtrl', ['$scope', '$alert', 'Api', 'CaptchaModal
     }]);
 
 seoControllers.controller('SettingsCtrl', ['$scope', '$alert', 'Api',
-    function ($scope, $alert,  Api) {
+    function ($scope, $alert, Api) {
         $scope.formData = { url: ""};
         $scope.site = null;
         $scope.sites = [];
@@ -330,7 +370,7 @@ seoControllers.controller('SettingsCtrl', ['$scope', '$alert', 'Api',
             console.log("addTask", params);
 
             if (!params.usurl_id || !params.condition_query || !params.sengine_id) {
-                $alert({title: 'Внимание!', content: "Не заполнены все необходимые поля. " ,
+                $alert({title: 'Внимание!', content: "Не заполнены все необходимые поля. ",
                     placement: 'top', type: 'danger', show: true,
                     duration: '3',
                     container: '.alerts-container'
@@ -361,7 +401,7 @@ seoControllers.controller('SettingsCtrl', ['$scope', '$alert', 'Api',
             console.log("saveTask", params);
 
             if (!params.task_id || !params.condition_query || !params.sengine_id) {
-                $alert({title: 'Внимание!', content: "Нет всех необходимых полей. " ,
+                $alert({title: 'Внимание!', content: "Нет всех необходимых полей. ",
                     placement: 'top', type: 'danger', show: true,
                     duration: '3',
                     container: '.alerts-container'
@@ -379,7 +419,7 @@ seoControllers.controller('SettingsCtrl', ['$scope', '$alert', 'Api',
                 .catch(function (response) {
                     console.log('task is saved WITH ERROR!', response);
                     $scope.loading = false;
-                    $alert({title: 'Внимание!', content: "Изменения не сохранены: " + response.data ,
+                    $alert({title: 'Внимание!', content: "Изменения не сохранены: " + response.data,
                         placement: 'top', type: 'danger', show: true,
                         duration: '3',
                         container: '.alerts-container'
@@ -391,7 +431,7 @@ seoControllers.controller('SettingsCtrl', ['$scope', '$alert', 'Api',
         $scope.newSite = function () {
             console.log("newSite");
             if (!$scope.formData.url) {
-                $alert({title: 'Внимание!', content: "Не заполнены все необходимые поля. " ,
+                $alert({title: 'Внимание!', content: "Не заполнены все необходимые поля. ",
                     placement: 'top', type: 'danger', show: true,
                     duration: '3',
                     container: '.alerts-container'
@@ -408,7 +448,7 @@ seoControllers.controller('SettingsCtrl', ['$scope', '$alert', 'Api',
                 })
                 .catch(function (response) {
                     console.log('site is saved WITH ERROR!', response);
-                    $alert({title: 'Внимание!', content: "Новый сайт не добавлен: " + response.data ,
+                    $alert({title: 'Внимание!', content: "Новый сайт не добавлен: " + response.data,
                         placement: 'top', type: 'danger', show: true,
                         duration: '3',
                         container: '.alerts-container'

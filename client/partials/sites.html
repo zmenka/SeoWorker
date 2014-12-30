@@ -47,15 +47,16 @@
                 Параметры
             </div>
             <div class="panel-body">
+
                 <accordion close-others="oneAtATime">
                     <accordion-group ng-show="params" >
                         <accordion-heading>
                             Графики параметров
                         </accordion-heading>
 
-                        <select ng-model="chart" class="form-control"
+                        <select  ng-model="chart" class="form-control"
                                 style=" margin-left:50px; width: 300px"
-                                ng-change="values = [chart]" ng-options="p as p.key for p in params"></select>
+                                ng-change="values = chart.values;" ng-options="p as p.key for p in params"></select>
                         <nvd3-line-chart ng-show="params"
                                          data="values"
                                          width="590"
@@ -63,7 +64,8 @@
                                          showXAxis="true"
                                          showYAxis="true"
                                          tooltips="true"
-                                         interactive="true">
+                                         interactive="true"
+                                         >
                         </nvd3-line-chart>
 
 
@@ -73,7 +75,7 @@
                             Параметры сайтов из выборки
                         </accordion-heading>
 
-                        <select ng-model="chart1" class="form-control" style="  width: 500px"
+                        <select  ng-model="chart1" class="form-control" style="  width: 500px"
                                 ng-change="values1 = chart1.params" ng-options="p as p.name for p in params1"></select>
                         <br>
 

@@ -24,11 +24,11 @@ seoServices.factory('Api', ['$http',
                 return $http.post('/api/save_task', {task_id: task_id,
                     condition_query: condition_query, sengine_id:sengine_id});
             },
-            calc_params: function (condition_id, captcha) {
-                return $http.post('/api/calc_params', {condition_id: condition_id, captcha: captcha});
+            calc_params: function ( url, condition_id, captcha) {
+                return $http.post('/api/calc_params', {url: url, condition_id: condition_id, captcha: captcha});
             },
-            get_params: function (condition_id) {
-                return $http.post('/api/get_params', {condition_id: condition_id});
+            get_params: function (url_id, condition_id) {
+                return $http.post('/api/get_params', {url_id: url_id, condition_id: condition_id});
             }
         };
     }]);

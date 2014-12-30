@@ -118,6 +118,9 @@ module.exports = function Api(app, passport) {
                     return  new Core().calcParams(req.body.condition_id, null, req.headers, 1)
                 })
                 .then(function () {
+                    return new Core().calcParamsByUrl(req.body.url, req.body.condition_id)
+                })
+                .then(function () {
                     callback("ok", res);
                     serverFree = true
                 })
@@ -137,9 +140,14 @@ module.exports = function Api(app, passport) {
             errback("не найдены параметры condition_id", res);
             return;
         }
+        var params;
         new PgSearch().listWithParams(req.body.condition_id)
-            .then(function (params) {
-                callback(params, res);
+            .then(function (params_res) {
+                params = params_res;
+                return new PgSearch().siteWithParams(req.body.url_id, req.body.condition_id)
+            })
+            .then(function (site_params) {
+                callback({all_params: params, site_params: site_params}, res);
 
             })
             .catch(function (err) {
