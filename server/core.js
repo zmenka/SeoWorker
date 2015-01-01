@@ -45,8 +45,8 @@ Core.prototype.calcParams = function (condition_id, captcha, headers, user_id) {
         })
         .then(function (search_id_res) {
             search_id = search_id_res
-            url = condition.sengine_qmask + encodeURIComponent(condition.condition_query) + "&p=" + page;
-
+            url = condition.sengine_qmask + condition.condition_query.replace(/\s/g, '%20') + "%26p%3D" + page;
+            console.log("хотим янрдекс урл ", url)
             return new Searcher().getContentByUrlOrCaptcha(url, captcha, headers, user_id)
         })
         .then(function (res) {
@@ -54,7 +54,7 @@ Core.prototype.calcParams = function (condition_id, captcha, headers, user_id) {
             return new PgHtmls().insertWithUrl(raw_html, url)
         })
         .then(function (html_id) {
-            console.log('!!!!', search_id, html_id, page)
+            console.log('PgSpages().insert ', search_id, html_id, page)
             return new PgSpages().insert(search_id, html_id, page)
         })
         .then(function (spage_id_res) {
@@ -63,9 +63,9 @@ Core.prototype.calcParams = function (condition_id, captcha, headers, user_id) {
             return new SeoParameters().init(condition.condition_query, url, raw_html)
         })
         .then(function (params) {
-
             var links = params.getSearchPicks();
             console.log("получили ", links.length, " ссылок")
+
 //            var length = links.length<10 ? links.length: 10;
             var length = links.length;
             var promises = [];

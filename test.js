@@ -184,36 +184,32 @@ var pgconditions = new PgConditions();
 
 var SeoParser = require("./server/seo_parser");
 var parser = new SeoParser();
-//new PgHtmls().get(668)
-//    .then(function (res) {
-//        console.log('html получен', res);
-//        parser.initDom(res.html,
-//            function (){
-//                console.log(parser.getTag('div h1'))
-//            },
-//            function (err){
-//                console.log(err)
-//            });
-//    })
-//    .catch(function (err) {
-//        console.log(err)
-//    });
-
 var Searcher = require('./server/searcher')
-new Searcher().getContentByUrl('http://akulaweb.ru/')
+//'http://spasitepc.ru/iphone-bystro-razryazhaetsa'
+new Searcher().getContentByUrl('http://yandex.ru/yandsearch?text=замена%20экрана%20iphone%26p%3D0')
     .then(function (res) {
         console.log(res)
+        parser.initDom(res.html,
+            function (){
+                console.log(parser.getTag('div h1'))
+            },
+            function (err){
+                console.log(err)
+            });
+    })
+    .catch(function (err) {
+        console.log(err)
     })
 
-var iconv = require('iconv-lite');
-var request = require('request');
-request({
-        url:'http://akulaweb.ru/',
-        encoding: null
-    },
-    function(err, resp, body){
-        var bodyWithCorrectEncoding = iconv.decode(body, 'utf-8');
-        console.log('iconv-lite', body);
-    }
-);
+//var iconv = require('iconv-lite');
+//var request = require('request');
+//request({
+//        url:'http://yandex.ru/yandsearch?text=замена%20экрана%20iphone%26p%3D0',
+//        encoding: null
+//    },
+//    function(err, resp, body){
+//        var bodyWithCorrectEncoding = iconv.decode(body, 'utf-8');
+//        console.log('iconv-lite', body);
+//    }
+//);
 
