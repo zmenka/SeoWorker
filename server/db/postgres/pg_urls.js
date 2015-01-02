@@ -88,7 +88,7 @@ PgUrls.prototype.get = function (id, callback, errback) {
         })
 }
 
-PgUrls.prototype.find = function (url) {
+PgUrls.prototype.findByUrl = function (url) {
     return PG.query("SELECT * FROM urls WHERE url = $1;",
         [url]
     )

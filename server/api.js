@@ -24,7 +24,12 @@ module.exports = function Api(app, passport) {
     app.get('/api/user_sites_and_tasks', function (req, res, next) {
         console.log('/api/user_sites_and_tasks');
 
-        new PgUsurls().listWithTasks()
+        if (!req.user || !req.user.user_id) {
+            errback("Нет зарегистрированного пользователя!", res);
+            return;
+        }
+
+        new PgUsurls().listWithTasks(req.user.user_id)
             .then(function (sites) {
                 callback(sites, res);
             })
@@ -49,14 +54,18 @@ module.exports = function Api(app, passport) {
 
     app.post('/api/create_site', function (req, res, next) {
         console.log('/api/create_site', req.body);
-        res.statusCode = 200;
 
         if (!req.body.url) {
             errback("не найден параметр url ", res);
             return;
         }
 
-        new PgUsurls().insertWithUrl(req.body.url)
+        if (!req.user || !req.user.user_id) {
+            errback("Нет зарегистрированного пользователя!", res);
+            return;
+        }
+
+        new PgUsurls().insertWithUrl(req.body.url, req.user.user_id)
             .then(function (db_res) {
                 callback(db_res, res);
             })
@@ -67,14 +76,15 @@ module.exports = function Api(app, passport) {
 
     app.post('/api/create_task', function (req, res, next) {
         console.log('/api/create_site', req.body);
-        res.statusCode = 200;
 
-        if (!req.body.usurl_id || !req.body.condition_query || !req.body.sengine_id) {
-            errback("не найдены параметры usurl_id или condition_query or sengine_id", res);
+        if (!req.body.usurl_id || !req.body.condition_query || !req.body.sengine_id
+            || !req.body.region || !req.body.size_search) {
+            errback("не найдены параметры! ", res);
             return;
         }
 
-        new PgTasks().insertWithCondition(req.body.usurl_id, req.body.condition_query, req.body.sengine_id)
+        new PgTasks().insertWithCondition(req.body.usurl_id, req.body.condition_query, req.body.sengine_id,
+                req.body.region, req.body.size_search)
             .then(function (db_res) {
                 callback(db_res, res);
             })
@@ -87,7 +97,8 @@ module.exports = function Api(app, passport) {
         console.log('/api/save_task', req.body);
         res.statusCode = 200;
 
-        if (!req.body.task_id || !req.body.condition_query || !req.body.sengine_id) {
+        if (!req.body.task_id || !req.body.condition_query || !req.body.sengine_id ||
+            !req.body.region || !req.body.size_search) {
             errback("не найдены параметры task_id или condition_query or sengine_id", res);
             return;
         }
@@ -111,12 +122,14 @@ module.exports = function Api(app, passport) {
             errback("Не найден параметр condition_id.", res);
             return;
         }
+
+        if (!req.user || !req.user.user_id) {
+            errback("Нет зарегистрированного пользователя!", res);
+            return;
+        }
         serverFree = false;
         try {
-            return new Core().calcParams(req.body.condition_id, req.body.captcha, req.headers, 1)
-                .then(function () {
-                    return  new Core().calcParams(req.body.condition_id, null, req.headers, 1)
-                })
+            return new Core().calcParams(req.body.condition_id, req.body.captcha, req.headers, req.user.user_id)
                 .then(function () {
                     return new Core().calcParamsByUrl(req.body.url, req.body.condition_id)
                 })

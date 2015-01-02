@@ -96,7 +96,7 @@ Searcher.prototype.getContentByUrl = function (url, captcha, client_headers, coo
                 //console.log("response.headers", response.request.headers['cookie'])
                 var cookies = j.getCookies(options.url)
                 console.log("Содержимое сайте получено: ", options.url)
-                console.log(bodyWithCorrectEncoding);
+//                console.log(bodyWithCorrectEncoding);
                 console.log("cookies", cookies)
                 deferred.resolve({html: bodyWithCorrectEncoding, cookies: cookies});
             }

@@ -126,8 +126,8 @@ CREATE TABLE sengines
 CREATE UNIQUE INDEX UIDX_sengines_name ON sengines (SENGINE_NAME);
 -- Данные
 INSERT INTO sengines (SENGINE_ID,SENGINE_NAME,SENGINE_QMASK,DATE_CREATE) VALUES
-  (1,'Google','https://www.google.ru/search?q=',NOW()),
-  (2,'Yandex','http://yandex.ru/yandsearch?text=',NOW())
+  (1,'Google','https://www.google.ru/search?',NOW()),
+  (2,'Yandex','http://yandex.ru/yandsearch?',NOW())
 ;
 
 /* Условия поиска/анализа/подсчета параметров */
@@ -139,6 +139,10 @@ CREATE TABLE conditions
   SENGINE_ID        INT REFERENCES sengines (SENGINE_ID) NOT NULL,
   -- Текст запроса, ключевая фраза
   CONDITION_QUERY   TEXT NOT NULL,
+   -- Регион
+  REGION   INT NOT NULL,
+    -- Размер выборки
+  SIZE_SEARCH   INT NOT NULL,
   -- Время создания записи
   DATE_CREATE       TIMESTAMP WITH TIME ZONE NOT NULL
 );

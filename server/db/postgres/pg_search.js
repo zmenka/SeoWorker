@@ -38,7 +38,6 @@ function PgSearch() {
 PgSearch.prototype.insert = function (condition_id) {
 
     var date_create = new Date();
-    // create a Url
     var db
     return new PG()
         .then(function (db_res) {

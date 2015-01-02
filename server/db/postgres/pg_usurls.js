@@ -81,12 +81,11 @@ PgUsurls.prototype.insert = function (user_id, url_id, callback, errback) {
 
 PgUsurls.prototype.insertWithUrl = function (url, user_id) {
     _this = this;
-    user_id = user_id || 1;
     var date_create = new Date();
     // create a Url
     var db;
     var urls
-    return new PgUrls().find(url)
+    return new PgUrls().findByUrl(url)
         .then(function (urls_res) {
             urls = urls_res
             if (urls.length == 0) {
@@ -108,7 +107,7 @@ PgUsurls.prototype.insertWithUrl = function (url, user_id) {
                     })
 
             } else {
-                return _this.findByUrl(urls[0].url_id)
+                return _this.findByUrl(urls[0].url_id, user_id)
                     .then(function (sites) {
                         if (sites.length > 0) {
                             throw "У этого пользователя уже есть такой сайт!"
@@ -169,15 +168,16 @@ PgUsurls.prototype.get = function (id, callback, errback) {
         })
 }
 
-PgUsurls.prototype.findByUrl = function (val) {
-    return PG.query("SELECT * FROM usurls WHERE url_id = $1;",
-        [val])
+PgUsurls.prototype.findByUrl = function (url_id, user_id) {
+    return PG.query("SELECT * FROM usurls WHERE url_id = $1 AND user_id = $2;",
+        [url_id, user_id])
 
         .then(function (res) {
+            console.log('PgUsurls.prototype.findByUrl')
             return res.rows;
         })
         .catch(function (err) {
-            throw 'PgUsurls.prototype.find' + err;
+            throw 'PgUsurls.prototype.findByUrl ' + err;
         })
 }
 
@@ -194,15 +194,16 @@ PgUsurls.prototype.findByUser = function (val, callback, errback) {
         })
 }
 
-PgUsurls.prototype.listWithTasks = function () {
+PgUsurls.prototype.listWithTasks = function (user_id) {
     return PG.query("SELECT usurls.*, urls.*, tasks.task_id, conditions.*, sengines.*  " +
             " FROM usurls " +
             "LEFT JOIN tasks on usurls.usurl_id = tasks.usurl_id " +
             "LEFT JOIN conditions on conditions.condition_id = tasks.condition_id " +
             "LEFT JOIN sengines on sengines.sengine_id = conditions.sengine_id " +
             "LEFT JOIN urls on usurls.url_id = urls.url_id " +
+            "WHERE usurls.user_id = $1 " +
             "ORDER BY tasks.date_create desc;",
-        [])
+        [user_id])
         .then( function (res) {
             console.log('PgUsurls.prototype.listWithTasks')
             return res.rows;

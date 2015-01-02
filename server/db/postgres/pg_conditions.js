@@ -35,7 +35,7 @@ function PgConditions() {
 
 };
 
-PgConditions.prototype.insert = function (condition_query, sengine_id) {
+PgConditions.prototype.insert = function (condition_query, sengine_id, region, size_search) {
 
     var date_create = new Date();
     // create a Url
@@ -44,8 +44,8 @@ PgConditions.prototype.insert = function (condition_query, sengine_id) {
         .then(function (dbres) {
             db = dbres;
             return db.transact(
-                "INSERT INTO conditions (condition_query, sengine_id, date_create) VALUES ($1, $2, $3);",
-                [condition_query, sengine_id, date_create])
+                "INSERT INTO conditions (condition_query, sengine_id, region, size_search, date_create) VALUES ($1, $2, $3, $4, $5);",
+                [condition_query, sengine_id, region, size_search, date_create])
         })
         .then(function (res) {
             return db.transact(
@@ -53,7 +53,7 @@ PgConditions.prototype.insert = function (condition_query, sengine_id) {
                 [], true)
         })
         .then(function (res) {
-            console.log("condition saved");
+            console.log("PgConditions.prototype.insert");
             return res.rows[0].currval;
         })
 
@@ -92,11 +92,11 @@ PgConditions.prototype.getWithSengines = function (id) {
             " WHERE condition_id = $1;",
         [id])
         .then(function (res) {
-            console.log("getWithSengines")
-            return res.rows[0];
+            console.log("PgConditions.prototype.getWithSengines")
+            return res.rows ? res.rows[0] : null;
         })
         .catch(function (err) {
-            throw 'PgConditions.prototype.get' + err;
+            throw 'PgConditions.prototype.getWithSengines ' + err;
 
         })
 }
@@ -126,7 +126,7 @@ PgConditions.prototype.getCurrentSearchPage = function (condition_id, date_old) 
         [condition_id])
         .then(function (res) {
             console.log("getCurrentSearchPage")
-            return res.rows[0];
+            return res.rows ? res.rows[0] : null;
         })
         .catch(function (err) {
             console.log(err)
@@ -136,9 +136,10 @@ PgConditions.prototype.getCurrentSearchPage = function (condition_id, date_old) 
 }
 
 
-PgConditions.prototype.find = function (condition_query, sengine_id) {
-    return PG.query("SELECT * FROM conditions WHERE condition_query = $1 and sengine_id = $2;",
-        [condition_query, sengine_id]
+PgConditions.prototype.find = function (condition_query, sengine_id, region, size_search) {
+    return PG.query("SELECT * FROM conditions WHERE condition_query = $1 and sengine_id = $2 and " +
+            "region = $3 and size_search = $4;",
+        [condition_query, sengine_id, region, size_search]
     )
         .then(   function (res) {
             return res.rows;

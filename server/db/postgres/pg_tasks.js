@@ -76,34 +76,19 @@ PgTasks.prototype.insert = function (condition_id, usurl_id, callback, errback) 
     );
 }
 
-PgTasks.prototype.insertWithCondition = function (usurl_id, condition_query, sengine_id) {
+PgTasks.prototype.insertWithCondition = function (usurl_id, condition_query, sengine_id, region, size_search) {
     _this = this;
     var date_create = new Date();
     // create a Url
 
     var db;
     var conds;
-    return new PgConditions().find(condition_query, sengine_id)
+    return new PgConditions().find(condition_query, sengine_id, region, size_search)
         .then(function (conds_res) {
             conds = conds_res
 
             if (conds.length == 0) {
-                return new PG()
-                    .then(function (db_res) {
-                        db = db_res;
-                        return db.transact(
-                            "INSERT INTO conditions (condition_query, sengine_id, date_create) VALUES ($1, $2, $3);",
-                            [condition_query, sengine_id, date_create])
-                    })
-                    .then(function (res) {
-                        return db.transact(
-                            "SELECT currval(pg_get_serial_sequence('conditions','condition_id'))",
-                            [], true)
-                    })
-                    .then(function (res) {
-                        console.log("condition saved");
-                        return res.rows[0].currval;
-                    })
+                return new PgConditions().insert(condition_query, sengine_id, region, size_search)
             } else {
                 return _this.find(usurl_id, conds[0].condition_id)
                     .then(function (tasks) {
@@ -131,24 +116,24 @@ PgTasks.prototype.insertWithCondition = function (usurl_id, condition_query, sen
                 [], true)
         })
         .then(function (res) {
-            console.log("task saved");
+            console.log("PgTasks.prototype.insertWithCondition");
             return res.rows[0].currval;
         })
 
         .catch(function (err) {
-            console.log('PgTasks.prototype.insert ' + err);
+            console.log('PgTasks.prototype.insertWithCondition ' + err);
             console.log(err);
             throw err
         });
 }
 
-PgTasks.prototype.updateWithCondition = function (task_id, condition_query, sengine_id) {
+PgTasks.prototype.updateWithCondition = function (task_id, condition_query, sengine_id, region, size_search) {
     _this = this;
     var condition_id;
-    return new PgConditions().find(condition_query, sengine_id)
+    return new PgConditions().find(condition_query, sengine_id, region, size_search)
         .then(function (conds) {
             if (conds.length == 0) {
-                return new PgConditions().insert(condition_query, sengine_id)
+                return new PgConditions().insert(condition_query, sengine_id, region, size_search)
             } else if (conds.length == 1) {
                 console.log('такие условия уже где-то были')
                 return conds[0].condition_id
