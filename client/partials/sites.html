@@ -19,7 +19,7 @@
     <div class="col-xs-8">
         <div class="panel panel-info ">
             <div class="panel-heading">Настройки</div>
-            <div class="panel-body"  ng-show="site">
+            <div class="panel-body" ng-show="site">
                 <div class="form-group">
                     <label class="control-label col-sm-3">Выбранный сайт:</label>
                     <span ng-show="site" style="word-wrap: break-word">{{site.url}}</span>
@@ -81,7 +81,13 @@
                         <accordion-heading>
                             Графики параметров
                         </accordion-heading>
+                        <div class="form-group">
+                            <label class="control-label col-sm-3">Ваш сайт занимает место:</label>
+                            <span ng-show="site.position" style="word-wrap: break-word">{{site.position}}</span>
+                            <span ng-show="!site.position">не попал в выборку</span>
+                        </div>
 
+                        <br>
                         <select ng-model="chart" class="form-control"
                                 style=" margin-left:50px; width: 300px"
                                 ng-change="values = chart.values;" ng-options="p as p.key for p in params"></select>
@@ -126,6 +132,17 @@
 
                             <div class="link form-group">
                                 <a ng-href="{{chart1.surl}}" style="">{{chart1.surl}}</a>
+                            </div>
+                        </div>
+                        <br>
+
+                        <div class="form-inline">
+                            <label class="control-label">
+                                Позиция в выборке:
+                            </label>
+
+                            <div class="link form-group">
+                                <a ng-href="{{chart1.position}}" style="">{{chart1.position + 1}}</a>
                             </div>
                         </div>
                         <br>

@@ -109,6 +109,10 @@ seoControllers.controller('SitesCtrl', ['$scope', '$alert', 'Api', 'CaptchaModal
                         $scope.chart1 = null
                         $scope.values1 = null
                         $scope.site_params = res.data.site_params[0]
+                        var position = (res.data.all_params).filter(function (v) {
+                            return v.url === $scope.site_params.url;
+                        })[0]
+                        $scope.site.position = position ? position.position: null;
                     } else {
                         $scope.params = [];
                         $scope.params1 = [];
@@ -192,10 +196,14 @@ seoControllers.controller('SitesCtrl', ['$scope', '$alert', 'Api', 'CaptchaModal
             if (!data || data.length == 0 || !site_data) {
                 return
             }
+//            data = data.sort(function (a, b) {
+//                return a.position - b.position;
+//            })
             var table = []
             for (var key in data) {
                 var name = data[key].url.length > 60 ? data[key].url.substr(0, 60) + '...' : data[key].url
-                table.push({url: data[key].url, name: name, params: data[key].param.params, surl: data[key].surl})
+                table.push({url: data[key].url, name: name, params: data[key].param.params, surl: data[key].surl,
+                    position: data[key].position})
             }
 
             table.push({url: site_data.url, name: 'Ваш сайт', params: site_data.param.params, surl: "-"})
