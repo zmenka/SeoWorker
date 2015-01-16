@@ -119,6 +119,8 @@ CREATE TABLE sengines
   SENGINE_NAME      VARCHAR(30) NOT NULL,
   -- Полное название поисковой системы
   SENGINE_QMASK     TEXT NOT NULL,
+  -- Количество ссылок на одной страницк при выдаче
+  SENGINE_PAGE_SIZE  INT NOT NULL DEFAULT 10,
   -- Время создания записи
   DATE_CREATE       TIMESTAMP WITH TIME ZONE NOT NULL
 );

@@ -12,11 +12,11 @@ function SearcherType() {
 SearcherType.prototype.getSearchUrls = function (condition) {
 
     if (!condition || !condition.sengine_name || !condition.condition_query
-        || !condition.size_search || !condition.sengine_qmask) {
+        || !condition.size_search || !condition.sengine_qmask || !condition.sengine_page_size) {
         throw 'Не хватает условий для формирования поиска!'
     }
     var page = 0;
-    var size_page = 10;
+    var size_page = condition.sengine_page_size;
     var search_links = [];
     var search_count = 0;
     switch (condition.sengine_name) {
