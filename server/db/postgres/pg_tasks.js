@@ -88,6 +88,7 @@ PgTasks.prototype.insertWithCondition = function (usurl_id, condition_query, sen
             conds = conds_res
 
             if (conds.length == 0) {
+
                 return new PgConditions().insert(condition_query, sengine_id, region, size_search)
             } else {
                 return _this.find(usurl_id, conds[0].condition_id)

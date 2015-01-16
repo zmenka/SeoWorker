@@ -58,7 +58,7 @@ PgConditions.prototype.insert = function (condition_query, sengine_id, region, s
         })
 
         .catch(function (err) {
-            throw('PgConditions.prototype.insert' + err);
+            throw('PgConditions.prototype.insert ' + err);
         });
 }
 
@@ -141,11 +141,12 @@ PgConditions.prototype.find = function (condition_query, sengine_id, region, siz
             "region = $3 and size_search = $4;",
         [condition_query, sengine_id, region, size_search]
     )
-        .then(   function (res) {
+        .then(function (res) {
+            console.log('PgConditions.prototype.find')
             return res.rows;
         })
         .catch(function (err) {
-            throw 'PgConditions.prototype.find';
+            throw 'PgConditions.prototype.find ';
         })
 }
 

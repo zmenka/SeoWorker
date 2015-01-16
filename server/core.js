@@ -24,24 +24,28 @@ function Core() {
  * @param user_id
  */
 Core.prototype.calcParams = function (condition_id, captcha, headers, user_id) {
-    _this = this;
+    _this3 = this;
     var condition;
     return new PgConditions().getWithSengines(condition_id)
         .then(function (condition_res) {
             condition = condition_res
-            if (!condition){
+            if (!condition) {
                 throw 'Не найдены условия!'
             }
             //Формируется массив объектов {page:<>, url:<>, sengine:<>} для поиска
             var search_objects = new SearcherType().getSearchUrls(condition)
+            console.log("урлы для поиска: ", search_objects)
             return new PgSearch().insert(condition_id)
                 .then(function (search_id) {
-                    //массив объектов {spage_id: <>, links: {url: <>, title: <>}[]}[]
-                    return _this.getLinksFromSearch(search_objects, search_id, captcha, headers, user_id)
+                    //массив объектов {spage_id: <>,start<>, links: {url: <>, title: <>}[]}[]
+                    return _this3.getLinksFromSearcher(search_objects, search_id, captcha, headers, user_id)
                 })
         })
         .then(function (links_obj) {
-            return _this.calcLinksParams(links_obj, condition_id, condition.condition_query)
+            return _this3.calcLinksParams(links_obj, condition_id, condition.condition_query)
+        })
+        .then(function (res) {
+            console.log(res)
         })
         .catch(function (res) {
             if (res.captcha) {
@@ -60,18 +64,23 @@ Core.prototype.calcParams = function (condition_id, captcha, headers, user_id) {
  * @param captcha
  * @param headers
  * @param user_id
- * @returns {spage_id: <>, links: {url: <>, title: <>}[]}[]
+ * @returns {spage_id: <>,start<>, links: {url: <>, title: <>}[]}[]
  */
-Core.prototype.getLinksFromSearch = function (search_objects, search_id, captcha, headers, user_id) {
-    var promises = [];
+Core.prototype.getLinksFromSearcher = function (search_objects, search_id, captcha, headers, user_id) {
+    var result = []
+    // create an empty promise to begin the chain
+    var promise_chain = Q.fcall(function () {
+
+    });
 
     for (var i = 0; i < search_objects.length; i++) {
-
         (function (search_object) {
-            promises.push((function (search_object) {
+
+            var promise_link = (function () {
                 var raw_html;
                 var spage_id;
                 console.log("сейчас обрабатывается поисковая ссылка ", search_object)
+
                 return new Searcher().getContentByUrlOrCaptcha(search_object.url, captcha, headers, user_id)
                     .then(function (res) {
                         raw_html = res.html;
@@ -83,28 +92,43 @@ Core.prototype.getLinksFromSearch = function (search_objects, search_id, captcha
                     .then(function (spage_id_res) {
                         spage_id = spage_id_res;
                         //получим масси {url: <>, title: <>}
-                        return SeoParameters.getSearchPicks(raw_html, search_object.sengine)
+                        return new SeoParameters().getSearchPicks(raw_html, search_object.sengine)
                     })
                     .then(function (links) {
                         console.log("получили ", links.length, " ссылок: ")
+                        // обнуляем капчу
+                        captcha = null;
+                        if (links.length == 0) throw "Ссылки сайтов не получены!!"
                         console.log(links)
-                        return {spage_id: spage_id, links: links};
+                        result.push({spage_id: spage_id, links: links, page: search_object.page });
                     })
-            })(search_object))
-
+            })
+            // add the link onto the chain
+            promise_chain = promise_chain.then(promise_link);
         })(search_objects[i])
+
+
     }
-    return Q.all(promises)
+    return promise_chain
+        .then(function() {
+            return result;
+        })
         .then(function (res) {
-            console.log(res)
-            return res.map(function (item) {
-                return item.value
-            });
+//            console.log("!!!!!", res)
+            var sortedByPage = res.sort(function (a, b) {
+                return a.page - b.page;
+            })
+            sortedByPage[0].start = 0
+            for (var i = 1; i < sortedByPage.length; i++) {
+                sortedByPage[i].start = sortedByPage[i - 1].links.length;
+            }
+//            console.log("sortedByPage ", sortedByPage)
+            return sortedByPage
         })
 }
 /**
  *
- * @param links_obj {spage_id: <>, links: {url: <>, title: <>}[]}[]
+ * @param links_obj {spage_id: <>,start<>, links: {url: <>, title: <>}[]}[]
  * @returns {*}
  */
 Core.prototype.calcLinksParams = function (links_obj, condition_id, condition_query) {
@@ -113,7 +137,7 @@ Core.prototype.calcLinksParams = function (links_obj, condition_id, condition_qu
         for (var j = 0; j < links_obj[i].links.length; j++) {
             (function (link, position, spage_id) {
                 console.log("сейчас обрабатывается ссылка ", link, position)
-                promises.push((function (link, position) {
+                promises.push((function (link, position, spage_id) {
                     var current_html_id;
                     var current_html;
                     return new Searcher().getContentByUrl(link.url)
@@ -132,8 +156,8 @@ Core.prototype.calcLinksParams = function (links_obj, condition_id, condition_qu
                             var link_params = params.getAllParams()
                             return new PgParams().insert(condition_id, current_html_id, link_params)
                         })
-                })(link, position))
-            })(links_obj[i].links[j], j, links_obj[i].spage_id)
+                })(link, position, spage_id))
+            })(links_obj[i].links[j], j + links_obj[i].start, links_obj[i].spage_id)
         }
     }
     return Q.allSettled(promises)
@@ -246,7 +270,7 @@ Core.prototype.calcParamsByUrl = function (url, condition_id) {
     return new PgConditions().getWithSengines(condition_id)
         .then(function (condition_res) {
             condition = condition_res;
-            if (!condition){
+            if (!condition) {
                 throw 'Не найдены условия!'
             }
             return new Searcher().getContentByUrl(url)
@@ -257,7 +281,7 @@ Core.prototype.calcParamsByUrl = function (url, condition_id) {
         })
         .then(function (html_id) {
             current_html_id = html_id;
-            return new SeoParameters().init(condition.condition_query,  current_html)
+            return new SeoParameters().init(condition.condition_query, current_html)
         })
         .then(function (params) {
             var link_params = params.getAllParams()

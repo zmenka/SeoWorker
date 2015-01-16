@@ -81,7 +81,7 @@ PgHtmls.prototype.insertWithUrl = function (html, url) {
     // create a Url
     var db;
     var urls;
-    return new PgUrls().find(url)
+    return new PgUrls().findByUrl(url)
         .then(function (urls_res) {
             urls = urls_res
             return new PG()

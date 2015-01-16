@@ -55,7 +55,7 @@ PgScontents.prototype.insert = function (spage_id, html_id, position, is_commerc
                 [], true)
         })
         .then(function (res) {
-            console.log("PgScontents saved");
+            console.log("PgScontents.prototype.insert");
             return res.rows[0].currval;
         })
         .catch(function (err) {

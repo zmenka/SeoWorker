@@ -47,19 +47,18 @@ SeoParameters.prototype.complianceStrings = function (text1, text2) {
 SeoParameters.prototype.init = function (keyText, rawHtml) {
     _this1 = this;
     var date = new Date()
-    var deferred = Q.defer();
-    this.keyText = keyText;
-    this.parser = new SeoParser();
-    this.parser.initDom(rawHtml,
-        function () {
+    _this1.keyText = keyText;
+    _this1.parser = new SeoParser();
+    return _this1.parser.initDomQ(rawHtml)
+        .then(function () {
             console.log("SeoParameters.prototype.init");
             console.log(-date.getTime() + (new Date().getTime()))
-            deferred.resolve(_this1);
-        },
-        function (err) {
-            deferred.reject('SeoParameters.prototype.init err ' + err)
+            return _this1
+        })
+        .catch(function (err) {
+            throw 'SeoParameters.prototype.init err ' + err
+            return
         });
-    return deferred.promise;
 }
 
 SeoParameters.prototype.tryCatch = function (func, params) {
@@ -290,12 +289,11 @@ function getData(obj) {
 
 //получаем поисковыую выдачу
 //TODO это реклама?
-SeoParameters.getSearchPicks = function (search_html, sengine_name) {
-    var deferred = Q.defer();
+SeoParameters.prototype.getSearchPicks = function (search_html, sengine_name) {
     var date = new Date()
     var parser = new SeoParser();
-    parser.initDom(search_html,
-        function () {
+    return parser.initDomQ(search_html)
+        .then(function () {
             var res = [];
             switch (sengine_name) {
                 case 'Google':
@@ -351,12 +349,12 @@ SeoParameters.getSearchPicks = function (search_html, sengine_name) {
 
             console.log(-date.getTime() + (new Date().getTime()))
             console.log("SeoParameters.getSearchPicks");
-            deferred.resolve(res);
-        },
-        function (err) {
-            deferred.reject('SeoParameters.prototype.init err ' + err)
+            return res;
+        })
+        .catch(function (err) {
+            throw 'SeoParameters.prototype.init err ' + err
+            return
         });
-    return deferred.promise;
 
 }
 //получаем строку из списка выдачи + ссылка

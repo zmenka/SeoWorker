@@ -40,10 +40,19 @@ SearcherType.prototype.getSearchUrls = function (condition) {
             if (!condition.region) {
                 throw 'Не определен регион!'
             }
+            var words = condition.condition_query
+                .split(/\s/)
+                .map(function (item) {
+                    return encodeURIComponent(item)
+//                    return item
+                }
+            )
+                .join('%20')
             //http://yandex.ru/yandsearch?lr=54&text=
             while (search_count < condition.size_search) {
                 search_links.push({page: page, sengine: condition.sengine_name, url: condition.sengine_qmask +
-                    'lr%3D' + condition.region + '%26text%3D' + condition.condition_query.replace(/\s/g, '%20') + "%26p%3D" + page})
+//                    'lr%3D' + condition.region + '%26text%3D' + words + "%26p%3D" + page})
+                    'lr=' + condition.region + '&text=' + words + "&p=" + page})
                 search_count += size_page;
                 page++;
             }

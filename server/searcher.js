@@ -75,6 +75,9 @@ Searcher.prototype.getContentByUrl = function (url, captcha, client_headers, coo
 
         var properties = null;
         if (captcha && captcha.key && captcha.retpath && captcha.action && captcha.rep) {
+//            var str = String();
+//            console.log('!!!!!!!', typeof(str))
+//            str = (str).rep1ace(/amp;/g, '')
             //properties = { 'key': encodeURIComponent(captcha.key), 'retpath': encodeURIComponent(captcha.retpath), 'rep': encodeURIComponent(captcha.rep) };
             options.url = 'http://yandex.ru/checkcaptcha?key=' + encodeURIComponent(captcha.key) + '&retpath='
                 + encodeURIComponent(captcha.retpath) + '&rep=' + encodeURIComponent(captcha.rep);
@@ -95,7 +98,7 @@ Searcher.prototype.getContentByUrl = function (url, captcha, client_headers, coo
                 var bodyWithCorrectEncoding = iconv.decode(body, 'utf-8');
                 //console.log("response.headers", response.request.headers['cookie'])
                 var cookies = j.getCookies(options.url)
-                console.log("Содержимое сайте получено: ", options.url)
+                console.log("Содержимое сайте получено: ", options.url, bodyWithCorrectEncoding.substr(100, 50))
 //                console.log(bodyWithCorrectEncoding);
                 console.log("cookies", cookies)
                 deferred.resolve({html: bodyWithCorrectEncoding, cookies: cookies});
@@ -109,7 +112,7 @@ Searcher.prototype.getContentByUrl = function (url, captcha, client_headers, coo
 };
 
 Searcher.prototype.getContentByUrlOrCaptcha = function (url, captcha, client_headers, user_id) {
-    _this = this;
+    _this2 = this;
     var content
     return new PgUsers().get(user_id)
         .then(function (res) {
@@ -120,7 +123,7 @@ Searcher.prototype.getContentByUrlOrCaptcha = function (url, captcha, client_hea
             catch (err) {
                 cookies = null
             }
-            return _this.getContentByUrl(url, captcha, client_headers, cookies)
+            return _this2.getContentByUrl(url, captcha, client_headers, cookies)
         })
 
         .then(function (res) {
@@ -129,9 +132,10 @@ Searcher.prototype.getContentByUrlOrCaptcha = function (url, captcha, client_hea
         })
 
         .then(function (res) {
-            return _this.getCaptcha(content.html)
+            return _this2.getCaptcha(content.html)
         })
         .catch(function (error) {
+            console.log(error.stack)
             throw 'getContentByUrlOrCaptcha error:' + error.toString();
         })
         .then(function (res) {
@@ -146,11 +150,11 @@ Searcher.prototype.getContentByUrlOrCaptcha = function (url, captcha, client_hea
 }
 
 Searcher.prototype.getCaptcha = function (raw_html) {
+    _this = this;
     var date = new Date()
-    var deferred = Q.defer();
     var parser = new SeoParser();
-    parser.initDom(raw_html,
-        function () {
+    return parser.initDomQ(raw_html)
+        .then(function () {
             var tags = parser.getByClassName('b-captcha');
             if (tags.length > 0) {
                 var img = parser.getTag('.b-captcha .b-captcha__image');
@@ -164,27 +168,26 @@ Searcher.prototype.getCaptcha = function (raw_html) {
                     //console.log('form.action', form[0].attribs.action);
                     console.log(-date.getTime()+(new Date().getTime()))
                     console.log('Капча!!!!');
-                    deferred.resolve(
+                    return (
                         {
                             img: img[0].attribs.src,
                             key: key[0].attribs.value,
-                            retpath: retpath[0].attribs.value,
+                            retpath: (retpath[0].attribs.value).replace(/&amp;/g, '&'),
                             action: form[0].attribs.action}
                     )
-                    return;
                 }
                 console.log('Капча странная ');
-                deferred.reject("problems with captcha", tags);
+                throw "problems with captcha" + tags;
                 return;
             }
             console.log(-date.getTime()+(new Date().getTime()))
             console.log("Капчи не нашлось")
-            deferred.resolve(null);
-            return;
-        }, function (err) {
-            deferred.reject("parser.initDom error " + err);
+            return null;
+        })
+        .catch(function (err) {
+            throw "parser.initDom error " + err;
+            return
         });
-    return deferred.promise;
 }
 
 module.exports = Searcher;

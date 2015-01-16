@@ -2,8 +2,8 @@
  * Created by bryazginnn on 22.11.14.
  *
  *
- *  var PgPages = require("./server/db/postgres/pg_spages");
- *  var spages = new PgPages();
+ *  var PgSpages = require("./server/db/postgres/pg_spages");
+ *  var spages = new PgSpages();
  *
  *  //вставить строку в таблицу spages
  *  spages.insert (
@@ -33,11 +33,11 @@ var PG = require('./pg');
 var fs = require('fs');
 var path = require('path');
 
-function PgPages() {
+function PgSpages() {
 
 };
 
-PgPages.prototype.insert = function (search_id, html_id, page_number) {
+PgSpages.prototype.insert = function (search_id, html_id, page_number) {
 
     var date_create = new Date();
     // create a Url
@@ -55,52 +55,52 @@ PgPages.prototype.insert = function (search_id, html_id, page_number) {
                 [], true)
         })
         .then(function (res) {
-            console.log("PgPages saved");
+            console.log("PgSpages.prototype.insert");
             return res.rows[0].currval;
         })
         .catch(function (err) {
-            throw 'PgPages.prototype.insert ' + err;
+            throw 'PgSpages.prototype.insert ' + err;
         }
     );
 }
 
-PgPages.prototype.list = function (callback, errback) {
+PgSpages.prototype.list = function (callback, errback) {
     PG.query("SELECT * FROM spages ORDER BY date_create desc;",
         [],
         function (res) {
             callback(res.rows);
         },
         function (err) {
-            console.log('PgPages.prototype.list');
+            console.log('PgSpages.prototype.list');
             console.log(err);
             errback(err)
         })
 }
 
-PgPages.prototype.get = function (id, callback, errback) {
+PgSpages.prototype.get = function (id, callback, errback) {
     PG.query("SELECT * FROM spages WHERE spage_id = $1;",
         [id],
         function (res) {
             callback(res.rows[0]);
         },
         function (err) {
-            console.log('PgPages.prototype.get');
+            console.log('PgSpages.prototype.get');
             console.log(err);
             errback(err)
         })
 }
 
-PgPages.prototype.find = function (search_id, callback, errback) {
+PgSpages.prototype.find = function (search_id, callback, errback) {
     PG.query("SELECT * FROM spages WHERE search_id = $1;",
         [search_id],
         function (res) {
             callback(res.rows);
         },
         function (err) {
-            console.log('PgPages.prototype.find');
+            console.log('PgSpages.prototype.find');
             console.log(err);
             errback(err)
         })
 }
 
-module.exports = PgPages;
+module.exports = PgSpages;

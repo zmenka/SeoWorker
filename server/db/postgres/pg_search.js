@@ -52,7 +52,7 @@ PgSearch.prototype.insert = function (condition_id) {
                 [], true)
         })
         .then(function (res) {
-            console.log("PgSearch saved");
+            console.log("PgSearch.prototype.insert");
             return res.rows[0].currval;
         })
 
@@ -107,6 +107,7 @@ PgSearch.prototype.listWithParams = function(condition_id) {
             "U.URL," +
             "USP.URL AS SURL," +
             "P.PARAM," +
+            "SP.page_number," +
             "SC.POSITION " +
             "FROM search S " +
             "JOIN spages SP " +

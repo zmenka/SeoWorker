@@ -84,7 +84,7 @@ module.exports = function Api(app, passport) {
         }
 
         new PgTasks().insertWithCondition(req.body.usurl_id, req.body.condition_query, req.body.sengine_id,
-                req.body.region, req.body.size_search)
+            req.body.region, req.body.size_search)
             .then(function (db_res) {
                 callback(db_res, res);
             })
@@ -97,13 +97,13 @@ module.exports = function Api(app, passport) {
         console.log('/api/save_task', req.body);
         res.statusCode = 200;
 
-        if (!req.body.task_id || !req.body.condition_query || !req.body.sengine_id ||
-            !req.body.region || !req.body.size_search) {
+        if (!req.body.task_id || !req.body.condition_query || !req.body.sengine_id || !req.body.region || !req.body.size_search) {
             errback("не найдены параметры task_id или condition_query or sengine_id", res);
             return;
         }
 
-        new PgTasks().updateWithCondition(req.body.task_id, req.body.condition_query, req.body.sengine_id)
+        new PgTasks().updateWithCondition(req.body.task_id, req.body.condition_query, req.body.sengine_id,
+                req.body.region, req.body.size_search)
             .then(function (db_res) {
                 callback(db_res, res);
             })
@@ -114,7 +114,7 @@ module.exports = function Api(app, passport) {
     var serverFree = true;
     app.post('/api/calc_params', function (req, res, next) {
         console.log('/api/calc_params', req.body);
-        if (!serverFree){
+        if (!serverFree) {
             errback("Сервер занят, попробуйте позже.", res);
             return;
         }
@@ -128,22 +128,18 @@ module.exports = function Api(app, passport) {
             return;
         }
         serverFree = false;
-        try {
-            return new Core().calcParams(req.body.condition_id, req.body.captcha, req.headers, req.user.user_id)
-                .then(function () {
-                    return new Core().calcParamsByUrl(req.body.url, req.body.condition_id)
-                })
-                .then(function () {
-                    callback("ok", res);
-                    serverFree = true
-                })
-                .catch(function (err) {
-                    serverFree = true
-                    errback(err, res);
-                })
-        }catch (err){
-            errback(err, res);
-        }
+        return new Core().calcParams(req.body.condition_id, req.body.captcha, req.headers, req.user.user_id)
+            .then(function () {
+                return new Core().calcParamsByUrl(req.body.url, req.body.condition_id)
+            })
+            .then(function () {
+                callback("ok", res);
+                serverFree = true
+            })
+            .catch(function (err) {
+                serverFree = true
+                errback(err, res);
+            })
         serverFree = true
     });
 
@@ -158,6 +154,7 @@ module.exports = function Api(app, passport) {
             .then(function (params_res) {
                 params = params_res;
                 return new PgSearch().siteWithParams(req.body.url_id, req.body.condition_id)
+                return null
             })
             .then(function (site_params) {
                 callback({all_params: params, site_params: site_params}, res);
@@ -185,41 +182,49 @@ module.exports = function Api(app, passport) {
         }
     });
 
-    app.post('/api/login', function(req, res, next) {
-            passport.authenticate('login', function(err, user, info) {
-                if (err) { return next(err) }
+    app.post('/api/login', function (req, res, next) {
+            passport.authenticate('login', function (err, user, info) {
+                if (err) {
+                    return next(err)
+                }
                 if (!user) {
                     return errback({ message: info.message }, res);
                 }
-                req.logIn(user, function(err) {
-                    if (err) { return next(err); }
+                req.logIn(user, function (err) {
+                    if (err) {
+                        return next(err);
+                    }
                     return callback({ message: info.message }, res);
                 });
             })(req, res, next);
         }
     );
 
-    app.get('/api/logout', function(req, res){
+    app.get('/api/logout', function (req, res) {
         console.log('/api/logout');
         req.logout();
 
         return callback("logout ok", res);
     });
 
-    app.post('/api/register', function(req, res, next) {
-        passport.authenticate('register', function(err, user, info) {
-            if (err) { return next(err) }
+    app.post('/api/register', function (req, res, next) {
+        passport.authenticate('register', function (err, user, info) {
+            if (err) {
+                return next(err)
+            }
             if (!user) {
                 return errback({ message: info.message }, res);
             }
-            req.logIn(user, function(err) {
-                if (err) { return next(err); }
+            req.logIn(user, function (err) {
+                if (err) {
+                    return next(err);
+                }
                 return callback({ message: info.message }, res);
             });
         })(req, res, next);
     });
 
-    app.get('/api/check_auth', function(req, res, next) {
+    app.get('/api/check_auth', function (req, res, next) {
         // if user is authenticated in the session, carry on
         console.log('/api/check_auth', req.isAuthenticated())
         callback(req.isAuthenticated(), res);
