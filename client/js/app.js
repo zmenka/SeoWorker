@@ -51,6 +51,11 @@ seoApp.config(['$modalProvider', '$routeProvider',
                 redirectTo: '/login',
                 authenticate: false
             })
+            .when('/users', {
+                templateUrl: 'partials/users.html',
+                controller: 'UsersCtrl',
+                authenticate: true
+            })
 //            .when('/captcha_test', {
 //                templateUrl: 'partials/captcha_test.html',
 //                controller: 'CaptchaTestCtrl'

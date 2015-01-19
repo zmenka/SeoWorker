@@ -80,7 +80,7 @@ CREATE TABLE users
   -- Телефон пользователя
   USER_PHONE        VARCHAR(20),
   --флаг для блокирования пользователя
-  DISABLED          BOOLEAN NOT NULL DEFAULT false
+  DISABLED          BOOLEAN NOT NULL DEFAULT FALSE,
   -- Время создания записи
   DATE_CREATE       TIMESTAMP WITH TIME ZONE NOT NULL,
   -- Куки пользователя

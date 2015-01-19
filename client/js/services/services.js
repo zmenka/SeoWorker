@@ -7,6 +7,9 @@ var seoServices = angular.module('seoServices', ['ngResource']);
 seoServices.factory('Api', ['$http',
     function ($http) {
         return {
+            users: function () {
+                return $http.get('/api/users', {});
+            },
             user_sites_and_tasks: function () {
                 return $http.get('/api/user_sites_and_tasks', {});
             },

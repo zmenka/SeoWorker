@@ -1,0 +1,21 @@
+<div class="container" >
+    <div class="col-xs-12">
+        <h1>Пользователи системы</h1>
+
+        <!-- show any messages that come back with authentication -->
+        <div class="alerts-container"></div>
+        <!-- LOGIN FORM -->
+        <table class="table">
+            <tr >
+                <th>Логин</th>
+                <th>Отключен</th>
+                <th>Дата создания</th>
+            </tr>
+            <tr ng-repeat="x in users">
+                <td>{{ x.user_login }}</td>
+                <td>{{ x.disabled }}</td>
+                <td>{{ x.date_create }}</td>
+            </tr>
+        </table>
+    </div>
+</div>

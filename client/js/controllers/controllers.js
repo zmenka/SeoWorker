@@ -33,7 +33,7 @@ seoControllers.controller('SitesCtrl', ['$scope', '$alert', 'Api', 'CaptchaModal
                     console.log('get sites return ERROR!', err);
                     $scope.sites = [];
                     $scope.loading = false;
-                    $alert({title: 'Внимание!', content: "Ошибка при получении списка сайтов: " + err,
+                    $alert({title: 'Внимание!', content: "Ошибка при получении списка сайтов: " + err.data,
                         placement: 'top', type: 'danger', show: true,
                         duration: '3',
                         container: '.alerts-container'
@@ -522,6 +522,12 @@ seoControllers.controller('AuthCtrl', ['$scope', '$http', '$location', '$cookies
                             duration: '3',
                             container: '.alerts-container'
                         });
+                    } else if (data) {
+                        $alert({title: 'Внимание!', content: data,
+                            placement: 'top', type: 'danger', show: true,
+                            duration: '3',
+                            container: '.alerts-container'
+                        });
                     }
                 });
         };
@@ -600,5 +606,33 @@ seoControllers.controller('CaptchaTestCtrl', ['$scope', 'CaptchaModal', 'Captcha
 
         }
     }]);
+
+seoControllers.controller('UsersCtrl', ['$scope', '$alert', 'Api',
+    function ($scope, $alert, Api) {
+        $scope.user = null;
+        $scope.users = [];
+        $scope.loading = false;
+
+        var load = function () {
+            $scope.loading = true;
+            $scope.user = null;
+            Api.users()
+                .then(function (res) {
+                    console.log('users are reseived ', res.data);
+                    $scope.users = res.data;
+                })
+                .catch(function (err) {
+                    console.log('get users return ERROR!', err);
+                    $scope.users = [];
+                    $scope.loading = false;
+                    $alert({title: 'Внимание!', content: "Ошибка при получении списка пользователей: " + err.data,
+                        placement: 'top', type: 'danger', show: true,
+                        duration: '3',
+                        container: '.alerts-container'
+                    });
+                });
+        };
+        load();
+    }])
 
 

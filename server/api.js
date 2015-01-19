@@ -21,6 +21,23 @@ module.exports = function Api(app, passport) {
 
 // api ---------------------------------------------------------------------
 
+    app.get('/api/users', function (req, res, next) {
+        console.log('/api/users');
+
+        if (!req.user || !req.user.user_id) {
+            errback("Нет зарегистрированного пользователя!", res);
+            return;
+        }
+
+        new PgUsers().list()
+            .then(function (users) {
+                callback(users, res);
+            })
+            .catch(function (err) {
+                errback(err, res);
+            })
+
+    });
 // get all sites and tasks
     app.get('/api/user_sites_and_tasks', function (req, res, next) {
         console.log('/api/user_sites_and_tasks');

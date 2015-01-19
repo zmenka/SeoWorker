@@ -148,14 +148,15 @@ PgUsers.prototype.disabledUser = function (user_login, disabled) {
         })
 }
 
-PgUsers.prototype.list = function (callback, errback) {
-    PG.query("SELECT * FROM users ORDER BY date_create desc;",
-        [],
-        function (res) {
-            callback(res.rows);
-        },
-        function (err) {
-            console.log('PgUsers.prototype.list');
+PgUsers.prototype.list = function () {
+    return PG.query("SELECT * FROM users ORDER BY date_create desc;",
+        [])
+        .then(function (res) {
+            console.log("PgUsers.prototype.list")
+            return res.rows;
+        })
+        .catch(function (err) {
+            throw 'PgUsers.prototype.list' + err;
             console.log(err);
         })
 }
