@@ -79,6 +79,8 @@ CREATE TABLE users
   USER_EMAIL        VARCHAR(100),
   -- Телефон пользователя
   USER_PHONE        VARCHAR(20),
+  --флаг для блокирования пользователя
+  DISABLED          BOOLEAN NOT NULL DEFAULT false
   -- Время создания записи
   DATE_CREATE       TIMESTAMP WITH TIME ZONE NOT NULL,
   -- Куки пользователя

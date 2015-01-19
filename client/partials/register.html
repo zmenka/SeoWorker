@@ -1,6 +1,6 @@
 <div class="container">
     <div class="col-xs-4">
-        <h1>Регистрация</h1>
+        <h1>Регистрация новых пользователей</h1>
         <hr>
         <!-- show any messages that come back with authentication -->
         <div class="alerts-container"></div>
@@ -14,13 +14,11 @@
                 <label>Пароль</label>
                 <input type="password" class="form-control" ng-model="form.password">
             </div>
-            <button type="button" class="btn btn-primary btn-lg" ng-click="register(form)">Зарегистрироватьтся</button>
+            <button type="button" class="btn btn-primary btn-lg" ng-click="register(form)">Зарегистрировать</button>
         </form>
 
         <hr>
 
-        <p>Уже зарегистрированы? <a href="#/login">Войти</a></p>
-
-        <p>Или перейдите на <a href="#/sites">Главную</a>.</p>
+        <p>Перейти на <a href="#/sites">Главную</a>.</p>
     </div>
 </div>

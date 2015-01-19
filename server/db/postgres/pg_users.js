@@ -44,19 +44,19 @@
 var PG = require('./pg');
 var fs = require('fs');
 var path = require('path');
-var bcrypt   = require('bcrypt-nodejs');
+var bcrypt = require('bcrypt-nodejs');
 
 function PgUsers() {
 
 };
 
 // generating a hash
-PgUsers.prototype.generateHash = function(password) {
+PgUsers.prototype.generateHash = function (password) {
     return bcrypt.hashSync(password, bcrypt.genSaltSync(8), null);
 };
 
 // checking if password is valid
-PgUsers.prototype.validPassword = function(password, savedPassword) {
+PgUsers.prototype.validPassword = function (password, savedPassword) {
     return bcrypt.compareSync(password, savedPassword);
 };
 
@@ -66,8 +66,15 @@ PgUsers.prototype.insert = function (user_login, user_password, role_id, user_fn
     var password = this.generateHash(user_password);
 
     var db;
-    return new PG()
 
+    return this.getByLogin(user_login)
+        .then(function (users) {
+            if (users.length > 0) {
+                throw("Такой пользователь уже существует!")
+                return;
+            }
+            return new PG()
+        })
         .then(function (db_res) {
             db = db_res
             return db.transact(
@@ -106,6 +113,41 @@ PgUsers.prototype.insert = function (user_login, user_password, role_id, user_fn
         })
 }
 
+PgUsers.prototype.disabledUser = function (user_login, disabled) {
+
+    var db;
+
+    return this.getByLogin(user_login)
+        .then(function (users) {
+            if (users.length != 1) {
+                throw("Нет такого пользователя!")
+                return;
+            }
+            return new PG()
+        })
+        .then(function (db_res) {
+            db = db_res
+            return db.transact(
+                "UPDATE users SET DISABLED = $1 " +
+                    "WHERE USER_LOGIN=$2;",
+                [user_login, disabled], true
+            )
+        })
+//        .then(function (res) {
+//            return db.transact(
+//                "SELECT currval(pg_get_serial_sequence('users','user_id'))",
+//                [], true
+//            )
+//        })
+        .then(function (res) {
+            console.log('PgUsers.prototype.disabledUser');
+            return res;
+        })
+        .catch(function (err) {
+            throw 'PgUsers.prototype.disabledUser ' + err
+        })
+}
+
 PgUsers.prototype.list = function (callback, errback) {
     PG.query("SELECT * FROM users ORDER BY date_create desc;",
         [],
@@ -136,7 +178,7 @@ PgUsers.prototype.getByLogin = function (login) {
         [login])
         .then(function (res) {
             console.log("PgUsers.prototype.getByLogin")
-            return res.rows[0];
+            return res.rows;
         })
         .catch(function (err) {
             throw 'PgUsers.prototype.getByLogin' + err;

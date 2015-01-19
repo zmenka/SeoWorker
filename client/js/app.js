@@ -45,7 +45,7 @@ seoApp.config(['$modalProvider', '$routeProvider',
             .when('/register', {
                 templateUrl: 'partials/register.html',
                 controller: 'AuthCtrl',
-                authenticate: false
+                authenticate: true
             })
             .when('/logout', {
                 redirectTo: '/login',

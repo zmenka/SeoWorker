@@ -1,3 +1,4 @@
+var PgUsers = require("./db/postgres/pg_users")
 var PgUsurls = require("./db/postgres/pg_usurls");
 var PgTasks = require("./db/postgres/pg_tasks");
 var PgSearch = require("./db/postgres/pg_search");
@@ -190,6 +191,10 @@ module.exports = function Api(app, passport) {
                 if (!user) {
                     return errback({ message: info.message }, res);
                 }
+
+                if (user.disabled) {
+                    return errback({ message: 'Пользователь отключен от системы!' }, res);
+                }
                 req.logIn(user, function (err) {
                     if (err) {
                         return next(err);
@@ -207,21 +212,48 @@ module.exports = function Api(app, passport) {
         return callback("logout ok", res);
     });
 
+//    app.post('/api/register', function (req, res, next) {
+//        passport.authenticate('register', function (err, user, info) {
+//            if (err) {
+//                return next(err)
+//            }
+//            if (!user) {
+//                return errback({ message: info.message }, res);
+//            }
+//            req.logIn(user, function (err) {
+//                if (err) {
+//                    return next(err);
+//                }
+//                return callback({ message: info.message }, res);
+//            });
+//        })(req, res, next);
+//    });
+
     app.post('/api/register', function (req, res, next) {
-        passport.authenticate('register', function (err, user, info) {
-            if (err) {
-                return next(err)
-            }
-            if (!user) {
-                return errback({ message: info.message }, res);
-            }
-            req.logIn(user, function (err) {
-                if (err) {
-                    return next(err);
-                }
-                return callback({ message: info.message }, res);
-            });
-        })(req, res, next);
+        console.log('/api/register', req.body);
+
+        if (!req.body.login || !req.body.password) {
+            errback("не найдены все параметры  ", res);
+            return;
+        }
+
+        if (!req.user || !req.user.user_id) {
+            errback("Нет зарегистрированного пользователя!", res);
+            return;
+        }
+
+        if (req.user.role_id != 1) {
+            errback("Нет прав для добавления пользователей!", res);
+            return;
+        }
+
+        new PgUsers().insert(req.body.login, req.body.password, 3)
+            .then(function (db_res) {
+                callback(db_res, res);
+            })
+            .catch(function (err) {
+                errback(err, res);
+            })
     });
 
     app.get('/api/check_auth', function (req, res, next) {

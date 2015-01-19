@@ -41,13 +41,14 @@ module.exports = function (passport) {
             console.log("passport login ", username, password )
             // check in db if a user with username exists or not
             new PgUsers().getByLogin(username)
-                .then(function (user) {
+                .then(function (users) {
                     // Username does not exist, log error & redirect back
-                    if (!user) {
+                    if (users.length!=1) {
                         console.log('User Not Found with username ' + username);
                         return done(null, false,
                             {'message': 'Пользователя с таким логином нет.'});
                     }
+                    var user = users[0]
                     // User exists but wrong password, log the error
                     if (!new PgUsers().validPassword(password, user.user_password)) {
                         return done(null, false, { message: 'Неправильный пароль.' });
@@ -84,7 +85,7 @@ module.exports = function (passport) {
                         } else {
                             // if there is no user with that email
                             // create the user
-                            new PgUsers().insert(username, password, 1, "", "", "", "", "")
+                            new PgUsers().insert(username, password, 1)
                                 .then(function (user_id) {
                                     console.log('User Registration succesful');
                                     return done(null, user_id, {'message': 'Успешная регистрация.'});
