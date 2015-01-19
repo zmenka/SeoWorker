@@ -76,9 +76,9 @@ module.exports = function (passport) {
                 // find a user whose email is the same as the forms email
                 // we are checking to see if the user trying to login already exists
                 new PgUsers().getByLogin(username)
-                    .then(function (user) {
+                    .then(function (users) {
                         // Username does not exist, log error & redirect back
-                        if (user) {
+                        if (users.length!=0) {
                             console.log('User already exists with username ' + username);
                             return done(null, false,
                                 {'message': 'Пользователь с таким логином уже есть.'});
