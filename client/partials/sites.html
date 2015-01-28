@@ -20,45 +20,40 @@
         <div class="panel panel-info ">
             <div class="panel-heading">Настройки</div>
             <div class="panel-body" ng-show="site">
-                <div class="form-group">
-                    <label class="control-label col-sm-3">Выбранный сайт:</label>
-                    <span ng-show="site" style="word-wrap: break-word">{{site.url}}</span>
-                    <span ng-show="!site">не выбран</span>
-                </div>
-
-                <div class="form-horizontal">
+                <form>
                     <div class="form-group">
-                        <label class="control-label col-sm-3">Ключевая фраза: </label>
-                        <input type="text" ng-disabled="true" class="form-control col-sm-8" style="width:300px;"
+                        <label class="control-label">Выбранный сайт:</label>
+                        <span ng-show="site" style="word-wrap: break-word">{{site.url}}</span>
+                        <span ng-show="!site">не выбран</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="control-label ">Ключевая фраза: </label>
+                        <input type="text" ng-disabled="true" class="form-control "
                                ng-model="site.condition_query">
                     </div>
-                </div>
 
-                <div class="form-horizontal">
+
                     <div class="form-group">
-                        <label class="control-label col-sm-3">Поисковая система: </label>
-                        <input type="text" ng-disabled="true" class="form-control col-sm-8" style="width:100px;"
+                        <label class="control-label">Поисковая система: </label>
+                        <input type="text" ng-disabled="true" class="form-control "
                                ng-model="site.sengine_name">
                     </div>
-                </div>
 
-
-                <div class="form-horizontal">
                     <div class="form-group">
-                        <label class="control-label col-sm-3">Регион: </label>
-                        <input type="text" ng-disabled="true" class="form-control col-sm-8" style="width:100px;"
+                        <label class="control-label">Регион: </label>
+                        <input type="text" ng-disabled="true" class="form-control "
                                ng-model="site.region">
                     </div>
-                </div>
 
-
-                <div class="form-horizontal">
                     <div class="form-group">
-                        <label class="control-label col-sm-3">Размер выборки: </label>
-                        <input type="text" ng-disabled="true" class="form-control col-sm-8" style="width:100px;"
+                        <label class="control-label ">Размер выборки: </label>
+                        <input type="text" ng-disabled="true" class="form-control"
                                ng-model="site.size_search">
+
                     </div>
-                </div>
+                </form>
+
                 <br>
                 <button type="button" class="btn btn-primary" ng-disabled="loading" ng-show="site "
                         ng-click="getParams()">Получить данные

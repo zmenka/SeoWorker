@@ -275,6 +275,10 @@ seoControllers.controller('SitesCtrl', ['$scope', '$alert', 'Api', 'CaptchaModal
                 $scope.site = nodeData
                 $scope.params = [];
                 $scope.params1 = [];
+            } else {
+                $scope.site = null
+                $scope.params = [];
+                $scope.params1 = [];
             }
 
         };
@@ -283,14 +287,13 @@ seoControllers.controller('SitesCtrl', ['$scope', '$alert', 'Api', 'CaptchaModal
 
 seoControllers.controller('SettingsCtrl', ['$scope', '$alert', 'Api',
     function ($scope, $alert, Api) {
-        $scope.formData = { url: ""};
+        $scope.formData = null;
         $scope.site = null;
         $scope.sites = [];
-        $scope.origin_site = null;
-        $scope.params = [];
+//        $scope.origin_site = null;
         $scope.loading = false;
         //true - site, false - task
-        $scope.siteOrTask = true;
+//        $scope.siteOrTask = true;
 
         $scope.sengines = [];
 
@@ -312,6 +315,7 @@ seoControllers.controller('SettingsCtrl', ['$scope', '$alert', 'Api',
                 .catch(function (err) {
                     console.log('get sites return ERROR!', err);
                     $scope.sites = [];
+                    $scope.site = null;
                     $scope.loading = false;
                     $alert({title: 'Внимание!', content: "Список сайтов не получен: " + err.data,
                         placement: 'top', type: 'danger', show: true,
@@ -363,21 +367,21 @@ seoControllers.controller('SettingsCtrl', ['$scope', '$alert', 'Api',
             return tree;
         };
 
-        $scope.remove = function (scope) {
-            //console.log("remove");
-            scope.remove();
-        };
+//        $scope.remove = function (scope) {
+//            //console.log("remove");
+//            scope.remove();
+//        };
 
         $scope.toggle = function (scope) {
             //console.log("toggle");
             scope.toggle();
         };
 
-        $scope.addTask = function (params) {
-            console.log("addTask", params);
+        $scope.addTask = function () {
+            console.log("addTask", $scope.site);
 
-            if (!params.usurl_id || !params.condition_query || !params.sengine_id
-                || !params.region || !params.size_search) {
+            if (!$scope.site.usurl_id || !$scope.site.condition_query || !$scope.site.sengine_id
+                || !$scope.site.region || !$scope.site.size_search) {
                 $alert({title: 'Внимание!', content: "Не заполнены все необходимые поля. ",
                     placement: 'top', type: 'danger', show: true,
                     duration: '3',
@@ -386,8 +390,8 @@ seoControllers.controller('SettingsCtrl', ['$scope', '$alert', 'Api',
                 return;
             }
             $scope.loading = true;
-            Api.create_task(params.usurl_id, params.condition_query, params.sengine_id,
-                params.region, params.size_search)
+            Api.create_task($scope.site.usurl_id, $scope.site.condition_query, $scope.site.sengine_id,
+                $scope.site.region, $scope.site.size_search)
                 .then(function () {
                     console.log('task is saved');
 
@@ -406,42 +410,42 @@ seoControllers.controller('SettingsCtrl', ['$scope', '$alert', 'Api',
                 })
         };
 
-        $scope.saveTask = function (params) {
-            console.log("saveTask", params);
-
-            if (!params.task_id || !params.condition_query || !params.sengine_id
-                || !params.region || !params.size_search) {
-                $alert({title: 'Внимание!', content: "Нет всех необходимых полей. ",
-                    placement: 'top', type: 'danger', show: true,
-                    duration: '3',
-                    container: '.alerts-container'
-                });
-                return;
-            }
-            $scope.loading = true;
-            Api.save_task(params.task_id, params.condition_query, params.sengine_id,
-            params.region, params.size_search)
-                .then(function () {
-                    console.log('task is saved');
-                    load();
-
-                    $scope.loading = false;
-                })
-                .catch(function (response) {
-                    console.log('task is saved WITH ERROR!', response);
-                    $scope.loading = false;
-                    $alert({title: 'Внимание!', content: "Изменения не сохранены: " + response.data,
-                        placement: 'top', type: 'danger', show: true,
-                        duration: '3',
-                        container: '.alerts-container'
-                    });
-                })
-        };
+//        $scope.saveTask = function (params) {
+//            console.log("saveTask", params);
+//
+//            if (!params.task_id || !params.condition_query || !params.sengine_id
+//                || !params.region || !params.size_search) {
+//                $alert({title: 'Внимание!', content: "Нет всех необходимых полей. ",
+//                    placement: 'top', type: 'danger', show: true,
+//                    duration: '3',
+//                    container: '.alerts-container'
+//                });
+//                return;
+//            }
+//            $scope.loading = true;
+//            Api.save_task(params.task_id, params.condition_query, params.sengine_id,
+//            params.region, params.size_search)
+//                .then(function () {
+//                    console.log('task is saved');
+//                    load();
+//
+//                    $scope.loading = false;
+//                })
+//                .catch(function (response) {
+//                    console.log('task is saved WITH ERROR!', response);
+//                    $scope.loading = false;
+//                    $alert({title: 'Внимание!', content: "Изменения не сохранены: " + response.data,
+//                        placement: 'top', type: 'danger', show: true,
+//                        duration: '3',
+//                        container: '.alerts-container'
+//                    });
+//                })
+//        };
 
 
         $scope.newSite = function () {
             console.log("newSite");
-            if (!$scope.formData.url) {
+            if (!$scope.formData || !$scope.formData.url) {
                 $alert({title: 'Внимание!', content: "Не заполнены все необходимые поля. ",
                     placement: 'top', type: 'danger', show: true,
                     duration: '3',
@@ -452,7 +456,9 @@ seoControllers.controller('SettingsCtrl', ['$scope', '$alert', 'Api',
             $scope.loading = true;
             Api.create_site($scope.formData.url)
                 .then(function () {
-                    $scope.formData.url = "";
+                    $scope.formData = null;
+                    // чтобы не показывалась форма
+                    $scope.site = null;
                     console.log('site is saved');
                     load();
                     $scope.loading = false;
@@ -471,18 +477,25 @@ seoControllers.controller('SettingsCtrl', ['$scope', '$alert', 'Api',
         $scope.select = function (scope) {
             //console.log("select");
             var nodeData = scope.$modelValue;
-            if (nodeData.task_id) {
-                $scope.siteOrTask = false
-                $scope.site = JSON.parse(JSON.stringify(nodeData));
-                $scope.origin_site = nodeData;
-                $scope.params = [];
-            } else {
-                $scope.siteOrTask = true;
-                $scope.site = JSON.parse(JSON.stringify(nodeData));
-            }
+            $scope.site = JSON.parse(JSON.stringify(nodeData));
+//            if (nodeData.task_id) {
+//                $scope.siteOrTask = false
+//                $scope.site = JSON.parse(JSON.stringify(nodeData));
+//                $scope.origin_site = nodeData;
+//            } else {
+//                $scope.siteOrTask = true;
+//                $scope.site = JSON.parse(JSON.stringify(nodeData));
+//            }
             console.log("select", $scope.site)
 
         };
+
+        $scope.IsSiteSelected = function (){
+            if ($scope.site && $scope.site.task_id){
+                return false;
+            }
+            return true;
+        }
 
         $scope.changeSettings = function () {
             var res = false;

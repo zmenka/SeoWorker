@@ -34,52 +34,51 @@
         <div class="panel panel-info ">
             <div class="panel-heading">Настройки</div>
             <div class="panel-body" ng-show="site">
-
-                <div class="form-group">
-                    <label class="control-label col-sm-4">Выбранный сайт:</label>
-                    {{site.url}}
-                </div>
-
-
-                <div class="form-horizontal">
+                <form>
                     <div class="form-group">
-                        <label class="control-label col-sm-4">Ключевая фраза: </label>
-                        <input type="text" class="form-control col-sm-8" style="width:300px;"
+                        <label class="control-label ">Выбранный сайт:</label>
+
+                        <div style="word-wrap: break-word">{{site.url}}</div>
+                    </div>
+
+
+                    <div class="form-group">
+                        <label class="control-label ">Ключевая фраза: </label>
+
+                        <input type="text" class="form-control "
+                               ng-disabled="!IsSiteSelected()"
                                ng-model="site.condition_query">
                     </div>
-                </div>
 
-
-                <div class="form-horizontal">
                     <div class="form-group">
-                        <label class="control-label col-sm-4">Поисковая система: </label>
-                        <select ng-model="site.sengine_id" class="form-control col-sm-8" style="width:100px;"
+                        <label class="control-label ">Поисковая система: </label>
+                        <select ng-model="site.sengine_id" class="form-control"
+                                ng-disabled="!IsSiteSelected()"
                                 ng-options="search.sengine_id as search.sengine_name for search in sengines"></select>
                     </div>
-                </div>
 
 
-                <div class="form-horizontal">
                     <div class="form-group">
-                        <label class="control-label col-sm-4">Регион: </label>
-                        <input type="text" class="form-control col-sm-8" style="width:100px;"
+                        <label class="control-label ">Регион: </label>
+                        <input type="text" class="form-control "
+                               ng-disabled="!IsSiteSelected()"
                                ng-model="site.region" placeholder="54">
                     </div>
-                </div>
 
 
-                <div class="form-horizontal">
                     <div class="form-group">
-                        <label class="control-label col-sm-4">Размер выборки: </label>
-                        <input type="text" class="form-control col-sm-8" style="width:100px;"
+                        <label class="control-label ">Размер выборки: </label>
+                        <input type="text" class="form-control "
+                               ng-disabled="!IsSiteSelected()"
                                ng-model="site.size_search" placeholder="20">
                     </div>
-                </div>
 
-                <button ng-show="!siteOrTask" type="button" class="btn btn-primary" ng-click="saveTask(site)">
-                    Cохранить изменения
-                </button>
-                <button ng-show="siteOrTask" type="button" class="btn btn-primary" ng-click="addTask(site)">
+                </form>
+                <!--
+                                <button ng-show="!siteOrTask" type="button" class="btn btn-primary" ng-click="saveTask(site)">
+                                    Cохранить изменения
+                                </button>-->
+                <button type="button" class="btn btn-primary" ng-show="IsSiteSelected()" ng-click="addTask()">
                     Добавить выборку
                 </button>
             </div>
