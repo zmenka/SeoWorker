@@ -111,24 +111,24 @@ module.exports = function Api(app, passport) {
             })
     });
 
-    app.post('/api/save_task', function (req, res, next) {
-        console.log('/api/save_task', req.body);
-        res.statusCode = 200;
-
-        if (!req.body.task_id || !req.body.condition_query || !req.body.sengine_id || !req.body.region || !req.body.size_search) {
-            errback("не найдены параметры task_id или condition_query or sengine_id", res);
-            return;
-        }
-
-        new PgTasks().updateWithCondition(req.body.task_id, req.body.condition_query, req.body.sengine_id,
-                req.body.region, req.body.size_search)
-            .then(function (db_res) {
-                callback(db_res, res);
-            })
-            .catch(function (err) {
-                errback(err, res);
-            })
-    });
+//    app.post('/api/save_task', function (req, res, next) {
+//        console.log('/api/save_task', req.body);
+//        res.statusCode = 200;
+//
+//        if (!req.body.task_id || !req.body.condition_query || !req.body.sengine_id || !req.body.region || !req.body.size_search) {
+//            errback("не найдены параметры task_id или condition_query or sengine_id", res);
+//            return;
+//        }
+//
+//        new PgTasks().updateWithCondition(req.body.task_id, req.body.condition_query, req.body.sengine_id,
+//                req.body.region, req.body.size_search)
+//            .then(function (db_res) {
+//                callback(db_res, res);
+//            })
+//            .catch(function (err) {
+//                errback(err, res);
+//            })
+//    });
     var serverFree = true;
     app.post('/api/calc_params', function (req, res, next) {
         console.log('/api/calc_params', req.body);

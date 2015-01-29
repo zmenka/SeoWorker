@@ -9,7 +9,6 @@ seoControllers.controller('MainCtrl', ['$scope', 'Authenticate',
     }]);
 seoControllers.controller('SitesCtrl', ['$scope', '$alert', 'Api', 'CaptchaModal',
     function ($scope, $alert, Api, CaptchaModal) {
-        $scope.formData = { url: ""};
         $scope.site = null;
         $scope.sites = [];
         $scope.params = [];

@@ -91,11 +91,13 @@ PgTasks.prototype.insertWithCondition = function (usurl_id, condition_query, sen
 
                 return new PgConditions().insert(condition_query, sengine_id, region, size_search)
             } else {
+                if (conds.length > 1) {
+                    throw "Дубликат условий!"
+                }
                 return _this.find(usurl_id, conds[0].condition_id)
                     .then(function (tasks) {
                         if (tasks.length > 0) {
-                            throw "такие условия для этого сайта уже есть!"
-                            return
+                            throw "Дубликат условий у пользователя для сайта!"
                         }
                         console.log("old condition")
                         return conds[0].condition_id

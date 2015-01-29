@@ -39,11 +39,12 @@ Searcher.prototype.getContentByUrl = function (url, captcha, client_headers, coo
 
         var headers = {
             'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.153 Safari/537.36',
-            'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-            'content-type': 'application/json;charset=UTF-8',
+            'accept': 'text/html,application/xhtml+xml,application/xml;*/*;q=0.8',
+//            'content-type': 'text/html; charset=utf-8',
             'connection': 'keep-alive',
-            'accept-encoding': 'deflate,sdch',
-            'accept-language': 'ru-RU,ru;q=0.8,en-US;q=0.6,en;q=0.4'
+            'accept-encoding': 'gzip,deflate',
+            'accept-language': 'ru-RU,ru;q=0.8,en-US;q=0.6,en;q=0.4',
+            'accept-charset': "ISO-8859-1,utf-8;q=0.7,*;q=0.3"
         }
         if (client_headers) {
             console.log("добавлены заголовки пользователя")//, client_headers);
@@ -81,7 +82,7 @@ Searcher.prototype.getContentByUrl = function (url, captcha, client_headers, coo
             //properties = { 'key': encodeURIComponent(captcha.key), 'retpath': encodeURIComponent(captcha.retpath), 'rep': encodeURIComponent(captcha.rep) };
             options.url = 'http://yandex.ru/checkcaptcha?key=' + encodeURIComponent(captcha.key) + '&retpath='
                 + encodeURIComponent(captcha.retpath) + '&rep=' + encodeURIComponent(captcha.rep);
-            console.log("ссылка на капчу ",  options.url)
+            console.log("ссылка на капчу ", options.url)
 
         }
 
@@ -93,17 +94,37 @@ Searcher.prototype.getContentByUrl = function (url, captcha, client_headers, coo
             if (error) {
                 deferred.reject('Searcher.prototype.getContentByUrl Ошибка при получении html ' + error.toString());
             } else {
-                console.log(-date.getTime()+(new Date().getTime()))
 
-                var bodyWithCorrectEncoding = iconv.decode(body, 'utf-8');
-                //console.log("response.headers", response.request.headers['cookie'])
                 var cookies = j.getCookies(options.url)
-                console.log("Содержимое сайте получено: ", options.url, bodyWithCorrectEncoding.substr(100, 50))
-//                console.log(bodyWithCorrectEncoding);
+                console.log("Содержимое сайте получено: ", options.url)
                 console.log("cookies", cookies)
-                deferred.resolve({html: bodyWithCorrectEncoding, cookies: cookies});
-            }
 
+                var encoding = response.headers['content-encoding'];
+                console.log("encoding", encoding)
+                if (encoding == 'gzip') {
+                    var zlib = require('zlib');
+                    zlib.gunzip(body, function (err, decoded) {
+                        if (error) {
+                            deferred.reject('Searcher.prototype.getContentByUrl Ошибка при получении zlib ' + err.toString());
+                        }
+
+                        deferred.resolve({html: responseDecode(response, decoded), cookies: cookies});
+                    });
+                } else if (encoding == 'deflate') {
+                    zlib.inflate(body, function (err, decoded) {
+                        if (error) {
+                            deferred.reject('Searcher.prototype.getContentByUrl Ошибка при получении zlib ' + err.toString());
+                        }
+
+                        deferred.resolve({html: responseDecode(response, decoded), cookies: cookies});
+                    })
+                } else {
+                    deferred.resolve({html: responseDecode(response, body), cookies: cookies});
+                }
+
+
+            }
+            console.log(-date.getTime() + (new Date().getTime()))
         })
 
 
@@ -111,13 +132,29 @@ Searcher.prototype.getContentByUrl = function (url, captcha, client_headers, coo
     return deferred.promise;
 };
 
+function responseDecode(response, body) {
+//    var buf = new Buffer(body, 'binary')
+    var buf = body;
+    var charset = require('charset'),
+        jschardet = require('jschardet');
+
+    var enc = charset(response.headers, buf);
+    enc = enc || jschardet.detect(buf).encoding.toLowerCase();
+    console.log('encoding charset', enc)
+    if (enc != 'utf-8' && enc != 'utf8') {
+        body = iconv.decode(buf, enc)
+    }
+
+    return body.toString();
+}
+
 Searcher.prototype.getContentByUrlOrCaptcha = function (url, captcha, client_headers, user_id) {
     _this2 = this;
     var content
     return new PgUsers().get(user_id)
         .then(function (res) {
             var cookies;
-            try{
+            try {
                 cookies = JSON.parse(res.cookies)
             }
             catch (err) {
@@ -166,21 +203,21 @@ Searcher.prototype.getCaptcha = function (raw_html) {
                     //console.log('retpath', retpath[0].attribs.value);
                     var form = parser.getTag('.b-captcha form');
                     //console.log('form.action', form[0].attribs.action);
-                    console.log(-date.getTime()+(new Date().getTime()))
+                    console.log(-date.getTime() + (new Date().getTime()))
                     console.log('Капча!!!!');
                     return (
-                        {
-                            img: img[0].attribs.src,
-                            key: key[0].attribs.value,
-                            retpath: (retpath[0].attribs.value).replace(/&amp;/g, '&'),
-                            action: form[0].attribs.action}
-                    )
+                    {
+                        img: img[0].attribs.src,
+                        key: key[0].attribs.value,
+                        retpath: (retpath[0].attribs.value).replace(/&amp;/g, '&'),
+                        action: form[0].attribs.action}
+                        )
                 }
                 console.log('Капча странная ');
                 throw "problems with captcha" + tags;
                 return;
             }
-            console.log(-date.getTime()+(new Date().getTime()))
+            console.log(-date.getTime() + (new Date().getTime()))
             console.log("Капчи не нашлось")
             return null;
         })

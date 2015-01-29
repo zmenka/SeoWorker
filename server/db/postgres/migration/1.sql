@@ -4,12 +4,12 @@ CREATE DATABASE seo;
 \c seo;
     DROP TABLE IF EXISTS session CASCADE;
 CREATE TABLE session (
-  sid varchar NOT NULL COLLATE "default",
+  sid varchar NOT NULL,
   sess json NOT NULL,
   expire timestamp(6) NOT NULL
 );
 
-ALTER TABLE "session" ADD CONSTRAINT "session_pkey" PRIMARY KEY ("sid") NOT DEFERRABLE INITIALLY IMMEDIATE;
+ALTER TABLE "session" ADD CONSTRAINT "session_pkey" PRIMARY KEY ("sid") ;
 
 /* Хранилище страниц */
 DROP TABLE IF EXISTS urls CASCADE;
@@ -151,7 +151,7 @@ CREATE TABLE conditions
   DATE_CREATE       TIMESTAMP WITH TIME ZONE NOT NULL
 );
 -- Уникальнай ключ
-CREATE UNIQUE INDEX UIDX_conditions_seng_q ON conditions (SENGINE_ID,CONDITION_QUERY);
+--CREATE UNIQUE INDEX UIDX_conditions_seng_q ON conditions (SENGINE_ID,CONDITION_QUERY);
 
 /* Анализ страницы пользователя по параметрам */
 DROP TABLE IF EXISTS tasks CASCADE;
