@@ -35,8 +35,7 @@
     "q": "^1.1.2",
     "request": "^2.45.0",
     "soupselect": "^0.2.0",
-    "tough-cookie": "^0.12.1",
-    "zlib": "^1.0.5"
+    "tough-cookie": "^0.12.1"
   },
   "scripts": {
     "postinstall": "node ./node_modules/bower/bin/bower install"
