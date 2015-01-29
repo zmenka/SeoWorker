@@ -120,7 +120,7 @@ Core.prototype.getLinksFromSearcher = function (search_objects, search_id, captc
             })
             sortedByPage[0].start = 0
             for (var i = 1; i < sortedByPage.length; i++) {
-                sortedByPage[i].start = sortedByPage[i - 1].links.length;
+                sortedByPage[i].start = sortedByPage[i - 1].links.length + sortedByPage[i -1].start;
             }
 //            console.log("sortedByPage ", sortedByPage)
             return sortedByPage
@@ -194,7 +194,7 @@ Core.prototype.calcParamsOld = function (condition_id, captcha, headers, user_id
         .then(function (search_id_res) {
             search_id = search_id_res
             url = condition.sengine_qmask + condition.condition_query.replace(/\s/g, '%20') + "%26p%3D" + page;
-            console.log("хотим янрдекс урл ", url)
+            console.log("хотим яндекс урл ", url)
             return new Searcher().getContentByUrlOrCaptcha(url, captcha, headers, user_id)
         })
         .then(function (res) {
