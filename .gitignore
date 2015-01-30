@@ -1,5 +1,6 @@
 !.gitkeep
 client/files/
+*.kate-swp
 logs/*
 node_modules/
 bower_components/

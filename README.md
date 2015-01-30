@@ -1,3 +1,5 @@
+
+
 sudo add-apt-repository ppa:chris-lea/node.js ( если в репозитории нода старая)
 
 sudo apt-get update
