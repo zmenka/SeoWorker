@@ -98,7 +98,9 @@ Searcher.prototype.getContentByUrl = function (url, captcha, client_headers, coo
                 var cookies = j.getCookies(options.url)
                 console.log("Содержимое сайте получено: ", options.url)
                 console.log("cookies", cookies)
-                if (contentTypes.indexOf(response.headers['content-type'])==-1){
+                
+                
+                if (checkArrElemIsSubstr(response.headers['content-type'],contentTypes)==-1){
                     deferred.reject('Searcher.prototype.getContentByUrl Мы не знаем такой content type: ' + response.headers['content-type']);
                 }
                 var encoding = response.headers['content-encoding'];
@@ -154,6 +156,17 @@ function responseDecode(response, body) {
 
     return body.toString();
 }
+
+function checkArrElemIsSubstr(rx, arr) {
+	if (rx && arr){
+		for (var i in arr) {
+			if (rx.match(arr[i].toString())) {
+				return i;
+			}
+		}
+	}
+	return -1;
+};
 
 Searcher.prototype.getContentByUrlOrCaptcha = function (url, captcha, client_headers, user_id) {
     _this2 = this;
