@@ -36,10 +36,10 @@ Searcher.prototype.getContentByUrl = function (url, captcha, client_headers, coo
         }
 
         console.log("searcher downloads ", url);
-
+        var contentTypes = ["text/html","text/plain","text/xml","application/json","application/xhtml+xml"]
         var headers = {
             'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.153 Safari/537.36',
-            'accept': 'text/html,application/xhtml+xml,application/xml;*/*;q=0.8',
+            'accept': contentTypes.join(',') + ';*/*;q=0.8',
 //            'content-type': 'text/html; charset=utf-8',
             'connection': 'keep-alive',
             'accept-encoding': 'gzip,deflate',
@@ -98,7 +98,9 @@ Searcher.prototype.getContentByUrl = function (url, captcha, client_headers, coo
                 var cookies = j.getCookies(options.url)
                 console.log("Содержимое сайте получено: ", options.url)
                 console.log("cookies", cookies)
-
+                if (contentTypes.indexOf(response.headers['content-type'])==-1){
+                    deferred.reject('Searcher.prototype.getContentByUrl Мы не знаем такой content type: ' + response.headers['content-type']);
+                }
                 var encoding = response.headers['content-encoding'];
                 console.log("encoding", encoding)
                 if (encoding == 'gzip') {
@@ -139,11 +141,16 @@ function responseDecode(response, body) {
         jschardet = require('jschardet');
 
     var enc = charset(response.headers, buf);
-    enc = enc || jschardet.detect(buf).encoding.toLowerCase();
+    enc = enc || jschardet.detect(buf).encoding;
+
     console.log('encoding charset', enc)
-    if (enc != 'utf-8' && enc != 'utf8') {
-        body = iconv.decode(buf, enc)
+    if (enc){
+        enc = enc.toLowerCase();
+        if (enc != 'utf-8' && enc != 'utf8') {
+            body = iconv.decode(buf, enc)
+        }
     }
+
 
     return body.toString();
 }
