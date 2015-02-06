@@ -3,6 +3,7 @@ var iconv = require('iconv-lite');
 var path = require('path');
 var SeoParser = require('./seo_parser')
 var PgUsers = require('./db/postgres/pg_users')
+var zlib = require('zlib');
 var Q = require('q')
 function Searcher() {
     //console.log('searcher init');
@@ -106,7 +107,7 @@ Searcher.prototype.getContentByUrl = function (url, captcha, client_headers, coo
                 var encoding = response.headers['content-encoding'];
                 console.log("encoding", encoding)
                 if (encoding == 'gzip') {
-                    var zlib = require('zlib');
+                    
                     zlib.gunzip(body, function (err, decoded) {
                         if (error) {
                             deferred.reject('Searcher.prototype.getContentByUrl Ошибка при получении zlib ' + err.toString());
