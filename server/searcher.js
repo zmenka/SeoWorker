@@ -150,11 +150,14 @@ function responseDecode(response, body) {
     if (enc){
         enc = enc.toLowerCase();
         if (enc != 'utf-8' && enc != 'utf8') {
-            body = iconv.decode(buf, enc)
-        }
+            try {
+				body = iconv.decode(buf, enc);
+			} catch(e) {
+				console.log("decode error", e);
+			}
+
+		}
     }
-
-
     return body.toString();
 }
 
