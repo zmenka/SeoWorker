@@ -179,6 +179,16 @@ SeoParameters.prototype.getAllParams = function () {
     bodyLength.ru_name = "Длина страницы в символах";
     bodyLength.description = "Длина в символах тега body";
 
+    var pCount = this.tryCatch(this.tagCount, ["p"]);
+    pCount.name = "pCount";
+    pCount.ru_name = "Cчет абзацев";
+    pCount.description = "Количество абзацев.";
+
+    var pNotEmptyCount = this.tryCatch(this.tagNoEmptyCount, ["p"]);
+    pNotEmptyCount.name = "pNotEmptyCount";
+    pNotEmptyCount.ru_name = "Cчет непустых абзацев";
+    pNotEmptyCount.description = "Количество абзацев с символами.";
+
 //  var sList = this.tryCatch(this.getSearchPicksConcat, []);
 //  sList.name = "sList";
 //  sList.ru_name = "Выдача";
@@ -192,7 +202,7 @@ SeoParameters.prototype.getAllParams = function () {
         h2Length, h2LengthFirst, h2LengthAvg,
         h3Length, h3LengthFirst, h3LengthAvg,
         pLength, pLengthFirst, pLengthAvg,
-        bodyLength
+        bodyLength, pCount, pNotEmptyCount
     ]};
     return params;
 }
@@ -257,12 +267,30 @@ SeoParameters.prototype.tagCount = function (tag) {
     }
     throw new Error('Нет тега ' + tag);
 }
+//количество НЕПУСТЫХ блоков с тэгом tag
+SeoParameters.prototype.tagNoEmptyCount = function (tag) {
+    var tags = this.parser.getTag(tag);
+
+    if (!tags || tags.length == 0)
+        throw new Error('Нет тега ' + tag);
+
+    var count = 0;
+    for (var j = 0; j < tags.length; j++) {
+        var data = getData(tags[j]);
+        if (data && data.length> 0){
+            count++;
+        }
+    }
+
+    return count;
+}
 //считаем суммарную длину в символах data всех тэгов tag
 SeoParameters.prototype.tagLengthAll = function (tag) {
     var tags = this.parser.getTag(tag);
 
     if (!tags || tags.length == 0)
         throw new Error('Нет тега ' + tag);
+
     var data = getData(tags);
 
     return data.length;

@@ -35,9 +35,11 @@ Core.prototype.calcParams = function (condition_id, captcha, headers, user_id) {
             return new PgSearch().getLastSearch(condition_id, new Date(new Date() - 24 * 60 * 60 * 1000))
         })
         .then(function (res) {
+            console.log(res)
             if (res && res.length>0){
-                throw 'Результаты выборки уже были обновлены'
+                throw 'Результаты выборки уже были обновлены.'
             }
+
             //Формируется массив объектов {page:<>, url:<>, sengine:<>} для поиска
             var search_objects = new SearcherType().getSearchUrls(condition)
             console.log("урлы для поиска: ", search_objects)
