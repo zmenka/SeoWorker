@@ -5,6 +5,7 @@ var SeoParser = require('./seo_parser')
 var PgUsers = require('./db/postgres/pg_users')
 var zlib = require('zlib');
 var Q = require('q')
+var he = require('he');
 function Searcher() {
     //console.log('searcher init');
 };
@@ -158,7 +159,7 @@ function responseDecode(response, body) {
 
 		}
     }
-    return body.toString();
+    return he.decode(body.toString());
 }
 
 function checkArrElemIsSubstr(rx, arr) {

@@ -135,14 +135,15 @@ seoControllers.controller('SitesCtrl', ['$scope', '$alert', 'Api', 'CaptchaModal
             if (!url){
                 return null;
             }
-            url =url.toLowerCase();
+
+            url =url.replace(/\/$/, "").toLowerCase();
             var position = (allParams).filter(function (v) {
                 var site = v.url.replace(/^(ftp:\/\/|http:\/\/|https:\/\/)*(www\.)*/g,'')
                 if (!site){
                     return false;
                 }
-                console.log("PARSE ", site.toLowerCase(), url)
-                return site.toLowerCase() === url;
+                console.log("PARSE ", site.replace(/\/$/, "").toLowerCase(), url)
+                return site.replace(/\/$/, "").toLowerCase() === url;
             })[0]
             console.log(position, (position ? position.position: null))
             return position ? position.position+1: null;
