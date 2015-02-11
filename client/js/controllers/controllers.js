@@ -108,10 +108,8 @@ seoControllers.controller('SitesCtrl', ['$scope', '$alert', 'Api', 'CaptchaModal
                         $scope.chart1 = null
                         $scope.values1 = null
                         $scope.site_params = res.data.site_params[0]
-                        var position = (res.data.all_params).filter(function (v) {
-                            return v.url === $scope.site_params.url;
-                        })[0]
-                        $scope.site.position = position ? position.position: null;
+
+                        $scope.site.position = $scope.getSitePosition(res.data.all_params, $scope.site_params);
                     } else {
                         $scope.params = [];
                         $scope.params1 = [];
@@ -132,6 +130,24 @@ seoControllers.controller('SitesCtrl', ['$scope', '$alert', 'Api', 'CaptchaModal
                     });
                 })
         }
+        $scope.getSitePosition = function (allParams, siteParams) {
+            var url = siteParams.url.replace(/^(ftp:\/\/|http:\/\/|https:\/\/)*(www\.)*/g,'')
+            if (!url){
+                return null;
+            }
+            url =url.toLowerCase();
+            var position = (allParams).filter(function (v) {
+                var site = v.url.replace(/^(ftp:\/\/|http:\/\/|https:\/\/)*(www\.)*/g,'')
+                if (!site){
+                    return false;
+                }
+                console.log("PARSE ", site.toLowerCase(), url)
+                return site.toLowerCase() === url;
+            })[0]
+            console.log(position, (position ? position.position: null))
+            return position ? position.position+1: null;
+        }
+
         $scope.prettyDiagram = function (data, site_data) {
 
             if (!data || data.length == 0 || !site_data) {
@@ -139,7 +155,7 @@ seoControllers.controller('SitesCtrl', ['$scope', '$alert', 'Api', 'CaptchaModal
             }
             var diagram = []
             for (var key in data) {
-                var position = data[key].position;
+                var position = data[key].position + 1;
                 for (var key1 in data[key].param.params) {
                     var current_par = data[key].param.params[key1]
                     if (current_par.success) {
@@ -184,7 +200,11 @@ seoControllers.controller('SitesCtrl', ['$scope', '$alert', 'Api', 'CaptchaModal
                     })
                 }
             }
-
+            diagramExt = diagramExt.sort(function(a, b){
+                if(a.key < b.key) return -1;
+                if(a.key > b.key) return 1;
+                return 0;
+            })
             console.log("prettyDiagram", diagramExt, diagram)
 //            $scope.chart = null
 //            $scope.values = $scope.chart.values;
@@ -202,7 +222,7 @@ seoControllers.controller('SitesCtrl', ['$scope', '$alert', 'Api', 'CaptchaModal
             for (var key in data) {
                 var name = data[key].url.length > 60 ? data[key].url.substr(0, 60) + '...' : data[key].url
                 table.push({url: data[key].url, name: name, params: data[key].param.params, surl: data[key].surl,
-                    position: data[key].position})
+                    position: data[key].position+1})
             }
 
             table.push({url: site_data.url, name: 'Ваш сайт', params: site_data.param.params, surl: "-"})
