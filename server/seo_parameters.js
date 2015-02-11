@@ -101,23 +101,23 @@ SeoParameters.prototype.getAllParams = function () {
 
     var h2Count = this.tryCatch(this.tagCount, ["h2"]);
     h2Count.name = "h2Count";
-    h2Count.ru_name = "счет (h2)";
+    h2Count.ru_name = "Счет (h2)";
     h2Count.description = "Количество тегов h2.";
 
     var h3Count = this.tryCatch(this.tagCount, ["h3"]);
     h3Count.name = "h3Count";
-    h3Count.ru_name = "счет (h3)";
+    h3Count.ru_name = "Счет (h3)";
     h3Count.description = "Количество тегов h3.";
 
     var h2CSAvg = this.tryCatch(this.tagCSAvg, ["h2"]);
     h2CSAvg.name = "h2CSAvg";
-    h2CSAvg.ru_name = "взвешенное ССЗ(h2)";
-    h2CSAvg.description = "взвешенное ССЗ(h2)= (ССЗ(h2(1))+ССЗ(h2(2))+ ...+ССЗ(h2(n)))/n, где n = счет(h2).";
+    h2CSAvg.ru_name = "Взвешенное ССЗ(h2)";
+    h2CSAvg.description = "Взвешенное ССЗ(h2)= (ССЗ(h2(1))+ССЗ(h2(2))+ ...+ССЗ(h2(n)))/n, где n = счет(h2).";
 
     var h3CSAvg = this.tryCatch(this.tagCSAvg, ["h3"]);
     h3CSAvg.name = "h3CSAvg";
-    h3CSAvg.ru_name = "взвешенное ССЗ(h3)";
-    h3CSAvg.description = "взвешенное ССЗ(h3)= (ССЗ(h3(1))+ССЗ(h3(2))+ ...+ССЗ(h3(n)))/n, где n = счет(h3).";
+    h3CSAvg.ru_name = "Взвешенное ССЗ(h3)";
+    h3CSAvg.description = "Взвешенное ССЗ(h3)= (ССЗ(h3(1))+ССЗ(h3(2))+ ...+ССЗ(h3(n)))/n, где n = счет(h3).";
 
     var titleLength = this.tryCatch(this.tagLengthAll, ["title"]);
     titleLength.name = "titleLength";
@@ -189,6 +189,16 @@ SeoParameters.prototype.getAllParams = function () {
     pNotEmptyCount.ru_name = "Cчет непустых абзацев";
     pNotEmptyCount.description = "Количество абзацев с символами.";
 
+    var pCSAvg = this.tryCatch(this.tagCSAvg, ["p"]);
+    pCSAvg.name = "pCSAvg";
+    pCSAvg.ru_name = "Взвешенное ССЗ абзацев";
+    pCSAvg.description = "Взвешенное ССЗ(p)= (ССЗ(p(1))+ССЗ(p(2))+ ...+ССЗ(p(n)))/n, где n = счет(p).";
+
+    var bodyCSAvg = this.tryCatch(this.tagCSAvg, ["body"]);
+    bodyCSAvg.name = "bodyCSAvg";
+    bodyCSAvg.ru_name = "Взвешенное ССЗ страницы";
+    bodyCSAvg.description = "Взвешенное ССЗ(body).";
+
 //  var sList = this.tryCatch(this.getSearchPicksConcat, []);
 //  sList.name = "sList";
 //  sList.ru_name = "Выдача";
@@ -202,7 +212,8 @@ SeoParameters.prototype.getAllParams = function () {
         h2Length, h2LengthFirst, h2LengthAvg,
         h3Length, h3LengthFirst, h3LengthAvg,
         pLength, pLengthFirst, pLengthAvg,
-        bodyLength, pCount, pNotEmptyCount
+        bodyLength, pCount, pNotEmptyCount,
+        pCSAvg, bodyCSAvg
     ]};
     return params;
 }
