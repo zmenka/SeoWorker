@@ -162,4 +162,23 @@ PgSearch.prototype.siteWithParams = function(url_id, condition_id) {
         })
 }
 
+PgSearch.prototype.getLastSearch = function(condition_id, date_old) {
+    return PG.query("SELECT  S.SEARCH_ID  \
+    FROM\
+    search S\
+    WHERE\
+    S.CONDITION_ID = $1\
+    AND S.DATE_CREATE >= '" +  date_old.toISOString() + "'\
+    ORDER BY S.DATE_CREATE DESC\
+    LIMIT 1 ",
+        [condition_id])
+        .then(function (res) {
+            console.log("PgSearch.prototype.lastSearch")
+            return res.rows;
+        })
+        .catch(function (err) {
+            throw 'PgSearch.prototype.lastSearch' + err;
+        })
+}
+
 module.exports = PgSearch;

@@ -32,6 +32,12 @@ Core.prototype.calcParams = function (condition_id, captcha, headers, user_id) {
             if (!condition) {
                 throw 'Не найдены условия!'
             }
+            return new PgSearch().getLastSearch(condition_id, new Date(new Date() - 24 * 60 * 60 * 1000))
+        })
+        .then(function (res) {
+            if (res && res.length>0){
+                throw 'Результаты выборки уже были обновлены'
+            }
             //Формируется массив объектов {page:<>, url:<>, sengine:<>} для поиска
             var search_objects = new SearcherType().getSearchUrls(condition)
             console.log("урлы для поиска: ", search_objects)
@@ -110,7 +116,7 @@ Core.prototype.getLinksFromSearcher = function (search_objects, search_id, captc
 
     }
     return promise_chain
-        .then(function() {
+        .then(function () {
             return result;
         })
         .then(function (res) {
@@ -120,7 +126,7 @@ Core.prototype.getLinksFromSearcher = function (search_objects, search_id, captc
             })
             sortedByPage[0].start = 0
             for (var i = 1; i < sortedByPage.length; i++) {
-                sortedByPage[i].start = sortedByPage[i - 1].links.length + sortedByPage[i -1].start;
+                sortedByPage[i].start = sortedByPage[i - 1].links.length + sortedByPage[i - 1].start;
             }
 //            console.log("sortedByPage ", sortedByPage)
             return sortedByPage
