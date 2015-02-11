@@ -159,6 +159,26 @@ SeoParameters.prototype.getAllParams = function () {
     h3LengthAvg.ru_name = "Длина в символах h3 avg";
     h3LengthAvg.description = "Взвешенная длина в символах тега h3";
 
+    var pLength = this.tryCatch(this.tagLengthAll, ["p"]);
+    pLength.name = "pLength";
+    pLength.ru_name = "Длина в символах абзацев";
+    pLength.description = "Длина в символах тега p";
+
+    var pLengthFirst = this.tryCatch(this.tagLengthFirst, ["p"]);
+    pLengthFirst.name = "pLengthFirst";
+    pLengthFirst.ru_name = "Длина в символах первого абзаца";
+    pLengthFirst.description = "Длина в символах первого тега p";
+
+    var pLengthAvg = this.tryCatch(this.tagLengthAvg, ["p"]);
+    pLengthAvg.name = "pLengthAvg";
+    pLengthAvg.ru_name = "Длина в символах абзацев avg";
+    pLengthAvg.description = "Взвешенная длина в символах тега p";
+
+    var bodyLength = this.tryCatch(this.tagLengthAll, ["body"]);
+    bodyLength.name = "bodyLength";
+    bodyLength.ru_name = "Длина страницы в символах";
+    bodyLength.description = "Длина в символах тега body";
+
 //  var sList = this.tryCatch(this.getSearchPicksConcat, []);
 //  sList.name = "sList";
 //  sList.ru_name = "Выдача";
@@ -170,7 +190,9 @@ SeoParameters.prototype.getAllParams = function () {
         h2Count, h3Count,
         h2CSAvg, h3CSAvg, titleLength, h1Length,
         h2Length, h2LengthFirst, h2LengthAvg,
-        h3Length, h3LengthFirst, h3LengthAvg
+        h3Length, h3LengthFirst, h3LengthAvg,
+        pLength, pLengthFirst, pLengthAvg,
+        bodyLength
     ]};
     return params;
 }
