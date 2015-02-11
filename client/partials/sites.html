@@ -85,7 +85,9 @@
                         <br>
                         <select ng-model="chart" class="form-control"
                                 style=" margin-left:50px; width: 300px"
-                                ng-change="values = chart.values;" ng-options="p as p.key for p in params"></select>
+                                ng-change="values = chart.values;" ng-options="p.key for p in params | orderBy:'key'">
+
+                                </select>
                         <nvd3-line-chart ng-show="params"
                                          data="values"
                                          width="590"
@@ -105,7 +107,7 @@
                         </accordion-heading>
 
                         <select ng-model="chart1" class="form-control" style="  width: 500px"
-                                ng-change="values1 = chart1.params" ng-options="p as p.name for p in params1"></select>
+                                ng-change="values1 = chart1.params" ng-options="p as p.name for p in params1 | orderBy:'position'"></select>
                         <br>
 
                         <div class="form-inline">
@@ -144,7 +146,7 @@
 
                         <div class="panel panel-default panel-body">
                             <ul class="list-group">
-                                <li class="list-group-item  panel-heading" ng-repeat="param in values1"
+                                <li class="list-group-item  panel-heading" ng-repeat="param in values1 | orderBy:'ru_name':true"
                                     ng-include="'partials/params_template.html'">
                                 </li>
                             </ul>

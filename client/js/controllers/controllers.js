@@ -142,10 +142,10 @@ seoControllers.controller('SitesCtrl', ['$scope', '$alert', 'Api', 'CaptchaModal
                 if (!site){
                     return false;
                 }
-                console.log("PARSE ", site.replace(/\/$/, "").toLowerCase(), url)
+//                console.log("PARSE ", site.replace(/\/$/, "").toLowerCase(), url)
                 return site.replace(/\/$/, "").toLowerCase() === url;
             })[0]
-            console.log(position, (position ? position.position: null))
+//            console.log(position, (position ? position.position: null))
             return position ? position.position+1: null;
         }
 
@@ -201,11 +201,7 @@ seoControllers.controller('SitesCtrl', ['$scope', '$alert', 'Api', 'CaptchaModal
                     })
                 }
             }
-            diagramExt = diagramExt.sort(function(a, b){
-                if(a.key < b.key) return -1;
-                if(a.key > b.key) return 1;
-                return 0;
-            })
+
             console.log("prettyDiagram", diagramExt, diagram)
 //            $scope.chart = null
 //            $scope.values = $scope.chart.values;

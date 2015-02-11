@@ -81,12 +81,12 @@ SeoParameters.prototype.parse = function () {
 SeoParameters.prototype.getAllParams = function () {
     var titleCS = this.tryCatch(this.tagCSFirst, ["title"]);
     titleCS.name = "titleCS";
-    titleCS.ru_name = "ССЗ(title)";
+    titleCS.ru_name = "ССЗ (title)";
     titleCS.description = "Среднее совпадение ключевой фразы с тегом title.";
 
     var h1CS = this.tryCatch(this.tagCSFirst, ["h1"]);
     h1CS.name = "h1CS";
-    h1CS.ru_name = "СССЗ(h1)";
+    h1CS.ru_name = "ССЗ (h1)";
     h1CS.description = "Среднее совпадение ключевой фразы с тегом h1.";
 
 //  var h2CS = this.tryCatch(this.prettyTagCS, ["h2"]);
