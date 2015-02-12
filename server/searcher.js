@@ -38,7 +38,7 @@ Searcher.prototype.getContentByUrl = function (url, captcha, client_headers, coo
         }
 
         console.log("searcher downloads ", url);
-        var contentTypes = ["text/html","text/plain","text/xml","application/json","application/xhtml+xml"]
+        var contentTypes = ["text/html", "text/plain", "text/xml", "application/json", "application/xhtml+xml"]
         var headers = {
             'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.153 Safari/537.36',
             'accept': contentTypes.join(',') + ';*/*;q=0.8',
@@ -100,15 +100,15 @@ Searcher.prototype.getContentByUrl = function (url, captcha, client_headers, coo
                 var cookies = j.getCookies(options.url)
                 console.log("Содержимое сайте получено: ", options.url)
                 console.log("cookies", cookies)
-                
-                
-                if (checkArrElemIsSubstr(response.headers['content-type'],contentTypes)==-1){
+
+
+                if (checkArrElemIsSubstr(response.headers['content-type'], contentTypes) == -1) {
                     deferred.reject('Searcher.prototype.getContentByUrl Мы не знаем такой content type: ' + response.headers['content-type']);
                 }
                 var encoding = response.headers['content-encoding'];
                 console.log("encoding", encoding)
                 if (encoding == 'gzip') {
-                    
+
                     zlib.gunzip(body, function (err, decoded) {
                         if (error) {
                             deferred.reject('Searcher.prototype.getContentByUrl Ошибка при получении zlib ' + err.toString());
@@ -148,29 +148,29 @@ function responseDecode(response, body) {
     enc = enc || jschardet.detect(buf).encoding;
 
     console.log('encoding charset', enc)
-    if (enc){
+    if (enc) {
         enc = enc.toLowerCase();
         if (enc != 'utf-8' && enc != 'utf8') {
             try {
-				body = iconv.decode(buf, enc);
-			} catch(e) {
-				console.log("decode error", e);
-			}
+                body = iconv.decode(buf, enc);
+            } catch (e) {
+                console.log("decode error", e);
+            }
 
-		}
+        }
     }
     return he.decode(body.toString());
 }
 
 function checkArrElemIsSubstr(rx, arr) {
-	if (rx && arr){
-		for (var i in arr) {
-			if (rx.match(arr[i].toString())) {
-				return i;
-			}
-		}
-	}
-	return -1;
+    if (rx && arr) {
+        for (var i in arr) {
+            if (rx.match(arr[i].toString())) {
+                return i;
+            }
+        }
+    }
+    return -1;
 };
 
 Searcher.prototype.getContentByUrlOrCaptcha = function (url, captcha, client_headers, user_id) {
@@ -217,31 +217,55 @@ Searcher.prototype.getCaptcha = function (raw_html) {
     var parser = new SeoParser();
     return parser.initDomQ(raw_html)
         .then(function () {
-            var tags = parser.getByClassName('b-captcha');
-            if (tags.length > 0) {
-                var img = parser.getTag('.b-captcha .b-captcha__image');
-                if (img.length == 1) {
-                    //console.log('Img', img[0].attribs.src);
-                    var key = parser.getTag('.b-captcha form input [name=key]');
-                    //console.log('Key', key[0].attribs.value);
-                    var retpath = parser.getTag('.b-captcha form input [name=retpath]');
-                    //console.log('retpath', retpath[0].attribs.value);
-                    var form = parser.getTag('.b-captcha form');
-                    //console.log('form.action', form[0].attribs.action);
-                    console.log(-date.getTime() + (new Date().getTime()))
+            var tags1 = parser.getTag('form[action=/checkcaptcha]');
+            if (tags1.length > 0) {
+                var img = parser.getTag('form[action=/checkcaptcha] img');
+
+                if (img.length >= 1) {
+                    var key = parser.getTag('form[action=/checkcaptcha] input[name=key]');
+//                    console.log('Key', key[0].attribs.value);
+                    var retpath = parser.getTag('form[action=/checkcaptcha] input[name=retpath]');
+//                    console.log('retpath', retpath.attribs.value);
+                    console.log(-date.getTime() + (new Date().getTime()));
                     console.log('Капча!!!!');
-                    return (
-                    {
+                    var kaptcha = {
                         img: img[0].attribs.src,
                         key: key[0].attribs.value,
                         retpath: (retpath[0].attribs.value).replace(/&amp;/g, '&'),
-                        action: form[0].attribs.action}
-                        )
+                        action: 'checkcaptcha'
+                    };
+//                    console.log(kaptcha);
+                    return kaptcha;
                 }
                 console.log('Капча странная ');
                 throw "problems with captcha" + tags;
                 return;
             }
+//            var tags = parser.getByClassName('b-captcha');
+//            if (tags.length > 0) {
+//                var img = parser.getTag('.b-captcha .b-captcha__image');
+//                if (img.length == 1) {
+//                    //console.log('Img', img[0].attribs.src);
+//                    var key = parser.getTag('.b-captcha form input [name=key]');
+//                    //console.log('Key', key[0].attribs.value);
+//                    var retpath = parser.getTag('.b-captcha form input [name=retpath]');
+//                    //console.log('retpath', retpath[0].attribs.value);
+//                    var form = parser.getTag('.b-captcha form');
+//                    //console.log('form.action', form[0].attribs.action);
+//                    console.log(-date.getTime() + (new Date().getTime()))
+//                    console.log('Капча!!!!');
+//                    return (
+//                    {
+//                        img: img[0].attribs.src,
+//                        key: key[0].attribs.value,
+//                        retpath: (retpath[0].attribs.value).replace(/&amp;/g, '&'),
+//                        action: form[0].attribs.action}
+//                        )
+//                }
+//                console.log('Капча странная ');
+//                throw "problems with captcha" + tags;
+//                return;
+//            }
             console.log(-date.getTime() + (new Date().getTime()))
             console.log("Капчи не нашлось")
             return null;
