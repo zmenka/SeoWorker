@@ -1,7 +1,7 @@
 /* app css stylesheet */
 
 .app-content {
-
+    padding-bottom: 40px;
 }
 
 .app-header {
@@ -14,10 +14,12 @@ text-shadow: 0 1px 0 rgba(0,0,0,.1);
 }
 
 .app-footer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
     padding-top: 20px;
     text-align: left;
     text-shadow: 0 1px 0 rgba(0,0,0,.1);
-    margin-bottom: 0px;
 }
 
 table.sites {
