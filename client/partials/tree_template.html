@@ -1,9 +1,9 @@
-<div ui-tree-handle class="tree-node tree-node-content" ng-click="select(this)">
-    <a class="btn btn-success btn-xs" ng-if="node.nodes && node.nodes.length > 0" nodrag ng-click="toggle(this)">
+<div ui-tree-handle class="tree-node tree-node-content" ng-click="vm.select(this)">
+    <a class="btn btn-success btn-xs" ng-if="node.nodes && node.nodes.length > 0" nodrag ng-click="vm.toggle(this)">
         <span class="glyphicon"
               ng-class="{'glyphicon-chevron-right': collapsed, 'glyphicon-chevron-down': !collapsed}"></span>
     </a>
-    <span ng-hide="node.task_id"> {{node.title}}</span>
+    <span ng-hide="node.task_id" ng-click="vm.toggle(this)"> {{node.title}}</span>
     <span ng-show="node.task_id" style="color: #808080;"> {{node.title}}</span>
 </div>
 
