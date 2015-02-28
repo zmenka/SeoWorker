@@ -1,5 +1,6 @@
 function MainCtrl($scope, Authenticate) {
-    $scope.isSignedIn = function () {
+    var vm = this;
+    vm.isSignedIn = function () {
         return Authenticate.isAuthenticated;
     };
 }

@@ -29,26 +29,18 @@ seoApp.config(['$modalProvider', '$routeProvider',
         $routeProvider
             .when('/sites', {
                 templateUrl: 'partials/sites.html',
-                controller: 'SitesCtrl',
-                controllerAs: 'vm',
                 authenticate: true
             })
             .when('/settings', {
                 templateUrl: 'partials/settings.html',
-                controller: 'SettingsCtrl',
-                controllerAs: 'vm',
                 authenticate: true
             })
             .when('/login', {
                 templateUrl: 'partials/login.html',
-                controller: 'AuthCtrl',
-                controllerAs: 'vm',
                 authenticate: false
             })
             .when('/register', {
                 templateUrl: 'partials/register.html',
-                controller: 'AuthCtrl',
-                controllerAs: 'vm',
                 authenticate: true
             })
             .when('/logout', {
@@ -57,8 +49,6 @@ seoApp.config(['$modalProvider', '$routeProvider',
             })
             .when('/users', {
                 templateUrl: 'partials/users.html',
-                controller: 'UsersCtrl',
-                controllerAs: 'vm',
                 authenticate: true
             })
 //            .when('/captcha_test', {

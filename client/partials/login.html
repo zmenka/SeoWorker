@@ -1,4 +1,4 @@
-<div class="container">
+<div class="container"  ng-controller="AuthCtrl as vm">
     <div class="col-xs-4">
         <h1>Вход</h1>
 
@@ -6,7 +6,7 @@
 
         <div class="alerts-container"></div>
         <!-- LOGIN FORM -->
-        <form>
+        <form ng-submit="vm.login(form)">
             <div class="form-group">
                 <label>Логин</label>
                 <input type="text" class="form-control" ng-model="form.login">
@@ -16,7 +16,7 @@
                 <input type="password" class="form-control" ng-model="form.password">
             </div>
 
-            <button type="button" class="btn btn-primary  btn-lg " ng-click="vm.login(form)">Войти</button>
+            <input type="submit" class="btn btn-primary  btn-lg " id="submit" value="Войти" />
         </form>
 
         <hr>

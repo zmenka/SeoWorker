@@ -1,4 +1,4 @@
-<div ng-controller="CaptchaTestCtrl" class="container" >
+<div  class="container" ng-controller="CaptchaTestCtrl as vm">
     <h3>Тестирование капчи</h3>
     <div class="form-group">
         Для тестирования капчи нажмите "Начать".
@@ -14,12 +14,12 @@
     </div>
     <div class="form-group">
         <label>Тестовый адрес</label>
-        <input type="text" class="form-control" style="max-width: 800px;" ng-model="test_url">
+        <input type="text" class="form-control" style="max-width: 800px;" ng-model="vm.test_url">
     </div>
     <div class="form-group">
         <label >Текущее состояние</label>
-        <textarea rows="2" style="resize:none; max-width: 800px;" ng-disabled="true" class="form-control" ng-model="state"/>
+        <textarea rows="2" style="resize:none; max-width: 800px;" ng-disabled="true" class="form-control" ng-model="vm.state"/>
     </div>
 
-    <button type="submit" class="btn btn-primary" ng-click="test()">Начать</button>
+    <button type="submit" class="btn btn-primary" ng-click="vm.test()">Начать</button>
 </div>

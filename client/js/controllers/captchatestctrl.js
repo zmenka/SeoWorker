@@ -1,42 +1,43 @@
 function CaptchaTestCtrl ($scope, CaptchaModal, Captcha) {
-        $scope.state = 'Ждем команды "Начать".'
-        $scope.test_url = 'http://yandex.ru/yandsearch?text=погода';
-        $scope.captcha = null;
-        $scope.cookies = null;
+    var vm = this;
+        vm.state = 'Ждем команды "Начать".'
+        vm.test_url = 'http://yandex.ru/yandsearch?text=погода';
+        vm.captcha = null;
+        vm.cookies = null;
 
-        $scope.test = function () {
-            $scope.state = "Посылаем запрос к яндексу"
-            Captcha.test($scope.test_url, $scope.captcha, $scope.cookies)
+        vm.test = function () {
+            vm.state = "Посылаем запрос к яндексу"
+            Captcha.test(vm.test_url, vm.captcha, vm.cookies)
                 .then(function (res) {
                     console.log("первый результат", res.data)
-                    $scope.cookies = res.data.cookies;
+                    vm.cookies = res.data.cookies;
 
                     if (res.data.captcha) {
-                        $scope.captcha = res.data.res;
-                        $scope.state = "Получили капчу" + JSON.stringify($scope.captcha);
+                        vm.captcha = res.data.res;
+                        vm.state = "Получили капчу" + JSON.stringify(vm.captcha);
 
-                        CaptchaModal.show($scope.captcha.img)
+                        CaptchaModal.show(vm.captcha.img)
                             .then(function (result) {
                                 if (result.answer && result.captcha) {
-                                    $scope.state = 'Капча введена, посылаем повторно запрос.'
+                                    vm.state = 'Капча введена, посылаем повторно запрос.'
 
-                                    $scope.captcha.rep = result.captcha;
-                                    $scope.test();
+                                    vm.captcha.rep = result.captcha;
+                                    vm.test();
                                 } else {
-                                    $scope.state = 'Вы не ввели капчу или нажали "Отмена". Попробуйте еще раз.'
+                                    vm.state = 'Вы не ввели капчу или нажали "Отмена". Попробуйте еще раз.'
                                 }
                             })
                     } else {
-                        $scope.captcha = null;
-                        $scope.state = "Запрос сервера завершен нормально";
+                        vm.captcha = null;
+                        vm.state = "Запрос сервера завершен нормально";
                     }
 
                 })
                 .catch(function (err) {
-                    $scope.captcha = null;
-                    //$scope.cookies = null;
+                    vm.captcha = null;
+                    //vm.cookies = null;
                     console.log("Ошбика получения результата", err)
-                    $scope.state = "Какие-то проблемы. Попробуйте еще раз."
+                    vm.state = "Какие-то проблемы. Попробуйте еще раз."
                 })
 
         }

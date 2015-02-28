@@ -1,34 +1,35 @@
 function SettingsCtrl ($scope, $alert, Api) {
-        $scope.formData = null;
-        $scope.site = null;
-        $scope.sites = [];
-//        $scope.origin_site = null;
-        $scope.loading = false;
+    var vm = this;
+        vm.formData = null;
+        vm.site = null;
+        vm.sites = [];
+//        vm.origin_site = null;
+        vm.loading = false;
         //true - site, false - task
-//        $scope.siteOrTask = true;
+//        vm.siteOrTask = true;
 
-        $scope.sengines = [];
+        vm.sengines = [];
 
         var load = function () {
-            $scope.loading = true;
+            vm.loading = true;
             Api.user_sites_and_tasks()
                 .then(function (res) {
                     console.log('sites are reseived');
-                    $scope.sites = createTree(res.data);
+                    vm.sites = createTree(res.data);
                 })
                 .then(function () {
                     return Api.sengines()
                 })
                 .then(function (res1) {
                     console.log('sengines are reseived');
-                    $scope.sengines = res1.data;
-                    $scope.loading = false;
+                    vm.sengines = res1.data;
+                    vm.loading = false;
                 })
                 .catch(function (err) {
                     console.log('get sites return ERROR!', err);
-                    $scope.sites = [];
-                    $scope.site = null;
-                    $scope.loading = false;
+                    vm.sites = [];
+                    vm.site = null;
+                    vm.loading = false;
                     $alert({title: 'Внимание!', content: "Список сайтов не получен: " + err.data,
                         placement: 'top', type: 'danger', show: true,
                         duration: '3',
@@ -79,21 +80,21 @@ function SettingsCtrl ($scope, $alert, Api) {
             return tree;
         };
 
-//        $scope.remove = function (scope) {
+//        vm.remove = function (scope) {
 //            //console.log("remove");
 //            scope.remove();
 //        };
 
-        $scope.toggle = function (scope) {
+        vm.toggle = function (scope) {
             //console.log("toggle");
             scope.toggle();
         };
 
-        $scope.addTask = function () {
-            console.log("addTask", $scope.site);
+        vm.addTask = function () {
+            console.log("addTask", vm.site);
 
-            if (!$scope.site.usurl_id || !$scope.site.condition_query || !$scope.site.sengine_id
-                || !$scope.site.region || !$scope.site.size_search) {
+            if (!vm.site.usurl_id || !vm.site.condition_query || !vm.site.sengine_id
+                || !vm.site.region || !vm.site.size_search) {
                 $alert({title: 'Внимание!', content: "Не заполнены все необходимые поля. ",
                     placement: 'top', type: 'danger', show: true,
                     duration: '3',
@@ -101,19 +102,19 @@ function SettingsCtrl ($scope, $alert, Api) {
                 });
                 return;
             }
-            $scope.loading = true;
-            Api.create_task($scope.site.usurl_id, $scope.site.condition_query, $scope.site.sengine_id,
-                $scope.site.region, $scope.site.size_search)
+            vm.loading = true;
+            Api.create_task(vm.site.usurl_id, vm.site.condition_query, vm.site.sengine_id,
+                vm.site.region, vm.site.size_search)
                 .then(function () {
                     console.log('task is saved');
 
                     load();
-                    $scope.loading = false;
-                    $scope.site = null;
+                    vm.loading = false;
+                    vm.site = null;
                 })
                 .catch(function (response) {
                     console.log('task is saved WITH ERROR!', response);
-                    $scope.loading = false;
+                    vm.loading = false;
                     $alert({title: 'Внимание!', content: "Новая задача не создана: " + response.data,
                         placement: 'top', type: 'danger', show: true,
                         duration: '3',
@@ -122,7 +123,7 @@ function SettingsCtrl ($scope, $alert, Api) {
                 })
         };
 
-//        $scope.saveTask = function (params) {
+//        vm.saveTask = function (params) {
 //            console.log("saveTask", params);
 //
 //            if (!params.task_id || !params.condition_query || !params.sengine_id
@@ -134,18 +135,18 @@ function SettingsCtrl ($scope, $alert, Api) {
 //                });
 //                return;
 //            }
-//            $scope.loading = true;
+//            vm.loading = true;
 //            Api.save_task(params.task_id, params.condition_query, params.sengine_id,
 //            params.region, params.size_search)
 //                .then(function () {
 //                    console.log('task is saved');
 //                    load();
 //
-//                    $scope.loading = false;
+//                    vm.loading = false;
 //                })
 //                .catch(function (response) {
 //                    console.log('task is saved WITH ERROR!', response);
-//                    $scope.loading = false;
+//                    vm.loading = false;
 //                    $alert({title: 'Внимание!', content: "Изменения не сохранены: " + response.data,
 //                        placement: 'top', type: 'danger', show: true,
 //                        duration: '3',
@@ -155,9 +156,9 @@ function SettingsCtrl ($scope, $alert, Api) {
 //        };
 
 
-        $scope.newSite = function () {
+        vm.newSite = function () {
             console.log("newSite");
-            if (!$scope.formData || !$scope.formData.url) {
+            if (!vm.formData || !vm.formData.url) {
                 $alert({title: 'Внимание!', content: "Не заполнены все необходимые поля. ",
                     placement: 'top', type: 'danger', show: true,
                     duration: '3',
@@ -165,15 +166,15 @@ function SettingsCtrl ($scope, $alert, Api) {
                 });
                 return;
             }
-            $scope.loading = true;
-            Api.create_site($scope.formData.url)
+            vm.loading = true;
+            Api.create_site(vm.formData.url)
                 .then(function () {
-                    $scope.formData = null;
+                    vm.formData = null;
                     // чтобы не показывалась форма
-                    $scope.site = null;
+                    vm.site = null;
                     console.log('site is saved');
                     load();
-                    $scope.loading = false;
+                    vm.loading = false;
                 })
                 .catch(function (response) {
                     console.log('site is saved WITH ERROR!', response);
@@ -182,38 +183,38 @@ function SettingsCtrl ($scope, $alert, Api) {
                         duration: '3',
                         container: '.alerts-container'
                     });
-                    $scope.loading = false;
+                    vm.loading = false;
                 })
         };
 
-        $scope.select = function (scope) {
+        vm.select = function (scope) {
             //console.log("select");
             var nodeData = scope.$modelValue;
-            $scope.site = JSON.parse(JSON.stringify(nodeData));
+            vm.site = JSON.parse(JSON.stringify(nodeData));
 //            if (nodeData.task_id) {
-//                $scope.siteOrTask = false
-//                $scope.site = JSON.parse(JSON.stringify(nodeData));
-//                $scope.origin_site = nodeData;
+//                vm.siteOrTask = false
+//                vm.site = JSON.parse(JSON.stringify(nodeData));
+//                vm.origin_site = nodeData;
 //            } else {
-//                $scope.siteOrTask = true;
-//                $scope.site = JSON.parse(JSON.stringify(nodeData));
+//                vm.siteOrTask = true;
+//                vm.site = JSON.parse(JSON.stringify(nodeData));
 //            }
-            console.log("select", $scope.site)
+            console.log("select", vm.site)
 
         };
 
-        $scope.IsSiteSelected = function () {
-            if ($scope.site && $scope.site.task_id) {
+        vm.IsSiteSelected = function () {
+            if (vm.site && vm.site.task_id) {
                 return false;
             }
             return true;
         }
 
-        $scope.changeSettings = function () {
+        vm.changeSettings = function () {
             var res = false;
-            if ($scope.site) {
-                //console.log("site_origin", $scope.origin_site, $scope.site)
-                if (JSON.stringify($scope.origin_site) != JSON.stringify($scope.site))
+            if (vm.site) {
+                //console.log("site_origin", vm.origin_site, vm.site)
+                if (JSON.stringify(vm.origin_site) != JSON.stringify(vm.site))
                     res = true;
             }
             return res;

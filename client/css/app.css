@@ -1,7 +1,10 @@
 /* app css stylesheet */
-
-.app-content {
-    padding-bottom: 40px;
+html {
+    position: relative;
+    min-height: 100%;
+}
+body {
+    margin: 0 0 60px; /* It represent footer height and which is going to give 100px margin-down even you content is less. */
 }
 
 .app-header {
@@ -15,9 +18,12 @@ text-shadow: 0 1px 0 rgba(0,0,0,.1);
 
 .app-footer {
     position: absolute;
+    left: 0;
     bottom: 0;
+    height: 60px;
     width: 100%;
     padding-top: 20px;
+    padding-bottom: 20px;
     text-align: left;
     text-shadow: 0 1px 0 rgba(0,0,0,.1);
 }

@@ -1,4 +1,4 @@
-<div class="container">
+<div class="container" ng-controller="SettingsCtrl as vm">
     <div class="alerts-container"></div>
 
     <div class="col-xs-6">
@@ -14,16 +14,16 @@
             <div class="panel-body">
                 <div ng-show="collapsed" style="margin: 10px;">
                     <form class="form-inline">
-                        <input type="text" class="form-control" style="width:436px" ng-model="formData.url"
+                        <input type="text" class="form-control" style="width:436px" ng-model="vm.formData.url"
                                placeholder="Введите url сайта">
-                        <button type="submit" class="btn btn-primary" ng-click="collapsed=!collapsed; newSite();">OK
+                        <button type="submit" class="btn btn-primary" ng-click="collapsed=!collapsed; vm.newSite();">OK
                         </button>
                     </form>
                 </div>
 
-                <div ng-show="sites && sites.length>0" ui-tree data-drag-enabled="false">
-                    <ol ui-tree-nodes ng-model="sites">
-                        <li ng-repeat="node in sites" ui-tree-node collapsed="true"
+                <div ng-show="vm.sites && vm.sites.length>0" ui-tree data-drag-enabled="false">
+                    <ol ui-tree-nodes ng-model="vm.sites">
+                        <li ng-repeat="node in vm.sites" ui-tree-node collapsed="true"
                             ng-include="'partials/tree_template.html'"></li>
                     </ol>
                 </div>
@@ -33,12 +33,12 @@
     <div class="col-xs-6">
         <div class="panel panel-info ">
             <div class="panel-heading">Настройки</div>
-            <div class="panel-body" ng-show="site">
+            <div class="panel-body" ng-show="vm.site">
                 <form>
                     <div class="form-group">
                         <label class="control-label ">Выбранный сайт:</label>
 
-                        <div style="word-wrap: break-word">{{site.url}}</div>
+                        <div style="word-wrap: break-word">{{vm.site.url}}</div>
                     </div>
 
 
@@ -46,31 +46,31 @@
                         <label class="control-label ">Ключевая фраза: </label>
 
                         <input type="text" class="form-control "
-                               ng-disabled="!IsSiteSelected()"
-                               ng-model="site.condition_query">
+                               ng-disabled="!vm.IsSiteSelected()"
+                               ng-model="vm.site.condition_query">
                     </div>
 
                     <div class="form-group">
                         <label class="control-label ">Поисковая система: </label>
-                        <select ng-model="site.sengine_id" class="form-control"
-                                ng-disabled="!IsSiteSelected()"
-                                ng-options="search.sengine_id as search.sengine_name for search in sengines"></select>
+                        <select ng-model="vm.site.sengine_id" class="form-control"
+                                ng-disabled="!vm.IsSiteSelected()"
+                                ng-options="search.sengine_id as search.sengine_name for search in vm.sengines"></select>
                     </div>
 
 
                     <div class="form-group">
                         <label class="control-label ">Регион: </label>
                         <input type="text" class="form-control "
-                               ng-disabled="!IsSiteSelected()"
-                               ng-model="site.region" placeholder="54">
+                               ng-disabled="!vm.IsSiteSelected()"
+                               ng-model="vm.site.region" placeholder="54">
                     </div>
 
 
                     <div class="form-group">
                         <label class="control-label ">Размер выборки: </label>
                         <input type="text" class="form-control "
-                               ng-disabled="!IsSiteSelected()"
-                               ng-model="site.size_search" placeholder="20">
+                               ng-disabled="!vm.IsSiteSelected()"
+                               ng-model="vm.site.size_search" placeholder="20">
                     </div>
 
                 </form>
@@ -78,7 +78,7 @@
                                 <button ng-show="!siteOrTask" type="button" class="btn btn-primary" ng-click="saveTask(site)">
                                     Cохранить изменения
                                 </button>-->
-                <button type="button" class="btn btn-primary" ng-show="IsSiteSelected()" ng-click="addTask()">
+                <button type="button" class="btn btn-primary" ng-show="vm.IsSiteSelected()" ng-click="vm.addTask()">
                     Добавить выборку
                 </button>
             </div>

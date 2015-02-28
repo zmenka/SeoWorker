@@ -1,27 +1,28 @@
 function SitesCtrl ($scope, $alert, Api, CaptchaModal) {
-        $scope.site = null;
-        $scope.sites = [];
-        $scope.params = [];
-        $scope.params1 = [];
-        $scope.chart = null;
-        $scope.values = null;
-        $scope.site_params = null;
-        $scope.loading = false;
-        $scope.captcha = null;
-        $scope.oneAtATime = true;
+    var vm = this;
+        vm.site = null;
+        vm.sites = [];
+        vm.params = [];
+        vm.params1 = [];
+        vm.chart = null;
+        vm.values = null;
+        vm.site_params = null;
+        vm.loading = false;
+        vm.captcha = null;
+        vm.oneAtATime = true;
 
         var load = function () {
-            $scope.loading = true;
+            vm.loading = true;
             Api.user_sites_and_tasks()
                 .then(function (res) {
                     console.log('sites are reseived');
-                    $scope.sites = createTree(res.data);
-                    $scope.loading = false;
+                    vm.sites = createTree(res.data);
+                    vm.loading = false;
                 })
                 .catch(function (err) {
                     console.log('get sites return ERROR!', err);
-                    $scope.sites = [];
-                    $scope.loading = false;
+                    vm.sites = [];
+                    vm.loading = false;
                     $alert({title: 'Внимание!', content: "Ошибка при получении списка сайтов: " + err.data,
                         placement: 'top', type: 'danger', show: true,
                         duration: '3',
@@ -73,8 +74,8 @@ function SitesCtrl ($scope, $alert, Api, CaptchaModal) {
             return tree;
         };
 
-        $scope.getParams = function () {
-            if (!$scope.site || !$scope.site.condition_id || !$scope.site.url_id) {
+        vm.getParams = function () {
+            if (!vm.site || !vm.site.condition_id || !vm.site.url_id) {
                 $alert({title: 'Внимание!', content: "Нет всех необходимых данных для запроса.",
                     placement: 'top', type: 'danger', show: true,
                     duration: '3',
@@ -82,8 +83,8 @@ function SitesCtrl ($scope, $alert, Api, CaptchaModal) {
                 });
                 return;
             }
-            $scope.loading = true;
-            return Api.get_params($scope.site.url_id, $scope.site.condition_id)
+            vm.loading = true;
+            return Api.get_params(vm.site.url_id, vm.site.condition_id)
                 .then(function (res) {
 //                var url = 'files/' + site.path;
 //                console.log(url);
@@ -95,30 +96,30 @@ function SitesCtrl ($scope, $alert, Api, CaptchaModal) {
                         //res.data.paramsPosition.length > 0 && 
                         res.data.site_params.length > 0) {
                           
-                        $scope.site_params = res.data.site_params[0]
+                        vm.site_params = res.data.site_params[0]
                         
-                        $scope.params = res.data.paramsDiagram;
-                        $scope.params1 = res.data.paramsTable;
-                        $scope.site.position = res.data.paramsPosition;
+                        vm.params = res.data.paramsDiagram;
+                        vm.params1 = res.data.paramsTable;
+                        vm.site.position = res.data.paramsPosition;
                         
-                        $scope.chart = null
-                        $scope.values = null
-                        $scope.chart1 = null
-                        $scope.values1 = null
+                        vm.chart = null
+                        vm.values = null
+                        vm.chart1 = null
+                        vm.values1 = null
 
                     } else {
-                        $scope.params = [];
-                        $scope.params1 = [];
-                        $scope.site_params = null;
+                        vm.params = [];
+                        vm.params1 = [];
+                        vm.site_params = null;
                     }
-                    $scope.loading = false;
+                    vm.loading = false;
                 })
                 .catch(function (err) {
                     console.log("параметры НЕ получены, ", err)
-                    $scope.params = [];
-                    $scope.params1 = [];
-                    $scope.site_params = null;
-                    $scope.loading = false;
+                    vm.params = [];
+                    vm.params1 = [];
+                    vm.site_params = null;
+                    vm.loading = false;
                     $alert({title: 'Внимание!', content: "Параметры не получены: " + err.data,
                         placement: 'top', type: 'danger', show: true,
                         duration: '3',
@@ -127,8 +128,8 @@ function SitesCtrl ($scope, $alert, Api, CaptchaModal) {
                 })
         }
 
-        $scope.calcParams = function () {
-            if (!$scope.site) {
+        vm.calcParams = function () {
+            if (!vm.site) {
                 $alert({title: 'Внимание!', content: "Нет всех необходимых данных для запроса.",
                     placement: 'top', type: 'danger', show: true,
                     duration: '3',
@@ -136,38 +137,38 @@ function SitesCtrl ($scope, $alert, Api, CaptchaModal) {
                 });
                 return;
             }
-            $scope.loading = true;
+            vm.loading = true;
 
-            Api.calc_params($scope.site.url, $scope.site.condition_id, $scope.captcha)
+            Api.calc_params(vm.site.url, vm.site.condition_id, vm.captcha)
                 .then(function (res) {
                     console.log("параметры получены", res.data);
-                    $scope.loading = false;
-                    $scope.captcha = null;
-                    $scope.getParams();
+                    vm.loading = false;
+                    vm.captcha = null;
+                    vm.getParams();
                 })
                 .catch(function (err) {
-                    $scope.loading = false;
-                    $scope.captcha = null;
+                    vm.loading = false;
+                    vm.captcha = null;
 
                     if (err.data.captcha) {
-                        $scope.captcha = err.data.captcha;
+                        vm.captcha = err.data.captcha;
                         console.log("Получили капчу", err.data);
 
-                        CaptchaModal.show($scope.captcha.img)
+                        CaptchaModal.show(vm.captcha.img)
                             .then(function (result) {
                                 if (result.answer && result.captcha) {
                                     console.log('Капча введена, посылаем повторно запрос.')
 
-                                    $scope.captcha.rep = result.captcha;
-                                    $scope.calcParams();
+                                    vm.captcha.rep = result.captcha;
+                                    vm.calcParams();
                                 } else {
                                     console.log('Вы не ввели капчу или нажали "Отмена". Попробуйте еще раз.')
                                 }
                             })
                     } else {
                         console.log("параметры НЕ получены, ", err)
-                        $scope.params = [];
-                        $scope.params1 = [];
+                        vm.params = [];
+                        vm.params1 = [];
                         $alert({title: 'Внимание!', content: "Параметры не получены: " + err.data,
                             placement: 'top', type: 'danger', show: true,
                             duration: '3',
@@ -177,22 +178,22 @@ function SitesCtrl ($scope, $alert, Api, CaptchaModal) {
                 })
         }
 
-        $scope.toggle = function (scope) {
+        vm.toggle = function (scope) {
             //console.log("toggle");
             scope.toggle();
         };
 
-        $scope.select = function (scope) {
+        vm.select = function (scope) {
             //console.log("select");
             var nodeData = scope.$modelValue;
             if (nodeData.task_id) {
-                $scope.site = nodeData
-                $scope.params = [];
-                $scope.params1 = [];
+                vm.site = nodeData
+                vm.params = [];
+                vm.params1 = [];
             } else {
-                $scope.site = null
-                $scope.params = [];
-                $scope.params1 = [];
+                vm.site = null
+                vm.params = [];
+                vm.params1 = [];
             }
 
         };
