@@ -14,6 +14,7 @@ var seoApp = angular.module('seoApp', [
     'mgcrea.ngStrap.alert',
     'ui.bootstrap.tpls',
     'ui.bootstrap.accordion',
+    'ui.bootstrap.tooltip',
     'ui.tree',
     'ngAnimate',
     'ngSanitize',

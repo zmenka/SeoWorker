@@ -1,6 +1,5 @@
 <div class="form-inline"   >
-  <label class="control-label" bs-tooltip  data-placement="left" data-title="{{param.description}}"
-      data-animation="am-fade-and-scale">
+  <label class="control-label" tooltip-placement="left" tooltip-popup-delay='200' tooltip="{{param.description}}">
     {{param.ru_name}}: 
   </label>
   <span ng-show="param.success" ng-bind-html='param.val'></span>

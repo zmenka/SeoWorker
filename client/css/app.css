@@ -44,9 +44,7 @@ table.sites td {
 .span-error {
     color: red;
 }
-.tree-title {
-    font-size: 20px;
-}
+
 .settings-label-width {
     width: 150px;
 }
@@ -84,21 +82,26 @@ table.sites td {
     background-image: url("../img/spin34x34.gif");
 }
 
-.tree-node {
+.app-tree-node {
     border: 1px solid #dae2ea;
     background: #f8faff;
     color: #7c9eb2;
+    padding: 5px;
 }
-.tree-node-content {
+.app-tree-node-content {
     margin: 10px;
+}
+.app-tree-node-text {
+    margin-left: 10px;
     overflow: hidden;
     word-wrap: break-word;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }
-.tree-handle {
-    padding: 10px;
-    background: #428bca;
-    color: #FFF;
-    margin-right: 10px;
+
+.app-tree-arrow {
+    margin-right: 5px;
+    float: left;
 }
 
 .angular-ui-tree-handle {
