@@ -43,6 +43,7 @@ PgConditions.prototype.insert = function (condition_query, sengine_id, region, s
     return new PG()
         .then(function (dbres) {
             db = dbres;
+            console.log("INSERT INTO conditions (condition_query, sengine_id, region, size_search, date_create) VALUES ("+condition_query+"," +sengine_id+"," + region+"," +size_search+"," + date_create+");")
             return db.transact(
                 "INSERT INTO conditions (condition_query, sengine_id, region, size_search, date_create) VALUES ($1, $2, $3, $4, $5);",
                 [condition_query, sengine_id, region, size_search, date_create])
@@ -58,6 +59,7 @@ PgConditions.prototype.insert = function (condition_query, sengine_id, region, s
         })
 
         .catch(function (err) {
+            console.log(err)
             throw('PgConditions.prototype.insert ' + err);
         });
 }
