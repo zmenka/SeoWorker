@@ -99,17 +99,23 @@ seoControllers.controller('SitesCtrl', ['$scope', '$alert', 'Api', 'CaptchaModal
 //                console.log(url);
 //                $window.open(url);
                     console.log("параметры получены", res);
-                    if (res.data && res.data.all_params && res.data.all_params.length > 0
-                        && res.data.site_params && res.data.site_params.length > 0) {
-                        $scope.params = $scope.prettyDiagram(res.data.all_params, res.data.site_params[0]);
+                    if (res.data && 
+                        res.data.paramsDiagram.length > 0 && 
+                        res.data.paramsTable.length > 0 && 
+                        //res.data.paramsPosition.length > 0 && 
+                        res.data.site_params.length > 0) {
+                          
+                        $scope.site_params = res.data.site_params[0]
+                        
+                        $scope.params = res.data.paramsDiagram;
+                        $scope.params1 = res.data.paramsTable;
+                        $scope.site.position = res.data.paramsPosition;
+                        
                         $scope.chart = null
                         $scope.values = null
-                        $scope.params1 = $scope.prettyTable(res.data.all_params, res.data.site_params[0]);
                         $scope.chart1 = null
                         $scope.values1 = null
-                        $scope.site_params = res.data.site_params[0]
 
-                        $scope.site.position = $scope.getSitePosition(res.data.all_params, $scope.site_params);
                     } else {
                         $scope.params = [];
                         $scope.params1 = [];
@@ -129,104 +135,6 @@ seoControllers.controller('SitesCtrl', ['$scope', '$alert', 'Api', 'CaptchaModal
                         container: '.alerts-container'
                     });
                 })
-        }
-        $scope.getSitePosition = function (allParams, siteParams) {
-            var url = siteParams.url.replace(/^(ftp:\/\/|http:\/\/|https:\/\/)*(www\.)*/g,'')
-            if (!url){
-                return null;
-            }
-
-            url =url.replace(/\/$/, "").toLowerCase();
-            var position = (allParams).filter(function (v) {
-                var site = v.url.replace(/^(ftp:\/\/|http:\/\/|https:\/\/)*(www\.)*/g,'')
-                if (!site){
-                    return false;
-                }
-//                console.log("PARSE ", site.replace(/\/$/, "").toLowerCase(), url)
-                return site.replace(/\/$/, "").toLowerCase() === url;
-            })[0]
-//            console.log(position, (position ? position.position: null))
-            return position ? position.position+1: null;
-        }
-
-        $scope.prettyDiagram = function (data, site_data) {
-
-            if (!data || data.length == 0 || !site_data) {
-                return
-            }
-            var diagram = []
-            for (var key in data) {
-                var position = data[key].position + 1;
-                for (var key1 in data[key].param.params) {
-                    var current_par = data[key].param.params[key1]
-                    if (current_par.success) {
-                        var cur_val = parseFloat(current_par.val)
-                        var result = diagram.filter(function (v) {
-                            return v.key === current_par.ru_name;
-                        })
-                        var serial = {key: current_par.ru_name, values: [
-                            [position, cur_val]
-                        ], yrange: 0}
-                        if (result.length > 0) {
-                            if (cur_val > result[0].yrange) {
-                                result[0].yrange = cur_val;
-                            }
-                            result[0].values.push([position, cur_val])
-
-                        } else {
-                            diagram.push(serial)
-                        }
-                    }
-
-                }
-            }
-            var diagramExt = [];
-            for (var key in diagram) {
-                var result = site_data.param.params.filter(function (v) {
-                    return v.ru_name === diagram[key].key;
-                })
-                if (result.length > 0 && result[0].success) {
-                    diagramExt.push({key: diagram[key].key,
-                        values: [
-                            diagram[key],
-                            {
-                                key: 'Ваш сайт',
-                                values: [
-                                    [0, parseFloat(result[0].val)],
-                                    [diagram[key].values[diagram[key].values.length - 1][0], parseFloat(result[0].val)]
-                                ],
-                                color: 'red'
-                            }
-                        ]
-                    })
-                }
-            }
-
-            console.log("prettyDiagram", diagramExt, diagram)
-//            $scope.chart = null
-//            $scope.values = $scope.chart.values;
-            return diagramExt;
-        }
-
-        $scope.prettyTable = function (data, site_data) {
-            if (!data || data.length == 0 || !site_data) {
-                return
-            }
-//            data = data.sort(function (a, b) {
-//                return a.position - b.position;
-//            })
-            var table = []
-            for (var key in data) {
-                var name = data[key].url.length > 60 ? data[key].url.substr(0, 60) + '...' : data[key].url
-                table.push({url: data[key].url, name: name, params: data[key].param.params, surl: data[key].surl,
-                    position: data[key].position+1})
-            }
-
-            table.push({url: site_data.url, name: 'Ваш сайт', params: site_data.param.params, surl: "-"})
-            console.log("prettyTable", data, table)
-//            $scope.chart1 = table[0]
-//            $scope.values1 = $scope.chart1.params
-            return table;
         }
 
         $scope.calcParams = function () {
