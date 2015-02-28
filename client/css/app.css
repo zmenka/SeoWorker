@@ -1,8 +1,7 @@
 /* app css stylesheet */
 
 .app-content {
-  background-color: #f8faff;
-  padding-top: 20px;
+
 }
 
 .app-header {
@@ -11,7 +10,14 @@ padding-bottom: 10px;
 font-size: 18px;
 text-align: left;
 text-shadow: 0 1px 0 rgba(0,0,0,.1);
-top: 0;
+
+}
+
+.app-footer {
+    padding-top: 20px;
+    text-align: left;
+    text-shadow: 0 1px 0 rgba(0,0,0,.1);
+    margin-bottom: 0px;
 }
 
 table.sites {

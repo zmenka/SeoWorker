@@ -39,12 +39,10 @@ seoApp.config(['$modalProvider', '$routeProvider',
             })
             .when('/login', {
                 templateUrl: 'partials/login.html',
-                controller: 'AuthCtrl',
                 authenticate: false
             })
             .when('/register', {
                 templateUrl: 'partials/register.html',
-                controller: 'AuthCtrl',
                 authenticate: true
             })
             .when('/logout', {

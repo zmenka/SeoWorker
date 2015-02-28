@@ -1,4 +1,4 @@
-<div class="container">
+<div class="container" ng-controller="AuthCtrl as vm">
     <div class="col-xs-4">
         <h1>Регистрация новых пользователей</h1>
         <hr>
@@ -14,7 +14,7 @@
                 <label>Пароль</label>
                 <input type="password" class="form-control" ng-model="form.password">
             </div>
-            <button type="button" class="btn btn-primary btn-lg" ng-click="register(form)">Зарегистрировать</button>
+            <button type="button" class="btn btn-primary btn-lg" ng-click="vm.register(form)">Зарегистрировать</button>
         </form>
 
         <hr>
