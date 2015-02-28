@@ -1,8 +1,9 @@
-var PgUsers = require("./db/postgres/pg_users")
+var PgUsers = require("./db/postgres/pg_users");
 var PgUsurls = require("./db/postgres/pg_usurls");
 var PgTasks = require("./db/postgres/pg_tasks");
 var PgSearch = require("./db/postgres/pg_search");
 var PgSengines = require("./db/postgres/pg_sengines");
+var SeoParametersFormat = require("./SeoParametersFormat");
 var Core = require("./core");
 
 var BunSearcher = require("./bun_searcher");
@@ -168,14 +169,31 @@ module.exports = function Api(app, passport) {
             return;
         }
         var params;
+        var dirty_params;
+        var site_params;
+        
+        var paramsDiagram;
+        var paramsTable;
+        var paramsPosition;
+        
         new PgSearch().listWithParams(req.body.condition_id)
             .then(function (params_res) {
-                params = params_res;
+                dirty_params = params_res;
                 return new PgSearch().siteWithParams(req.body.url_id, req.body.condition_id)
                 return null
             })
             .then(function (site_params) {
-                callback({all_params: params, site_params: site_params}, res);
+                SPF = new SeoParametersFormat();
+                //форматируем данные
+                paramsDiagram   = SPF.prettyDiagram(dirty_params,site_params[0]);
+                paramsTable     = SPF.prettyTable(dirty_params,site_params[0]);
+                paramsPosition  = SPF.getSitePosition(dirty_params,site_params[0]);
+                console.log(paramsPosition);
+                //возвращаем
+                callback({paramsDiagram: paramsDiagram,
+                          paramsTable: paramsTable,
+                          paramsPosition: paramsPosition, 
+                          site_params: site_params}, res);
 
             })
             .catch(function (err) {
