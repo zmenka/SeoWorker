@@ -2,16 +2,16 @@
 
 /* http://docs.angularjs.org/guide/dev_guide.e2e-testing */
 
-describe('PhoneCat App', function() {
+describe('SeoWorker', function() {
 
-  it('should redirect index.html to index.html#/phones', function() {
-    browser.get('client/index.html');
+  it('should redirect #/qwe to #/login', function() {
+    browser.get('#/qwe');
     browser.getLocationAbsUrl().then(function(url) {
-        expect(url.split('#')[1]).toBe('/phones');
+        expect(url.split('#')[1]).toBe('/login');
       });
   });
 
-
+/*
   describe('Phone list view', function() {
 
     beforeEach(function() {
@@ -98,4 +98,5 @@ describe('PhoneCat App', function() {
       expect(element(by.css('img.phone.active')).getAttribute('src')).toMatch(/img\/phones\/nexus-s.0.jpg/);
     });
   });
+  */
 });
