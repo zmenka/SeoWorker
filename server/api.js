@@ -4,6 +4,7 @@ var PgTasks = require("./db/postgres/pg_tasks");
 var PgSearch = require("./db/postgres/pg_search");
 var PgSengines = require("./db/postgres/pg_sengines");
 var SeoFormat = require("./SeoFormat");
+var Diagram = require("./Diagram");
 var Core = require("./core");
 
 var BunSearcher = require("./bun_searcher");
@@ -170,27 +171,23 @@ module.exports = function Api(app, passport) {
             errback("не найдены параметры condition_id", res);
             return;
         }
-        var params;
-        var dirty_params;
-        var site_params;
         
-        var paramsDiagram;
-        var paramsTable;
-        var paramsPosition;
-        
+        var paramsDirty;
         new PgSearch().listWithParams(req.body.condition_id)
             .then(function (params_res) {
-                dirty_params = params_res;
+                paramsDirty = params_res;
                 return new PgSearch().siteWithParams(req.body.url_id, req.body.condition_id)
                 return null
             })
             .then(function (site_params) {
                 SF = new SeoFormat();
+                diagram = new Diagram();
                 //форматируем данные
-                paramsDiagram   = SF.prettyDiagram(dirty_params,site_params[0]);
-                paramsTable     = SF.prettyTable(dirty_params,site_params[0]);
-                paramsPosition  = SF.getSitePosition(dirty_params,site_params[0]);
-                console.log(paramsPosition);
+                //работаем с диаграммой. Транспонируем данные от "страницы и их параметры" к "параметры страниц"
+                var params = SF.transponateParams(paramsDirty);
+                var paramsDiagram   = diagram.getParamsDiagram(params,site_params[0]);
+                var paramsTable     = SF.prettyTable(paramsDirty,site_params[0]);
+                var paramsPosition  = SF.getSitePosition(paramsDirty,site_params[0]);
                 //возвращаем
                 callback({paramsDiagram: paramsDiagram,
                           paramsTable: paramsTable,
