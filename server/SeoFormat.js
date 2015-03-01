@@ -1,4 +1,3 @@
-var MathStat = require("./MathStat")
 
 function SeoFormat() {
     //console.log('SeoFormat init');
@@ -65,95 +64,53 @@ SeoFormat.prototype.getSitePosition = function (allParams, siteParams) {
     return position ? position.position+1: null;
 }
 
-SeoFormat.prototype.prettyDiagram = function (data, site_data, stat_data) {
-    if (!data || data.length == 0 || !site_data) {
-        return [];
-    }   
+//транспорнировать параметры data [{postition,},...]
+SeoFormat.prototype.transponateParams = function (data) {
+    var res;
+    //проверки
+    if (!data) { throw 'SeoFormat.prototype.transponateParams data cannot be null!';}   
     
     //работаем с диаграммой
-    var diagram = []
+    var res = []
+    //бежим по всем страницам сайтов
     for (var key in data) {
+        //получаем позицию сайта
         var position = data[key].position + 1;
+        //бежим по всем параметрам страницы
         for (var key1 in data[key].param.params) {
+            //получаем параметр страницы
             var current_par = data[key].param.params[key1]
+            //если этот параметр страницы был УСПЕШНО посчитан
             if (current_par.success) {
-                var cur_val = parseFloat(current_par.val)
-                var result = diagram.filter(function (v) {
+                //получаем значение параметра страницы
+                var cur_val = parseFloat(current_par.val);
+                //ищем в предварительных результатах нужный нам параметр
+                var result = res.filter(function (v) {
                     return v.key === current_par.ru_name;
                 })
-                var serial = {key: current_par.ru_name, values: [
-                    [position, cur_val]
-                ], yrange: 0}
+                //ели нашли (т.е. параметр был уже добавлен)
                 if (result.length > 0) {
+                    // ищем максимальное значение y
                     if (cur_val > result[0].yrange) {
                         result[0].yrange = cur_val;
                     }
+                    //кладем в резуьтат
                     result[0].values.push([position, cur_val])
 
                 } else {
-                    diagram.push(serial)
+                    //формируем параметр
+                    var serial = {
+                        key: current_par.ru_name, 
+                        values: [[position, cur_val]], 
+                        yrange: cur_val
+                    };
+                    //кладем в резуьтат
+                    res.push(serial)
                 }
             }
-
         }
     }
-    var diagramExt = [];
-    for (var key in diagram) {
-        var result = site_data.param.params.filter(function (v) {
-            return v.ru_name === diagram[key].key;
-        })
-        //получаем данные о "коридоре"
-        try{
-            var mathstat = new MathStat(diagram[key].values.map(function(element){
-                    return element[1];
-                }));
-            mathstat.calc();
-            //console.log(mathstat.array);
-        } catch(er){
-            console.log(er);
-        }
-        console.log(diagram[key].key);
-        console.log(mathstat.array);
-        console.log(mathstat.M);
-        console.log(mathstat.D);
-        var x1 = 0;
-        var x2 = diagram[key].values[diagram[key].values.length - 1][0];
-        var ys = parseFloat(result[0].val);
-        var kD = 0.5;
-        var yk1 = mathstat.M - kD * mathstat.D;
-        var yk2 = mathstat.M + kD * mathstat.D;
-        yk1 = yk1.toFixed(2);
-        yk2 = yk2.toFixed(2);
-        //строим уровень нашего сайта
-        if (result.length > 0 && result[0].success) {
-            diagramExt.push({key: diagram[key].key,
-                values: [
-                    diagram[key],
-                    {
-                        key: 'Граница коридора',
-                        values: [[x1, yk2], [x2, yk2],[x2, yk1],[x1, yk1],[x1, yk2]],
-                        color: '#6BFDD3',
-                        area: true
-                    },
-                    {
-                        key: 'Ваш сайт',
-                        values: [[x1, ys],[x2, ys]],
-                        color: 'red'
-                    }/*,
-                    {
-                        key: 'Среднее',
-                        values: [[x1, mathstat.M],[x2, mathstat.M]],
-                        color: '#6BFDD3'
-                    }*/
-                ]
-            })
-        }
-    }
-
-    //console.log("prettyDiagram", diagramExt, diagram)
-//            SeoFormat.prototype.chart = null
-//            SeoFormat.prototype.values = SeoFormat.prototype.chart.values;
-    return diagramExt;
+    return res;
 }
 
 SeoFormat.prototype.prettyTable = function (data, site_data) {

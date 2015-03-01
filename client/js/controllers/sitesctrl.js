@@ -2,8 +2,8 @@ function SitesCtrl ($scope, $alert, $aside, Api, CaptchaModal) {
     var vm = this;
         vm.site = null;
         vm.sites = [];
-        vm.params = [];
-        vm.params1 = [];
+        vm.params = null;
+        vm.params1 = null;
         vm.chart = null;
         vm.values = null;
         vm.site_params = null;
@@ -63,30 +63,37 @@ function SitesCtrl ($scope, $alert, $aside, Api, CaptchaModal) {
 //                console.log(url);
 //                $window.open(url);
                     console.log("параметры получены", res);
-                    if (res.data && 
-                        res.data.paramsDiagram.length > 0 && 
-                        res.data.paramsTable.length > 0 && 
-                        //res.data.paramsPosition.length > 0 && 
-                        res.data.site_params.length > 0) {
-                          
-                        vm.site_params = res.data.site_params[0];
+                    vm.site_params = res.data.site_params[0];
                         
-                        vm.params = res.data.paramsDiagram;
-                        vm.params1 = res.data.paramsTable;
-                        vm.site.position = res.data.paramsPosition;
-                        
-                        vm.chart = null;
-                        vm.values = null;
-                        vm.chart1 = null;
-                        vm.values1 = null;
-                        console.log(vm);
-                    } else {
-                        vm.params = [];
-                        vm.params1 = [];
-                        vm.site_params = null;
-                        console.log('else',vm);
-                    }
+                    vm.params = res.data.paramsDiagram;
+                    vm.params1 = res.data.paramsTable;
+                    vm.site.position = res.data.paramsPosition;
+                    
+                    vm.chart = null;
+                    vm.values = null;
+                    vm.chart1 = null;
+                    vm.values1 = null;
                     vm.loading = false;
+                    vm.options = {
+                        chart: {
+                            type: 'lineChart',
+                            height: 450,
+                            width: 590,
+                            useInteractiveGuideline: true,
+                            x: function(d){ return d[0]; },
+                            y: function(d){ return d[1]; },
+                            xAxis: {
+                                axisLabel: 'Место в выдаче'
+                            },
+                            yAxis: {
+                                axisLabel: 'Значение параметра',
+                                tickFormat: function(d){
+                                    return d3.format('.02f')(d);
+                                },
+                                axisLabelDistance: 30
+                            }
+                        }
+                    }
                 })
                 .catch(function (err) {
                     console.log("параметры НЕ получены, ", err)
@@ -162,12 +169,12 @@ function SitesCtrl ($scope, $alert, $aside, Api, CaptchaModal) {
             var nodeData = scope.$modelValue;
             if (nodeData.task_id) {
                 vm.site = nodeData
-                vm.params = [];
-                vm.params1 = [];
+                vm.params = null;
+                vm.params1 = null;
             } else {
                 vm.site = null
-                vm.params = [];
-                vm.params1 = [];
+                vm.params = null;
+                vm.params1 = null;
             }
 
         };

@@ -31,11 +31,9 @@
                    Параметры
             </div>
             <div class="panel-body">
-              <accordion close-others="vm.oneAtATime" ng-show="vm.site ">
+              <accordion close-others="vm.oneAtATime" ng-show="vm.site">
                     <accordion-group >
                         <accordion-heading>
-                            
-                            
                             Посмотреть параметры выборки
                         </accordion-heading>
                         <form>
@@ -94,38 +92,18 @@
                         </div>
 
                         <br>
-                        <div class="dropdown">
-  <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false">
-    Выберите параметр...
-    <span class="caret"></span>
-  </button>
-  <ul class="dropdown-menu">
-    <li ng-repeat="p in vm.params | orderBy:'key'"
-                                  ng-change="vm.values = vm.chart.values;"
-                                  ng-model="vm.chart" >
-                                  <a role="menuitem" tabindex="-1" >{{p.key}}</a>
-  </ul>
-</div>
+
                         <select class="form-control"
-                                style=" margin-left:50px; width: 300px"  >
-                                <option   ng-repeat="p in vm.params | orderBy:'key'"
-                                  ng-change="vm.values = vm.chart.values;"
-                                  ng-model="vm.chart" 
-                                  class="glyphicon glyphicon-star">
-                                  {{p.key}}qwe
-                                </option>
+                                style=" margin-left:50px; width: 300px"  ng-change="vm.values = vm.chart.values;"
+                                  ng-model="vm.chart" ng-options="p as p.key for p in vm.params | orderBy:'key'" >
+            
                                   
                                 </select>
-                        <nvd3-line-chart ng-show="vm.params"
+                        <nvd3 ng-show="vm.params"
+                                        options= "vm.options"
                                          data="vm.values"
-                                         width="590"
-                                         height="350"
-                                         showXAxis="true"
-                                         showYAxis="true"
-                                         tooltips="true"
-                                         interactive="true"
                                 >
-                        </nvd3-line-chart>
+                        </nvd3>
 
 
                     </accordion-group>
