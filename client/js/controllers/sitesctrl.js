@@ -151,7 +151,7 @@ function SitesCtrl ($scope, $alert, Api, SitesAside, CaptchaModal) {
         }
 
         vm.select = function (scope) {
-            //console.log("select");
+            console.log("select");
             var nodeData = scope.$modelValue;
             if (nodeData.task_id) {
                 vm.site = nodeData
@@ -162,7 +162,6 @@ function SitesCtrl ($scope, $alert, Api, SitesAside, CaptchaModal) {
                 vm.params = null;
                 vm.params1 = null;
             }
-            SitesAside.setHide(true);
         };
 
     }

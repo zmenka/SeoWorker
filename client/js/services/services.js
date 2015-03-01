@@ -109,7 +109,7 @@ var SitesAside = (function () {
 
         this.myAside = this.$aside({scope: this.mySideScope,show:true,
             placement: "left", animation: "am-slide-left",
-            container: ".app-content", template: template});
+             template: template});
 
     };
 
