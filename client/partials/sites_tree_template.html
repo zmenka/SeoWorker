@@ -1,0 +1,8 @@
+<div ng-show="sites && sites.length>0">
+    <div  ui-tree data-drag-enabled="false">
+        <ol ui-tree-nodes ng-model="sites">
+            <li ng-repeat="node in sites" ui-tree-node collapsed="true"
+                ng-include="'partials/tree_template.html'"></li>
+        </ol>
+    </div>
+</div>

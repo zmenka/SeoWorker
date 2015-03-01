@@ -134,16 +134,34 @@ table.sites td {
     width: 30%;
 }
 
-.left_bar {
-    position: fixed;
-    top: 0;
-    bottom: 0;
-    width: 5%;
-    margin-left: 0px;
-    background-color: #E1E7ED;
+.aside .aside-dialog .aside-header {
+    padding: 15px;
+    border-bottom: 1px solid #e5e5e5;
+    min-height: 16.42857143px;
+    padding: 6px 15px;
+    background: #d9edf7;
+    color: #31708f;
 }
 
-.left_bar_hover {
-    cursor: pointer;
-    background-color: #E1E7ED;
+.aside-backdrop.am-fade {
+    background: rgba(0, 0, 0, 0.50);
+    -webkit-animation-duration: 0ms;
+    animation-duration: 0ms;
+}
+
+
+.left_bar {
+    position: fixed;
+    top: 70px;
+    bottom: 30px;
+    width: 5%;
+    margin-left: 0px;
+    background: rgba(0, 0, 0, 0.10);
+}
+
+.left_bar_icon {
+    top: 50%;
+    position: absolute;
+    right: 0;
+    font-size: 18px;
 }

@@ -29,7 +29,7 @@ seoApp.config(['$modalProvider', '$routeProvider',
             html: true
         });
         $routeProvider
-            .when('/sites', {
+            .when('/promotion', {
                 templateUrl: 'partials/sites.html',
                 authenticate: true
             })
@@ -58,7 +58,7 @@ seoApp.config(['$modalProvider', '$routeProvider',
 //                controller: 'CaptchaTestCtrl'
 //            })
             .otherwise({
-                redirectTo: '/sites'
+                redirectTo: '/promotion'
             });
     }]);
 

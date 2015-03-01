@@ -26,13 +26,17 @@ SeoFormat.prototype.createSiteTree = function (sites) {
             } else {
                 var s = {title: site.condition_query, nodes: [], usurl_id: site.usurl_id, url_id: site.url_id, task_id: site.task_id, url: site.url,
                     condition_id: site.condition_id, condition_query: site.condition_query, sengine_name: site.sengine_name,
-                    region: site.region, size_search: site.size_search};
+                    region: site.region, size_search: site.size_search,
+                    data:{title: site.condition_query, usurl_id: site.usurl_id, url_id: site.url_id, task_id: site.task_id, url: site.url,
+                        condition_id: site.condition_id, condition_query: site.condition_query, sengine_name: site.sengine_name,
+                        region: site.region, size_search: site.size_search}};
             }
             var row
             if (result.length > 0) {
                 row = result[0];
             } else {
-                row = {title: site.url, usurl_id: site.usurl_id, url_id: site.url_id, nodes: []}
+                row = {title: site.url, usurl_id: site.usurl_id, url_id: site.url_id, nodes: [],
+                data:{title: site.url, usurl_id: site.usurl_id, url_id: site.url_id}}
                 tree.push(row)
             }
             if (s) {

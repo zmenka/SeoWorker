@@ -1,12 +1,25 @@
 'use strict';
 var seoDirectives = angular.module('seoDirectives', []);
 
-seoDirectives.directive('paramsPopover', function(){
+seoDirectives.directive('sitesTree', function(){
     return {
-        restrict: 'A',
-        template: '<span>Label</span>',
-        link: function (scope, el, attrs) {
-        console.log("Popover Directive Loaded");
-    }
-};
+        restrict: 'E',
+        templateUrl: 'partials/sites_tree_template.html',
+        scope: {
+            /*
+                [
+                    {
+                       title: String, //имя
+                       data: Object, //тут инфа, которая нужна при выборе данного элемента
+                       nodes:[{},{}] //вложенные элементы такой же структуры
+                    }
+                ]
+             */
+            sites: "=",
+            /*
+                function(node.data){} // метод обработки выбранных данных
+             */
+            nodeselect: "="
+        }
+    };
 });

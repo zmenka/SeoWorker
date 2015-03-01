@@ -1,4 +1,4 @@
-function SitesCtrl ($scope, $alert, Api, SitesAside, CaptchaModal) {
+function SitesCtrl ($scope, $rootScope, $alert, $aside, Api, CaptchaModal) {
     var vm = this;
         vm.site = null;
         vm.sites = [];
@@ -14,14 +14,20 @@ function SitesCtrl ($scope, $alert, Api, SitesAside, CaptchaModal) {
     vm.showAside = showAside;
 
     function showAside(){
-        SitesAside.show(null, vm.sites, vm.select);
+        var scope = $rootScope.$new();
+        scope.sites = vm.sites;
+        scope.nodeselect = vm.select;
+        var myAside = $aside({show: true, scope: scope,
+            placement: "left", animation: "fade-and-slide-left",
+            template: 'partials/sites_aside_template.html'});
+
     }
 
         var load = function () {
             vm.loading = true;
             Api.user_sites_and_tasks()
                 .then(function (res) {
-                    console.log('sites are reseived');
+                    console.log('sites are reseived', res.data);
                     vm.sites = res.data;
                     vm.loading = false;
                 })
@@ -150,9 +156,9 @@ function SitesCtrl ($scope, $alert, Api, SitesAside, CaptchaModal) {
                 })
         }
 
-        vm.select = function (scope) {
-            console.log("select");
-            var nodeData = scope.$modelValue;
+        vm.select = function (data) {
+            console.log("select", data);
+            var nodeData = data;
             if (nodeData.task_id) {
                 vm.site = nodeData
                 vm.params = null;
@@ -163,6 +169,11 @@ function SitesCtrl ($scope, $alert, Api, SitesAside, CaptchaModal) {
                 vm.params1 = null;
             }
         };
+
+        vm.toggle = function (scope) {
+            console.log("toggle");
+            scope.toggle();
+        }
 
     }
 angular.module('seoControllers').controller('SitesCtrl', SitesCtrl);
