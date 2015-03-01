@@ -16,7 +16,7 @@ function SitesCtrl ($scope, $alert, Api, CaptchaModal) {
             Api.user_sites_and_tasks()
                 .then(function (res) {
                     console.log('sites are reseived');
-                    vm.sites = createTree(res.data);
+                    vm.sites = res.data;
                     vm.loading = false;
                 })
                 .catch(function (err) {
@@ -31,48 +31,6 @@ function SitesCtrl ($scope, $alert, Api, CaptchaModal) {
                 });
         };
         load();
-
-        var createTree = function (sites) {
-            if (!sites || sites.length == 0) {
-                return [];
-            }
-            var tree = [];
-            for (var i = 0; i < sites.length; i++) {
-                var f = function (site) {
-                    //console.log("site", site);
-                    //var domen = sites[i].url.match(/(?:http:\/\/|https:\/\/|)(?:www.|)([^\/]+)\/?(.*)/)[1];
-                    //console.log("dom
-                    // en", domen);
-
-                    var result = tree.filter(function (v) {
-                        return v.title === site.url;
-                    })
-                    //console.log("match", result);
-                    if (!site.task_id) {
-                        var s = null
-                    } else {
-                        var s = {title: site.condition_query, nodes: [], usurl_id: site.usurl_id, url_id: site.url_id, task_id: site.task_id, url: site.url,
-                            condition_id: site.condition_id, condition_query: site.condition_query, sengine_name: site.sengine_name,
-                            region: site.region, size_search: site.size_search};
-                    }
-                    var row
-                    if (result.length > 0) {
-                        row = result[0];
-                    } else {
-                        row = {title: site.url, usurl_id: site.usurl_id, url_id: site.url_id, nodes: []}
-                        tree.push(row)
-                    }
-                    if (s) {
-                        row.nodes.push(s)
-                    }
-
-
-                };
-                f(sites[i]);
-            }
-            console.log("sites ", sites, " tree ", tree);
-            return tree;
-        };
 
         vm.getParams = function () {
             if (!vm.site || !vm.site.condition_id || !vm.site.url_id) {
@@ -96,21 +54,22 @@ function SitesCtrl ($scope, $alert, Api, CaptchaModal) {
                         //res.data.paramsPosition.length > 0 && 
                         res.data.site_params.length > 0) {
                           
-                        vm.site_params = res.data.site_params[0]
+                        vm.site_params = res.data.site_params[0];
                         
                         vm.params = res.data.paramsDiagram;
                         vm.params1 = res.data.paramsTable;
                         vm.site.position = res.data.paramsPosition;
                         
-                        vm.chart = null
-                        vm.values = null
-                        vm.chart1 = null
-                        vm.values1 = null
-
+                        vm.chart = null;
+                        vm.values = null;
+                        vm.chart1 = null;
+                        vm.values1 = null;
+                        console.log(vm);
                     } else {
                         vm.params = [];
                         vm.params1 = [];
                         vm.site_params = null;
+                        console.log('else',vm);
                     }
                     vm.loading = false;
                 })

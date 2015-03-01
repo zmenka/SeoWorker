@@ -1,12 +1,52 @@
 var MathStat = require("./MathStat")
 
-function SeoParametersFormat() {
-    //console.log('SeoParametersFormat init');
+function SeoFormat() {
+    //console.log('SeoFormat init');
 };
 
 
 
-SeoParametersFormat.prototype.getSitePosition = function (allParams, siteParams) {
+SeoFormat.prototype.createSiteTree = function (sites) {
+    if (!sites || sites.length == 0) {
+        return [];
+    }
+    var tree = [];
+    for (var i = 0; i < sites.length; i++) {
+        var f = function (site) {
+            //console.log("site", site);
+            //var domen = sites[i].url.match(/(?:http:\/\/|https:\/\/|)(?:www.|)([^\/]+)\/?(.*)/)[1];
+            //console.log("dom
+            // en", domen);
+
+            var result = tree.filter(function (v) {
+                return v.title === site.url;
+            })
+            //console.log("match", result);
+            if (!site.task_id) {
+                var s = null
+            } else {
+                var s = {title: site.condition_query, nodes: [], usurl_id: site.usurl_id, url_id: site.url_id, task_id: site.task_id, url: site.url,
+                    condition_id: site.condition_id, condition_query: site.condition_query, sengine_name: site.sengine_name,
+                    region: site.region, size_search: site.size_search};
+            }
+            var row
+            if (result.length > 0) {
+                row = result[0];
+            } else {
+                row = {title: site.url, usurl_id: site.usurl_id, url_id: site.url_id, nodes: []}
+                tree.push(row)
+            }
+            if (s) {
+                row.nodes.push(s)
+            }
+        };
+        f(sites[i]);
+    }
+    console.log("sites ", sites, " tree ", tree);
+    return tree;
+};
+        
+SeoFormat.prototype.getSitePosition = function (allParams, siteParams) {
     var url = siteParams.url.replace(/^(ftp:\/\/|http:\/\/|https:\/\/)*(www\.)*/g,'')
     if (!url){
         return null;
@@ -25,7 +65,7 @@ SeoParametersFormat.prototype.getSitePosition = function (allParams, siteParams)
     return position ? position.position+1: null;
 }
 
-SeoParametersFormat.prototype.prettyDiagram = function (data, site_data, stat_data) {
+SeoFormat.prototype.prettyDiagram = function (data, site_data, stat_data) {
     if (!data || data.length == 0 || !site_data) {
         return [];
     }   
@@ -111,12 +151,12 @@ SeoParametersFormat.prototype.prettyDiagram = function (data, site_data, stat_da
     }
 
     //console.log("prettyDiagram", diagramExt, diagram)
-//            SeoParametersFormat.prototype.chart = null
-//            SeoParametersFormat.prototype.values = SeoParametersFormat.prototype.chart.values;
+//            SeoFormat.prototype.chart = null
+//            SeoFormat.prototype.values = SeoFormat.prototype.chart.values;
     return diagramExt;
 }
 
-SeoParametersFormat.prototype.prettyTable = function (data, site_data) {
+SeoFormat.prototype.prettyTable = function (data, site_data) {
     if (!data || data.length == 0 || !site_data) {
         return [];
     }
@@ -132,10 +172,10 @@ SeoParametersFormat.prototype.prettyTable = function (data, site_data) {
 
     table.push({url: site_data.url, name: 'Ваш сайт', params: site_data.param.params, surl: "-"})
     //console.log("prettyTable", data, table)
-//            SeoParametersFormat.prototype.chart1 = table[0]
-//            SeoParametersFormat.prototype.values1 = SeoParametersFormat.prototype.chart1.params
+//            SeoFormat.prototype.chart1 = table[0]
+//            SeoFormat.prototype.values1 = SeoFormat.prototype.chart1.params
     return table;
 }
 
 
-module.exports = SeoParametersFormat;
+module.exports = SeoFormat;

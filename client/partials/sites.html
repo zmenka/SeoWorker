@@ -17,60 +17,63 @@
         </div>
     </div>
     <div class="col-xs-8">
-        <div class="panel panel-info ">
-            <div class="panel-heading">Настройки</div>
-            <div class="panel-body" ng-show="vm.site">
-                <form>
-                    <div class="form-group">
-                        <label class="control-label">Выбранный сайт:</label>
-                        <span ng-show="vm.site" style="word-wrap: break-word">{{vm.site.url}}</span>
-                        <span ng-show="!vm.site">не выбран</span>
-                    </div>
 
-                    <div class="form-group">
-                        <label class="control-label ">Ключевая фраза: </label>
-                        <input type="text" ng-disabled="true" class="form-control "
-                               ng-model="vm.site.condition_query">
-                    </div>
-
-
-                    <div class="form-group">
-                        <label class="control-label">Поисковая система: </label>
-                        <input type="text" ng-disabled="true" class="form-control "
-                               ng-model="vm.site.sengine_name">
-                    </div>
-
-                    <div class="form-group">
-                        <label class="control-label">Регион: </label>
-                        <input type="text" ng-disabled="true" class="form-control "
-                               ng-model="vm.site.region">
-                    </div>
-
-                    <div class="form-group">
-                        <label class="control-label ">Размер выборки: </label>
-                        <input type="text" ng-disabled="true" class="form-control"
-                               ng-model="vm.site.size_search">
-
-                    </div>
-                </form>
-
-                <br>
-                <button type="button" class="btn btn-primary" ng-disabled="vm.loading" ng-show="vm.site "
-                        ng-click="vm.getParams()">Получить данные
-                </button>
-                <a class="btn btn-success " ng-disabled="vm.loading" ng-show="vm.site" ng-click="vm.calcParams()">
-                    <span class="glyphicon glyphicon-refresh"></span>
-                </a>
-
-            </div>
-
-        </div>
         <div class="panel panel-info ">
             <div class="panel-heading">
-                Параметры
+                   Параметры
             </div>
             <div class="panel-body">
+              <accordion close-others="vm.oneAtATime" ng-show="vm.site ">
+                    <accordion-group >
+                        <accordion-heading>
+                            
+                            
+                            Посмотреть параметры выборки
+                        </accordion-heading>
+                        <form>
+                        <div class="form-group">
+                            <label class="control-label">Выбранный сайт:</label>
+                            <span ng-show="vm.site" style="word-wrap: break-word">{{vm.site.url}}</span>
+                            <span ng-show="!vm.site">не выбран</span>
+                        </div>
 
+                        <div class="form-group">
+                            <label class="control-label ">Ключевая фраза: </label>
+                            <input type="text" ng-disabled="true" class="form-control "
+                                   ng-model="vm.site.condition_query">
+                        </div>
+
+
+                        <div class="form-group">
+                            <label class="control-label">Поисковая система: </label>
+                            <input type="text" ng-disabled="true" class="form-control "
+                                   ng-model="vm.site.sengine_name">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label">Регион: </label>
+                            <input type="text" ng-disabled="true" class="form-control "
+                                   ng-model="vm.site.region">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="control-label ">Размер выборки: </label>
+                            <input type="text" ng-disabled="true" class="form-control"
+                                   ng-model="vm.site.size_search">
+
+                        </div>
+                    </form>
+                    </accordion-group>
+            </accordion>
+
+<button type="button" class="btn btn-primary" ng-disabled="vm.loading" ng-show="vm.site "
+                                    ng-click="vm.getParams()">Получить данные
+                            </button>
+                            <a class="btn btn-success " ng-disabled="vm.loading" ng-show="vm.site" ng-click="vm.calcParams()">
+                                <span class="glyphicon glyphicon-refresh"></span>
+                            </a>
+                            <br/>
+                            <br/>
                 <accordion close-others="vm.oneAtATime">
                     <accordion-group ng-show="vm.params">
                         <accordion-heading>
@@ -83,10 +86,27 @@
                         </div>
 
                         <br>
-                        <select ng-model="chart" class="form-control"
-                                style=" margin-left:50px; width: 300px"
-                                ng-change="vm.values = vm.chart.values;" ng-options="p.key for p in vm.params | orderBy:'key'">
-
+                        <div class="dropdown">
+  <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false">
+    Выберите параметр...
+    <span class="caret"></span>
+  </button>
+  <ul class="dropdown-menu">
+    <li ng-repeat="p in vm.params | orderBy:'key'"
+                                  ng-change="vm.values = vm.chart.values;"
+                                  ng-model="vm.chart" >
+                                  <a role="menuitem" tabindex="-1" >{{p.key}}</a>
+  </ul>
+</div>
+                        <select class="form-control"
+                                style=" margin-left:50px; width: 300px"  >
+                                <option   ng-repeat="p in vm.params | orderBy:'key'"
+                                  ng-change="vm.values = vm.chart.values;"
+                                  ng-model="vm.chart" 
+                                  class="glyphicon glyphicon-star">
+                                  {{p.key}}qwe
+                                </option>
+                                  
                                 </select>
                         <nvd3-line-chart ng-show="vm.params"
                                          data="vm.values"
@@ -139,7 +159,7 @@
                             </label>
 
                             <div class="link form-group">
-                                <a ng-href="{{vm.chart1.position}}" style="">{{vm.chart1.position}}</a>
+                                {{vm.chart1.position}}
                             </div>
                         </div>
                         <br>

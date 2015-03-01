@@ -3,7 +3,7 @@ var PgUsurls = require("./db/postgres/pg_usurls");
 var PgTasks = require("./db/postgres/pg_tasks");
 var PgSearch = require("./db/postgres/pg_search");
 var PgSengines = require("./db/postgres/pg_sengines");
-var SeoParametersFormat = require("./SeoParametersFormat");
+var SeoFormat = require("./SeoFormat");
 var Core = require("./core");
 
 var BunSearcher = require("./bun_searcher");
@@ -47,9 +47,11 @@ module.exports = function Api(app, passport) {
             errback("Нет зарегистрированного пользователя!", res);
             return;
         }
-
+        var sites;
         new PgUsurls().listWithTasks(req.user.user_id)
-            .then(function (sites) {
+            .then(function (dirty_sites) {
+                SF = new SeoFormat();
+                sites = SF.createSiteTree(dirty_sites);
                 callback(sites, res);
             })
             .catch(function (err) {
@@ -183,11 +185,11 @@ module.exports = function Api(app, passport) {
                 return null
             })
             .then(function (site_params) {
-                SPF = new SeoParametersFormat();
+                SF = new SeoFormat();
                 //форматируем данные
-                paramsDiagram   = SPF.prettyDiagram(dirty_params,site_params[0]);
-                paramsTable     = SPF.prettyTable(dirty_params,site_params[0]);
-                paramsPosition  = SPF.getSitePosition(dirty_params,site_params[0]);
+                paramsDiagram   = SF.prettyDiagram(dirty_params,site_params[0]);
+                paramsTable     = SF.prettyTable(dirty_params,site_params[0]);
+                paramsPosition  = SF.getSitePosition(dirty_params,site_params[0]);
                 console.log(paramsPosition);
                 //возвращаем
                 callback({paramsDiagram: paramsDiagram,
