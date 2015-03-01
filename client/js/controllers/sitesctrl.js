@@ -1,4 +1,4 @@
-function SitesCtrl ($scope, $alert, $aside, Api, CaptchaModal) {
+function SitesCtrl ($scope, $alert, Api, SitesAside, CaptchaModal) {
     var vm = this;
         vm.site = null;
         vm.sites = [];
@@ -14,16 +14,7 @@ function SitesCtrl ($scope, $alert, $aside, Api, CaptchaModal) {
     vm.showAside = showAside;
 
     function showAside(){
-        var myAside = $aside({scope: $scope, show: true,
-            placement: "left", animation: "am-slide-left",
-            container: ".app-content", template: 'partials/sites_aside_template.html'});
-
-        // Pre-fetch an external template populated with a custom scope
-//        var myOtherAside = $aside({scope: $scope, template: 'partials/sites_aside_template.html'});
-//        // Show when some event occurs (use $promise property to ensure the template has been loaded)
-//        myOtherAside.$promise.then(function() {
-//            myOtherAside.show();
-//        })
+        SitesAside.show(null, vm.sites, vm.select);
     }
 
         var load = function () {
@@ -152,11 +143,6 @@ function SitesCtrl ($scope, $alert, $aside, Api, CaptchaModal) {
                 })
         }
 
-        vm.toggle = function (scope) {
-            //console.log("toggle");
-            scope.toggle();
-        };
-
         vm.select = function (scope) {
             //console.log("select");
             var nodeData = scope.$modelValue;
@@ -169,7 +155,7 @@ function SitesCtrl ($scope, $alert, $aside, Api, CaptchaModal) {
                 vm.params = [];
                 vm.params1 = [];
             }
-
+            SitesAside.setHide(true);
         };
 
     }

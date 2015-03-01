@@ -1,15 +1,16 @@
-<div class="aside app-aside" tabindex="-1" role="dialog" ng-mouseleave="$hide()">
+<div class="aside app-aside" tabindex="-1" role="dialog">
+    <input ng-model="isHide.value"  ng-change="checkHide(this)"/>
     <div class="aside-dialog">
         <div class="aside-content">
             <div class="aside-header" >
                 <button type="button" class="close" ng-click="$hide()">&times;</button>
                 <h4 class="aside-title">Список сайтов</h4>
             </div>
-            <div class="aside-body" ng-show="vm.sites && vm.sites.length>0">
+            <div class="aside-body" ng-show="params && params.length>0">
 
                 <div  ui-tree data-drag-enabled="false">
-                    <ol ui-tree-nodes ng-model="vm.sites">
-                        <li ng-repeat="node in vm.sites" ui-tree-node collapsed="true"
+                    <ol ui-tree-nodes ng-model="params">
+                        <li ng-repeat="node in params" ui-tree-node collapsed="true"
                             ng-include="'partials/tree_template.html'"></li>
                     </ol>
                 </div>

@@ -67,6 +67,68 @@ seoServices.service('CaptchaModal', function ($modal, $rootScope, $q) {
 
     return confirm;
 })
+
+var SitesAside = (function () {
+    function SitesAside($aside, $rootScope, $q) {
+        this.$aside = $aside;
+        this.$rootScope = $rootScope;
+        this.$q = $q;
+        this.mySideScope = null;
+        this.HideMySide = null;
+        this.myAside = null;
+    }
+
+    var siteSelect = function (scope) {
+        console.log("select", scope);
+    };
+
+    SitesAside.prototype.show = function (template, params, select) {
+        if (!template) { template = 'partials/sites_aside_template.html'; }
+        if (!params) { params = null; }
+        if (!select) {
+            select = siteSelect;
+        }
+        this.mySideScope = this.$rootScope.$new();
+        this.mySideScope.params = params;
+        this.mySideScope.isHide = {value: false};
+        this.mySideScope.checkHide = function (scope) {
+            console.log(scope);
+            if(scope.isHide.value){
+                scope.$hide();
+            }
+
+        };
+
+
+        this.mySideScope.siteToggle = function (scope) {
+            console.log("toggle", scope);
+            scope.toggle();
+        };
+
+        this.mySideScope.siteSelect = select;
+
+        this.myAside = this.$aside({scope: this.mySideScope,show:true,
+            placement: "left", animation: "am-slide-left",
+            container: ".app-content", template: template});
+
+    };
+
+    SitesAside.prototype.setHide = function () {
+        console.log("HIDE!", this.myAside);
+        if (this.myAside ){
+            this.myAside.hide();
+            this.myAside = null;
+        }
+
+    };
+
+    return SitesAside;
+})();
+
+seoServices.service("SitesAside", function ($modal, $rootScope, $q) {
+    return new SitesAside($modal, $rootScope, $q);
+});
+
 seoServices.factory('Authenticate', ['$http',
     function ($http) {
 
