@@ -1,6 +1,6 @@
 'use strict';
 
-function AuthCtrl($scope, $http, $location, $cookies, $alert, Authenticate) {
+function AuthCtrl($scope, $location, $alert, Authenticate) {
     var vm = this;
     vm.logout = logout;
     vm.login = login;

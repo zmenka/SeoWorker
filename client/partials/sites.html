@@ -1,5 +1,12 @@
-<div class="container" ng-controller="SitesCtrl as vm">
+<div class="container-fluid app-padding-left" ng-controller="SitesCtrl as vm">
     <div class="alerts-container"></div>
+    <div class="col-xs-1 app-padding-left" >
+        <div class="left_bar" ng-class="{left_bar_hover: hover}"
+             ng-mouseenter="hover = true; vm.showAside()"
+             ng-mouseleave="hover = false" >
+            <span class="left_bar glyphicon glyphicon-log-out"></span>
+             </div>
+    </div>
     <div class="col-xs-4">
         <span ng-show="vm.loading" class="spinner"></span>
 
@@ -7,6 +14,7 @@
             <div class="panel-heading">Список сайтов
             </div>
             <div class="panel-body">
+
                 <div ng-show="vm.sites && vm.sites.length>0" ui-tree data-drag-enabled="false">
                     <ol ui-tree-nodes ng-model="vm.sites">
                         <li ng-repeat="node in vm.sites" ui-tree-node collapsed="true"
@@ -16,7 +24,7 @@
             </div>
         </div>
     </div>
-    <div class="col-xs-8">
+    <div class="col-xs-6">
 
         <div class="panel panel-info ">
             <div class="panel-heading">
@@ -167,7 +175,7 @@
                         <div class="panel panel-default panel-body">
                             <ul class="list-group">
                                 <li class="list-group-item  panel-heading" ng-repeat="param in vm.values1 | orderBy:'ru_name':true"
-                                    ng-include="'partials/params_template.html'">
+                                    ng-include="'partials/paramstemplate.html'">
                                 </li>
                             </ul>
                         </div>

@@ -55,7 +55,7 @@ seoServices.service('CaptchaModal', function ($modal, $rootScope, $q) {
         confirm.hide();
     }
 
-    var confirm = $modal({template: 'partials/captchaModal.html', scope: scope, show: false, title: 'Сервер получил капчу'});
+    var confirm = $modal({template: 'partials/captchamodal.html', scope: scope, show: false, title: 'Сервер получил капчу'});
     var parentShow = confirm.show;
     confirm.show = function (url) {
         confirm.$scope.content = url;

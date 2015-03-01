@@ -1,31 +1,29 @@
 /* app css stylesheet */
-html {
-    position: relative;
-    min-height: 100%;
-}
-body {
-    margin: 0 0 60px; /* It represent footer height and which is going to give 100px margin-down even you content is less. */
-}
 
 .app-header {
-padding-top: 10px;
-padding-bottom: 10px;
-font-size: 18px;
-text-align: left;
-text-shadow: 0 1px 0 rgba(0,0,0,.1);
-
+    padding-top: 10px;
+    padding-bottom: 10px;
+    font-size: 18px;
+    text-align: left;
+    text-shadow: 0 1px 0 rgba(0, 0, 0, .1);
+    margin-bottom: 10px;
+    height: 70px;
 }
 
 .app-footer {
-    position: absolute;
-    left: 0;
-    bottom: 0;
-    height: 60px;
-    width: 100%;
-    padding-top: 20px;
-    padding-bottom: 20px;
+    padding-top: 5px;
+    height: 30px;
     text-align: left;
-    text-shadow: 0 1px 0 rgba(0,0,0,.1);
+    text-shadow: 0 1px 0 rgba(0, 0, 0, .1);
+}
+
+.app-content {
+    margin-top: 90px;
+    margin-bottom: 30px;
+}
+
+.app-padding-left {
+    padding-left: 0px
 }
 
 table.sites {
@@ -41,6 +39,7 @@ table.sites th {
 table.sites td {
     border: 1px solid black;
 }
+
 .span-error {
     color: red;
 }
@@ -48,11 +47,16 @@ table.sites td {
 .settings-label-width {
     width: 150px;
 }
+
 .tree-addbutton {
     margin-right: 11px;
 }
+
 .table-cell {
-    overflow:auto; width:800px; height:80px; padding: 10px;
+    overflow: auto;
+    width: 800px;
+    height: 80px;
+    padding: 10px;
 }
 
 .table-cell-small {
@@ -68,14 +72,15 @@ table.sites td {
 }
 
 .spinner {
-  width: 100px;
-  height: 100px;
-  background-image: url("../img/spin100x100.gif");
-  overflow: hidden;
-  position: absolute;
-  z-index: 1000;
-  margin: 50% 0 0 100%;
+    width: 100px;
+    height: 100px;
+    background-image: url("../img/spin100x100.gif");
+    overflow: hidden;
+    position: absolute;
+    z-index: 1000;
+    margin: 50% 0 0 100%;
 }
+
 .spinner-small {
     width: 34px;
     height: 34px;
@@ -88,9 +93,11 @@ table.sites td {
     color: #7c9eb2;
     padding: 5px;
 }
+
 .app-tree-node-content {
     margin: 10px;
 }
+
 .app-tree-node-text {
     margin-left: 10px;
     overflow: hidden;
@@ -117,5 +124,26 @@ table.sites td {
 }
 
 .link {
-    overflow: hidden; width: 400px; white-space: nowrap; text-overflow: ellipsis;
+    overflow: hidden;
+    width: 400px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.app-aside{
+    width: 30%;
+}
+
+.left_bar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    width: 5%;
+    margin-left: 0px;
+    background-color: #E1E7ED;
+}
+
+.left_bar_hover {
+    cursor: pointer;
+    background-color: #E1E7ED;
 }

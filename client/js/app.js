@@ -12,14 +12,15 @@ var seoApp = angular.module('seoApp', [
     'mgcrea.ngStrap.tooltip',
     'mgcrea.ngStrap.modal',
     'mgcrea.ngStrap.alert',
-    'ui.bootstrap.tpls',
-    'ui.bootstrap.accordion',
-    'ui.bootstrap.tooltip',
+    'mgcrea.ngStrap.aside',
+//    'ui.bootstrap',
+//    'ui.bootstrap.tpls',
+//    'ui.bootstrap.accordion',
+//    'ui.bootstrap.tooltip',
     'ui.tree',
     'ngAnimate',
     'ngSanitize',
-    'nvd3ChartDirectives',
-    'ngCookies'
+    'nvd3'
 ]);
 
 seoApp.config(['$modalProvider', '$routeProvider',
@@ -53,7 +54,7 @@ seoApp.config(['$modalProvider', '$routeProvider',
                 authenticate: true
             })
 //            .when('/captcha_test', {
-//                templateUrl: 'partials/captcha_test.html',
+//                templateUrl: 'partials/captchatest.html',
 //                controller: 'CaptchaTestCtrl'
 //            })
             .otherwise({
@@ -68,7 +69,12 @@ seoApp.run(['$rootScope', '$location', '$window', 'Authenticate',
             if (Authenticate.isAuthenticated == null ) {
                 Authenticate.initAuth()
                     .then(function (result) {
-                        Authenticate.isAuthenticated = result.data == 'true' ? true : false;
+                        if (typeof result.data === "boolean"){
+                            Authenticate.isAuthenticated = result.data;
+                        } else {
+                            Authenticate.isAuthenticated = false;
+                        }
+
                         console.log("Authenticate.isAuthenticated", Authenticate.isAuthenticated)
 
 
