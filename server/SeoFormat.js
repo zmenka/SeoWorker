@@ -132,19 +132,19 @@ SeoFormat.prototype.prettyDiagram = function (data, site_data, stat_data) {
                     {
                         key: 'Граница коридора',
                         values: [[x1, yk2], [x2, yk2],[x2, yk1],[x1, yk1],[x1, yk2]],
-                        color: 'orange',
+                        color: '#6BFDD3',
                         area: true
                     },
                     {
                         key: 'Ваш сайт',
                         values: [[x1, ys],[x2, ys]],
                         color: 'red'
-                    },
+                    }/*,
                     {
                         key: 'Среднее',
                         values: [[x1, mathstat.M],[x2, mathstat.M]],
-                        color: 'green'
-                    }
+                        color: '#6BFDD3'
+                    }*/
                 ]
             })
         }
