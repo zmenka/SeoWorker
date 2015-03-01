@@ -1,6 +1,6 @@
 'use strict';
 
-function AuthCtrl($scope, $location, $alert, Authenticate) {
+function AuthCtrl($scope, $state, $alert, Authenticate) {
     var vm = this;
     vm.logout = logout;
     vm.login = login;
@@ -10,7 +10,7 @@ function AuthCtrl($scope, $location, $alert, Authenticate) {
         Authenticate.logout()
             .success(function () {
                 Authenticate.isAuthenticated = false;
-                $location.path("/login");
+                $state.go("main.login");
             }).error(function () {
             });
     }
@@ -20,7 +20,7 @@ function AuthCtrl($scope, $location, $alert, Authenticate) {
             .success(function (data, status, header) {
                 console.log("$scope.login ", data)
                 Authenticate.isAuthenticated = true
-                $location.path("/promotion");
+                $state.go("main.promotion");
             }).error(function (data) {
                 console.log("$scope.login error ", data)
                 if (data.message) {

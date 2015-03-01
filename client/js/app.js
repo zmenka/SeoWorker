@@ -3,7 +3,7 @@
 /* App Module */
 
 var seoApp = angular.module('seoApp', [
-    'ngRoute',
+    'ui.router',
     'ngResource',
     'seoControllers',
     'seoServices',
@@ -13,6 +13,7 @@ var seoApp = angular.module('seoApp', [
     'mgcrea.ngStrap.modal',
     'mgcrea.ngStrap.alert',
     'mgcrea.ngStrap.aside',
+    'mgcrea.ngStrap.dropdown',
 //    'ui.bootstrap',
 //    'ui.bootstrap.tpls',
 //    'ui.bootstrap.accordion',
@@ -23,43 +24,62 @@ var seoApp = angular.module('seoApp', [
     'nvd3'
 ]);
 
-seoApp.config(['$modalProvider', '$routeProvider',
-    function ($modalProvider, $routeProvider) {
-        angular.extend($modalProvider.defaults, {
-            html: true
-        });
-        $routeProvider
-            .when('/promotion', {
-                templateUrl: 'partials/sites.html',
+seoApp.config(["$stateProvider", "$urlRouterProvider",
+    function ($stateProvider, $urlRouterProvider) {
+        $urlRouterProvider.otherwise("/");
+        //
+        // Now set up the states
+        $stateProvider
+            .state('main', {
+                url: "/",
+                templateUrl: "index.html",
                 authenticate: true
             })
-            .when('/settings', {
+            .state('main.promotion', {
+                url: "promotion",
+                templateUrl: "partials/sites.html",
+                authenticate: true
+            })
+            .state('main.promotion.chart', {
+                url: "promotion/chart",
+                templateUrl: "partials/chart.html",
+                authenticate: true
+            })
+            .state('main.promotion.selection', {
+                url: "promotion/selection",
+                templateUrl: 'partials/selection.html',
+                authenticate: true
+            })
+            .state('main.settings', {
+                url: "settings",
                 templateUrl: 'partials/settings.html',
                 authenticate: true
             })
-            .when('/login', {
+            .state('main.login', {
+                url: 'login',
                 templateUrl: 'partials/login.html',
                 authenticate: false
             })
-            .when('/register', {
+            .state('main.register', {
+                url: 'register',
                 templateUrl: 'partials/register.html',
                 authenticate: true
             })
-            .when('/logout', {
+            .state('main.logout', {
+                url: 'logout',
                 redirectTo: '/login',
                 authenticate: false
             })
-            .when('/users', {
+            .state('main.users', {
+                url: 'users',
                 templateUrl: 'partials/users.html',
                 authenticate: true
             })
-//            .when('/captcha_test', {
+//            .when('main.captcha_test', {
 //                templateUrl: 'partials/captchatest.html',
 //                controller: 'CaptchaTestCtrl'
 //            })
-            .otherwise({
-                redirectTo: '/promotion'
-            });
+
     }]);
 
 seoApp.run(['$rootScope', '$location', '$window', 'Authenticate',

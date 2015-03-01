@@ -26,6 +26,10 @@
     padding-left: 0px
 }
 
+.app-padding-none {
+    padding: 0px
+}
+
 table.sites {
     margin: 20px 0 0 0;
 }
@@ -164,4 +168,11 @@ table.sites td {
     position: absolute;
     right: 0;
     font-size: 18px;
+}
+.promotion_icon{
+    color: #337ab7;
+}
+.promotion_icon_hover{
+    color: #337ab7;
+    background-color: #eee;
 }
