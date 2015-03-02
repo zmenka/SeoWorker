@@ -1,5 +1,9 @@
 /* app css stylesheet */
 
+html, body {
+    height: 100%;
+}
+
 .app-header {
     padding-top: 10px;
     padding-bottom: 10px;
@@ -15,11 +19,16 @@
     height: 30px;
     text-align: left;
     text-shadow: 0 1px 0 rgba(0, 0, 0, .1);
+    margin-bottom:0px;
 }
 
 .app-content {
-    margin-top: 90px;
-    margin-bottom: 30px;
+    position: fixed;
+    top: 70px;
+    bottom: 30px;
+    width: 100%;
+    height: auto;
+    overflow: auto;
 }
 
 .app-padding-left {

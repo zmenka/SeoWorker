@@ -26,13 +26,14 @@ var seoApp = angular.module('seoApp', [
 
 seoApp.config(["$stateProvider", "$urlRouterProvider",
     function ($stateProvider, $urlRouterProvider) {
-        $urlRouterProvider.otherwise("/");
+        $urlRouterProvider.otherwise("/promotion/chart");
         //
         // Now set up the states
         $stateProvider
             .state('main', {
                 url: "/",
-                templateUrl: "index.html",
+                template: "<div ui-view></div>",
+                abstract: true,
                 authenticate: true
             })
             .state('main.promotion', {
@@ -41,12 +42,12 @@ seoApp.config(["$stateProvider", "$urlRouterProvider",
                 authenticate: true
             })
             .state('main.promotion.chart', {
-                url: "promotion/chart",
+                url: "/chart",
                 templateUrl: "partials/chart.html",
                 authenticate: true
             })
             .state('main.promotion.selection', {
-                url: "promotion/selection",
+                url: "/selection",
                 templateUrl: 'partials/selection.html',
                 authenticate: true
             })
@@ -70,7 +71,7 @@ seoApp.config(["$stateProvider", "$urlRouterProvider",
                 redirectTo: '/login',
                 authenticate: false
             })
-            .state('main.users', {
+            .state('users', {
                 url: 'users',
                 templateUrl: 'partials/users.html',
                 authenticate: true

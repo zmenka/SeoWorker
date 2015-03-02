@@ -1,56 +1,56 @@
 <div >
+    <!--
+        <div class="col-xs-4">
 
-    <div class="col-xs-4">
-
-        <div class="panel panel-info ">
-            <div class="panel-heading">
-                Параметры
-            </div>
-            <div class="panel-body">
-
-                <button type="button" class="btn btn-primary" ng-disabled="vm.loading" ng-show="vm.site "
-                        ng-click="vm.getParams()">Получить данные
-                </button>
-                <a class="btn btn-success " ng-disabled="vm.loading" ng-show="vm.site" ng-click="vm.calcParams()">
-                    <span class="glyphicon glyphicon-refresh"></span>
-                </a>
-                <br/>
-                <br/>
-
-                <div class="form-group">
-                    <label class="control-label col-sm-3">Ваш сайт занимает место:</label>
-                            <span ng-show="vm.site.position!=null"
-                                  style="word-wrap: break-word">{{vm.site.position}}</span>
-                    <span ng-show="vm.site.position==null">не попал в выборку</span>
+            <div class="panel panel-info ">
+                <div class="panel-heading">
+                    Параметры
                 </div>
+                <div class="panel-body">
 
-                <br>
+                    <button type="button" class="btn btn-primary" ng-disabled="vm.loading" ng-show="vm.site "
+                            ng-click="vm.getParams()">Получить данные
+                    </button>
+                    <a class="btn btn-success " ng-disabled="vm.loading" ng-show="vm.site" ng-click="vm.calcParams()">
+                        <span class="glyphicon glyphicon-refresh"></span>
+                    </a>
+                    <br/>
+                    <br/>
 
-                <select class="form-control"
-                        style=" margin-left:50px; width: 300px" ng-change="vm.values = vm.chart.values;"
-                        ng-model="vm.chart" ng-options="p as p.key for p in vm.params | orderBy:'key'">
+                    <div class="form-group">
+                        <label class="control-label col-sm-3">Ваш сайт занимает место:</label>
+                                <span ng-show="vm.site.position!=null"
+                                      style="word-wrap: break-word">{{vm.site.position}}</span>
+                        <span ng-show="vm.site.position==null">не попал в выборку</span>
+                    </div>
+
+                    <br>
+
+                    <select class="form-control"
+                            style=" margin-left:50px; width: 300px" ng-change="vm.values = vm.chart.values;"
+                            ng-model="vm.chart" ng-options="p as p.key for p in vm.params | orderBy:'key'">
 
 
-                </select>
+                    </select>
+                </div>
             </div>
         </div>
-    </div>
-    <div class="col-xs-6">
+        <div class="col-xs-6">
 
-        <div class="panel panel-info ">
-            <div class="panel-heading">
-                Графики
-            </div>
-            <div class="panel-body">
-                <nvd3 ng-show="vm.params"
-                      options="vm.options"
-                      data="vm.values"
-                        >
-                </nvd3>
+            <div class="panel panel-info ">
+                <div class="panel-heading">
+                    Графики
+                </div>
+                <div class="panel-body">
+                    <nvd3 ng-show="vm.params"
+                          options="vm.options"
+                          data="vm.values"
+                            >
+                    </nvd3>
 
+                </div>
             </div>
         </div>
+    -->
     </div>
-
-</div>
 
