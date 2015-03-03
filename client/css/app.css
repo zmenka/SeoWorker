@@ -2,6 +2,7 @@
 
 html, body {
     height: 100%;
+    width: 100%;
 }
 
 .app-header {
@@ -23,14 +24,26 @@ html, body {
 }
 
 .app-content {
-    position: fixed;
-    top: 70px;
-    bottom: 30px;
-    width: 100%;
-    height: auto;
-    overflow: auto;
+    /*  position: fixed;
+      top: 70px;
+      bottom: 30px;
+      width: 100%;
+      height: auto;
+      overflow: auto;
+
+      */
+    min-width: 100%;
+    min-height: 100%;
+
+    padding-top: 70px;
+    padding-bottom: 30px;
 }
 
+.app-abs{
+    position: absolute;
+    height: 100%;
+    width: 100%;
+}
 .app-padding-left {
     padding-left: 0px
 }
@@ -138,13 +151,16 @@ table.sites td {
 
 .link {
     overflow: hidden;
-    width: 350px;
     white-space: nowrap;
     text-overflow: ellipsis;
 }
 
 .app-aside{
     width: 30%;
+}
+
+.site-label{
+    font-size: 15px;
 }
 
 .aside .aside-dialog .aside-header {
@@ -172,11 +188,8 @@ table.sites td {
 /* background: rgba(0, 0, 0, 0.10);*/
 }
 .chart {
-    position: fixed;
-    top: 170px;
-    bottom: 30px;
-    width: 50%;
-    height: auto;
+
+ height: 350px;
 }
 .app-flex {
     display: flex;

@@ -7,18 +7,14 @@ function SitesCtrl ($scope, $rootScope, $alert, $aside, Api) {
     vm.site = null;
     vm.getParams = getParams;
     vm.calcSiteParams = calcSiteParams;
-    vm.sitesParams = null;
-    vm.sitesParamsSelected = null;
-    vm.chart = null;
-    vm.chartValue = null;
     vm.selectParam = selectParam;
+    vm.data = {};
+
 
     vm.options = {
         chart: {
             type: 'lineChart',
-//            height: 650,
-//            width: 590,
-            useInteractiveGuideline: true,
+            height: '350',
             x: function(d){ return d[0]; },
             y: function(d){ return d[1]; },
             xAxis: {
@@ -36,10 +32,7 @@ function SitesCtrl ($scope, $rootScope, $alert, $aside, Api) {
 
     $scope.$watch('vm.site', function(current, original) {
         console.log("clear")
-        vm.sitesParams = null;
-        vm.sitesParamsSelected = null;
-        vm.chart = null;
-        vm.chartValue = null;
+        vm.data = {};
     });
 
     load();
@@ -68,6 +61,10 @@ function SitesCtrl ($scope, $rootScope, $alert, $aside, Api) {
 //        console.log("selectSite", node);
         if (node.type == 'task'){
             vm.site = node;
+            if (vm.myAside){
+                vm.myAside.hide();
+            }
+            vm.getParams();
         }
 
     }
@@ -75,7 +72,7 @@ function SitesCtrl ($scope, $rootScope, $alert, $aside, Api) {
     function selectParam(node) {
 //        console.log("selectParam", node);
         if (node.type == 'key'){
-            vm.chartValue = node.data.values;
+            vm.data.chartValue = node.data.values;
         }
 
     }
@@ -108,20 +105,18 @@ function SitesCtrl ($scope, $rootScope, $alert, $aside, Api) {
         }
         vm.loading = true;
 
-        vm.chartValue = null;
-        vm.sitesParamsSelected = null;
-        vm.position = null;
-        vm.chart = null;
-        vm.sitesParams = null;
+        vm.data = {};
         return Api.get_params(vm.site.data.url_id, vm.site.data.condition_id)
             .then(function (res) {
                 console.log("getParams Api.get_params", res);
 
 //                vm.site_params = res.data.site_params[0];
 
-                vm.chart = res.data.paramsDiagram;
-                vm.sitesParams = res.data.paramsTable;
-                vm.position = res.data.paramsPosition;
+                vm.data.chart = res.data.paramsDiagram;
+                vm.data.sitesParams = res.data.paramsTable;
+                vm.data.position = res.data.paramsPosition;
+                vm.data.searchDate = res.data.searchDate;
+                vm.data.siteUpdateDate = res.data.siteUpdateDate;
 
                 vm.loading = false;
             })

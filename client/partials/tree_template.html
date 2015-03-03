@@ -1,5 +1,5 @@
 <div ui-tree-handle class="app-tree-node app-tree-node-content"
-     ng-click="node.collapsed = collapsed; nodeselect(node);">
+     ng-click="node.collapsed = collapsed; nodeselect(node); ">
 
     <a class="btn btn-success btn-xs app-tree-arrow" ng-if="node.nodes && node.nodes.length > 0" nodrag ng-click="toggle();">
         <span class="glyphicon"

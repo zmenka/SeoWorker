@@ -60,7 +60,7 @@ SeoFormat.prototype.createSiteTree = function (sites) {
 }
 
 SeoFormat.prototype.getSitePosition = function (allParams, siteParams) {
-    if (!allParams && !siteParams){
+    if (!allParams || !siteParams){
         return;
     }
     var url = siteParams.url.replace(/^(ftp:\/\/|http:\/\/|https:\/\/)*(www\.)*/g, '')
@@ -144,8 +144,7 @@ SeoFormat.prototype.prettyTable = function (data, site_data) {
 //            })
     var table = []
     for (var key in data) {
-        var name = data[key].url.length > 60 ? data[key].url.substr(0, 60) + '...' : data[key].url
-        table.push({url: data[key].url, name: name, params: data[key].param.params, surl: data[key].surl,
+        table.push({url: data[key].url, name: data[key].url, params: data[key].param.params, surl: data[key].surl,
             position: data[key].position + 1})
     }
 

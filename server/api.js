@@ -172,7 +172,7 @@ module.exports = function Api(app, passport) {
             errback("не найдены параметры condition_id", res);
             return;
         }
-        
+
         var paramsDirty;
         new PgSearch().listWithParams(req.body.condition_id)
             .then(function (params_res) {
@@ -186,15 +186,26 @@ module.exports = function Api(app, passport) {
                 //форматируем данные
                 //работаем с диаграммой. Транспонируем данные от "страницы и их параметры" к "параметры страниц"
                 var params = SF.transponateParams(paramsDirty);
-                var paramsDiagram   = diagram.getParamsDiagram(params,site_params[0]);
+                var paramsDiagram = diagram.getParamsDiagram(params, site_params[0]);
                 var paramsTree = diagram.getTreeParamsDiagram(paramsDiagram);
-                var paramsTable     = SF.prettyTable(paramsDirty,site_params[0]);
-                var paramsPosition  = SF.getSitePosition(paramsDirty,site_params[0]);
+                var paramsTable = SF.prettyTable(paramsDirty, site_params[0]);
+                var paramsPosition = SF.getSitePosition(paramsDirty, site_params[0]);
+                var searchDate = null;
+                if (paramsDirty && paramsDirty.length) {
+                    searchDate = paramsDirty[0].date_create;
+                }
+                var siteUpdateDate = null;
+                if (site_params && site_params.length) {
+                    siteUpdateDate = site_params[0].date_create;
+                }
                 //возвращаем
-                callback({paramsDiagram: paramsTree,
-                          paramsTable: paramsTable,
-                          paramsPosition: paramsPosition, 
-                          site_params: site_params}, res);
+                callback({
+                    paramsDiagram: paramsTree,
+                    paramsTable: paramsTable,
+                    paramsPosition: paramsPosition,
+                    site_params: site_params,
+                    searchDate: searchDate,
+                    siteUpdateDate: siteUpdateDate}, res);
 
             })
             .catch(function (err) {

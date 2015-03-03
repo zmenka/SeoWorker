@@ -108,7 +108,8 @@ PgSearch.prototype.listWithParams = function(condition_id) {
             "USP.URL AS SURL," +
             "P.PARAM," +
             "SP.page_number," +
-            "SC.POSITION " +
+            "SC.POSITION, " +
+            "S.DATE_CREATE " +
             "FROM search S " +
             "JOIN spages SP " +
             "ON S.SEARCH_ID = SP.SEARCH_ID " +
@@ -141,7 +142,8 @@ PgSearch.prototype.listWithParams = function(condition_id) {
 PgSearch.prototype.siteWithParams = function(url_id, condition_id) {
     return PG.query("SELECT " +
             "U.URL, " +
-            "P.PARAM " +
+            "P.PARAM, " +
+            "P.DATE_CREATE " +
             "FROM " +
             "htmls H " +
             "JOIN urls U " +

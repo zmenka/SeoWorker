@@ -95,7 +95,7 @@ Diagram.prototype.getTreeParamsDiagram = function (params) {
     }
     var tree = [];
     for (var key in params) {
-        console.log(params[key].group, params[key].key);
+//        console.log(params[key].group, params[key].key);
         var groups = tree.filter(function (v) {
             return v.title === params[key].group;
         });

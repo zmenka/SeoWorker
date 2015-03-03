@@ -8,28 +8,28 @@
             </div>
             <div class="panel-body">
 
-                <div class="dropdown" ng-show="vm.sitesParams">
+                <div class="dropdown" ng-show="vm.data.sitesParams">
                     <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
                         Выберите сайт для просмотра параметров
                         <span class="caret"></span>
                     </button>
-                    <ul class="dropdown-menu">
-                        <li ng-repeat="p in vm.sitesParams | orderBy:'position'" ng-click="vm.sitesParamsSelected=p">
-                            <a class="link">{{p.url}}</a>
+                    <ul class="dropdown-menu" style="width: 100%;margin-bottom: 40px;">
+                        <li ng-repeat="p in vm.data.sitesParams | orderBy:'position'" ng-click="vm.data.sitesParamsSelected=p">
+                            <a class="link">{{p.name}}</a>
                         </li>
                     </ul>
 
                 </div>
                 <br/>
 
-                <div ng-show="vm.sitesParamsSelected">
+                <div ng-show="vm.data.sitesParamsSelected">
 
                     <label class="control-label">
                         Ссылка сайта:
                     </label>
 
                     <div class="link form-group">
-                        <a ng-href="{{vm.sitesParamsSelected.url}}">{{vm.sitesParamsSelected.url}}</a>
+                        <a ng-href="{{vm.data.sitesParamsSelected.url}}">{{vm.data.sitesParamsSelected.url}}</a>
                     </div>
 
                     <label class="control-label">
@@ -37,13 +37,13 @@
                     </label>
 
                     <div class="link form-group">
-                        <a ng-href="{{vm.sitesParamsSelected.surl}}" style="">{{vm.sitesParamsSelected.surl}}</a>
+                        <a ng-href="{{vm.data.sitesParamsSelected.surl}}" style="">{{vm.data.sitesParamsSelected.surl}}</a>
                     </div>
 
                     <label class="control-label">
                         Позиция в выборке:
                     </label>
-                    {{vm.sitesParamsSelected.position}}
+                    {{vm.data.sitesParamsSelected.position}}
                 </div>
 
             </div>
@@ -58,12 +58,12 @@
             </div>
             <div class="panel-body">
 
-                <div ng-show="vm.sitesParamsSelected">
+                <div ng-show="vm.data.sitesParamsSelected">
 
                     <div class="panel panel-default panel-body">
                         <ul class="list-group">
                             <li class="list-group-item  panel-heading"
-                                ng-repeat="param in vm.sitesParamsSelected.params | orderBy:'ru_name':true"
+                                ng-repeat="param in vm.data.sitesParamsSelected.params | orderBy:'ru_name':true"
                                 ng-include="'partials/params_template.html'">
                             </li>
                         </ul>
