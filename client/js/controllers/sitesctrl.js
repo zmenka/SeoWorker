@@ -31,8 +31,9 @@ function SitesCtrl ($scope, $rootScope, $alert, $aside, Api) {
     }
 
     $scope.$watch('vm.site', function(current, original) {
-        console.log("clear")
-        vm.data = {};
+        console.log("clear");
+
+
     });
 
     load();
@@ -84,6 +85,7 @@ function SitesCtrl ($scope, $rootScope, $alert, $aside, Api) {
                 console.log("load Api.user_sites_and_tasks ", res);
                 vm.sites = res.data;
                 vm.loading = false;
+                vm.showAside();
             })
             .catch(function (err) {
                 console.log('load Api.user_sites_and_tasks ', err);
