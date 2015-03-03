@@ -120,6 +120,7 @@ SeoFormat.prototype.transponateParams = function (data) {
                     //формируем параметр
                     var serial = {
                         key: current_par.ru_name,
+                        group: current_par.group,
                         values: [
                             [position, cur_val]
                         ],

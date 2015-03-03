@@ -191,7 +191,7 @@ module.exports = function Api(app, passport) {
                 var paramsTable     = SF.prettyTable(paramsDirty,site_params[0]);
                 var paramsPosition  = SF.getSitePosition(paramsDirty,site_params[0]);
                 //возвращаем
-                callback({paramsDiagram: paramsDiagram,
+                callback({paramsDiagram: paramsTree,
                           paramsTable: paramsTable,
                           paramsPosition: paramsPosition, 
                           site_params: site_params}, res);

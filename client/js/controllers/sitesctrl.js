@@ -10,6 +10,7 @@ function SitesCtrl ($scope, $rootScope, $alert, $aside, Api) {
     vm.sitesParams = null;
     vm.chart = null;
     vm.chartValue = null;
+    vm.selectParam = selectParam;
 
     vm.options = {
         chart: {
@@ -44,7 +45,7 @@ function SitesCtrl ($scope, $rootScope, $alert, $aside, Api) {
                 //            console.log("NEW");
                 var scope = $rootScope.$new();
                 scope.sites = vm.sites;
-                scope.nodeselect = selectNode;
+                scope.nodeselect = selectSite;
                 vm.myAside = $aside({scope: scope, show: true,
                     placement: "left", animation: "fade-and-slide-left",
                     template: 'partials/sites_aside_template.html'});
@@ -54,9 +55,17 @@ function SitesCtrl ($scope, $rootScope, $alert, $aside, Api) {
 
     }
 
-    function selectNode(node) {
-//        console.log("selectNode", node);
+    function selectSite(node) {
+        console.log("selectSite", node);
         vm.site = node;
+    }
+
+    function selectParam(node) {
+        console.log("selectParam", node);
+        if (node.type == 'key'){
+            vm.chartValue = node.data.values;
+        }
+
     }
 
     function load () {
@@ -97,6 +106,7 @@ function SitesCtrl ($scope, $rootScope, $alert, $aside, Api) {
                 vm.position = res.data.paramsPosition;
 
                 vm.chartValue = null;
+                vm.loading = false;
             })
             .catch(function (err) {
                 console.log('getParams Api.get_params ', err);
@@ -121,7 +131,8 @@ function SitesCtrl ($scope, $rootScope, $alert, $aside, Api) {
         }
         vm.loading = true;
 
-        Api.calc_site_params(vm.site.data.url, vm.site.data.condition_id)
+        Api.calc_params(vm.site.data.url, vm.site.data.condition_id)
+//        Api.calc_site_params(vm.site.data.url, vm.site.data.condition_id)
             .catch(function (err) {
                 console.log("calcSiteParams Api.calc_site_params ", err)
                 $alert({title: 'Внимание!', content: "Параметры страницы не пересчитаны "

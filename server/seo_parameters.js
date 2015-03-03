@@ -80,11 +80,13 @@ SeoParameters.prototype.parse = function () {
 
 SeoParameters.prototype.getAllParams = function () {
     var titleCS = this.tryCatch(this.tagCSFirst, ["title"]);
+    titleCS.group = "title";
     titleCS.name = "titleCS";
     titleCS.ru_name = "ССЗ (title)";
     titleCS.description = "Среднее совпадение ключевой фразы с тегом title.";
 
     var h1CS = this.tryCatch(this.tagCSFirst, ["h1"]);
+    h1CS.group = "h1";
     h1CS.name = "h1CS";
     h1CS.ru_name = "ССЗ (h1)";
     h1CS.description = "Среднее совпадение ключевой фразы с тегом h1.";
@@ -112,13 +114,13 @@ SeoParameters.prototype.getAllParams = function () {
     h3Count.description = "Количество тегов h3.";
 
     var h2CSAvg = this.tryCatch(this.tagCSAvg, ["h2"]);
-    h2Count.group = "h2";
+    h2CSAvg.group = "h2";
     h2CSAvg.name = "h2CSAvg";
     h2CSAvg.ru_name = "Взвешенное ССЗ(h2)";
     h2CSAvg.description = "Взвешенное ССЗ(h2)= (ССЗ(h2(1))+ССЗ(h2(2))+ ...+ССЗ(h2(n)))/n, где n = счет(h2).";
 
     var h3CSAvg = this.tryCatch(this.tagCSAvg, ["h3"]);
-    h3Count.group = "h3";
+    h3CSAvg.group = "h3";
     h3CSAvg.name = "h3CSAvg";
     h3CSAvg.ru_name = "Взвешенное ССЗ(h3)";
     h3CSAvg.description = "Взвешенное ССЗ(h3)= (ССЗ(h3(1))+ССЗ(h3(2))+ ...+ССЗ(h3(n)))/n, где n = счет(h3).";

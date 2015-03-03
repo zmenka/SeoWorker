@@ -1,4 +1,5 @@
 var MathStat = require("./MathStat")
+var TaskTreeNode = require("./models/TaskTreeNode")
 
 /*
  *
@@ -21,7 +22,8 @@ function Diagram() {
      *  diagram [{  
      *                key : object, 
      *                values : [{
-     *                              key : string, 
+     *                              key : string,
+     *                              group: string,
      *                              values : [[x1, y1],[x2, y2],...],
      *                              color : string,
      *                              area : boolean
@@ -74,11 +76,11 @@ Diagram.prototype.getParamsDiagram = function (params,siteParams) {
             var siteColor = 'rgb(' + [siteColorR,siteColorG,siteColorB].join(',') + ')';
             result[0].siteColor = siteColor;
             //строим "коридор"
-            this.addFigureByParams(params[key].key,'Граница коридора',[[x1, yk2], [x2, yk2],[x2, yk1],[x1, yk1],[x1, yk2]],'#D0FFFF',true);
+            this.addFigureByParams(params[key].key,'Граница коридора',[[x1, yk2], [x2, yk2],[x2, yk1],[x1, yk1],[x1, yk2]],'#D0FFFF',true,params[key].group);
             //строим уровень нашего сайта
-            this.addFigureByParams(params[key].key,'Ваш сайт',[[x1, ys],[x2, ys]],siteColor,false);
+            this.addFigureByParams(params[key].key,'Ваш сайт',[[x1, ys],[x2, ys]],siteColor,false,params[key].group);
             //строим график значений параметров выборки
-            this.addFigure(params[key].key,params[key]);
+            this.addFigure(params[key].key,params[key],params[key].group);
         }
         return this.diagram;
     } catch(er){
@@ -88,10 +90,34 @@ Diagram.prototype.getParamsDiagram = function (params,siteParams) {
 }
 
 Diagram.prototype.getTreeParamsDiagram = function (params) {
+    if (!params || params.length == 0 ) {
+        return null;
+    }
+    var tree = [];
+    for (var key in params) {
+        console.log(params[key].group, params[key].key);
+        var groups = tree.filter(function (v) {
+            return v.title === params[key].group;
+        });
+
+        var node;
+        if (groups.length > 0) {
+            node = groups[0];
+        } else {
+            node = new TaskTreeNode();
+            node.create(params[key].group, true,
+                {}, 'group');
+            tree.push(node)
+        }
+        var keyPar = new TaskTreeNode();
+        keyPar.create(params[key].key, true, params[key], 'key');
+        node.nodes.push(keyPar);
+    }
+    return tree;
 
 }
  
-Diagram.prototype.addFigure = function (diagramKey,figure) {
+Diagram.prototype.addFigure = function (diagramKey,figure, groupName) {
     //проверки
     if(!figure){ throw 'Diagram.prototype.addFigure figure cannot be null!'; }
     if(!diagramKey){ throw 'Diagram.prototype.addFigure diagramKey cannot be null!'; } 
@@ -106,10 +132,10 @@ Diagram.prototype.addFigure = function (diagramKey,figure) {
     } 
     //если нет еще диаграммы с таким ключом
     else {
-        this.diagram.push({key: diagramKey, values: [figure]})
+        this.diagram.push({key: diagramKey, values: [figure], group: groupName})
     }
 }
-Diagram.prototype.addFigureByParams = function (diagramKey,figureKey,figureValues,figureColor,figureArea) {
+Diagram.prototype.addFigureByParams = function (diagramKey,figureKey,figureValues,figureColor,figureArea,groupName) {
     //проверки
     if(!diagramKey){throw 'Diagram.prototype.addFigureByParams diagramKey cannot be null!';}
     if(!figureKey){throw 'Diagram.prototype.addFigureByParams diagramKey cannot be null!';}
@@ -128,7 +154,7 @@ Diagram.prototype.addFigureByParams = function (diagramKey,figureKey,figureValue
                     area: figureArea
                  };
     //добавляем фигуру
-    this.addFigure(diagramKey,figure);
+    this.addFigure(diagramKey,figure, groupName);
 }
 
 module.exports = Diagram;
