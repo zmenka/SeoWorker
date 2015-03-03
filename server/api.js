@@ -28,7 +28,7 @@ module.exports = function Api(app, passport) {
         console.log('/api/users');
 
         if (!req.user || !req.user.user_id) {
-            errback("Войдите", res);
+            errback("Вы не зарегистрировались.", res);
             return;
         }
 
@@ -46,7 +46,7 @@ module.exports = function Api(app, passport) {
         console.log('/api/user_sites_and_tasks');
 
         if (!req.user || !req.user.user_id) {
-            errback("Нет зарегистрированного пользователя!", res);
+            errback("Вы не зарегистрировались.", res);
             return;
         }
         var sites;
@@ -84,7 +84,7 @@ module.exports = function Api(app, passport) {
         }
 
         if (!req.user || !req.user.user_id) {
-            errback("Нет зарегистрированного пользователя!", res);
+            errback("Вы не зарегистрировались.", res);
             return;
         }
 
@@ -164,6 +164,27 @@ module.exports = function Api(app, passport) {
                 errback(err, res);
             })
         serverFree = true
+    });
+
+    app.post('/api/calc_site_params', function (req, res, next) {
+        console.log('/api/calc_site_params', req.body);
+
+        if (!req.body.condition_id) {
+            errback("Не найден параметр condition_id.", res);
+            return;
+        }
+
+        if (!req.user || !req.user.user_id) {
+            errback("Вы не зарегистрировались.", res);
+            return;
+        }
+        return new Core().calcParamsByUrl(req.body.url, req.body.condition_id)
+            .then(function () {
+                callback("ok", res);
+            })
+            .catch(function (err) {
+                errback(err, res);
+            })
     });
 
     app.post('/api/get_params', function (req, res, next) {

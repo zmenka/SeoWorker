@@ -138,7 +138,7 @@ function SitesCtrl ($scope, $rootScope, $alert, $aside, Api) {
         }
         vm.loading = true;
 
-        Api.calc_params(vm.site.data.url, vm.site.data.condition_id)
+        Api.calc_site_params(vm.site.data.url, vm.site.data.condition_id)
 //        Api.calc_site_params(vm.site.data.url, vm.site.data.condition_id)
             .catch(function (err) {
                 console.log("calcSiteParams Api.calc_site_params ", err)
