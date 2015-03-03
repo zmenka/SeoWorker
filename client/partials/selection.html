@@ -1,159 +1,77 @@
-<div  >
-    <!--
-    <div class="alerts-container"></div>
-    <div class="col-xs-1 app-padding-left">
-        <div class="left_bar "
-             ng-mouseenter="vm.showAside()">
-            <span class="glyphicon glyphicon-share-alt left_bar_icon" style="font-size: 25px;"></span>
+<div>
+
+    <div class="col-xs-5">
+
+        <div class="panel panel-info ">
+            <div class="panel-heading">
+                Сайты из выборки
+            </div>
+            <div class="panel-body">
+
+                <div class="dropdown" ng-show="vm.sitesParams">
+                    <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">
+                        Выберите сайт для просмотра параметров
+                        <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li ng-repeat="p in vm.sitesParams | orderBy:'position'" ng-click="vm.sitesParamsSelected=p">
+                            <a class="link">{{p.url}}</a>
+                        </li>
+                    </ul>
+
+                </div>
+                <br/>
+
+                <div ng-show="vm.sitesParamsSelected">
+
+                    <label class="control-label">
+                        Ссылка сайта:
+                    </label>
+
+                    <div class="link form-group">
+                        <a ng-href="{{vm.sitesParamsSelected.url}}">{{vm.sitesParamsSelected.url}}</a>
+                    </div>
+
+                    <label class="control-label">
+                        Ссылка поисковой выборки:
+                    </label>
+
+                    <div class="link form-group">
+                        <a ng-href="{{vm.sitesParamsSelected.surl}}" style="">{{vm.sitesParamsSelected.surl}}</a>
+                    </div>
+
+                    <label class="control-label">
+                        Позиция в выборке:
+                    </label>
+                    {{vm.sitesParamsSelected.position}}
+                </div>
+
+            </div>
         </div>
     </div>
-    <div class="col-xs-10">
-        <span ng-show="vm.loading" class="spinner"></span>
 
-        <div class="app-content" ng-view></div>
-    </div>
-    <div class="col-xs-6">
+    <div class="col-xs-7">
 
         <div class="panel panel-info ">
             <div class="panel-heading">
                 Параметры
             </div>
             <div class="panel-body">
-                <accordion close-others="vm.oneAtATime" ng-show="vm.site">
-                    <accordion-group>
-                        <accordion-heading>
-                            Посмотреть параметры выборки
-                        </accordion-heading>
-                        <form>
-                            <div class="form-group">
-                                <label class="control-label">Выбранный сайт:</label>
-                                <span ng-show="vm.site" style="word-wrap: break-word">{{vm.site.url}}</span>
-                                <span ng-show="!vm.site">не выбран</span>
-                            </div>
 
-                            <div class="form-group">
-                                <label class="control-label ">Ключевая фраза: </label>
-                                <input type="text" ng-disabled="true" class="form-control "
-                                       ng-model="vm.site.condition_query">
-                            </div>
+                <div ng-show="vm.sitesParamsSelected">
+
+                    <div class="panel panel-default panel-body">
+                        <ul class="list-group">
+                            <li class="list-group-item  panel-heading"
+                                ng-repeat="param in vm.sitesParamsSelected.params | orderBy:'ru_name':true"
+                                ng-include="'partials/params_template.html'">
+                            </li>
+                        </ul>
+                    </div>
+                </div>
 
 
-                            <div class="form-group">
-                                <label class="control-label">Поисковая система: </label>
-                                <input type="text" ng-disabled="true" class="form-control "
-                                       ng-model="vm.site.sengine_name">
-                            </div>
-
-                            <div class="form-group">
-                                <label class="control-label">Регион: </label>
-                                <input type="text" ng-disabled="true" class="form-control "
-                                       ng-model="vm.site.region">
-                            </div>
-
-                            <div class="form-group">
-                                <label class="control-label ">Размер выборки: </label>
-                                <input type="text" ng-disabled="true" class="form-control"
-                                       ng-model="vm.site.size_search">
-
-                            </div>
-                        </form>
-                    </accordion-group>
-                </accordion>
-
-                <button type="button" class="btn btn-primary" ng-disabled="vm.loading" ng-show="vm.site "
-                        ng-click="vm.getParams()">Получить данные
-                </button>
-                <a class="btn btn-success " ng-disabled="vm.loading" ng-show="vm.site" ng-click="vm.calcParams()">
-                    <span class="glyphicon glyphicon-refresh"></span>
-                </a>
-                <br/>
-                <br/>
-                <accordion close-others="vm.oneAtATime">
-                    <accordion-group ng-show="vm.params">
-                        <accordion-heading>
-                            Графики параметров
-                        </accordion-heading>
-                        <div class="form-group">
-                            <label class="control-label col-sm-3">Ваш сайт занимает место:</label>
-                            <span ng-show="vm.site.position!=null"
-                                  style="word-wrap: break-word">{{vm.site.position}}</span>
-                            <span ng-show="vm.site.position==null">не попал в выборку</span>
-                        </div>
-
-                        <br>
-
-                        <select class="form-control"
-                                style=" margin-left:50px; width: 300px" ng-change="vm.values = vm.chart.values;"
-                                ng-model="vm.chart" ng-options="p as p.key for p in vm.params | orderBy:'key'">
-
-
-                        </select>
-                        <nvd3 ng-show="vm.params"
-                              options="vm.options"
-                              data="vm.values"
-                                >
-                        </nvd3>
-
-
-                    </accordion-group>
-                    <accordion-group ng-show="vm.params1">
-                        <accordion-heading>
-                            Параметры сайтов из выборки
-                        </accordion-heading>
-
-                        <select ng-model="vm.chart1" class="form-control" style="  width: 500px"
-                                ng-change="vm.values1 = vm.chart1.params"
-                                ng-options="p as p.name for p in vm.params1 | orderBy:'position'"></select>
-                        <br>
-
-                        <div class="form-inline">
-                            <label class="control-label">
-                                Ссылка сайта:
-                            </label>
-
-                            <div class="link form-group">
-                                <a ng-href="{{vm.chart1.url}}">{{vm.chart1.url}}</a>
-                            </div>
-                        </div>
-
-                        <br>
-
-                        <div class="form-inline">
-                            <label class="control-label">
-                                Ссылка поисковой выборки:
-                            </label>
-
-                            <div class="link form-group">
-                                <a ng-href="{{vm.chart1.surl}}" style="">{{vm.chart1.surl}}</a>
-                            </div>
-                        </div>
-                        <br>
-
-                        <div class="form-inline">
-                            <label class="control-label">
-                                Позиция в выборке:
-                            </label>
-
-                            <div class="link form-group">
-                                {{vm.chart1.position}}
-                            </div>
-                        </div>
-                        <br>
-
-                        <div class="panel panel-default panel-body">
-                            <ul class="list-group">
-                                <li class="list-group-item  panel-heading"
-                                    ng-repeat="param in vm.values1 | orderBy:'ru_name':true"
-                                    ng-include="'partials/params_template.html'">
-                                </li>
-                            </ul>
-                        </div>
-
-                    </accordion-group>
-                </accordion>
             </div>
         </div>
     </div>
-</div>
--->
 </div>

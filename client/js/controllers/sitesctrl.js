@@ -8,6 +8,7 @@ function SitesCtrl ($scope, $rootScope, $alert, $aside, Api) {
     vm.getParams = getParams;
     vm.calcSiteParams = calcSiteParams;
     vm.sitesParams = null;
+    vm.sitesParamsSelected = null;
     vm.chart = null;
     vm.chartValue = null;
     vm.selectParam = selectParam;
@@ -33,6 +34,14 @@ function SitesCtrl ($scope, $rootScope, $alert, $aside, Api) {
         }
     }
 
+    $scope.$watch('vm.site', function(current, original) {
+        console.log("clear")
+        vm.sitesParams = null;
+        vm.sitesParamsSelected = null;
+        vm.chart = null;
+        vm.chartValue = null;
+    });
+
     load();
 
 
@@ -41,7 +50,7 @@ function SitesCtrl ($scope, $rootScope, $alert, $aside, Api) {
 //            console.log("OLD");
             vm.myAside.show();
         } else{
-            if (vm.sites.length){
+            if (vm.sites && vm.sites.length){
                 //            console.log("NEW");
                 var scope = $rootScope.$new();
                 scope.sites = vm.sites;
@@ -56,12 +65,15 @@ function SitesCtrl ($scope, $rootScope, $alert, $aside, Api) {
     }
 
     function selectSite(node) {
-        console.log("selectSite", node);
-        vm.site = node;
+//        console.log("selectSite", node);
+        if (node.type == 'task'){
+            vm.site = node;
+        }
+
     }
 
     function selectParam(node) {
-        console.log("selectParam", node);
+//        console.log("selectParam", node);
         if (node.type == 'key'){
             vm.chartValue = node.data.values;
         }
@@ -95,6 +107,12 @@ function SitesCtrl ($scope, $rootScope, $alert, $aside, Api) {
             return;
         }
         vm.loading = true;
+
+        vm.chartValue = null;
+        vm.sitesParamsSelected = null;
+        vm.position = null;
+        vm.chart = null;
+        vm.sitesParams = null;
         return Api.get_params(vm.site.data.url_id, vm.site.data.condition_id)
             .then(function (res) {
                 console.log("getParams Api.get_params", res);
@@ -105,16 +123,10 @@ function SitesCtrl ($scope, $rootScope, $alert, $aside, Api) {
                 vm.sitesParams = res.data.paramsTable;
                 vm.position = res.data.paramsPosition;
 
-                vm.chartValue = null;
                 vm.loading = false;
             })
             .catch(function (err) {
                 console.log('getParams Api.get_params ', err);
-
-                vm.chart = null;
-                vm.sitesParams = null;
-                vm.position = null;
-                vm.chartValue = null;
                 vm.loading = false;
 
                 $alert({title: 'Внимание!', content: "Параметры не получены: " + err.data,

@@ -138,7 +138,7 @@ table.sites td {
 
 .link {
     overflow: hidden;
-    width: 400px;
+    width: 350px;
     white-space: nowrap;
     text-overflow: ellipsis;
 }
