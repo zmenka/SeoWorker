@@ -1,179 +1,142 @@
-function SitesCtrl ($scope, $rootScope, $alert, $aside, Api, CaptchaModal) {
+function SitesCtrl ($scope, $rootScope, $alert, $aside, Api) {
     var vm = this;
-        vm.site = null;
-        vm.sites = [];
-        vm.params = null;
-        vm.params1 = null;
-        vm.chart = null;
-        vm.values = null;
-        vm.site_params = null;
-        vm.loading = false;
-        vm.captcha = null;
-        vm.oneAtATime = true;
-
+    vm.myAside = null;
     vm.showAside = showAside;
+    vm.loading = false;
+    vm.sites = [];
+    vm.site = null;
+    vm.getParams = getParams;
+    vm.calcSiteParams = calcSiteParams;
+    vm.sitesParams = null;
+    vm.chart = null;
+    vm.chartValue = null;
+
+    vm.options = {
+        chart: {
+            type: 'lineChart',
+//            height: 650,
+//            width: 590,
+            useInteractiveGuideline: true,
+            x: function(d){ return d[0]; },
+            y: function(d){ return d[1]; },
+            xAxis: {
+                axisLabel: 'Место в выдаче'
+            },
+            yAxis: {
+                axisLabel: 'Значение параметра',
+                tickFormat: function(d){
+                    return d3.format('.02f')(d);
+                },
+                axisLabelDistance: 30
+            }
+        }
+    }
+
+    load();
+
 
     function showAside(){
-        var scope = $rootScope.$new();
-        scope.sites = vm.sites;
-        scope.nodeselect = vm.select;
-        var myAside = $aside({show: true, scope: scope,
-            placement: "left", animation: "fade-and-slide-left",
-            template: 'partials/sites_aside_template.html'});
+        if (vm.myAside){
+//            console.log("OLD");
+            vm.myAside.show();
+        } else{
+            if (vm.sites.length){
+                //            console.log("NEW");
+                var scope = $rootScope.$new();
+                scope.sites = vm.sites;
+                scope.nodeselect = selectNode;
+                vm.myAside = $aside({scope: scope, show: true,
+                    placement: "left", animation: "fade-and-slide-left",
+                    template: 'partials/sites_aside_template.html'});
+            }
+
+        }
 
     }
 
-        var load = function () {
-            vm.loading = true;
-            Api.user_sites_and_tasks()
-                .then(function (res) {
-                    console.log('sites are reseived', res.data);
-                    vm.sites = res.data;
-                    vm.loading = false;
-                })
-                .catch(function (err) {
-                    console.log('get sites return ERROR!', err);
-                    vm.sites = [];
-                    vm.loading = false;
-                    $alert({title: 'Внимание!', content: "Ошибка при получении списка сайтов: " + err.data,
-                        placement: 'top', type: 'danger', show: true,
-                        duration: '3',
-                        container: '.alerts-container'
-                    });
-                });
-        };
-        load();
+    function selectNode(node) {
+//        console.log("selectNode", node);
+        vm.site = node;
+    }
 
-        vm.getParams = function () {
-            if (!vm.site || !vm.site.condition_id || !vm.site.url_id) {
-                $alert({title: 'Внимание!', content: "Нет всех необходимых данных для запроса.",
+    function load () {
+        vm.loading = true;
+        Api.user_sites_and_tasks()
+            .then(function (res) {
+                console.log("load Api.user_sites_and_tasks ", res);
+                vm.sites = res.data;
+                vm.loading = false;
+            })
+            .catch(function (err) {
+                console.log('load Api.user_sites_and_tasks ', err);
+                vm.sites = [];
+                vm.loading = false;
+                $alert({title: 'Внимание!', content: "Ошибка при получении списка сайтов"
+                    + (err.data ? ": " + err.data : "!"),
                     placement: 'top', type: 'danger', show: true,
                     duration: '3',
                     container: '.alerts-container'
                 });
-                return;
-            }
-            vm.loading = true;
-            return Api.get_params(vm.site.url_id, vm.site.condition_id)
-                .then(function (res) {
-//                var url = 'files/' + site.path;
-//                console.log(url);
-//                $window.open(url);
-                    console.log("параметры получены", res);
-                    vm.site_params = res.data.site_params[0];
-                        
-                    vm.params = res.data.paramsDiagram;
-                    vm.params1 = res.data.paramsTable;
-                    vm.site.position = res.data.paramsPosition;
-                    
-                    vm.chart = null;
-                    vm.values = null;
-                    vm.chart1 = null;
-                    vm.values1 = null;
-                    vm.loading = false;
-                    vm.options = {
-                        chart: {
-                            type: 'lineChart',
-                            height: 450,
-                            width: 590,
-                            useInteractiveGuideline: true,
-                            x: function(d){ return d[0]; },
-                            y: function(d){ return d[1]; },
-                            xAxis: {
-                                axisLabel: 'Место в выдаче'
-                            },
-                            yAxis: {
-                                axisLabel: 'Значение параметра',
-                                tickFormat: function(d){
-                                    return d3.format('.02f')(d);
-                                },
-                                axisLabelDistance: 30
-                            }
-                        }
-                    }
-                })
-                .catch(function (err) {
-                    console.log("параметры НЕ получены, ", err)
-                    vm.params = [];
-                    vm.params1 = [];
-                    vm.site_params = null;
-                    vm.loading = false;
-                    $alert({title: 'Внимание!', content: "Параметры не получены: " + err.data,
-                        placement: 'top', type: 'danger', show: true,
-                        duration: '3',
-                        container: '.alerts-container'
-                    });
-                })
-        }
+            });
+    };
 
-        vm.calcParams = function () {
-            if (!vm.site) {
-                $alert({title: 'Внимание!', content: "Нет всех необходимых данных для запроса.",
+
+    function getParams() {
+        if (!vm.site){
+            return;
+        }
+        vm.loading = true;
+        return Api.get_params(vm.site.data.url_id, vm.site.data.condition_id)
+            .then(function (res) {
+                console.log("getParams Api.get_params", res);
+
+//                vm.site_params = res.data.site_params[0];
+
+                vm.chart = res.data.paramsDiagram;
+                vm.sitesParams = res.data.paramsTable;
+                vm.position = res.data.paramsPosition;
+
+                vm.chartValue = null;
+            })
+            .catch(function (err) {
+                console.log('getParams Api.get_params ', err);
+
+                vm.chart = null;
+                vm.sitesParams = null;
+                vm.position = null;
+                vm.chartValue = null;
+                vm.loading = false;
+
+                $alert({title: 'Внимание!', content: "Параметры не получены: " + err.data,
                     placement: 'top', type: 'danger', show: true,
                     duration: '3',
                     container: '.alerts-container'
                 });
-                return;
-            }
-            vm.loading = true;
-
-            Api.calc_params(vm.site.url, vm.site.condition_id, vm.captcha)
-                .then(function (res) {
-                    console.log("параметры получены", res.data);
-                    vm.loading = false;
-                    vm.captcha = null;
-                    vm.getParams();
-                })
-                .catch(function (err) {
-                    vm.loading = false;
-                    vm.captcha = null;
-
-                    if (err.data.captcha) {
-                        vm.captcha = err.data.captcha;
-                        console.log("Получили капчу", err.data);
-
-                        CaptchaModal.show(vm.captcha.img)
-                            .then(function (result) {
-                                if (result.answer && result.captcha) {
-                                    console.log('Капча введена, посылаем повторно запрос.')
-
-                                    vm.captcha.rep = result.captcha;
-                                    vm.calcParams();
-                                } else {
-                                    console.log('Вы не ввели капчу или нажали "Отмена". Попробуйте еще раз.')
-                                }
-                            })
-                    } else {
-                        console.log("параметры НЕ получены, ", err)
-                        vm.params = [];
-                        vm.params1 = [];
-                        $alert({title: 'Внимание!', content: "Параметры не получены: " + err.data,
-                            placement: 'top', type: 'danger', show: true,
-                            duration: '3',
-                            container: '.alerts-container'
-                        });
-                    }
-                })
-        }
-
-        vm.select = function (data) {
-            console.log("select", data);
-            var nodeData = data;
-            if (nodeData.task_id) {
-                vm.site = nodeData
-                vm.params = null;
-                vm.params1 = null;
-            } else {
-                vm.site = null
-                vm.params = null;
-                vm.params1 = null;
-            }
-        };
-
-        vm.toggle = function (scope) {
-            console.log("toggle");
-            scope.toggle();
-        }
-
+            })
     }
+
+    function calcSiteParams() {
+        if (!vm.site) {
+            return;
+        }
+        vm.loading = true;
+
+        Api.calc_site_params(vm.site.data.url, vm.site.data.condition_id)
+            .catch(function (err) {
+                console.log("calcSiteParams Api.calc_site_params ", err)
+                $alert({title: 'Внимание!', content: "Параметры страницы не пересчитаны "
+                        + (err.data ? ": " + err.data : "!"),
+                    placement: 'top', type: 'danger', show: true,
+                    duration: '3',
+                    container: '.alerts-container'
+                });
+            })
+            .then(function (res) {
+                console.log("calcSiteParams Api.calc_site_params", res);
+                vm.loading = false;
+                vm.getParams();
+            })
+        }
+    }
+
 angular.module('seoControllers').controller('SitesCtrl', SitesCtrl);

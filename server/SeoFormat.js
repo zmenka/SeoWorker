@@ -1,79 +1,94 @@
+var TaskTreeNode = require("./models/TaskTreeNode.js");
 
 function SeoFormat() {
     //console.log('SeoFormat init');
 };
-
-
 
 SeoFormat.prototype.createSiteTree = function (sites) {
     if (!sites || sites.length == 0) {
         return [];
     }
     var tree = [];
-    for (var i = 0; i < sites.length; i++) {
-        var f = function (site) {
-            //console.log("site", site);
-            //var domen = sites[i].url.match(/(?:http:\/\/|https:\/\/|)(?:www.|)([^\/]+)\/?(.*)/)[1];
-            //console.log("dom
-            // en", domen);
 
-            var result = tree.filter(function (v) {
-                return v.title === site.url;
-            })
-            //console.log("match", result);
-            if (!site.task_id) {
-                var s = null
-            } else {
-                var s = {title: site.condition_query, nodes: [], usurl_id: site.usurl_id, url_id: site.url_id, task_id: site.task_id, url: site.url,
+    for (var i = 0; i < sites.length; i++) {
+        var site = sites[i];
+        //console.log("site", site);
+        var domen = site.url.match(/(?:http:\/\/|https:\/\/|)(?:www.|)([^\/]+)\/?(.*)/)[1].toLowerCase();
+        //console.log("domen", domen);
+
+        var domens = tree.filter(function (v) {
+            return v.title === domen;
+        })
+
+        var domenNode;
+        if (domens.length > 0) {
+            domenNode = domens[0];
+        } else {
+            domenNode = new TaskTreeNode();
+            domenNode.create(domen, true,
+                {title: site.url, usurl_id: site.usurl_id, url_id: site.url_id}, 'domen');
+            tree.push(domenNode)
+        }
+
+        var pages = domenNode.nodes.filter(function (v) {
+            return v.title === site.url;
+        })
+
+        var page;
+        if (pages.length > 0) {
+            page = pages[0];
+        } else {
+            page = new TaskTreeNode();
+            page.create(site.url, true,
+                {title: site.url, usurl_id: site.usurl_id, url_id: site.url_id}, 'page');
+            domenNode.nodes.push(page);
+        }
+
+        if (site.task_id) {
+            var task = new TaskTreeNode();
+            task.create(site.condition_query, true,
+                {title: site.condition_query, usurl_id: site.usurl_id, url_id: site.url_id, task_id: site.task_id, url: site.url,
                     condition_id: site.condition_id, condition_query: site.condition_query, sengine_name: site.sengine_name,
-                    region: site.region, size_search: site.size_search,
-                    data:{title: site.condition_query, usurl_id: site.usurl_id, url_id: site.url_id, task_id: site.task_id, url: site.url,
-                        condition_id: site.condition_id, condition_query: site.condition_query, sengine_name: site.sengine_name,
-                        region: site.region, size_search: site.size_search}};
-            }
-            var row
-            if (result.length > 0) {
-                row = result[0];
-            } else {
-                row = {title: site.url, usurl_id: site.usurl_id, url_id: site.url_id, nodes: [],
-                data:{title: site.url, usurl_id: site.usurl_id, url_id: site.url_id}}
-                tree.push(row)
-            }
-            if (s) {
-                row.nodes.push(s)
-            }
-        };
-        f(sites[i]);
+                    region: site.region, size_search: site.size_search},
+                'task')
+            page.nodes.push(task);
+        }
+
     }
-    console.log("sites ", sites, " tree ", tree);
+//    console.log("sites ", sites, " tree ", tree);
     return tree;
-};
-        
+}
+
 SeoFormat.prototype.getSitePosition = function (allParams, siteParams) {
-    var url = siteParams.url.replace(/^(ftp:\/\/|http:\/\/|https:\/\/)*(www\.)*/g,'')
-    if (!url){
+    if (!allParams && !siteParams){
+        return;
+    }
+    var url = siteParams.url.replace(/^(ftp:\/\/|http:\/\/|https:\/\/)*(www\.)*/g, '')
+    if (!url) {
         return null;
     }
 
-    url =url.replace(/\/$/, "").toLowerCase();
+    url = url.replace(/\/$/, "").toLowerCase();
     var position = (allParams).filter(function (v) {
-        var site = v.url.replace(/^(ftp:\/\/|http:\/\/|https:\/\/)*(www\.)*/g,'')
-        if (!site){
+        var site = v.url.replace(/^(ftp:\/\/|http:\/\/|https:\/\/)*(www\.)*/g, '')
+        if (!site) {
             return false;
         }
 //                console.log("PARSE ", site.replace(/\/$/, "").toLowerCase(), url)
         return site.replace(/\/$/, "").toLowerCase() === url;
     })[0]
 //            console.log(position, (position ? position.position: null))
-    return position ? position.position+1: null;
+    return position ? position.position + 1 : null;
 }
 
 //транспорнировать параметры data [{postition,},...]
 SeoFormat.prototype.transponateParams = function (data) {
     var res;
     //проверки
-    if (!data) { throw 'SeoFormat.prototype.transponateParams data cannot be null!';}   
-    
+    if (!data) {
+        throw 'SeoFormat.prototype.transponateParams data cannot be null!';
+    }
+
     //работаем с диаграммой
     var res = []
     //бежим по всем страницам сайтов
@@ -104,8 +119,10 @@ SeoFormat.prototype.transponateParams = function (data) {
                 } else {
                     //формируем параметр
                     var serial = {
-                        key: current_par.ru_name, 
-                        values: [[position, cur_val]], 
+                        key: current_par.ru_name,
+                        values: [
+                            [position, cur_val]
+                        ],
                         yrange: cur_val
                     };
                     //кладем в резуьтат
@@ -128,7 +145,7 @@ SeoFormat.prototype.prettyTable = function (data, site_data) {
     for (var key in data) {
         var name = data[key].url.length > 60 ? data[key].url.substr(0, 60) + '...' : data[key].url
         table.push({url: data[key].url, name: name, params: data[key].param.params, surl: data[key].surl,
-            position: data[key].position+1})
+            position: data[key].position + 1})
     }
 
     table.push({url: site_data.url, name: 'Ваш сайт', params: site_data.param.params, surl: "-"})

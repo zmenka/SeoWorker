@@ -1,7 +1,7 @@
 <div ui-tree-handle class="app-tree-node app-tree-node-content"
-     ng-click="nodeselect(this.$modelValue.data)">
+     ng-click="node.collapsed = collapsed; nodeselect(node);">
 
-    <a class="btn btn-success btn-xs app-tree-arrow" ng-if="node.nodes && node.nodes.length > 0" nodrag ng-click="toggle()">
+    <a class="btn btn-success btn-xs app-tree-arrow" ng-if="node.nodes && node.nodes.length > 0" nodrag ng-click="toggle();">
         <span class="glyphicon"
               ng-class="{'glyphicon-chevron-right': collapsed, 'glyphicon-chevron-down': !collapsed}"></span>
     </a>
@@ -12,6 +12,7 @@
 </div>
 
 <ol ui-tree-nodes="" ng-model="node.nodes" ng-class="{hidden: collapsed}">
-    <li ng-repeat="node in node.nodes" ui-tree-node ng-include="'partials/tree_template.html'">
+    <li ng-repeat="node in node.nodes" ui-tree-node  collapsed="node.collapsed"
+        ng-include="'partials/tree_template.html'">
     </li>
 </ol>

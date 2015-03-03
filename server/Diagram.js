@@ -86,6 +86,10 @@ Diagram.prototype.getParamsDiagram = function (params,siteParams) {
         return;
     }
 }
+
+Diagram.prototype.getTreeParamsDiagram = function (params) {
+
+}
  
 Diagram.prototype.addFigure = function (diagramKey,figure) {
     //проверки

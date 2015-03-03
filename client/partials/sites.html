@@ -1,19 +1,34 @@
-<div class="container-fluid app-padding-left" ng-controller="SitesCtrl as vm">
+<div class="container" ng-controller="SitesCtrl as vm">
     <div class="alerts-container"></div>
-    <div class="col-xs-1 app-padding-left">
-        <!--
-        <div class="left_bar "
-             ng-mouseenter="vm.showAside()">
-            <span class="glyphicon glyphicon-share-alt left_bar_icon" style="font-size: 25px;"></span>
-        </div>
-        -->
-        <span class="glyphicon glyphicon-menu-hamburger" style="font-size: 25px;" ng-mouseenter="vm.showAside()"></span>
+    <div class="left_bar "
+         ng-mouseenter="vm.showAside()">
+        <span class="glyphicon glyphicon-share-alt left_bar_icon" style="font-size: 25px;"></span>
     </div>
-    <div class="col-xs-10">
-        <span ng-show="vm.loading" class="spinner"></span>
 
-        <div ui-view></div>
+    <span ng-show="vm.loading" class="spinner"></span>
+
+    <div class="row" >
+
+        <div class="col-xs-12" style="margin-top: 10px" ng-show="vm.site">
+            <label class="control-label">{{vm.site.title}}</label>
+            <a class="btn btn-primary" ng-disabled="vm.loading"
+               ng-click="vm.getParams()">
+                <span class="glyphicon glyphicon-download-alt"></span>
+            </a>
+            <a class="btn btn-success " ng-disabled="vm.loading"  ng-click="vm.calcSiteParams()">
+                <span class="glyphicon glyphicon-refresh"></span>
+            </a>
+
+            <label class="control-label">Ваш сайт </label>
+                                <span ng-show="vm.site.position!=null"
+                                      style="word-wrap: break-word">на {{vm.site.position}} месте</span>
+            <span ng-show="vm.site.position==null">не попал в выборку</span>
+        </div>
     </div>
+    <div class="row " >
+        <div style="margin-top: 10px" ui-view></div>
+    </div>
+
 
 </div>
 

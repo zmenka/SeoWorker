@@ -88,10 +88,10 @@ table.sites td {
     width: 100px;
     height: 100px;
     background-image: url("../img/spin100x100.gif");
-    overflow: hidden;
+    /* overflow: hidden; */
     position: absolute;
     z-index: 1000;
-    margin: 50% 0 0 100%;
+    left: 45%;
 }
 
 .spinner-small {
@@ -167,21 +167,36 @@ table.sites td {
     position: fixed;
     top: 70px;
     bottom: 30px;
-    width: 5%;
-    margin-left: 0px;
-    background: rgba(0, 0, 0, 0.10);
+    width: 30px;
+    left: 0;
+/* background: rgba(0, 0, 0, 0.10);*/
+}
+.chart {
+    position: fixed;
+    top: 170px;
+    bottom: 30px;
+    width: 50%;
+    height: auto;
+}
+.app-flex {
+    display: flex;
+    flex-direction: column;
+    align-items:stretch;
+    min-height: 100%;
+    margin-top: 70px;
+    margin-bottom: 30px;
 }
 
 .left_bar_icon {
-    top: 50%;
-    position: absolute;
-    right: 0;
-    font-size: 18px;
+top: 50%;
+position: absolute;
+right: 0;
+font-size: 18px;
 }
 .promotion_icon{
-    color: #337ab7;
+color: #337ab7;
 }
 .promotion_icon_hover{
-    color: #337ab7;
-    background-color: #eee;
+color: #337ab7;
+background-color: #eee;
 }

@@ -11,13 +11,15 @@ seoDirectives.directive('sitesTree', function(){
                     {
                        title: String, //имя
                        data: Object, //тут инфа, которая нужна при выборе данного элемента
-                       nodes:[{},{}] //вложенные элементы такой же структуры
+                       collapsed: Boolean, //свернуть или развернуть элемент
+                       nodes:[{},{}], //вложенные элементы такой же структуры
+                       type: String //'domen', 'page', 'task'
                     }
                 ]
              */
             sites: "=",
             /*
-                function(node.data){} // метод обработки выбранных данных
+                function(node){} // метод обработки выбранных данных
              */
             nodeselect: "="
         }

@@ -54,8 +54,12 @@
                     </a>
 
                     <ul class="dropdown-menu" role="menu">
-                        <li><a ui-sref="main.promotion.chart" ><i class='glyphicon glyphicon-signal'></i>&nbsp;Графики</a></li>
-                        <li><a ui-sref="main.promotion.selection" ><span class="glyphicon glyphicon-list-alt"></span>&nbsp;Выдача</a></li>
+                        <li>
+                            <a ui-sref="main.promotion.chart" ><i class='glyphicon glyphicon-signal'></i>&nbsp;Графики</a>
+                        </li>
+                        <li>
+                            <a ui-sref="main.promotion.selection" ><span class="glyphicon glyphicon-list-alt"></span>&nbsp;Выдача</a>
+                        </li>
                     </ul>
                 </li>
                 <li><a ui-sref="main.settings">Настройки</a></li>
@@ -70,7 +74,8 @@
                     <a ng-show="MainCtrl.isSignedIn()" ng-click="AuthCtrl.logout()">
                         Выйти
                         <span class="glyphicon glyphicon-log-out" ></span>
-                    </a></li>
+                    </a>
+                </li>
             </ul>
         </div>
 
@@ -78,7 +83,7 @@
 </nav>
 
 <div class="app-content" >
-    <div ui-view></div>
+    <div  ui-view></div>
 </div>
 
 <footer class="navbar-fixed-bottom bg-success app-footer ">

@@ -13,6 +13,7 @@ var callback = function (data, response) {
 };
 
 var errback = function (err, response) {
+    console.log(err, err.stack);
     response.statusCode = 440;
     response.send(err);
 };
@@ -27,7 +28,7 @@ module.exports = function Api(app, passport) {
         console.log('/api/users');
 
         if (!req.user || !req.user.user_id) {
-            errback("Нет зарегистрированного пользователя!", res);
+            errback("Войдите", res);
             return;
         }
 
@@ -186,6 +187,7 @@ module.exports = function Api(app, passport) {
                 //работаем с диаграммой. Транспонируем данные от "страницы и их параметры" к "параметры страниц"
                 var params = SF.transponateParams(paramsDirty);
                 var paramsDiagram   = diagram.getParamsDiagram(params,site_params[0]);
+                var paramsTree = diagram.getTreeParamsDiagram(paramsDiagram);
                 var paramsTable     = SF.prettyTable(paramsDirty,site_params[0]);
                 var paramsPosition  = SF.getSitePosition(paramsDirty,site_params[0]);
                 //возвращаем
