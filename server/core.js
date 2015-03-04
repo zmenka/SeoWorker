@@ -23,6 +23,21 @@ function Core() {
  * @param headers
  * @param user_id
  */
+Core.prototype.bg = function () {
+    var f = function () {
+        var deferred = Q.defer();
+        setTimeout(function () {
+            console.log("time");
+            deferred.resolve("OK");
+        }, 3000);
+        return deferred.promise;
+    }
+    return f()
+        .then(function(res){
+        console.log("res",res)
+    })
+
+}
 Core.prototype.calcParams = function (condition_id, captcha, headers, user_id) {
     _this3 = this;
     var condition;
