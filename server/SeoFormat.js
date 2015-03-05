@@ -46,8 +46,10 @@ SeoFormat.prototype.createSiteTree = function (sites) {
 
         if (site.task_id) {
             var task = new TaskTreeNode();
-            task.create(site.condition_query, true,
-                {title: site.condition_query, usurl_id: site.usurl_id, url_id: site.url_id, task_id: site.task_id, url: site.url,
+            task.create(site.condition_query+ " (" + site.sengine_name + ", " + site.size_search + "), " + site.region + " регион",
+                true,
+                {title: site.condition_query ,
+                    usurl_id: site.usurl_id, url_id: site.url_id, task_id: site.task_id, url: site.url,
                     condition_id: site.condition_id, condition_query: site.condition_query, sengine_name: site.sengine_name,
                     sengine_id: site.sengine_id,
                     region: site.region, size_search: site.size_search},

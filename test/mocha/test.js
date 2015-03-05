@@ -23,18 +23,7 @@ describe('TestCaptcha', function(){
 
             var core = require("../../server/core")
             return new core().bg(5, 1)
-                .then(function(res){
-                    return new core().bg(5, 1)
 
-                })
-                .then(function(res){
-                    return new core().bg(5, 1)
-
-                })
-                .then(function(res){
-                    return new core().bg(5, 1)
-
-                })
 
         })
     })
