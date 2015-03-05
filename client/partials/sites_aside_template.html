@@ -6,9 +6,10 @@
                 <button type="button" class="close" ng-click="$hide()">&times;</button>
                 <h4 class="aside-title">Список сайтов</h4>
             </div>
-            <div class="aside-body" ></div>
-                <sites-tree sites="sites" nodeselect="nodeselect" ></sites-tree>
+            <div class="aside-body" >
 
+            <sites-tree ng-show="sites" sites="sites" nodeselect="nodeselect" ></sites-tree>
+            </div>
         </div>
     </div>
 </div>
