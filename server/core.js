@@ -23,24 +23,28 @@ function Core() {
  * @param headers
  * @param user_id
  */
-Core.prototype.bg = function (condition_id, user_id) {
-    try{
-        return this.calcParams(condition_id, user_id)
-    } catch (err){
-        console.log('Core.prototype.bg err',err);
+Core.prototype.bg = function () {
+    function f() {
+        try {
+            return new PgConditions().getLastNotSearchedRandomConditionId(10, new Date())
+                .then(function (condition_id) {
+                    if (condition_id) {
+                        console.log('Core.prototype.bg START condition_id ', condition_id)
+                        return this.calcParams(condition_id, 1)
+                    } else {
+                        console.log('Core.prototype.bg condition_id EMPTY');
+                    }
+                })
+                .then(function (res) {
+                    return  f();
+                })
+
+        } catch (err) {
+            console.log('Core.prototype.bg err', err);
+        }
     }
-    var f = function () {
-        var deferred = Q.defer();
-        setTimeout(function () {
-            console.log("time");
-            deferred.resolve("OK");
-        }, 3000);
-        return deferred.promise;
-    }
-    return f()
-        .then(function(res){
-        console.log("res",res)
-    })
+
+    return f();
 
 }
 Core.prototype.calcParams = function (condition_id, user_id) {
@@ -50,30 +54,24 @@ Core.prototype.calcParams = function (condition_id, user_id) {
         .then(function (condition_res) {
             condition = condition_res
             if (!condition) {
-                throw 'Не найдены условия!'
+                throw 'Core.prototype.calcParams Не найдены условия c condition_id ' + condition_id
             }
-            return new PgSearch().getLastSearch(condition_id, new Date(new Date() - 24 * 60 * 60 * 1000))
-        })
-        .then(function (res) {
-//            console.log(res)
-//            if (res && res.length>0){
-//                throw 'Результаты выборки уже были обновлены.'
-//            }
 
             //Формируется массив объектов {page:<>, url:<>, sengine:<>} для поиска
             var search_objects = new SearcherType().getSearchUrls(condition)
-            console.log("урлы для поиска: ", search_objects)
+//            console.log("урлы для поиска: ", search_objects)
             return new PgSearch().insert(condition_id)
-                .then(function (search_id) {
-                    //массив объектов {spage_id: <>,start<>, links: {url: <>, title: <>}[]}[]
-                    return _this3.getLinksFromSearcher(search_objects, search_id, user_id, condition.sengine_name)
-                })
+        })
+        .then(function (search_id) {
+            //массив объектов {spage_id: <>,start<>, links: {url: <>, title: <>}[]}[]
+            return _this3.getLinksFromSearcher(search_objects, search_id, user_id, condition.sengine_name)
+
         })
         .then(function (links_obj) {
             return _this3.calcLinksParams(links_obj, condition_id, condition.condition_query)
         })
         .then(function (res) {
-            console.log(res)
+            console.log('Core.prototype.calcParams done');
         })
         .catch(function (res) {
             if (res.captcha) {
@@ -94,7 +92,7 @@ Core.prototype.calcParams = function (condition_id, user_id) {
  * @param user_id
  * @returns {spage_id: <>,start<>, links: {url: <>, title: <>}[]}[]
  */
-Core.prototype.getLinksFromSearcher = function (search_objects, search_id, user_id,sengine_name) {
+Core.prototype.getLinksFromSearcher = function (search_objects, search_id, user_id, sengine_name) {
     var result = []
     // create an empty promise to begin the chain
     var promise_chain = Q.fcall(function () {
@@ -107,9 +105,9 @@ Core.prototype.getLinksFromSearcher = function (search_objects, search_id, user_
             var promise_link = (function () {
                 var raw_html;
                 var spage_id;
-                console.log("сейчас обрабатывается поисковая ссылка ", search_object)
+//                console.log("сейчас обрабатывается поисковая ссылка ", search_object)
 
-                return new Searcher().getContentByUrlOrCaptcha(search_object.url, null, user_id,sengine_name, true)
+                return new Searcher().getContentByUrlOrCaptcha(search_object.url, null, user_id, sengine_name, true)
                     .then(function (res) {
                         raw_html = res.html;
                         return new PgHtmls().insertWithUrl(raw_html, search_object.url)
@@ -123,11 +121,11 @@ Core.prototype.getLinksFromSearcher = function (search_objects, search_id, user_
                         return new SeoParameters().getSearchPicks(raw_html, search_object.sengine)
                     })
                     .then(function (links) {
-                        console.log("получили ", links.length, " ссылок: ")
+                        console.log("Core.prototype.getLinksFromSearcher получили ", links.length, " ссылок из ", search_object.url)
                         // обнуляем капчу
                         captcha = null;
-                        if (links.length == 0) throw "Ссылки сайтов не получены!!"
-                        console.log(links)
+                        if (links.length == 0) throw "Core.prototype.getLinksFromSearcher Ссылки сайтов не получены из " + search_object.url;
+//                        console.log(links)
                         result.push({spage_id: spage_id, links: links, page: search_object.page });
                     })
             })
@@ -164,7 +162,7 @@ Core.prototype.calcLinksParams = function (links_obj, condition_id, condition_qu
     for (var i = 0; i < links_obj.length; i++) {//links.length
         for (var j = 0; j < links_obj[i].links.length; j++) {
             (function (link, position, spage_id) {
-                console.log("сейчас обрабатывается ссылка ", link, position)
+//                console.log("сейчас обрабатывается ссылка ", link, position)
                 promises.push((function (link, position, spage_id) {
                     var current_html_id;
                     var current_html;
@@ -317,7 +315,7 @@ Core.prototype.calcParamsByUrl = function (url, condition_id) {
         })
         .then(function (res) {
             console.log(res)
-            console.log("параметры САЙТА успешно посчитаны")
+            console.log("параметры САЙТА " + url + " успешно посчитаны")
         })
         .catch(function (res) {
             console.error('Core.prototype.calcParamsByUrl ', res, res.stack)

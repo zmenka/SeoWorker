@@ -13,7 +13,7 @@ SearcherType.prototype.getSearchUrls = function (condition) {
 
     if (!condition || !condition.sengine_name || !condition.condition_query
         || !condition.size_search || !condition.sengine_qmask || !condition.sengine_page_size) {
-        throw 'Не хватает условий для формирования поиска!'
+        throw 'SearcherType.prototype.getSearchUrls Не хватает условий для формирования поиска!'
     }
     var page = 0;
     var size_page = condition.sengine_page_size;
@@ -38,7 +38,7 @@ SearcherType.prototype.getSearchUrls = function (condition) {
             break;
         case 'Yandex':
             if (!condition.region) {
-                throw 'Не определен регион!'
+                throw 'SearcherType.prototype.getSearchUrls Не определен регион!'
             }
             var words = condition.condition_query
                 .split(/\s/)
@@ -58,7 +58,7 @@ SearcherType.prototype.getSearchUrls = function (condition) {
             }
             break;
         default:
-            throw 'Не найден требуемый поисковик!';
+            throw 'SearcherType.prototype.getSearchUrls Не найден требуемый поисковик!';
     }
     return search_links;
 }

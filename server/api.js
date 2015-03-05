@@ -37,6 +37,7 @@ module.exports = function Api(app, passport) {
                 callback(users, res);
             })
             .catch(function (err) {
+                console.log(err.stack);
                 errback(err, res);
             })
 
@@ -57,6 +58,7 @@ module.exports = function Api(app, passport) {
                 callback(sites, res);
             })
             .catch(function (err) {
+                console.log(err.stack);
                 errback(err, res);
             })
 
@@ -70,6 +72,7 @@ module.exports = function Api(app, passport) {
                 callback(sites, res);
             })
             .catch(function (err) {
+                console.log(err.stack);
                 errback(err, res);
             })
 
@@ -93,6 +96,7 @@ module.exports = function Api(app, passport) {
                 callback(db_res, res);
             })
             .catch(function (err) {
+                console.log(err.stack);
                 errback(err, res);
             })
     });
@@ -112,6 +116,7 @@ module.exports = function Api(app, passport) {
                 callback(db_res, res);
             })
             .catch(function (err) {
+                console.log(err.stack);
                 errback(err, res);
             })
     });
@@ -160,6 +165,7 @@ module.exports = function Api(app, passport) {
                 serverFree = true
             })
             .catch(function (err) {
+                console.log(err.stack);
                 serverFree = true
                 errback(err, res);
             })
@@ -183,7 +189,8 @@ module.exports = function Api(app, passport) {
                 callback("ok", res);
             })
             .catch(function (err) {
-                errback(err, res);
+                console.log(err.stack);
+                errback("", res);
             })
     });
 
@@ -230,7 +237,8 @@ module.exports = function Api(app, passport) {
 
             })
             .catch(function (err) {
-                errback(err, res);
+                console.log(err.stack);
+                errback('', res);
             })
 
     });

@@ -137,6 +137,28 @@ PgConditions.prototype.getCurrentSearchPage = function (condition_id, date_old) 
         })
 }
 
+PgConditions.prototype.getLastNotSearchedRandomConditionId = function (range, dateOld){
+    return PG.query("select t.condition_id " +
+            "from tasks t " +
+            "left join conditions c on t.condition_id=c.condition_id " +
+            "left join (select  DISTINCT ON (condition_id) condition_id, date_create " +
+            "from search " +
+            "group by condition_id, date_create " +
+            "order by condition_id,date_create desc " +
+            ") as s on s.condition_id=t.condition_id " +
+            "where s.date_create < '" +  date_old.toISOString() + "' " +
+            "order by t.date_create " +
+            "OFFSET random()*$1 LIMIT 1;",
+        [range]
+    )
+        .then(function (res) {
+            console.log('PgConditions.prototype.getLastNotSearchedRandomCondition')
+            return res.rows[0];
+        })
+        .catch(function (err) {
+            throw 'PgConditions.prototype.getLastNotSearchedRandomCondition ';
+        })
+}
 
 PgConditions.prototype.find = function (condition_query, sengine_id, region, size_search) {
     return PG.query("SELECT * FROM conditions WHERE condition_query = $1 and sengine_id = $2 and " +

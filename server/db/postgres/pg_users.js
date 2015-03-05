@@ -214,7 +214,7 @@ PgUsers.prototype.updateCookies = function (id, cookies) {
     return PG.query("UPDATE users SET cookies = $1 WHERE user_id = $2;",
         [cookies, id])
         .then(function (res) {
-            console.log("updateCookies", cookies)
+            console.log("PgUsers.prototype.updateCookies")
             return;
         })
         .catch(function (err) {

@@ -435,7 +435,7 @@ SeoParameters.prototype.getSearchPicks = function (search_html, sengine_name) {
             return res;
         })
         .catch(function (err) {
-            throw 'SeoParameters.prototype.init err ' + err
+            throw 'SeoParameters.prototype.getSearchPicks err ' + err
             return
         });
 

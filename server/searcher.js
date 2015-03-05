@@ -21,7 +21,7 @@ Searcher.prototype.getContentByUrl = function (url, captcha, cookies) {
     var deferred = Q.defer();
     var diffDates = new Date().getTime() - Searcher.lastCallTime.getTime();
     var timerInterval = 10;
-    console.log("diffDates", diffDates);
+//    console.log("diffDates", diffDates);
 //    if (diffDates < Searcher.callInterval) {
 //        console.log("ждем, слишком часто вызываем запросы на скачивание сайтов");
 //        timerInterval = Searcher.callInterval - diffDates;
@@ -33,7 +33,7 @@ Searcher.prototype.getContentByUrl = function (url, captcha, cookies) {
 
 
 
-        console.log("searcher downloads ", url);
+//        console.log("searcher downloads ", url);
         var contentTypes = ["text/html", "text/plain", "text/xml", "application/json", "application/xhtml+xml"]
         var headers = {
             'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.153 Safari/537.36',
@@ -72,7 +72,7 @@ Searcher.prototype.getContentByUrl = function (url, captcha, cookies) {
         var j = request.jar()
 
         if (cookies) {
-            console.log("saved cookies", cookies)
+//            console.log("saved cookies", cookies)
             for (var i in cookies) {
                 j.setCookie(cookies[i].key + "=" + cookies[i].value, options.url);
             }
@@ -89,8 +89,8 @@ Searcher.prototype.getContentByUrl = function (url, captcha, cookies) {
             } else {
 
                 var cookies = j.getCookies(options.url)
-                console.log("Содержимое сайте получено: ", options.url)
-                console.log("cookies", cookies)
+//                console.log("Содержимое сайте получено: ", options.url)
+//                console.log("cookies", cookies)
 
 
                 if (response.headers['content-type'] && checkArrElemIsSubstr(response.headers['content-type'], contentTypes) == -1) {
@@ -138,7 +138,7 @@ function responseDecode(response, body) {
     var enc = charset(response.headers, buf);
     enc = enc || jschardet.detect(buf).encoding;
 
-    console.log('encoding charset', enc)
+//    console.log('encoding charset', enc)
     if (enc) {
         enc = enc.toLowerCase();
         if (enc != 'utf-8' && enc != 'utf8') {
@@ -189,7 +189,7 @@ Searcher.prototype.getContentByUrlOrCaptcha = function (url, captcha, user_id,se
             return _this2.getCaptcha(content.html,sengine_name)
         })
         .catch(function (error) {
-            console.log(error.stack)
+            console.log('getContentByUrlOrCaptcha err', error.stack)
             throw 'getContentByUrlOrCaptcha error:' + error.toString();
         })
         .then(function (rescaptcha) {
@@ -232,7 +232,7 @@ Searcher.prototype.getCaptcha = function (raw_html,sengine_name) {
                     var retpath = parser.getTag('form[action=/checkcaptcha] input[name=retpath]')[0].attribs.value;
 //                    console.log('retpath', retpath.attribs.value);
                     console.log(-date.getTime() + (new Date().getTime()));
-                    console.log('Yandex Капча!!!!');
+
 
                     return antigate(img)
                         .then(function(res){
@@ -240,19 +240,19 @@ Searcher.prototype.getCaptcha = function (raw_html,sengine_name) {
                                 + encodeURIComponent(key) +
                                 '&retpath=' + encodeURIComponent(retpath) +
                                 '&rep=' + encodeURIComponent(res);
-//                    console.log(kaptcha);
+                            console.log('Searcher.prototype.getCaptcha Yandex Капча ', kaptcha);
                             return kaptcha;
                         })
 
                 }
-                console.log('Капча странная ');
-                throw "problems with yandexcaptcha" + tags;
+//                console.log('Капча странная ');
+                throw "Searcher.prototype.getCaptcha problems with yandexcaptcha" + tags;
                 return;
 
             }
 
             console.log(-date.getTime() + (new Date().getTime()))
-            console.log("Капчи не нашлось")
+//            console.log("Капчи не нашлось")
             return null;
         } else if (sengine_name=='Google'){
                 var tags1 = parser.getTag('form[action=CaptchaRedirect]');
@@ -266,7 +266,7 @@ Searcher.prototype.getCaptcha = function (raw_html,sengine_name) {
                         var id = parser.getTag('form[action=CaptchaRedirect] input[name=id]')[0].attribs.value;
 
                         console.log(-date.getTime() + (new Date().getTime()));
-                        console.log('Google Капча!!!!');
+//                        console.log('Searcher.prototype.getCaptcha Google Капча!!!!');
 
                         return antigate(img)
                             .then(function(res){
@@ -274,21 +274,21 @@ Searcher.prototype.getCaptcha = function (raw_html,sengine_name) {
                                     'continue=' + encodeURIComponent(continue1) +
                                     '&id=' + encodeURIComponent(id) +
                                     '&captcha=' + encodeURIComponent(res);
-//                    console.log(kaptcha);
+                                console.log('Searcher.prototype.getCaptcha Google Капча ', kaptcha);
                                 return kaptcha;
                             })
                     }
-                    console.log('Капча странная ');
-                    throw "problems with captcha" + tags;
+//                    console.log('Капча странная ');
+                    throw "Searcher.prototype.getCaptcha problems with captcha" + tags;
                     return;
 
                 }
 
                 console.log(-date.getTime() + (new Date().getTime()))
-                console.log("Капчи не нашлось")
+//                console.log("Капчи не нашлось")
                 return null;
             } else {
-                throw 'Не известный поисковик для получения капчи'
+                throw 'Searcher.prototype.getCaptcha Не известный поисковик для получения капчи'
             }
         })
         .catch(function (err) {
@@ -302,6 +302,7 @@ Searcher.prototype.antigate = function (url) {
 //    console.log('Searcher.prototype.antigate', url);
     ag.processFromURL(url, function(error, text, id) {
         if (error) {
+            console.log('Searcher.prototype.antigate err ', error);
             deferred.reject(error);
         } else {
 //            console.log('Searcher.prototype.antigate',url, text);
