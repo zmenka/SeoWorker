@@ -1,12 +1,13 @@
 function CaptchaTestCtrl ($scope, CaptchaModal, Captcha) {
     var vm = this;
         vm.state = 'Ждем команды "Начать".'
-        vm.test_url = 'http://yandex.ru/yandsearch?text=погода';
+//        vm.test_url = 'http://yandex.ru/yandsearch?text=погода';
+        vm.test_url = 'https://www.google.ru/search?q=how+to+get+captcha';
         vm.captcha = null;
         vm.cookies = null;
 
         vm.test = function () {
-            vm.state = "Посылаем запрос к яндексу"
+            vm.state = "Посылаем запрос"
             Captcha.test(vm.test_url, vm.captcha, vm.cookies)
                 .then(function (res) {
                     console.log("первый результат", res.data)

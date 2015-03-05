@@ -13,7 +13,7 @@ function Searcher() {
 Searcher.lastCallTime = new Date();
 Searcher.callInterval = 4000;
 
-Searcher.prototype.getContentByUrl = function (url, captcha, client_headers, cookies) {
+Searcher.prototype.getContentByUrl = function (url, captcha, cookies) {
     var date = new Date()
     var deferred = Q.defer();
     var diffDates = new Date().getTime() - Searcher.lastCallTime.getTime();
@@ -28,14 +28,7 @@ Searcher.prototype.getContentByUrl = function (url, captcha, client_headers, coo
     setTimeout(function () {
         Searcher.lastCallTime = new Date();
 
-        if (!url) {
-            deferred.reject("Searcher.prototype.getContentByUrl Url is empty");
-        }
 
-        //добавим http
-        if (url.indexOf("http") < 0) {
-            url = "http://" + url;
-        }
 
         console.log("searcher downloads ", url);
         var contentTypes = ["text/html", "text/plain", "text/xml", "application/json", "application/xhtml+xml"]
@@ -48,26 +41,17 @@ Searcher.prototype.getContentByUrl = function (url, captcha, client_headers, coo
             'accept-language': 'ru-RU,ru;q=0.8,en-US;q=0.6,en;q=0.4',
             'accept-charset': "ISO-8859-1,utf-8;q=0.7,*;q=0.3"
         }
-        if (client_headers) {
-            console.log("добавлены заголовки пользователя")//, client_headers);
-//            headers['connection'] = client_headers['connection'];
-//            headers['accept'] = client_headers['accept'];
-            headers['user-agent'] = client_headers['user-agent'];
-//            headers['content-type'] = client_headers['content-type'];
-//            headers['accept-encoding'] = client_headers['accept-encoding'];
-//            headers['accept-language'] = client_headers['accept-language'];
-        }
+
         var j = request.jar()
 
-        if (cookies) {
-            console.log("saved cookies", cookies)
-            for (var i in cookies) {
-                j.setCookie(cookies[i].key + "=" + cookies[i].value, url);
-            }
-        }
+//        if (cookies) {
+//            console.log("saved cookies", cookies)
+//            for (var i in cookies) {
+//                j.setCookie(cookies[i].key + "=" + cookies[i].value, url);
+//            }
+//        }
 
         var options = {
-            url: url,
             followAllRedirects: true,
             jar: j,
             timeout: 15000,
@@ -76,16 +60,20 @@ Searcher.prototype.getContentByUrl = function (url, captcha, client_headers, coo
 
         options.headers = headers;
 
-        var properties = null;
-        if (captcha && captcha.key && captcha.retpath && captcha.action && captcha.rep) {
-//            var str = String();
-//            console.log('!!!!!!!', typeof(str))
-//            str = (str).rep1ace(/amp;/g, '')
-            //properties = { 'key': encodeURIComponent(captcha.key), 'retpath': encodeURIComponent(captcha.retpath), 'rep': encodeURIComponent(captcha.rep) };
-            options.url = 'http://yandex.ru/checkcaptcha?key=' + encodeURIComponent(captcha.key) + '&retpath='
-                + encodeURIComponent(captcha.retpath) + '&rep=' + encodeURIComponent(captcha.rep);
-            console.log("ссылка на капчу ", options.url)
+        if (!url && !captcha) {
+            deferred.reject("Searcher.prototype.getContentByUrl Url and captcha is empty");
+        }
 
+        if (url){
+            //добавим http
+            if (url.indexOf("http") < 0) {
+                url = "http://" + url;
+            }
+            options.url = url;
+        }
+
+        if (captcha ){
+            options.url = captcha;
         }
 
 
@@ -173,7 +161,7 @@ function checkArrElemIsSubstr(rx, arr) {
     return -1;
 };
 
-Searcher.prototype.getContentByUrlOrCaptcha = function (url, captcha, client_headers, user_id) {
+Searcher.prototype.getContentByUrlOrCaptcha = function (url, captcha, user_id,sengine_name) {
     _this2 = this;
     var content
     return new PgUsers().get(user_id)
@@ -185,7 +173,7 @@ Searcher.prototype.getContentByUrlOrCaptcha = function (url, captcha, client_hea
             catch (err) {
                 cookies = null
             }
-            return _this2.getContentByUrl(url, captcha, client_headers, cookies)
+            return _this2.getContentByUrl(url, captcha, cookies)
         })
 
         .then(function (res) {
@@ -194,15 +182,15 @@ Searcher.prototype.getContentByUrlOrCaptcha = function (url, captcha, client_hea
         })
 
         .then(function (res) {
-            return _this2.getCaptcha(content.html)
+            return _this2.getCaptcha(url, content.html,sengine_name)
         })
         .catch(function (error) {
             console.log(error.stack)
             throw 'getContentByUrlOrCaptcha error:' + error.toString();
         })
-        .then(function (res) {
-            if (res) {
-                throw {captcha: res, cookies: content.cookies};
+        .then(function (rescaptcha) {
+            if (rescaptcha) {
+                return this.getContentByUrlOrCaptcha(null , rescaptcha, user_id);
             } else {
                 return content;
             }
@@ -211,67 +199,78 @@ Searcher.prototype.getContentByUrlOrCaptcha = function (url, captcha, client_hea
 
 }
 
-Searcher.prototype.getCaptcha = function (raw_html) {
+Searcher.prototype.getCaptcha = function (url, raw_html,sengine_name) {
     _this = this;
     var date = new Date()
     var parser = new SeoParser();
     return parser.initDomQ(raw_html)
         .then(function () {
+            if (sengine_name == 'Yandex') {
+
             var tags1 = parser.getTag('form[action=/checkcaptcha]');
             if (tags1.length > 0) {
                 var img = parser.getTag('form[action=/checkcaptcha] img');
 
                 if (img.length >= 1) {
+                    var img = img[0].attribs.src;
+
                     var key = parser.getTag('form[action=/checkcaptcha] input[name=key]');
 //                    console.log('Key', key[0].attribs.value);
                     var retpath = parser.getTag('form[action=/checkcaptcha] input[name=retpath]');
 //                    console.log('retpath', retpath.attribs.value);
+                    var rep = 'qwe';
                     console.log(-date.getTime() + (new Date().getTime()));
                     console.log('Капча!!!!');
-                    var kaptcha = {
-                        img: img[0].attribs.src,
-                        key: key[0].attribs.value,
-                        retpath: (retpath[0].attribs.value).replace(/&amp;/g, '&'),
-                        action: 'checkcaptcha'
-                    };
+                    var kaptcha = 'http://yandex.ru/checkcaptcha?key='
+                        + encodeURIComponent(key) +
+                        '&retpath=' + encodeURIComponent(retpath) +
+                        '&rep=' + encodeURIComponent(rep);
 //                    console.log(kaptcha);
                     return kaptcha;
                 }
                 console.log('Капча странная ');
-                throw "problems with captcha" + tags;
+                throw "problems with yandexcaptcha" + tags;
                 return;
+
             }
-//            var tags = parser.getByClassName('b-captcha');
-//            if (tags.length > 0) {
-//                var img = parser.getTag('.b-captcha .b-captcha__image');
-//                if (img.length == 1) {
-//                    //console.log('Img', img[0].attribs.src);
-//                    var key = parser.getTag('.b-captcha form input [name=key]');
-//                    //console.log('Key', key[0].attribs.value);
-//                    var retpath = parser.getTag('.b-captcha form input [name=retpath]');
-//                    //console.log('retpath', retpath[0].attribs.value);
-//                    var form = parser.getTag('.b-captcha form');
-//                    //console.log('form.action', form[0].attribs.action);
-//                    console.log(-date.getTime() + (new Date().getTime()))
-//                    console.log('Капча!!!!');
-//                    return (
-//                    {
-//                        img: img[0].attribs.src,
-//                        key: key[0].attribs.value,
-//                        retpath: (retpath[0].attribs.value).replace(/&amp;/g, '&'),
-//                        action: form[0].attribs.action}
-//                        )
-//                }
-//                console.log('Капча странная ');
-//                throw "problems with captcha" + tags;
-//                return;
-//            }
+
             console.log(-date.getTime() + (new Date().getTime()))
             console.log("Капчи не нашлось")
             return null;
+        } else if (sengine_name=='Google'){
+                var tags1 = parser.getTag('form[action=CaptchaRedirect]');
+                if (tags1.length > 0) {
+                    var img = parser.getTag('img');
+
+                    if (img.length >= 1 ){//&& img[0].attribs.src.substr(0,7) == '/sorry/') {
+                        var img = img[0].attribs.src;
+
+                        var continue1 = parser.getTag('form[action=CaptchaRedirect] input[name=continue]');
+                        var id = parser.getTag('form[action=CaptchaRedirect] input[name=id]');
+                        var captcha = '';
+                        console.log(-date.getTime() + (new Date().getTime()));
+                        console.log('Капча!!!!');
+                        var kaptcha = 'http://ipv4.google.com/sorry/CaptchaRedirect?"' +
+                            'continue=' + encodeURIComponent(continue1) +
+                            '&id=' + encodeURIComponent(id) +
+                            '&captcha=' + encodeURIComponent(captcha);
+                        return kaptcha;
+                    }
+                    console.log('Капча странная ');
+                    throw "problems with captcha" + tags;
+                    return;
+
+                }
+
+                console.log(-date.getTime() + (new Date().getTime()))
+                console.log("Капчи не нашлось")
+                return null;
+            } else {
+                throw 'Не известный поисковик для получения капчи'
+            }
         })
         .catch(function (err) {
-            throw "parser.initDom error " + err;
+            throw "Searcher.prototype.getCaptcha error " + err;
             return
         });
 }

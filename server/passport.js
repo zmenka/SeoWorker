@@ -44,7 +44,7 @@ module.exports = function (passport) {
                 .then(function (users) {
                     // Username does not exist, log error & redirect back
                     if (users.length!=1) {
-                        console.log('User Not Found with username ' + username);
+//                        console.log('User Not Found with username ' + username);
                         return done(null, false,
                             {'message': 'Пользователя с таким логином нет.'});
                     }
@@ -79,7 +79,7 @@ module.exports = function (passport) {
                     .then(function (users) {
                         // Username does not exist, log error & redirect back
                         if (users.length!=0) {
-                            console.log('User already exists with username ' + username);
+//                            console.log('User already exists with username ' + username);
                             return done(null, false,
                                 {'message': 'Пользователь с таким логином уже есть.'});
                         } else {

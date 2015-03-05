@@ -23,7 +23,12 @@ function Core() {
  * @param headers
  * @param user_id
  */
-Core.prototype.bg = function () {
+Core.prototype.bg = function (condition_id, user_id) {
+    try{
+        return this.calcParams(condition_id, user_id)
+    } catch (err){
+        console.log('Core.prototype.bg err',err);
+    }
     var f = function () {
         var deferred = Q.defer();
         setTimeout(function () {
@@ -38,7 +43,7 @@ Core.prototype.bg = function () {
     })
 
 }
-Core.prototype.calcParams = function (condition_id, captcha, headers, user_id) {
+Core.prototype.calcParams = function (condition_id, user_id) {
     _this3 = this;
     var condition;
     return new PgConditions().getWithSengines(condition_id)
@@ -61,7 +66,7 @@ Core.prototype.calcParams = function (condition_id, captcha, headers, user_id) {
             return new PgSearch().insert(condition_id)
                 .then(function (search_id) {
                     //массив объектов {spage_id: <>,start<>, links: {url: <>, title: <>}[]}[]
-                    return _this3.getLinksFromSearcher(search_objects, search_id, captcha, headers, user_id)
+                    return _this3.getLinksFromSearcher(search_objects, search_id, user_id, condition.sengine_name)
                 })
         })
         .then(function (links_obj) {
@@ -89,7 +94,7 @@ Core.prototype.calcParams = function (condition_id, captcha, headers, user_id) {
  * @param user_id
  * @returns {spage_id: <>,start<>, links: {url: <>, title: <>}[]}[]
  */
-Core.prototype.getLinksFromSearcher = function (search_objects, search_id, captcha, headers, user_id) {
+Core.prototype.getLinksFromSearcher = function (search_objects, search_id, user_id,sengine_name) {
     var result = []
     // create an empty promise to begin the chain
     var promise_chain = Q.fcall(function () {
@@ -104,7 +109,7 @@ Core.prototype.getLinksFromSearcher = function (search_objects, search_id, captc
                 var spage_id;
                 console.log("сейчас обрабатывается поисковая ссылка ", search_object)
 
-                return new Searcher().getContentByUrlOrCaptcha(search_object.url, captcha, headers, user_id)
+                return new Searcher().getContentByUrlOrCaptcha(search_object.url, null, user_id,sengine_name)
                     .then(function (res) {
                         raw_html = res.html;
                         return new PgHtmls().insertWithUrl(raw_html, search_object.url)
