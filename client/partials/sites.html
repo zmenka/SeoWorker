@@ -1,13 +1,14 @@
 <div class="container" ng-controller="SitesCtrl as vm">
     <div class="left_bar "
-         ng-mouseenter="vm.showAside()">
-        <span class="glyphicon glyphicon-share-alt left_bar_icon" style="font-size: 25px;"></span>
+         ng-mouseover="vm.showAside();" ng-click="vm.showAside();"
+           ng-mouseleave="vm.asideLoading = false;">
+        <span ng-hide="vm.asideLoading" class="glyphicon glyphicon-share-alt left_bar_icon" style="font-size: 25px;"></span>
+        <span ng-show="vm.asideLoading" class="spinner-small left_bar_icon" ></span>
     </div>
 
     <span ng-show="vm.loading" class="spinner"></span>
 
     <div class="row">
-
         <div class="col-xs-12" style="margin-top: 10px; margin-bottom: 10px; min-width: 750px;" >
             <div class=""  style="  margin-bottom: 0;padding: 5px;
             border: 1px solid  #ddd; border-radius: 4px;

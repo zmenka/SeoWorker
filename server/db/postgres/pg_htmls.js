@@ -76,7 +76,8 @@ PgHtmls.prototype.insert = function (html, url_id, callback, errback) {
 }
 
 PgHtmls.prototype.insertWithUrl = function (html, url) {
-
+    // пока убираем html чтоб не пухла база
+    html = "";
     var date_create = new Date();
     // create a Url
     var db;

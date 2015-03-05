@@ -1,7 +1,10 @@
-function SitesCtrl ($scope, $rootScope, $alert, $aside, Api) {
+function SitesCtrl ($scope, $rootScope, $alert, $aside, $timeout,  Api) {
+
+
     var vm = this;
     vm.myAside = null;
-    vm.showAside = showAside;
+    vm.showAside = showAside1;
+    vm.asideLoading = false;
     vm.loading = false;
     vm.sites = [];
     vm.site = null;
@@ -9,7 +12,6 @@ function SitesCtrl ($scope, $rootScope, $alert, $aside, Api) {
     vm.calcSiteParams = calcSiteParams;
     vm.selectParam = selectParam;
     vm.data = {};
-
 
     vm.options = {
         chart: {
@@ -38,20 +40,38 @@ function SitesCtrl ($scope, $rootScope, $alert, $aside, Api) {
 
     load();
 
+    function showAside1() {
+        vm.asideLoading = true;
+        $timeout(function () {
+            showAside();
+        });
+    }
 
     function showAside(){
         if (vm.myAside){
 //            console.log("OLD");
-            vm.myAside.show();
+            var d = new Date();
+
+            vm.myAside.$promise.then(function() {
+                vm.myAside.show();
+            })
+
         } else{
             if (vm.sites && vm.sites.length){
                 //            console.log("NEW");
                 var scope = $rootScope.$new();
                 scope.sites = vm.sites;
                 scope.nodeselect = selectSite;
+
+                scope.$on('onAsideFinishRender', function (ngRepeatFinishedEvent) {
+                    vm.asideLoading = false;
+                    console.log("onAsideFinishRender");
+
+                });
                 vm.myAside = $aside({scope: scope, show: true,
                     placement: "left", animation: "fade-and-slide-left",
                     template: 'partials/sites_aside_template.html'});
+
             }
 
         }
@@ -66,6 +86,7 @@ function SitesCtrl ($scope, $rootScope, $alert, $aside, Api) {
                 vm.myAside.hide();
             }
             vm.getParams();
+            vm.asideLoading = false;
         }
 
     }
@@ -85,7 +106,7 @@ function SitesCtrl ($scope, $rootScope, $alert, $aside, Api) {
                 console.log("load Api.user_sites_and_tasks ", res);
                 vm.sites = res.data;
                 vm.loading = false;
-                vm.showAside();
+//                vm.showAside();
             })
             .catch(function (err) {
                 console.log('load Api.user_sites_and_tasks err ', err);
