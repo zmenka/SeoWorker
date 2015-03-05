@@ -97,7 +97,7 @@ Searcher.prototype.getContentByUrl = function (url, captcha, cookies) {
                     deferred.reject('Searcher.prototype.getContentByUrl Мы не знаем такой content type: ' + response.headers['content-type']);
                 }
                 var encoding = response.headers['content-encoding'];
-                console.log("encoding", encoding)
+//                console.log("encoding", encoding)
                 if (encoding == 'gzip') {
 
                     zlib.gunzip(body, function (err, decoded) {

@@ -146,7 +146,7 @@ PgConditions.prototype.getLastNotSearchedRandomConditionId = function (range, da
             "group by condition_id, date_create " +
             "order by condition_id,date_create desc " +
             ") as s on s.condition_id=t.condition_id " +
-            "where s.date_create < '" +  date_old.toISOString() + "' " +
+            "where s.date_create < '" +  dateOld.toISOString() + "' " +
             "order by t.date_create " +
             "OFFSET random()*$1 LIMIT 1;",
         [range]

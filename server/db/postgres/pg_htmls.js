@@ -105,7 +105,7 @@ PgHtmls.prototype.insertWithUrl = function (html, url) {
 
             }
             else {
-                console.log("такой урл уже был ",urls[0].url )
+//                console.log("такой урл уже был ",urls[0].url )
                 return urls[0].url_id
             }
         })

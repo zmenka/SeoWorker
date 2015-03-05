@@ -24,24 +24,24 @@ function Core() {
  * @param user_id
  */
 Core.prototype.bg = function () {
-    function f() {
-        try {
-            return new PgConditions().getLastNotSearchedRandomConditionId(10, new Date())
-                .then(function (condition_id) {
-                    if (condition_id) {
-                        console.log('Core.prototype.bg START condition_id ', condition_id)
-                        return this.calcParams(condition_id, 1)
-                    } else {
-                        console.log('Core.prototype.bg condition_id EMPTY');
-                    }
-                })
-                .then(function (res) {
-                    return  f();
-                })
+    var calcParams = this.calcParams;
 
-        } catch (err) {
-            console.log('Core.prototype.bg err', err);
-        }
+    function f() {
+        return new PgConditions().getLastNotSearchedRandomConditionId(10, new Date())
+            .then(function (condition_id) {
+                if (condition_id) {
+                    console.log('Core.prototype.bg START condition_id ', condition_id)
+                    return calcParams(condition_id["condition_id"], 1)
+                } else {
+                    console.log('Core.prototype.bg condition_id EMPTY');
+                }
+            })
+            .catch(function (err) {
+                console.log('Core.prototype.bg err', err);
+            })
+            .then(function (res) {
+                return  f();
+            })
     }
 
     return f();
@@ -50,6 +50,10 @@ Core.prototype.bg = function () {
 Core.prototype.calcParams = function (condition_id, user_id) {
     _this3 = this;
     var condition;
+    var search_objects
+    var getLinksFromSearcher = Core.prototype.getLinksFromSearcher;
+    var calcLinksParams = Core.prototype.calcLinksParams;
+
     return new PgConditions().getWithSengines(condition_id)
         .then(function (condition_res) {
             condition = condition_res
@@ -58,17 +62,17 @@ Core.prototype.calcParams = function (condition_id, user_id) {
             }
 
             //Формируется массив объектов {page:<>, url:<>, sengine:<>} для поиска
-            var search_objects = new SearcherType().getSearchUrls(condition)
+            search_objects = new SearcherType().getSearchUrls(condition)
 //            console.log("урлы для поиска: ", search_objects)
             return new PgSearch().insert(condition_id)
         })
         .then(function (search_id) {
             //массив объектов {spage_id: <>,start<>, links: {url: <>, title: <>}[]}[]
-            return _this3.getLinksFromSearcher(search_objects, search_id, user_id, condition.sengine_name)
+            return getLinksFromSearcher(search_objects, search_id, user_id, condition.sengine_name)
 
         })
         .then(function (links_obj) {
-            return _this3.calcLinksParams(links_obj, condition_id, condition.condition_query)
+            return calcLinksParams(links_obj, condition_id, condition.condition_query)
         })
         .then(function (res) {
             console.log('Core.prototype.calcParams done');

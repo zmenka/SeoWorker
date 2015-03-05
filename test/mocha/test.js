@@ -22,7 +22,11 @@ describe('TestCaptcha', function(){
         it('should return content', function(){
 
             var core = require("../../server/core")
-            return new core().bg(5, 1)
+            return new core().bg()
+                .then(function(res){
+                    console.log(res);
+
+                })
 
 
         })

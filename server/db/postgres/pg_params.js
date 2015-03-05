@@ -54,7 +54,7 @@ PgParams.prototype.insert = function (condition_id, html_id, param) {
                 [], true)
         })
         .then(function (res) {
-            console.log("PgParams saved")
+            console.log("PgParams.prototype.insert")
             return res.rows[0].currval;
         })
 
