@@ -40,7 +40,7 @@ SeoFormat.prototype.createSiteTree = function (sites) {
         } else {
             page = new TaskTreeNode();
             page.create(site.url, true,
-                {title: site.url, usurl_id: site.usurl_id, url_id: site.url_id}, 'page');
+                {title: site.url, usurl_id: site.usurl_id, url_id: site.url_id,url: site.url}, 'page');
             domenNode.nodes.push(page);
         }
 
@@ -49,6 +49,7 @@ SeoFormat.prototype.createSiteTree = function (sites) {
             task.create(site.condition_query, true,
                 {title: site.condition_query, usurl_id: site.usurl_id, url_id: site.url_id, task_id: site.task_id, url: site.url,
                     condition_id: site.condition_id, condition_query: site.condition_query, sengine_name: site.sengine_name,
+                    sengine_id: site.sengine_id,
                     region: site.region, size_search: site.size_search},
                 'task')
             page.nodes.push(task);

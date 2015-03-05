@@ -14,7 +14,7 @@ function SitesCtrl ($scope, $rootScope, $alert, $aside, Api) {
     vm.options = {
         chart: {
             type: 'lineChart',
-            height: '350',
+//            height: '350',
             x: function(d){ return d[0]; },
             y: function(d){ return d[1]; },
             xAxis: {
@@ -88,7 +88,7 @@ function SitesCtrl ($scope, $rootScope, $alert, $aside, Api) {
                 vm.showAside();
             })
             .catch(function (err) {
-                console.log('load Api.user_sites_and_tasks ', err);
+                console.log('load Api.user_sites_and_tasks err ', err);
                 vm.sites = [];
                 vm.loading = false;
                 $alert({title: 'Внимание!', content: "Ошибка при получении списка сайтов"
@@ -123,7 +123,7 @@ function SitesCtrl ($scope, $rootScope, $alert, $aside, Api) {
                 vm.loading = false;
             })
             .catch(function (err) {
-                console.log('getParams Api.get_params ', err);
+                console.log('getParams Api.get_params err ', err);
                 vm.loading = false;
 
                 $alert({title: 'Внимание!', content: "Параметры не получены: " + err.data,
@@ -152,7 +152,7 @@ function SitesCtrl ($scope, $rootScope, $alert, $aside, Api) {
                 });
             })
             .then(function (res) {
-                console.log("calcSiteParams Api.calc_site_params", res);
+                console.log("calcSiteParams Api.calc_site_params err", res);
                 vm.loading = false;
                 vm.getParams();
             })

@@ -24,15 +24,7 @@ html, body {
 }
 
 .app-content {
-    /*  position: fixed;
-      top: 70px;
-      bottom: 30px;
-      width: 100%;
-      height: auto;
-      overflow: auto;
-
-      */
-    min-width: 100%;
+    min-width: 700px;
     min-height: 100%;
 
     padding-top: 70px;
@@ -50,6 +42,10 @@ html, body {
 
 .app-padding-none {
     padding: 0px
+}
+
+.alert.top{
+    top: 60px;
 }
 
 table.sites {
@@ -161,6 +157,12 @@ table.sites td {
 
 .site-label{
     font-size: 15px;
+}
+
+.site-name{
+    padding-top: 5px;text-shadow: 0 1px 0 rgba(0, 0, 0, .1); font-weight: bold; font-size: 15px; color: #6E6565;
+    flex: 1;
+    display: flex;
 }
 
 .aside .aside-dialog .aside-header {

@@ -59,7 +59,7 @@ seoApp.config(["$stateProvider", "$urlRouterProvider",
             .state('main.login', {
                 url: 'login',
                 templateUrl: 'partials/login.html',
-                authenticate: false
+                authenticate: true
             })
             .state('main.register', {
                 url: 'register',
@@ -83,10 +83,12 @@ seoApp.config(["$stateProvider", "$urlRouterProvider",
 
     }]);
 
-seoApp.run(['$rootScope', '$location', '$window', 'Authenticate',
-    function ($rootScope, $location, $window, Authenticate) {
-        $rootScope.$on("$routeChangeStart", function (event, next, current) {
-            console.log(Authenticate.isAuthenticated)
+seoApp.run(['$rootScope', '$state',  'Authenticate',
+    function ($rootScope, $state, Authenticate) {
+        $rootScope.$on('$stateChangeStart',
+            function(event, toState, toParams, fromState, fromParams){
+//                console.log('isAuthenticated', Authenticate.isAuthenticated)
+
             if (Authenticate.isAuthenticated == null ) {
                 Authenticate.initAuth()
                     .then(function (result) {
@@ -96,26 +98,30 @@ seoApp.run(['$rootScope', '$location', '$window', 'Authenticate',
                             Authenticate.isAuthenticated = false;
                         }
 
-                        console.log("Authenticate.isAuthenticated", Authenticate.isAuthenticated)
+                        console.log("Authenticate.initAuth ", Authenticate.isAuthenticated)
 
 
                     }).catch(function (err) {
                         Authenticate.isAuthenticated = false;
-                        console.log("initAuth error ", err)
+                        console.log("Authenticate.initAuth error ", err)
                     })
                     .then(function () {
-                        console.log("$routeChangeStart init ", next.authenticate, Authenticate.isAuthenticated)
-                        if ((typeof(next.authenticate) === "undefined" || next.authenticate) && Authenticate.isAuthenticated == false) {
-                            console.log("redirect to login")
-                            $location.path("/login");
+                        console.log("stateChangeStart init ", toState.authenticate, Authenticate.isAuthenticated)
+                        if ((typeof(toState.authenticate) === "undefined" || toState.authenticate) && Authenticate.isAuthenticated == false) {
+                            console.log("redirect to login");
+                            $state.go('main.login');
                         }
                     })
             } else {
-                console.log("$routeChangeStart", next.authenticate, Authenticate.isAuthenticated)
-                if ((typeof(next.authenticate) === "undefined" || next.authenticate)
-                    && !Authenticate.isAuthenticated) {
-                    console.log("redirect to login")
-                    $location.path("/login");
+                console.log("stateChangeStart", toState, Authenticate.isAuthenticated)
+                if (toState.url == 'login'){
+                    return;
+                }
+                if (toState.authenticate   && !Authenticate.isAuthenticated) {
+                    console.log("redirect to login");
+
+                    $state.go('main.login');
+                    console.log($state);
                 }
             }
         })

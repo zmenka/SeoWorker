@@ -64,7 +64,7 @@
                 </li>
                 <li><a ui-sref="main.settings">Настройки</a></li>
             </ul>
-            <ul class="nav navbar-nav navbar-right">
+            <ul class="nav navbar-nav navbar-right" ng-controller="MainCtrl as MainCtrl">
                 <li>
                     <a ng-hide="MainCtrl.isSignedIn()" ui-sref="main.login">Войти
                         <span class="glyphicon glyphicon-log-in" style="top: 3px;"></span>
@@ -83,6 +83,7 @@
 </nav>
 
 <div class="app-content" >
+    <div class="alerts-container" ></div>
     <div  ui-view></div>
 </div>
 
