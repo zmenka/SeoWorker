@@ -109,7 +109,7 @@ Core.prototype.getLinksFromSearcher = function (search_objects, search_id, user_
                 var spage_id;
                 console.log("сейчас обрабатывается поисковая ссылка ", search_object)
 
-                return new Searcher().getContentByUrlOrCaptcha(search_object.url, null, user_id,sengine_name)
+                return new Searcher().getContentByUrlOrCaptcha(search_object.url, null, user_id,sengine_name, true)
                     .then(function (res) {
                         raw_html = res.html;
                         return new PgHtmls().insertWithUrl(raw_html, search_object.url)

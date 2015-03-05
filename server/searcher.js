@@ -6,6 +6,9 @@ var PgUsers = require('./db/postgres/pg_users')
 var zlib = require('zlib');
 var Q = require('q')
 var he = require('he');
+var Antigate = require('antigate');
+var config = require('./config')
+var ag = new Antigate(config.antigate_key);
 function Searcher() {
     //console.log('searcher init');
 };
@@ -42,18 +45,8 @@ Searcher.prototype.getContentByUrl = function (url, captcha, cookies) {
             'accept-charset': "ISO-8859-1,utf-8;q=0.7,*;q=0.3"
         }
 
-        var j = request.jar()
-
-//        if (cookies) {
-//            console.log("saved cookies", cookies)
-//            for (var i in cookies) {
-//                j.setCookie(cookies[i].key + "=" + cookies[i].value, url);
-//            }
-//        }
-
         var options = {
             followAllRedirects: true,
-            jar: j,
             timeout: 15000,
             encoding: null
         };
@@ -76,6 +69,16 @@ Searcher.prototype.getContentByUrl = function (url, captcha, cookies) {
             options.url = captcha;
         }
 
+        var j = request.jar()
+
+        if (cookies) {
+            console.log("saved cookies", cookies)
+            for (var i in cookies) {
+                j.setCookie(cookies[i].key + "=" + cookies[i].value, options.url);
+            }
+        }
+        options.jar = j;
+
 
 //        j.setCookie("spravka=dD0xMzg0NTY3MDQ1O2k9MTg4LjIyNi4yLjE4Mjt1PTEzODQ1NjcwNDU5NzA5MDI3NzM7aD0zYjIxYmFlZGNmZjI3YTlmMzA5MjU0YTRhZWY5N2FiOA==; Expires=Tue, 16 Dec 2014 01:57:25 GMT; Domain=yandex.ru; Path=/; hostOnly=false; aAge=0ms; cAge=101ms", options.url)
 //        j.setCookie("yandexuid=8076791051416103211; Expires=Wed, 13 Nov 2024 02:00:11 GMT; Domain=yandex.ru; Path=/; hostOnly=false; aAge=0ms; cAge=155ms", options.url)
@@ -90,7 +93,7 @@ Searcher.prototype.getContentByUrl = function (url, captcha, cookies) {
                 console.log("cookies", cookies)
 
 
-                if (checkArrElemIsSubstr(response.headers['content-type'], contentTypes) == -1) {
+                if (response.headers['content-type'] && checkArrElemIsSubstr(response.headers['content-type'], contentTypes) == -1) {
                     deferred.reject('Searcher.prototype.getContentByUrl Мы не знаем такой content type: ' + response.headers['content-type']);
                 }
                 var encoding = response.headers['content-encoding'];
@@ -147,6 +150,7 @@ function responseDecode(response, body) {
 
         }
     }
+
     return he.decode(body.toString());
 }
 
@@ -161,7 +165,7 @@ function checkArrElemIsSubstr(rx, arr) {
     return -1;
 };
 
-Searcher.prototype.getContentByUrlOrCaptcha = function (url, captcha, user_id,sengine_name) {
+Searcher.prototype.getContentByUrlOrCaptcha = function (url, captcha, user_id,sengine_name, restart) {
     _this2 = this;
     var content
     return new PgUsers().get(user_id)
@@ -182,7 +186,7 @@ Searcher.prototype.getContentByUrlOrCaptcha = function (url, captcha, user_id,se
         })
 
         .then(function (res) {
-            return _this2.getCaptcha(url, content.html,sengine_name)
+            return _this2.getCaptcha(content.html,sengine_name)
         })
         .catch(function (error) {
             console.log(error.stack)
@@ -190,7 +194,12 @@ Searcher.prototype.getContentByUrlOrCaptcha = function (url, captcha, user_id,se
         })
         .then(function (rescaptcha) {
             if (rescaptcha) {
-                return this.getContentByUrlOrCaptcha(null , rescaptcha, user_id);
+                if (restart){
+                    return _this2.getContentByUrlOrCaptcha(null , rescaptcha, user_id, sengine_name, false);
+                } else {
+                    throw 'Searcher.prototype.getContentByUrlOrCaptcha получили капчу опять!'
+                }
+
             } else {
                 return content;
             }
@@ -199,10 +208,14 @@ Searcher.prototype.getContentByUrlOrCaptcha = function (url, captcha, user_id,se
 
 }
 
-Searcher.prototype.getCaptcha = function (url, raw_html,sengine_name) {
+Searcher.prototype.getCaptcha = function (raw_html,sengine_name) {
     _this = this;
+    if (!raw_html){
+        throw 'Searcher.prototype.getCaptcha Не получено содержимой страницы!';
+    }
     var date = new Date()
     var parser = new SeoParser();
+    var antigate = _this.antigate;
     return parser.initDomQ(raw_html)
         .then(function () {
             if (sengine_name == 'Yandex') {
@@ -214,19 +227,23 @@ Searcher.prototype.getCaptcha = function (url, raw_html,sengine_name) {
                 if (img.length >= 1) {
                     var img = img[0].attribs.src;
 
-                    var key = parser.getTag('form[action=/checkcaptcha] input[name=key]');
+                    var key = parser.getTag('form[action=/checkcaptcha] input[name=key]')[0].attribs.value;
 //                    console.log('Key', key[0].attribs.value);
-                    var retpath = parser.getTag('form[action=/checkcaptcha] input[name=retpath]');
+                    var retpath = parser.getTag('form[action=/checkcaptcha] input[name=retpath]')[0].attribs.value;
 //                    console.log('retpath', retpath.attribs.value);
-                    var rep = 'qwe';
                     console.log(-date.getTime() + (new Date().getTime()));
-                    console.log('Капча!!!!');
-                    var kaptcha = 'http://yandex.ru/checkcaptcha?key='
-                        + encodeURIComponent(key) +
-                        '&retpath=' + encodeURIComponent(retpath) +
-                        '&rep=' + encodeURIComponent(rep);
+                    console.log('Yandex Капча!!!!');
+
+                    return antigate(img)
+                        .then(function(res){
+                            var kaptcha = 'http://yandex.ru/checkcaptcha?key='
+                                + encodeURIComponent(key) +
+                                '&retpath=' + encodeURIComponent(retpath) +
+                                '&rep=' + encodeURIComponent(res);
 //                    console.log(kaptcha);
-                    return kaptcha;
+                            return kaptcha;
+                        })
+
                 }
                 console.log('Капча странная ');
                 throw "problems with yandexcaptcha" + tags;
@@ -245,16 +262,21 @@ Searcher.prototype.getCaptcha = function (url, raw_html,sengine_name) {
                     if (img.length >= 1 ){//&& img[0].attribs.src.substr(0,7) == '/sorry/') {
                         var img = img[0].attribs.src;
 
-                        var continue1 = parser.getTag('form[action=CaptchaRedirect] input[name=continue]');
-                        var id = parser.getTag('form[action=CaptchaRedirect] input[name=id]');
-                        var captcha = '';
+                        var continue1 = parser.getTag('form[action=CaptchaRedirect] input[name=continue]')[0].attribs.value;
+                        var id = parser.getTag('form[action=CaptchaRedirect] input[name=id]')[0].attribs.value;
+
                         console.log(-date.getTime() + (new Date().getTime()));
-                        console.log('Капча!!!!');
-                        var kaptcha = 'http://ipv4.google.com/sorry/CaptchaRedirect?"' +
-                            'continue=' + encodeURIComponent(continue1) +
-                            '&id=' + encodeURIComponent(id) +
-                            '&captcha=' + encodeURIComponent(captcha);
-                        return kaptcha;
+                        console.log('Google Капча!!!!');
+
+                        return antigate(img)
+                            .then(function(res){
+                                var kaptcha = 'http://ipv4.google.com/sorry/CaptchaRedirect?"' +
+                                    'continue=' + encodeURIComponent(continue1) +
+                                    '&id=' + encodeURIComponent(id) +
+                                    '&captcha=' + encodeURIComponent(res);
+//                    console.log(kaptcha);
+                                return kaptcha;
+                            })
                     }
                     console.log('Капча странная ');
                     throw "problems with captcha" + tags;
@@ -273,6 +295,32 @@ Searcher.prototype.getCaptcha = function (url, raw_html,sengine_name) {
             throw "Searcher.prototype.getCaptcha error " + err;
             return
         });
+}
+
+Searcher.prototype.antigate = function (url) {
+    var deferred = Q.defer();
+//    console.log('Searcher.prototype.antigate', url);
+    ag.processFromURL(url, function(error, text, id) {
+        if (error) {
+            deferred.reject(error);
+        } else {
+//            console.log('Searcher.prototype.antigate',url, text);
+            deferred.resolve(text);
+        }
+    });
+    return deferred.promise;
+}
+
+Searcher.prototype.antigateBalance = function (url) {
+    var deferred = Q.defer();
+    ag.getBalance(function(error, balance) {
+        if (error) {
+            deferred.reject(error);
+        } else {
+            deferred.resolve(balance);
+        }
+    });
+    return deferred.promise;
 }
 
 module.exports = Searcher;

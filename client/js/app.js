@@ -76,10 +76,10 @@ seoApp.config(["$stateProvider", "$urlRouterProvider",
                 templateUrl: 'partials/users.html',
                 authenticate: true
             })
-            .when('main.captcha_test', {
-                templateUrl: 'partials/captchatest.html',
-                authenticate: false
-            })
+//            .state('main.captcha_test', {
+//                templateUrl: 'partials/captchatest.html',
+//                authenticate: false
+//            })
 
     }]);
 
