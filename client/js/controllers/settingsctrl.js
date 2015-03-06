@@ -117,8 +117,7 @@ function SettingsCtrl ($scope, $alert, Api) {
 
         function selectSettings (node) {
             vm.site = node;
-
-//            console.log("select", vm.site)
+            console.log("selectSettings", node);
 
         };
 

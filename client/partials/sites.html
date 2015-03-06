@@ -3,7 +3,7 @@
          ng-mouseover="vm.showAside();" ng-click="vm.showAside();"
            ng-mouseleave="vm.asideLoading = false;">
         <span ng-hide="vm.asideLoading" class="glyphicon glyphicon-share-alt left_bar_icon" style="font-size: 25px;"></span>
-        <span ng-show="vm.asideLoading" class="spinner-small left_bar_icon" ></span>
+        <div ng-show="vm.asideLoading" class="spinner-small left_bar_icon" ></div>
     </div>
 
     <span ng-show="vm.loading" class="spinner"></span>

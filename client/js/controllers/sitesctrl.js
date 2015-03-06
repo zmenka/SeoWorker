@@ -41,6 +41,7 @@ function SitesCtrl ($scope, $rootScope, $alert, $aside, $timeout,  Api) {
     load();
 
     function showAside1() {
+        $rootScope.treeLoading = true;
         vm.asideLoading = true;
         $timeout(function () {
             showAside();
@@ -63,7 +64,9 @@ function SitesCtrl ($scope, $rootScope, $alert, $aside, $timeout,  Api) {
                 scope.sites = vm.sites;
                 scope.nodeselect = selectSite;
 
-                scope.$on('onAsideFinishRender', function (ngRepeatFinishedEvent) {
+
+                $rootScope.$on('onAsideFinishRender', function (ngRepeatFinishedEvent) {
+                    $rootScope.treeLoading = false;
                     vm.asideLoading = false;
                     console.log("onAsideFinishRender");
 
@@ -79,7 +82,7 @@ function SitesCtrl ($scope, $rootScope, $alert, $aside, $timeout,  Api) {
     }
 
     function selectSite(node) {
-//        console.log("selectSite", node);
+        console.log("selectSite", node);
         if (node.type == 'task'){
             vm.site = node;
             if (vm.myAside){
@@ -92,7 +95,7 @@ function SitesCtrl ($scope, $rootScope, $alert, $aside, $timeout,  Api) {
     }
 
     function selectParam(node) {
-//        console.log("selectParam", node);
+        console.log("selectParam", node);
         if (node.type == 'key'){
             vm.data.chartValue = node.data.values;
         }
