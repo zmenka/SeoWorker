@@ -143,6 +143,7 @@ PgConditions.prototype.getLastNotSearchedRandomTask = function (range, dateOld){
             "INNER join usurls uu on uu.usurl_id=t.usurl_id " +
             "INNER join urls u on uu.url_id=u.url_id " +
             "where t.date_calc is null or t.date_calc < '" +  dateOld.toISOString().substr(0,10) + "' " +
+            "order by t.task_id desc " +
             "OFFSET random()*$1 LIMIT 1;",
         [range]
     )
