@@ -20,7 +20,7 @@ function AuthCtrl($scope, $state, $alert, Authenticate) {
             .success(function (data, status, header) {
                 console.log("$scope.login ", data)
                 Authenticate.isAuthenticated = true
-                $state.go("main.promotion");
+                $state.go("main.promotion.chart");
             }).error(function (data) {
                 console.log("$scope.login error ", data)
                 if (data.message) {

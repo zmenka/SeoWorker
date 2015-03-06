@@ -106,7 +106,7 @@ function SitesCtrl ($scope, $rootScope, $alert, $aside, $timeout,  Api) {
                 console.log("load Api.user_sites_and_tasks ", res);
                 vm.sites = res.data;
                 vm.loading = false;
-//                vm.showAside();
+                vm.showAside();
             })
             .catch(function (err) {
                 console.log('load Api.user_sites_and_tasks err ', err);
