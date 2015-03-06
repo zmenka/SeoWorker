@@ -61,8 +61,8 @@ Diagram.prototype.getParamsDiagram = function (params,siteParams) {
             //получаем y коридора
             var kD = 0.5; //кол-во дисперсий в радиусе коридора
             var radius = kD * mathstat.D;
-            var yk1 = mathstat.M - radius;
-            var yk2 = mathstat.M + radius;
+            var yk1 = (mathstat.M - radius) > 0 ? (mathstat.M - radius) : 0;
+            var yk2 = (mathstat.M + radius) > 0 ? (mathstat.M + radius) : 0;
             yk1 = yk1.toFixed(2);
             yk2 = yk2.toFixed(2);
             //увет графика
