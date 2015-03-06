@@ -150,7 +150,7 @@ function SitesCtrl ($scope, $rootScope, $alert, $aside, $timeout,  Api) {
                 console.log('getParams Api.get_params err ', err);
                 vm.loading = false;
 
-                $alert({title: 'Внимание!', content: "Параметры не получены " + + (err.data ? ": " + err.data : "!"),
+                $alert({title: 'Внимание!', content: "Параметры не получены " + (err.data ? ": " + err.data : "!"),
                     placement: 'top', type: 'danger', show: true,
                     duration: '3',
                     container: '.alerts-container'

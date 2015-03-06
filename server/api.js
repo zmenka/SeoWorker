@@ -212,7 +212,7 @@ module.exports = function Api(app, passport) {
                 return new PgSearch().siteWithParams(req.body.url_id, req.body.condition_id)
             })
             .then(function (site_params) {
-                if (site_params || site_params.length==0){
+                if (!site_params || site_params.length==0){
                     console.log('new PgSearch().siteWithParams empty params!')
                     errback('Параметры сайта еще не расчитаны.', res);
                 }
