@@ -29,12 +29,12 @@ seoServices.factory('Api', ['$http',
 //                    condition_query: condition_query, sengine_id:sengine_id,
 //                    region: region, size_search: size_search});
 //            },
-            calc_params: function ( url, condition_id) {
-                return $http.post('/api/calc_params', {url: url, condition_id: condition_id});
-            },
-//            calc_site_params: function ( url, condition_id) {
-//                return $http.post('/api/calc_site_params', {url: url, condition_id: condition_id});
+//            calc_params: function ( url, condition_id) {
+//                return $http.post('/api/calc_params', {url: url, condition_id: condition_id});
 //            },
+            calc_site_params: function ( url, condition_id) {
+                return $http.post('/api/calc_site_params', {url: url, condition_id: condition_id});
+            },
             get_params: function (url_id, condition_id) {
                 return $http.post('/api/get_params', {url_id: url_id, condition_id: condition_id});
             }
