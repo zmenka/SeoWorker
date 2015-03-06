@@ -90,6 +90,7 @@ Diagram.prototype.getParamsDiagram = function (params,siteParams) {
 }
 
 Diagram.prototype.getTreeParamsDiagram = function (params) {
+
     if (!params || params.length == 0 ) {
         return null;
     }
@@ -112,6 +113,7 @@ Diagram.prototype.getTreeParamsDiagram = function (params) {
         var keyPar = new TaskTreeNode();
         keyPar.create(params[key].key, true, params[key], 'key');
         node.nodes.push(keyPar);
+        console.log('keyPar',keyPar);
     }
     return tree;
 

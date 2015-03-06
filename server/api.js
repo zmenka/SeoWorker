@@ -205,10 +205,17 @@ module.exports = function Api(app, passport) {
         new PgSearch().listWithParams(req.body.condition_id)
             .then(function (params_res) {
                 paramsDirty = params_res;
+                if (!params_res || params_res.length==0){
+                    console.log('new PgSearch().listWithParams empty params!')
+                    errback('Параметры выборки еще не расчитаны.', res);
+                }
                 return new PgSearch().siteWithParams(req.body.url_id, req.body.condition_id)
-                return null
             })
             .then(function (site_params) {
+                if (site_params || site_params.length==0){
+                    console.log('new PgSearch().siteWithParams empty params!')
+                    errback('Параметры сайта еще не расчитаны.', res);
+                }
                 SF = new SeoFormat();
                 diagram = new Diagram();
                 //форматируем данные
@@ -226,6 +233,7 @@ module.exports = function Api(app, passport) {
                 if (site_params && site_params.length) {
                     siteUpdateDate = site_params[0].date_create;
                 }
+
                 //возвращаем
                 callback({
                     paramsDiagram: paramsTree,

@@ -150,7 +150,7 @@ function SitesCtrl ($scope, $rootScope, $alert, $aside, $timeout,  Api) {
                 console.log('getParams Api.get_params err ', err);
                 vm.loading = false;
 
-                $alert({title: 'Внимание!', content: "Параметры не получены: " + err.data,
+                $alert({title: 'Внимание!', content: "Параметры не получены " + + (err.data ? ": " + err.data : "!"),
                     placement: 'top', type: 'danger', show: true,
                     duration: '3',
                     container: '.alerts-container'
@@ -168,7 +168,7 @@ function SitesCtrl ($scope, $rootScope, $alert, $aside, $timeout,  Api) {
 //        Api.calc_site_params(vm.site.data.url, vm.site.data.condition_id)
             .catch(function (err) {
                 console.log("calcSiteParams Api.calc_site_params ", err)
-                $alert({title: 'Внимание!', content: "Параметры страницы не пересчитаны "
+                $alert({title: 'Внимание!', content: "Параметры страницы не получены "
                         + (err.data ? ": " + err.data : "!"),
                     placement: 'top', type: 'danger', show: true,
                     duration: '3',

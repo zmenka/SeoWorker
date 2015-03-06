@@ -5,6 +5,7 @@ var PgHtmls = require("./db/postgres/pg_htmls");
 var PgSpages = require("./db/postgres/pg_spages");
 var PgParams = require("./db/postgres/pg_params");
 var PgSengines = require("./db/postgres/pg_sengines");
+var PgTasks = require("./db/postgres/pg_tasks")
 
 var Searcher = require("./searcher");
 var SearcherType = require("./searcher_type");
@@ -25,13 +26,20 @@ function Core() {
  */
 Core.prototype.bg = function () {
     var calcParams = this.calcParams;
+    var calcSiteParams = this.calcParamsByUrl;
 
     function f() {
-        return new PgConditions().getLastNotSearchedRandomConditionId(10, new Date())
-            .then(function (condition_id) {
-                if (condition_id) {
-                    console.log('Core.prototype.bg START condition_id ', condition_id)
-                    return calcParams(condition_id["condition_id"], 1)
+        return new PgConditions().getLastNotSearchedRandomTask(10, new Date())
+            .then(function (res) {
+                if (res) {
+                    console.log('Core.prototype.bg START condition_id ', res.condition_id)
+                    return calcParams(res["condition_id"], 1)
+                        .then(function (res1) {
+                            return calcSiteParams(res.url, res.condition_id)
+                        })
+                        .then(function (res2) {
+                            return new PgTasks().updateWithDateCalc(res.task_id, new Date())
+                        })
                 } else {
                     console.log('Core.prototype.bg condition_id EMPTY');
                 }
@@ -53,6 +61,7 @@ Core.prototype.calcParams = function (condition_id, user_id) {
     var search_objects
     var getLinksFromSearcher = Core.prototype.getLinksFromSearcher;
     var calcLinksParams = Core.prototype.calcLinksParams;
+    var search_id;
 
     return new PgConditions().getWithSengines(condition_id)
         .then(function (condition_res) {
@@ -66,7 +75,8 @@ Core.prototype.calcParams = function (condition_id, user_id) {
 //            console.log("урлы для поиска: ", search_objects)
             return new PgSearch().insert(condition_id)
         })
-        .then(function (search_id) {
+        .then(function (search_id_res) {
+            search_id = search_id_res;
             //массив объектов {spage_id: <>,start<>, links: {url: <>, title: <>}[]}[]
             return getLinksFromSearcher(search_objects, search_id, user_id, condition.sengine_name)
 

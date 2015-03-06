@@ -167,7 +167,25 @@ PgTasks.prototype.updateWithCondition = function (task_id, condition_query, seng
         })
 
         .catch(function (err) {
-            console.log('PgTasks.prototype.updateWithCondition ')
+            console.log('PgTasks.prototype.updateWithCondition err ')
+            console.log(err);
+            throw err
+        });
+}
+
+PgTasks.prototype.updateWithDateCalc = function (task_id, date) {
+    _this = this;
+            return PG.query(
+                "UPDATE tasks SET date_calc= '" +  date.toISOString() + "' WHERE task_id=$1;",
+                [task_id])
+
+        .then(function (res) {
+            console.log("PgTasks.prototype.updateWithDateCalc");
+            return res;
+        })
+
+        .catch(function (err) {
+            console.log('PgTasks.prototype.updateWithDateCalc err ')
             console.log(err);
             throw err
         });

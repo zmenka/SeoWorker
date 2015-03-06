@@ -137,17 +137,12 @@ PgConditions.prototype.getCurrentSearchPage = function (condition_id, date_old) 
         })
 }
 
-PgConditions.prototype.getLastNotSearchedRandomConditionId = function (range, dateOld){
-    return PG.query("select t.condition_id " +
+PgConditions.prototype.getLastNotSearchedRandomTask = function (range, dateOld){
+    return PG.query("select t.condition_id, u.url, t.task_id  " +
             "from tasks t " +
-            "left join conditions c on t.condition_id=c.condition_id " +
-            "left join (select  DISTINCT ON (condition_id) condition_id, date_create " +
-            "from search " +
-            "group by condition_id, date_create " +
-            "order by condition_id,date_create desc " +
-            ") as s on s.condition_id=t.condition_id " +
-            "where s.date_create < '" +  dateOld.toISOString().substr(0,10) + "' OR s.date_create is null " +
-            "order by t.date_create desc " +
+            "INNER join usurls uu on uu.usurl_id=t.usurl_id " +
+            "INNER join urls u on uu.url_id=u.url_id " +
+            "where t.date_calc is null or t.date_calc < '" +  dateOld.toISOString().substr(0,10) + "' " +
             "OFFSET random()*$1 LIMIT 1;",
         [range]
     )
