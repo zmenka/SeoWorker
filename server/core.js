@@ -27,25 +27,36 @@ function Core() {
 Core.prototype.bg = function () {
     var calcParams = this.calcParams;
     var calcSiteParams = this.calcParamsByUrl;
-
     function f() {
         return new PgConditions().getLastNotSearchedRandomTask(10, new Date())
+            .catch(function (err) {
+                console.log('Core.bg getLastNotSearchedRandomTask err ', err);
+            })
             .then(function (res) {
                 if (res) {
-                    console.log('Core.prototype.bg START condition_id ', res.condition_id)
+                    console.log('Core.bg START condition_id ', res.condition_id)
                     return calcParams(res["condition_id"], 1)
+                        .catch(function (err) {
+                            console.log('Core.bg calcParams conds ', res, ' , err ', err);
+                        })
                         .then(function (res1) {
                             return calcSiteParams(res.url, res.condition_id)
+                        })
+                        .catch(function (err) {
+                            console.log('Core.bg calcSiteParams conds ', res, ' , err ', err);
                         })
                         .then(function (res2) {
                             return new PgTasks().updateWithDateCalc(res.task_id, new Date())
                         })
+                        .catch(function (err) {
+                            console.log('Core.bg updateWithDateCalc conds ', res, ' , err ', err);
+                        })
                 } else {
-                    console.log('Core.prototype.bg condition_id EMPTY');
+                    console.log('Core.bg condition_id EMPTY');
                 }
             })
             .catch(function (err) {
-                console.log('Core.prototype.bg err', err);
+                console.log('Core.bg err ', err);
             })
             .then(function (res) {
                 return  f();
