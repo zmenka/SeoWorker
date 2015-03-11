@@ -127,7 +127,23 @@ PgSearch.prototype.listWithParams = function(condition_id) {
             "ON P.HTML_ID = SC.HTML_ID " +
             "AND S.CONDITION_ID = P.CONDITION_ID " +
             "WHERE " +
-            "S.SEARCH_ID = (SELECT SEARCH_ID FROM search WHERE CONDITION_ID = $1 ORDER BY DATE_CREATE DESC LIMIT 1) " +
+            "S.SEARCH_ID = (SELECT " +
+                "S.SEARCH_ID " +
+                "FROM " +
+                "search S " +
+                "JOIN spages SP " +
+                "ON S.SEARCH_ID = SP.SEARCH_ID " +
+                "JOIN scontents SC " +
+                "ON SP.SPAGE_ID = SC.SPAGE_ID " +
+                "LEFT JOIN params P " +
+                "ON P.HTML_ID = SC.HTML_ID " +
+                "AND S.CONDITION_ID = P.CONDITION_ID " +
+                "WHERE " +
+                "S.CONDITION_ID = $1 " +
+                "GROUP BY S.SEARCH_ID " +
+                "HAVING COUNT(P.PARAM_ID ) > 0 " +
+                "ORDER BY S.DATE_CREATE DESC " +
+                "LIMIT 1)   " +
             "ORDER BY SC.POSITION;",
         [condition_id])
         .then(function (res) {
