@@ -113,7 +113,7 @@ Diagram.prototype.getTreeParamsDiagram = function (params) {
         var keyPar = new TaskTreeNode();
         keyPar.create(params[key].key, true, params[key], 'key');
         node.nodes.push(keyPar);
-        console.log('keyPar',keyPar);
+//        console.log('keyPar',keyPar);
     }
     return tree;
 
