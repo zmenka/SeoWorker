@@ -38,18 +38,25 @@ Core.prototype.bg = function () {
                     return calcParams(res["condition_id"], 1)
                         .catch(function (err) {
                             console.log('Core.bg calcParams conds ', res, ' , err ', err);
+                            throw 'next try';
                         })
                         .then(function (res1) {
                             return calcSiteParams(res.url, res.condition_id)
+                                .catch(function (err) {
+                                    console.log('Core.bg calcSiteParams conds ', res, ' , err ', err);
+                                    throw 'next try';
+                                })
                         })
-                        .catch(function (err) {
-                            console.log('Core.bg calcSiteParams conds ', res, ' , err ', err);
-                        })
+
                         .then(function (res2) {
                             return new PgTasks().updateWithDateCalc(res.task_id, new Date())
+                                .catch(function (err) {
+                                    console.log('Core.bg updateWithDateCalc conds ', res, ' , err ', err);
+                                    throw 'next try';
+                                })
                         })
                         .catch(function (err) {
-                            console.log('Core.bg updateWithDateCalc conds ', res, ' , err ', err);
+                            console.log('Core.bg conds ', res, ' , err ', err);
                         })
                 } else {
                     console.log('Core.bg condition_id EMPTY');
