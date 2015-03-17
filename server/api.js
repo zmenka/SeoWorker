@@ -32,7 +32,7 @@ module.exports = function Api(app, passport) {
             return;
         }
 
-        new PgUsers().list()
+        return new PgUsers().list()
             .then(function (users) {
                 callback(users, res);
             })
@@ -51,7 +51,7 @@ module.exports = function Api(app, passport) {
             return;
         }
         var sites;
-        new PgUsurls().listWithTasks(req.user.user_id)
+        return new PgUsurls().listWithTasks(req.user.user_id)
             .then(function (dirty_sites) {
                 SF = new SeoFormat();
                 sites = SF.createSiteTree(dirty_sites);
@@ -67,7 +67,7 @@ module.exports = function Api(app, passport) {
     app.get('/api/sengines', function (req, res, next) {
         console.log('/api/sengines');
 
-        new PgSengines().list()
+        return new PgSengines().list()
             .then(function (sites) {
                 callback(sites, res);
             })
@@ -91,7 +91,7 @@ module.exports = function Api(app, passport) {
             return;
         }
 
-        new PgUsurls().insertWithUrl(req.body.url, req.user.user_id)
+        return new PgUsurls().insertWithUrl(req.body.url, req.user.user_id)
             .then(function (db_res) {
                 callback(db_res, res);
             })
@@ -110,7 +110,7 @@ module.exports = function Api(app, passport) {
             return;
         }
 
-        new PgTasks().insertWithCondition(req.body.usurl_id, req.body.condition_query, req.body.sengine_id,
+        return new PgTasks().insertWithCondition(req.body.usurl_id, req.body.condition_query, req.body.sengine_id,
             req.body.region, req.body.size_search)
             .then(function (db_res) {
                 callback(db_res, res);
@@ -202,19 +202,21 @@ module.exports = function Api(app, passport) {
         }
 
         var paramsDirty;
-        new PgSearch().listWithParams(req.body.condition_id)
+        return new PgSearch().listWithParams(req.body.condition_id)
             .then(function (params_res) {
                 paramsDirty = params_res;
                 if (!params_res || params_res.length==0){
                     console.log('new PgSearch().listWithParams empty params!')
-                    errback('Параметры выборки еще не расчитаны.', res);
+                    throw 'Параметры выборки еще не расчитаны.';
+
                 }
                 return new PgSearch().siteWithParams(req.body.url_id, req.body.condition_id)
             })
             .then(function (site_params) {
                 if (!site_params || site_params.length==0){
                     console.log('new PgSearch().siteWithParams empty params!')
-                    errback('Параметры сайта еще не расчитаны.', res);
+                    throw 'Параметры сайта еще не расчитаны.';
+
                 }
                 SF = new SeoFormat();
                 diagram = new Diagram();
@@ -246,7 +248,7 @@ module.exports = function Api(app, passport) {
             })
             .catch(function (err) {
                 console.log(err.stack);
-                errback('', res);
+                errback(err, res);
             })
 
     });
