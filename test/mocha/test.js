@@ -2,6 +2,8 @@
  * Created by zmenka on 28.02.15.
  */
 
+var Q = require("q");
+
 describe('TestCaptcha', function(){
     describe('Google', function(){
 
@@ -19,13 +21,38 @@ describe('TestCaptcha', function(){
 
         })
 
-        it('should return content', function(){
+        it.skip('should return content', function(){
 
             var core = require("../../server/core")
             return new core().bg()
                 .then(function(res){
                     console.log(res);
 
+                })
+
+
+        })
+
+        it('search condition without params', function(){
+
+            var PgConditions = require("../../server/db/postgres/pg_conditions")
+            var PgSearch = require("../../server/db/postgres/pg_search")
+            return new PgConditions().list()
+                .then(function(res){
+                    var promises = [];
+                    for (var i = 0; i < res.length; i++) {
+                        promises.push((function (cond_id) {
+                            return new PgSearch().listWithParams(cond_id)
+                                .then(function (params_res) {
+                                    console.log("condition ", cond_id, params_res.length)
+                                    if (!params_res || params_res.length == 0) {
+                                        throw 'Параметры выборки еще не расчитаны.' + cond_id;
+
+                                    }
+                                })
+                        })(res[i]["condition_id"]))
+                    }
+                    return Q.allSettled(promises)
                 })
 
 
