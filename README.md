@@ -61,3 +61,8 @@ npm install
 node server
 
 http://help.friendsplus.me/article/56-i-am-getting-error-error-uncaught-securityerror-failed-to-read-the-localstorage-property-from-window-access-is-denied-for-this-document
+
+
+
+-- запуск тестов
+node ./node_modules/mocha/bin/mocha --timeout 150000 /home/abryazgin/www/fun/seo-worker/test/mocha/test.js

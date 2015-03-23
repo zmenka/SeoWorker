@@ -4,8 +4,8 @@
 
 var Q = require("q");
 
-describe('TestCaptcha', function(){
-    describe('Google', function(){
+describe('Test', function(){
+    describe('All', function(){
 
         it.skip('should return true', function(){
 
@@ -46,13 +46,19 @@ describe('TestCaptcha', function(){
                                 .then(function (params_res) {
                                     console.log("condition ", cond_id, params_res.length)
                                     if (!params_res || params_res.length == 0) {
-                                        throw 'Параметры выборки еще не расчитаны.' + cond_id;
+                                        throw 'Параметры выборки еще не расчитаны. ' + cond_id;
 
                                     }
                                 })
                         })(res[i]["condition_id"]))
                     }
                     return Q.allSettled(promises)
+                })
+                .then(function(res){
+                    var r = res.filter(function (element) {
+                      return element.state = 'rejected';
+                    });
+                    console.log(r);
                 })
 
 
