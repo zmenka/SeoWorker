@@ -138,14 +138,29 @@ PgConditions.prototype.getCurrentSearchPage = function (condition_id, date_old) 
 }
 
 PgConditions.prototype.getLastNotSearchedRandomTask = function (range, dateOld){
-    return PG.query("select t.condition_id, u.url, t.task_id  " +
-            "from tasks t " +
-            "INNER join usurls uu on uu.usurl_id=t.usurl_id " +
-            "INNER join urls u on uu.url_id=u.url_id " +
-            "where t.date_calc is null or t.date_calc < '" +  dateOld.toISOString().substr(0,10) + "' " +
-            "order by t.date_create desc " +
-            "OFFSET random()*$1 LIMIT 1;",
-        [range]
+    return PG.query(
+            "select " +
+                "t.condition_id, " +
+                "T2.TASK_ID IS NOT NULL AS IS_COND_ALREADY_CALC, " +
+                "u.url, " +
+                "t.task_id  " +
+            "FROM " +
+                "tasks t " +
+                "INNER JOIN usurls uu " +
+                    "ON uu.usurl_id=t.usurl_id " +
+                "INNER JOIN urls u " +
+                    "ON uu.url_id=u.url_id " +
+                "LEFT JOIN tasks T2 " +
+                    "ON T.CONDITION_ID = T2.CONDITION_ID " +
+                    "AND T2.DATE_CALC >= $2 " +
+            "WHERE " +
+                "t.DATE_CALC is null " +
+                "OR t.DATE_CALC < $2 " +
+            "ORDER BY " +
+                "t.date_create desc " +
+            "OFFSET random()*$1 " +
+            "LIMIT 1;",
+        [range,dateOld.toISOString().substr(0,10)]
     )
         .then(function (res) {
             console.log('PgConditions.prototype.getLastNotSearchedRandomCondition')
