@@ -21,7 +21,7 @@ describe('Test', function(){
 
         })
 
-        it.only('start bg', function(){
+        it('start bg', function(){
 
             var core = require("../../server/core")
             return new core().bg()
@@ -33,9 +33,9 @@ describe('Test', function(){
 
         })
 
-        it('calc params for condition_id', function(){
-            var cond_id = 50;
-            var url = '';
+        it.only('calc params for condition_id', function(){
+            var cond_id = 467;
+            var url = 'http://akulaweb.ru/';
             var core = require("../../server/core")
             return new core().calcParams(cond_id, 1)
                 .catch(function (err) {
@@ -43,7 +43,7 @@ describe('Test', function(){
                     throw err;
                 })
                 .then(function (res1) {
-                    return new core().calcSiteParams(url, cond_id)
+                    return new core().calcParamsByUrl(url, cond_id)
 
                 })
                 .catch(function (err) {
