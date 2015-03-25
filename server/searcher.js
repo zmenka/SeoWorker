@@ -71,7 +71,8 @@ Searcher.prototype.getContentByUrl = function (url, captcha, cookies) {
 
         var j = request.jar()
 
-        if (cookies) {
+        //используем куки только для капчи
+        if (cookies && captcha) {
 //            console.log("saved cookies", cookies)
             for (var i in cookies) {
                 j.setCookie(cookies[i].key + "=" + cookies[i].value, options.url);

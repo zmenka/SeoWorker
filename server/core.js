@@ -34,12 +34,19 @@ Core.prototype.bg = function () {
             })
             .then(function (res) {
                 if (res) {
-                    console.log('Core.bg START condition_id ', res.condition_id)
-                    return calcParams(res["condition_id"], 1)
-                        .catch(function (err) {
-                            console.log('Core.bg calcParams conds ', res, ' , err ', err);
-                            throw 'next try';
-                        })
+                    console.log('Core.bg START conds ', res)
+                    return Q.fcall(function () {
+                        if (res.is_cond_already_calc) {
+                            console.log('Core.bg calcParams conds ', res, 'is_cond_already_calc')
+                            return 'OK'
+                        } else {
+                            return calcParams(res["condition_id"], 1)
+                                .catch(function (err) {
+                                    console.log('Core.bg calcParams conds ', res, ' , err ', err);
+                                    throw 'next try';
+                                })
+                        }
+                    })
                         .then(function (res1) {
                             return calcSiteParams(res.url, res.condition_id)
                                 .catch(function (err) {
@@ -55,11 +62,9 @@ Core.prototype.bg = function () {
                                     throw 'next try';
                                 })
                         })
-                        .catch(function (err) {
-                            console.log('Core.bg conds ', res, ' , err ', err);
-                        })
+
                 } else {
-                    console.log('Core.bg condition_id EMPTY');
+//                    console.log('Core.bg condition_id EMPTY');
                 }
             })
             .catch(function (err) {

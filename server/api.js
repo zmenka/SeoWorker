@@ -206,7 +206,7 @@ module.exports = function Api(app, passport) {
             .then(function (params_res) {
                 paramsDirty = params_res;
                 if (!params_res || params_res.length==0){
-                    console.log('new PgSearch().listWithParams empty params!')
+                    console.log('new PgSearch().listWithParams empty params!', req.body.condition_id)
                     throw 'Параметры выборки еще не расчитаны.';
 
                 }
@@ -247,7 +247,7 @@ module.exports = function Api(app, passport) {
 
             })
             .catch(function (err) {
-                console.log(err.stack);
+                console.log(err, err.stack);
                 errback(err, res);
             })
 
