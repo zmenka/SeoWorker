@@ -21,7 +21,7 @@ describe('Test', function(){
 
         })
 
-        it('start bg', function(){
+        it.only('start bg', function(){
 
             var core = require("../../server/core")
             return new core().bg()
@@ -121,7 +121,7 @@ describe('Test', function(){
 
         })
 
-        it.only('get search links', function(){
+        it('get search links', function(){
 
             var Searcher = require("../../server/searcher")
             var SeoParameters = require("../../server/seo_parameters")

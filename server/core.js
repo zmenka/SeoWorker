@@ -34,7 +34,7 @@ Core.prototype.bg = function () {
             })
             .then(function (res) {
                 if (res) {
-                    console.log('Core.bg START condition_id ', res.condition_id)
+                    console.log('Core.bg START conds ', res)
                     return Q.fcall(function () {
                         if (res.is_cond_already_calc) {
                             console.log('Core.bg calcParams conds ', res, 'is_cond_already_calc')
