@@ -2,13 +2,15 @@ DROP DATABASE IF EXISTS seo;
 CREATE DATABASE seo;
 
 \c seo;
-    DROP TABLE IF EXISTS session CASCADE;
-CREATE TABLE session (
-  sid varchar NOT NULL,
-  sess json NOT NULL,
-  expire timestamp(6) NOT NULL
-);
 
+/* Сессии паролей для запоминания залогиненности 
+    для модуля passport */
+DROP TABLE IF EXISTS session CASCADE;
+CREATE TABLE session (
+  SID VARCHAR NOT NULL,
+  SESS json NOT NULL,
+  EXPIRE TIMESTAMP(6) NOT NULL
+);
 ALTER TABLE "session" ADD CONSTRAINT "session_pkey" PRIMARY KEY ("sid") ;
 
 /* Хранилище страниц */
@@ -144,14 +146,14 @@ CREATE TABLE conditions
   -- Текст запроса, ключевая фраза
   CONDITION_QUERY   TEXT NOT NULL,
    -- Регион
-  REGION   INT NOT NULL,
+  REGION            INT NOT NULL,
     -- Размер выборки
-  SIZE_SEARCH   INT NOT NULL,
+  SIZE_SEARCH       INT NOT NULL,
   -- Время создания записи
   DATE_CREATE       TIMESTAMP WITH TIME ZONE NOT NULL
 );
 -- Уникальнай ключ
---CREATE UNIQUE INDEX UIDX_conditions_seng_q ON conditions (SENGINE_ID,CONDITION_QUERY);
+-- CREATE UNIQUE INDEX UIDX_conditions_seng_q ON conditions (SENGINE_ID,CONDITION_QUERY);
 
 /* Анализ страницы пользователя по параметрам */
 DROP TABLE IF EXISTS tasks CASCADE;
@@ -165,7 +167,7 @@ CREATE TABLE tasks
   -- Время создания записи
   DATE_CREATE       TIMESTAMP WITH TIME ZONE NOT NULL,
   -- Время последнего пересчета
-    DATE_CALC       TIMESTAMP WITH TIME ZONE NOT NULL
+  DATE_CALC         TIMESTAMP WITH TIME ZONE NOT NULL
 );
 -- Уникальнай ключ
 CREATE UNIQUE INDEX UIDX_tasks_usu_cond ON tasks (USURL_ID,CONDITION_ID);
@@ -200,7 +202,7 @@ CREATE TABLE search
   DATE_CREATE       TIMESTAMP WITH TIME ZONE NOT NULL
 );
 -- Уникальнай ключ
---CREATE UNIQUE INDEX UIDX_search_html_cond ON search (HTML_ID,CONDITION_ID);
+-- CREATE UNIQUE INDEX UIDX_search_html_cond ON search (HTML_ID,CONDITION_ID);
 
 /* Содержимое поисковой выдачи */
 DROP TABLE IF EXISTS spages CASCADE;
@@ -235,5 +237,5 @@ CREATE TABLE scontents
 );
 
 -- Уникальнай ключ
---CREATE UNIQUE INDEX UIDX_scontents_html_search ON scontents (HTML_ID,SEARCH_ID);
+-- CREATE UNIQUE INDEX UIDX_scontents_html_search ON scontents (HTML_ID,SEARCH_ID);
 CREATE UNIQUE INDEX UIDX_scontents_search_n ON scontents (SPAGE_ID,POSITION);
