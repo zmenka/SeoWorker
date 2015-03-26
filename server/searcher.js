@@ -211,6 +211,7 @@ Searcher.prototype.getContentByUrlOrCaptcha = function (url, captcha, user_id,se
 
 Searcher.prototype.getCaptcha = function (raw_html,sengine_name) {
     _this = this;
+    console.log('Searcher.prototype.getCaptcha')
     if (!raw_html){
         throw 'Searcher.prototype.getCaptcha Не получено содержимой страницы!';
     }

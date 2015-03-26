@@ -21,7 +21,7 @@ describe('Test', function(){
 
         })
 
-        it('start bg', function(){
+        it.only('start bg', function(){
 
             var core = require("../../server/core")
             return new core().bg()
@@ -33,9 +33,9 @@ describe('Test', function(){
 
         })
 
-        it.only('calc params for condition_id', function(){
-            var cond_id = 467;
-            var url = 'http://akulaweb.ru/';
+        it('calc params for condition_id', function(){
+            var cond_id = 100;
+            var url = "http://dauer.su/catalog/suhie_smesi/";
             var core = require("../../server/core")
             return new core().calcParams(cond_id, 1)
                 .catch(function (err) {

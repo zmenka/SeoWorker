@@ -34,15 +34,15 @@ Core.prototype.bg = function () {
             })
             .then(function (res) {
                 if (res) {
-                    console.log('Core.bg START conds ', res)
+                    console.log('Core.bg START conds ', res.condition_id, res.task_id, res.url, res.is_cond_already_calc)
                     return Q.fcall(function () {
                         if (res.is_cond_already_calc) {
-                            console.log('Core.bg calcParams conds ', res, 'is_cond_already_calc')
+                            console.log('Core.bg calcParams conds ', res.condition_id, res.task_id, res.url, res.is_cond_already_calc, ' is_cond_already_calc')
                             return 'OK'
                         } else {
                             return calcParams(res["condition_id"], 1)
                                 .catch(function (err) {
-                                    console.log('Core.bg calcParams conds ', res, ' , err ', err);
+                                    console.log('Core.bg calcParams conds ', res.condition_id, res.task_id, res.url, res.is_cond_already_calc, ' , err ', err);
                                     throw 'next try';
                                 })
                         }
@@ -50,7 +50,7 @@ Core.prototype.bg = function () {
                         .then(function (res1) {
                             return calcSiteParams(res.url, res.condition_id)
                                 .catch(function (err) {
-                                    console.log('Core.bg calcSiteParams conds ', res, ' , err ', err);
+                                    console.log('Core.bg calcSiteParams conds ', res.condition_id, res.task_id, res.url, res.is_cond_already_calc, ' , err ', err);
                                     throw 'next try';
                                 })
                         })
@@ -58,7 +58,7 @@ Core.prototype.bg = function () {
                         .then(function (res2) {
                             return new PgTasks().updateWithDateCalc(res.task_id, new Date())
                                 .catch(function (err) {
-                                    console.log('Core.bg updateWithDateCalc conds ', res, ' , err ', err);
+                                    console.log('Core.bg updateWithDateCalc conds ', res.condition_id, res.task_id, res.url, res.is_cond_already_calc, ' , err ', err);
                                     throw 'next try';
                                 })
                         })

@@ -247,7 +247,8 @@ module.exports = function Api(app, passport) {
 
             })
             .catch(function (err) {
-                console.log(err, err.stack);
+                console.log(err)
+                console.log(err.stack);
                 errback(err, res);
             })
 

@@ -167,7 +167,7 @@ PgConditions.prototype.getLastNotSearchedRandomTask = function (range, dateOld){
             return res.rows[0];
         })
         .catch(function (err) {
-            throw 'PgConditions.prototype.getLastNotSearchedRandomCondition ';
+            throw 'PgConditions.prototype.getLastNotSearchedRandomCondition ' + err;
         })
 }
 
@@ -181,7 +181,7 @@ PgConditions.prototype.find = function (condition_query, sengine_id, region, siz
             return res.rows;
         })
         .catch(function (err) {
-            throw 'PgConditions.prototype.find ';
+            throw 'PgConditions.prototype.find ' + err;
         })
 }
 
