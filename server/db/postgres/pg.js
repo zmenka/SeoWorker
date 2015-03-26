@@ -71,7 +71,8 @@ PG.prototype.transact = function (query, params, endTransaction) {
     return deferred.promise;
 }
 
-PG.query = function PG(query, params) {
+PG.query = function PG(query, params, logTime) {
+    logTime = logTime || true;
     var deferred = Q.defer();
     var date = new Date();
     pg.connect(Config.postgres, function (err, client, done) {
@@ -101,7 +102,9 @@ PG.query = function PG(query, params) {
                 return;
             }
             done();
-            console.log(-date.getTime() + (new Date().getTime()))
+            if (logTime) {
+                console.log(-date.getTime() + (new Date().getTime()))
+            }
             deferred.resolve(result);
         });
     });
