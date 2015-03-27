@@ -86,7 +86,7 @@ Searcher.prototype.getContentByUrl = function (url, captcha, cookies) {
 
         request(options, function (error, response, body) {
             if (error) {
-                deferred.reject('Searcher.prototype.getContentByUrl Ошибка при получении html ' + error.toString());
+                deferred.reject('Searcher.prototype.getContentByUrl Ошибка при получении html ' + (error ? error.toString(): ""));
             } else {
 
                 var cookies = j.getCookies(options.url)
@@ -103,7 +103,7 @@ Searcher.prototype.getContentByUrl = function (url, captcha, cookies) {
 
                     zlib.gunzip(body, function (err, decoded) {
                         if (error) {
-                            deferred.reject('Searcher.prototype.getContentByUrl Ошибка при получении zlib ' + err.toString());
+                            deferred.reject('Searcher.prototype.getContentByUrl Ошибка при получении zlib ' + (error ? error.toString(): ""));
                         }
 
                         deferred.resolve({html: responseDecode(response, decoded), cookies: cookies});
@@ -111,7 +111,7 @@ Searcher.prototype.getContentByUrl = function (url, captcha, cookies) {
                 } else if (encoding == 'deflate') {
                     zlib.inflate(body, function (err, decoded) {
                         if (error) {
-                            deferred.reject('Searcher.prototype.getContentByUrl Ошибка при получении zlib ' + err.toString());
+                            deferred.reject('Searcher.prototype.getContentByUrl Ошибка при получении zlib ' + (error ? error.toString(): ""));
                         }
 
                         deferred.resolve({html: responseDecode(response, decoded), cookies: cookies});
@@ -190,8 +190,8 @@ Searcher.prototype.getContentByUrlOrCaptcha = function (url, captcha, user_id,se
             return _this2.getCaptcha(content.html,sengine_name)
         })
         .catch(function (error) {
-            console.log('getContentByUrlOrCaptcha err', error.stack)
-            throw 'getContentByUrlOrCaptcha error:' + error.toString();
+            console.log('getContentByUrlOrCaptcha err', error, error.stack)
+            throw 'getContentByUrlOrCaptcha error:' + (error ? error.toString(): "");
         })
         .then(function (rescaptcha) {
             if (rescaptcha) {

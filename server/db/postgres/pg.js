@@ -72,7 +72,7 @@ PG.prototype.transact = function (query, params, endTransaction) {
 }
 
 PG.query = function PG(query, params, logTime) {
-    logTime = logTime || true;
+    logTime = logTime || false;
     var deferred = Q.defer();
     var date = new Date();
     pg.connect(Config.postgres, function (err, client, done) {
