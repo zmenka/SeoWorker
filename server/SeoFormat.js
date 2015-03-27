@@ -92,7 +92,6 @@ SeoFormat.prototype.transponateParams = function (data) {
         throw 'SeoFormat.prototype.transponateParams data cannot be null!';
     }
 
-    //работаем с диаграммой
     var res = []
     //бежим по всем страницам сайтов
     for (var key in data) {

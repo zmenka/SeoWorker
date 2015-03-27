@@ -202,14 +202,14 @@ module.exports = function Api(app, passport) {
         }
 
         var paramsDirty;
-        return new PgSearch().listWithParams(req.body.condition_id)
+        return new PgSearch().listWithHtmls(req.body.condition_id)
             .then(function (params_res) {
                 paramsDirty = params_res;
                 if (!params_res || params_res.length==0){
-                    console.log('new PgSearch().listWithParams empty params!', req.body.condition_id)
+                    console.log('new PgSearch().listWithHtmls empty params!', req.body.condition_id)
                     throw 'Параметры выборки еще не расчитаны.';
-
                 }
+                params_res = params_res.forEach(function(el,i,list) {el.params = new PgSearch().siteWithParams(el.url,req.body.condition_id);});
                 return new PgSearch().siteWithParams(req.body.url_id, req.body.condition_id)
             })
             .then(function (site_params) {
@@ -223,10 +223,10 @@ module.exports = function Api(app, passport) {
                 //форматируем данные
                 //работаем с диаграммой. Транспонируем данные от "страницы и их параметры" к "параметры страниц"
                 var params = SF.transponateParams(paramsDirty);
-                var paramsDiagram = diagram.getParamsDiagram(params, site_params[0]);
+                var paramsDiagram = diagram.getParamsDiagram(params, site_params);
                 var paramsTree = diagram.getTreeParamsDiagram(paramsDiagram);
-                var paramsTable = SF.prettyTable(paramsDirty, site_params[0]);
-                var paramsPosition = SF.getSitePosition(paramsDirty, site_params[0]);
+                var paramsTable = SF.prettyTable(paramsDirty, site_params);
+                var paramsPosition = SF.getSitePosition(paramsDirty, site_params);
                 var searchDate = null;
                 if (paramsDirty && paramsDirty.length) {
                     searchDate = paramsDirty[0].date_create;
