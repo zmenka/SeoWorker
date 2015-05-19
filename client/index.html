@@ -23,6 +23,8 @@
     <script src="bower_components/d3/d3.js"></script>
     <script src="bower_components/nvd3/nv.d3.js"></script>
     <script src="bower_components/angular-nvd3/dist/angular-nvd3.js"></script>
+    <script src="bower_components/angular-bootstrap/ui-bootstrap.js"></script>
+    <script src="bower_components/angular-bootstrap/ui-bootstrap-tpls.js"></script>
 
     <script src="js/app.js"></script>
 
@@ -32,6 +34,7 @@
     <script src="js/controllers/settingsctrl.js"></script>
     <script src="js/controllers/sitesctrl.js"></script>
     <script src="js/controllers/usersctrl.js"></script>
+    <script src="js/controllers/managectrl.js"></script>
 
     <script src="js/services/services.js"></script>
     <script src="js/directives/directives.js"></script>
@@ -63,6 +66,7 @@
                     </ul>
                 </li>
                 <li><a ui-sref="main.settings">Настройки</a></li>
+                <li><a ui-sref="main.manage" ng-show="MainCtrl.checkAdmin()">Управление</a></li>
             </ul>
             <ul class="nav navbar-nav navbar-right" ng-controller="MainCtrl as MainCtrl">
                 <li>

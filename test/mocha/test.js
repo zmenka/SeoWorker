@@ -34,8 +34,8 @@ describe('Test', function(){
         })
 
         it.only('calc params for condition_id', function(){
-            var cond_id = 521;
-            var url = "http://eburgcar.ru/partners/arenda_legkovogo_avtomobilya/"
+            var cond_id = 369;
+            var url = "http://plitca.ru"
             var core = require("../../server/core")
             return new core().calcParams(cond_id, 1)
                 .catch(function (err) {

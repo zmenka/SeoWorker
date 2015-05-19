@@ -1,0 +1,23 @@
+<div class="container" ng-controller="ManageCtrl as vm" style="margin-top: 10px">
+
+    <accordion close-others="vm.oneAtATime">
+        <accordion-group heading="Регистрация новых пользователей" >
+            <div class="alerts-container"></div>
+
+            <form ng-submit="vm.register(form)" style="width: 400px">
+                <div class="form-group">
+                    <label>Логин</label>
+                    <input type="text" class="form-control" ng-model="form.login">
+                </div>
+                <div class="form-group">
+                    <label>Пароль</label>
+                    <input type="password" class="form-control" ng-model="form.password">
+                </div>
+                <input type="submit" class="btn btn-primary  btn-lg " id="submit" value="Зарегистрировать"/>
+            </form>
+        </accordion-group>
+        <accordion-group heading="Мониторинг пользователей">
+            Здесь будет табличка с инфой по пользователям
+        </accordion-group>
+    </accordion>
+</div>

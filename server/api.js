@@ -286,7 +286,7 @@ module.exports = function Api(app, passport) {
                     if (err) {
                         return next(err);
                     }
-                    return callback({ message: info.message }, res);
+                    return callback({ message: info.message, isAdmin:  user.role_id == 1}, res);
                 });
             })(req, res, next);
         }
@@ -298,23 +298,6 @@ module.exports = function Api(app, passport) {
 
         return callback("logout ok", res);
     });
-
-//    app.post('/api/register', function (req, res, next) {
-//        passport.authenticate('register', function (err, user, info) {
-//            if (err) {
-//                return next(err)
-//            }
-//            if (!user) {
-//                return errback({ message: info.message }, res);
-//            }
-//            req.logIn(user, function (err) {
-//                if (err) {
-//                    return next(err);
-//                }
-//                return callback({ message: info.message }, res);
-//            });
-//        })(req, res, next);
-//    });
 
     app.post('/api/register', function (req, res, next) {
         console.log('/api/register', req.body);
@@ -345,8 +328,9 @@ module.exports = function Api(app, passport) {
 
     app.get('/api/check_auth', function (req, res, next) {
         // if user is authenticated in the session, carry on
-        console.log('/api/check_auth', req.isAuthenticated())
-        callback(req.isAuthenticated(), res);
+        var r = {isAuth: req.isAuthenticated(), isAdmin:  req.user.role_id == 1}
+        console.log('/api/check_auth', r)
+        callback(r, res);
     });
 
 }

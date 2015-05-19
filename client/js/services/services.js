@@ -75,21 +75,58 @@ seoServices.factory('Authenticate', ['$http',
     function ($http) {
 
         var isAuthenticated = null;
+        var isAdmin = false;
 
         var initAuth = function () {
             return $http.get("/api/check_auth")
-
+                .success(function (data, status, header) {
+                    if (data.isAuth){
+                        isAuthenticated = true;
+                        if (data.isAdmin){
+                            isAdmin = true;
+                        }
+                    } else {
+                        isAuthenticated = false;
+                        isAdmin = false;
+                    }
+                    return data
+                }).error(function (err) {
+                    console.log("check_auth service error ", data)
+                    isAuthenticated = null;
+                    isAdmin = false;
+                    throw err;
+                });
         };
-
 
         var login = function (userData) {
             console.log('Authenticate login ', userData)
             var promise = $http.post("/api/login", userData);
-            return promise;
+            return promise
+                .success(function (data, status, header) {
+                    isAuthenticated = true;
+                    if (data.isAdmin){
+                        isAdmin = true;
+                    }
+                    return data
+                }).error(function (data) {
+                    console.log("login service error ", data)
+                    isAuthenticated = null;
+                    isAdmin = false;
+                    throw err;
+                });
         };
 
         var logout = function () {
-            return $http.get("/api/logout");
+            return $http.get("/api/logout")
+                .success(function (data, status, header) {
+                    isAuthenticated = false;
+                    isAdmin = false;
+                    return data
+                }).error(function (data) {
+                    console.log("logout service error ", data)
+
+                    throw err;
+                });
         };
 
 
@@ -105,7 +142,8 @@ seoServices.factory('Authenticate', ['$http',
             logout: logout,
             isAuthenticated: isAuthenticated,
             initAuth: initAuth,
-            register: register
+            register: register,
+            isAdmin: isAdmin
         }
     }]);
 

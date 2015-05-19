@@ -191,7 +191,6 @@ Searcher.prototype.getContentByUrlOrCaptcha = function (url, captcha, user_id,se
         })
         .catch(function (error) {
             console.log('getContentByUrlOrCaptcha err', error, error.stack)
-            throw 'getContentByUrlOrCaptcha error:' + (error ? error.toString(): "");
         })
         .then(function (rescaptcha) {
             if (rescaptcha) {
