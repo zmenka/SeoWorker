@@ -46,7 +46,7 @@
             <div class="navbar-brand">PrAkula</div>
         </div>
 
-        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1"  ng-controller="MainCtrl as vm">
             <ul class="nav navbar-nav">
                 <li>
                     <a  ui-sref="main.promotion.chart" style="margin-right: 25px; padding-right: 5px; padding-left: 10px" >Продвижение</a>
@@ -66,16 +66,16 @@
                     </ul>
                 </li>
                 <li><a ui-sref="main.settings">Настройки</a></li>
-                <li><a ui-sref="main.manage" ng-show="MainCtrl.checkAdmin()">Управление</a></li>
+                <li><a ui-sref="main.manage" ng-show="vm.checkAdmin()">Управление</a></li>
             </ul>
-            <ul class="nav navbar-nav navbar-right" ng-controller="MainCtrl as MainCtrl">
+            <ul class="nav navbar-nav navbar-right">
                 <li>
-                    <a ng-hide="MainCtrl.isSignedIn()" ui-sref="main.login">Войти
+                    <a ng-hide="vm.isSignedIn()" ui-sref="main.login">Войти
                         <span class="glyphicon glyphicon-log-in" style="top: 3px;"></span>
                     </a>
                 </li>
-                <li ng-controller="AuthCtrl as AuthCtrl">
-                    <a ng-show="MainCtrl.isSignedIn()" ng-click="AuthCtrl.logout()">
+                <li >
+                    <a ng-show="vm.isSignedIn()" ng-click="vm.logout()">
                         Выйти
                         <span class="glyphicon glyphicon-log-out" ></span>
                     </a>

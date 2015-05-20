@@ -286,7 +286,7 @@ module.exports = function Api(app, passport) {
                     if (err) {
                         return next(err);
                     }
-                    return callback({ message: info.message, isAdmin:  user.role_id == 1}, res);
+                    return callback({ message: info.message}, res);
                 });
             })(req, res, next);
         }
@@ -328,7 +328,7 @@ module.exports = function Api(app, passport) {
 
     app.get('/api/check_auth', function (req, res, next) {
         // if user is authenticated in the session, carry on
-        var r = {isAuth: req.isAuthenticated(), isAdmin:  req.user.role_id == 1}
+        var r = {isAuth: req.isAuthenticated(), isAdmin:  req.isAuthenticated() && req.user.role_id == 1}
         console.log('/api/check_auth', r)
         callback(r, res);
     });

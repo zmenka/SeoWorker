@@ -1,18 +1,19 @@
-function MainCtrl($scope, Authenticate) {
+function MainCtrl($scope, $state,  Authenticate) {
     var vm = this;
     vm.isSignedIn = function () {
-        return Authenticate.isAuthenticated;
+        return Authenticate.isAuthenticated();
     };
 
     vm.checkAdmin  = function () {
-        Authenticate.checkAdmin()
-            .success(function (data, status, header) {
-                console.log("check_admin11 service", data)
-            }).error(function (data) {
-                console.log("check_admin11 service error ", data)
-
-            });;
+        return Authenticate.isAdmin()
     }
 
+    vm.logout  = function () {
+        Authenticate.logout()
+            .success(function () {
+                $state.go("main.login");
+            }).error(function () {
+            });
+    }
 }
 angular.module('seoControllers').controller('MainCtrl', MainCtrl);

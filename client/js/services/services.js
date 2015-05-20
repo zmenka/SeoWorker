@@ -71,13 +71,25 @@ seoServices.service('CaptchaModal', function ($modal, $rootScope, $q) {
     return confirm;
 })
 
-seoServices.factory('Authenticate', ['$http',
-    function ($http) {
+seoServices.factory('Authenticate', ['$rootScope', '$http', '$state', '$q',
+    function ($rootScope, $http, $state, $q) {
 
-        var isAuthenticated = null;
+        var isAuthenticated = undefined;
         var isAdmin = false;
 
-        var initAuth = function () {
+        function initDone() {
+            return angular.isDefined(isAuthenticated);
+        }
+
+        function getIsAuthenticated() {
+            return isAuthenticated;
+        }
+
+        function getIsAdmin() {
+            return isAdmin;
+        }
+
+        function checkAuth () {
             return $http.get("/api/check_auth")
                 .success(function (data, status, header) {
                     if (data.isAuth){
@@ -89,27 +101,63 @@ seoServices.factory('Authenticate', ['$http',
                         isAuthenticated = false;
                         isAdmin = false;
                     }
-                    return data
+                    return data;
+
                 }).error(function (err) {
-                    console.log("check_auth service error ", data)
+                    console.log("check_auth service error ", err)
                     isAuthenticated = null;
                     isAdmin = false;
                     throw err;
                 });
+        }
+
+        var initAuth = function () {
+            var deferred = $q.defer();
+            if (angular.isDefined(isAuthenticated)) {
+                console.log('initAuth not need')
+                deferred.resolve(isAuthenticated);
+                return deferred.promise;
+            }
+
+            checkAuth()
+                .then(function (data) {
+                    console.log('init auth isAuthenticated ', isAuthenticated, ' isAdmin ', isAdmin)
+                    deferred.resolve(isAuthenticated);
+                })
+                .catch(function (err) {
+                    deferred.reject(isAuthenticated);
+                })
+
+            return deferred.promise;
         };
+
+        var checkAccess = function () {
+            return initAuth()
+                .then(function() {
+                    console.log('checkAccess', $rootScope.toState)
+                    if ($rootScope.toState.authenticate && !isAuthenticated) {
+                        $rootScope.returnToState = $rootScope.toState;
+                        $rootScope.returnToStateParams = $rootScope.toStateParams;
+
+                        console.log("redirect to login");
+                        $state.go('main.login');
+                    } else if ($rootScope.toState.isAdmin && !isAdmin) {
+                        console.log("cant go to this page if not admin");
+                        $state.go('main.accessdenied');
+                    }
+                })
+                .catch(function() {
+                    $state.go('main.error');
+                })
+        }
 
         var login = function (userData) {
             console.log('Authenticate login ', userData)
-            var promise = $http.post("/api/login", userData);
-            return promise
+            return $http.post("/api/login", userData)
                 .success(function (data, status, header) {
-                    isAuthenticated = true;
-                    if (data.isAdmin){
-                        isAdmin = true;
-                    }
-                    return data
-                }).error(function (data) {
-                    console.log("login service error ", data)
+                    return checkAuth();
+                }).error(function (err) {
+                    console.log("login service error ", err)
                     isAuthenticated = null;
                     isAdmin = false;
                     throw err;
@@ -122,13 +170,12 @@ seoServices.factory('Authenticate', ['$http',
                     isAuthenticated = false;
                     isAdmin = false;
                     return data
-                }).error(function (data) {
-                    console.log("logout service error ", data)
+                }).error(function (err) {
+                    console.log("logout service error ", err)
 
                     throw err;
                 });
         };
-
 
         var register = function (userData) {
             console.log('Authenticate register ', userData)
@@ -140,10 +187,12 @@ seoServices.factory('Authenticate', ['$http',
         return {
             login: login,
             logout: logout,
-            isAuthenticated: isAuthenticated,
-            initAuth: initAuth,
             register: register,
-            isAdmin: isAdmin
+
+            isAuthenticated: getIsAuthenticated,
+            isAdmin: getIsAdmin,
+            checkAccess: checkAccess,
+            initDone: initDone
         }
     }]);
 

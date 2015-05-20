@@ -2,18 +2,7 @@
 
 function AuthCtrl($scope, $state, $alert, Authenticate) {
     var vm = this;
-    vm.logout = logout;
     vm.login = login;
-
-    function logout () {
-        Authenticate.logout()
-            .success(function () {
-                Authenticate.isAuthenticated = false;
-
-                $state.go("main.login");
-            }).error(function () {
-            });
-    }
 
     function login (user) {
         Authenticate.login(user)
