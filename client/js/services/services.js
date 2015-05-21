@@ -10,6 +10,15 @@ seoServices.factory('Api', ['$http',
             users: function () {
                 return $http.get('/api/users', {});
             },
+            user: function (user_id) {
+                return $http.get('/api/user', {
+                    params: {user_id: user_id}
+                })
+            },
+            edit_user: function (user_id, new_pasw, disabled, disabled_message) {
+                return $http.post('/api/edit_user',
+                    {user_id:user_id, new_pasw: new_pasw, disabled:disabled, disabled_message:disabled_message});
+            },
             user_sites_and_tasks: function () {
                 return $http.get('/api/user_sites_and_tasks', {});
             },
@@ -76,6 +85,7 @@ seoServices.factory('Authenticate', ['$rootScope', '$http', '$state', '$q',
 
         var isAuthenticated = undefined;
         var isAdmin = false;
+        var userLogin = undefined;
 
         function initDone() {
             return angular.isDefined(isAuthenticated);
@@ -89,24 +99,31 @@ seoServices.factory('Authenticate', ['$rootScope', '$http', '$state', '$q',
             return isAdmin;
         }
 
+        function getUserLogin() {
+            return userLogin;
+        }
+
         function checkAuth () {
             return $http.get("/api/check_auth")
-                .success(function (data, status, header) {
-                    if (data.isAuth){
+                .then(function (res ) {
+                    if (res.data.isAuth){
                         isAuthenticated = true;
-                        if (data.isAdmin){
+                        if (res.data.isAdmin){
                             isAdmin = true;
                         }
                     } else {
                         isAuthenticated = false;
                         isAdmin = false;
                     }
-                    return data;
+                    userLogin = res.data.userLogin;
+                    console.log('check_auth DONE', 'isAuthenticated ', isAuthenticated, ' isAdmin ', isAdmin)
+                    return res;
 
-                }).error(function (err) {
-                    console.log("check_auth service error ", err)
+                }).catch(function (err) {
+                    console.log("check_auth service error ", err.data)
                     isAuthenticated = null;
                     isAdmin = false;
+                    userLogin = null;
                     throw err;
                 });
         }
@@ -120,11 +137,11 @@ seoServices.factory('Authenticate', ['$rootScope', '$http', '$state', '$q',
             }
 
             checkAuth()
-                .then(function (data) {
+                .then(function () {
                     console.log('init auth isAuthenticated ', isAuthenticated, ' isAdmin ', isAdmin)
                     deferred.resolve(isAuthenticated);
                 })
-                .catch(function (err) {
+                .catch(function () {
                     deferred.reject(isAuthenticated);
                 })
 
@@ -134,7 +151,7 @@ seoServices.factory('Authenticate', ['$rootScope', '$http', '$state', '$q',
         var checkAccess = function () {
             return initAuth()
                 .then(function() {
-                    console.log('checkAccess', $rootScope.toState)
+                    console.log('checkAccess', $rootScope.toState, 'isAuthenticated ', isAuthenticated, ' isAdmin ', isAdmin)
                     if ($rootScope.toState.authenticate && !isAuthenticated) {
                         $rootScope.returnToState = $rootScope.toState;
                         $rootScope.returnToStateParams = $rootScope.toStateParams;
@@ -152,26 +169,28 @@ seoServices.factory('Authenticate', ['$rootScope', '$http', '$state', '$q',
         }
 
         var login = function (userData) {
-            console.log('Authenticate login ', userData)
+            console.log('Authenticate login ')
             return $http.post("/api/login", userData)
-                .success(function (data, status, header) {
+                .then(function () {
                     return checkAuth();
-                }).error(function (err) {
-                    console.log("login service error ", err)
+                }).catch(function (err) {
+                    console.log("login service error ", err.data)
                     isAuthenticated = null;
                     isAdmin = false;
+                    userLogin = null;
                     throw err;
                 });
         };
 
         var logout = function () {
             return $http.get("/api/logout")
-                .success(function (data, status, header) {
+                .then(function (res) {
                     isAuthenticated = false;
                     isAdmin = false;
-                    return data
-                }).error(function (err) {
-                    console.log("logout service error ", err)
+                    userLogin = null;
+                    return res
+                }).catch(function (err) {
+                    console.log("logout service error ", err.data)
 
                     throw err;
                 });
@@ -191,6 +210,7 @@ seoServices.factory('Authenticate', ['$rootScope', '$http', '$state', '$q',
 
             isAuthenticated: getIsAuthenticated,
             isAdmin: getIsAdmin,
+            userLogin: getUserLogin,
             checkAccess: checkAccess,
             initDone: initDone
         }

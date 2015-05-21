@@ -53,6 +53,9 @@ module.exports = function (passport) {
                     if (!new PgUsers().validPassword(password, user.user_password)) {
                         return done(null, false, { message: 'Неправильный пароль.' });
                     }
+                    if (user.disabled) {
+                        return done(null, false, { message: (user.disabled_message ? user.disabled_message : 'Вы отключены от системы!') });
+                    }
                     return done(null, user.user_id, { message: 'Успешный вход.' });
                 })
                 .catch(function (err) {

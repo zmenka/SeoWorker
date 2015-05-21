@@ -10,10 +10,14 @@ function MainCtrl($scope, $state,  Authenticate) {
 
     vm.logout  = function () {
         Authenticate.logout()
-            .success(function () {
+            .then(function () {
                 $state.go("main.login");
-            }).error(function () {
+            }).catch(function () {
             });
+    }
+
+    vm.userLogin = function () {
+        return Authenticate.userLogin();
     }
 }
 angular.module('seoControllers').controller('MainCtrl', MainCtrl);

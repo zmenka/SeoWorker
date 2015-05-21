@@ -88,7 +88,7 @@ PG.query = function PG(query, params, logTime) {
             // In this case, if we have successfully received a client (truthy)
             // then it will be removed from the pool.
             done(client);
-            console.log(JSON.stringify(err1))
+            console.log(err1 ? err1.toString() : '')
             deferred.reject('postgres query error ', err1);
             return true;
         };

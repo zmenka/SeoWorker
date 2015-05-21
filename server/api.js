@@ -32,6 +32,11 @@ module.exports = function Api(app, passport) {
             return;
         }
 
+        if (req.user.role_id!=1){
+            errback("Вы не админ.", res);
+            return;
+        }
+
         return new PgUsers().list()
             .then(function (users) {
                 callback(users, res);
@@ -42,6 +47,64 @@ module.exports = function Api(app, passport) {
             })
 
     });
+
+    app.get('/api/user', function (req, res, next) {
+        console.log('/api/user',  req.query);
+
+        if (!req.user || !req.user.user_id) {
+            errback("Вы не зарегистрировались.", res);
+            return;
+        }
+
+        if (req.user.role_id!=1){
+            errback("Вы не админ.", res);
+            return;
+        }
+
+        if (!req.query.user_id) {
+            errback("Не найден ид пользователя.", res);
+            return;
+        }
+
+        return new PgUsers().get(req.query.user_id)
+            .then(function (user) {
+                callback(user, res);
+            })
+            .catch(function (err) {
+                console.log(err.stack);
+                errback(err, res);
+            })
+
+    });
+
+    app.post('/api/edit_user', function (req, res, next) {
+        console.log('/api/edit_user', req.body);
+
+        if (!req.user || !req.user.user_id) {
+            errback("Вы не зарегистрировались.", res);
+            return;
+        }
+
+        if (req.user.role_id!=1){
+            errback("Вы не админ.", res);
+            return;
+        }
+
+        if (!req.body.user_id) {
+            errback("не найден параметр user_id ", res);
+            return;
+        }
+
+        return new PgUsers().edit(req.body.user_id, req.body.new_pasw, req.body.disabled, req.body.disabled_message)
+            .then(function (db_res) {
+                callback(db_res, res);
+            })
+            .catch(function (err) {
+                console.log(err.stack);
+                errback(err, res);
+            })
+    });
+
 // get all sites and tasks
     app.get('/api/user_sites_and_tasks', function (req, res, next) {
         console.log('/api/user_sites_and_tasks');
@@ -278,10 +341,6 @@ module.exports = function Api(app, passport) {
                 if (!user) {
                     return errback({ message: info.message }, res);
                 }
-
-                if (user.disabled) {
-                    return errback({ message: 'Пользователь отключен от системы!' }, res);
-                }
                 req.logIn(user, function (err) {
                     if (err) {
                         return next(err);
@@ -328,7 +387,20 @@ module.exports = function Api(app, passport) {
 
     app.get('/api/check_auth', function (req, res, next) {
         // if user is authenticated in the session, carry on
-        var r = {isAuth: req.isAuthenticated(), isAdmin:  req.isAuthenticated() && req.user.role_id == 1}
+        var r = {isAuth: req.isAuthenticated(), isAdmin:  req.isAuthenticated() && req.user.role_id == 1,
+        userLogin: req.isAuthenticated() ? req.user.user_login : ""}
+
+        if (req.isAuthenticated() && req.user.disabled){
+            console.log('user ' + req.user.user_login + ' is disabled!')
+            req.logout();
+            r.isAuth = false;
+            r.isAdmin = false;
+        }
+
+        if (req.isAuthenticated()) {
+            // запомним, что пользователь заходил
+            new PgUsers().updateLastVisit(req.user.user_id);
+        }
         console.log('/api/check_auth', r)
         callback(r, res);
     });

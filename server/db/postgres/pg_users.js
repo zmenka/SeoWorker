@@ -115,36 +115,43 @@ PgUsers.prototype.insert = function (user_login, user_password, role_id, user_fn
 
 PgUsers.prototype.disabledUser = function (user_login, disabled) {
 
-    var db;
-
     return this.getByLogin(user_login)
         .then(function (users) {
             if (users.length != 1) {
                 throw("Нет такого пользователя!")
                 return;
             }
-            return new PG()
+            return PG.query("UPDATE users SET DISABLED = $2 " +
+            "WHERE USER_LOGIN=$1;",
+                [user_login, disabled])
         })
-        .then(function (db_res) {
-            db = db_res
-            return db.transact(
-                "UPDATE users SET DISABLED = $1 " +
-                    "WHERE USER_LOGIN=$2;",
-                [user_login, disabled], true
-            )
-        })
-//        .then(function (res) {
-//            return db.transact(
-//                "SELECT currval(pg_get_serial_sequence('users','user_id'))",
-//                [], true
-//            )
-//        })
         .then(function (res) {
             console.log('PgUsers.prototype.disabledUser');
             return res;
         })
         .catch(function (err) {
             throw 'PgUsers.prototype.disabledUser ' + err
+        })
+}
+
+PgUsers.prototype.updateLastVisit = function (user_id) {
+    var date_visit = new Date();
+    return this.get(user_id)
+        .then(function (user) {
+            if (!user) {
+                throw("Нет такого пользователя!")
+                return;
+            }
+            return PG.query("UPDATE users SET LAST_VISIT = $2 " +
+                "WHERE USER_ID=$1;",
+                [user_id, date_visit])
+        })
+        .then(function (res) {
+            console.log('PgUsers.prototype.updateLastVisit');
+            return res;
+        })
+        .catch(function (err) {
+            throw 'PgUsers.prototype.updateLastVisit ' + err
         })
 }
 
@@ -218,8 +225,38 @@ PgUsers.prototype.updateCookies = function (id, cookies) {
             return;
         })
         .catch(function (err) {
+            console.log(err);
             throw 'PgUsers.prototype.get' + err;
+
         })
 }
 
+PgUsers.prototype.edit = function (userId, newPaswd, disabled, disabledMessage) {
+
+    return this.get(userId)
+        .then(function (user) {
+            if (!user) {
+                throw("Нет такого пользователя!")
+                return;
+            }
+            var password;
+            if (newPaswd){
+                password = this.generateHash(newPaswd);
+            }
+            var q = "UPDATE users SET DISABLED = $2 " +
+                ", DISABLED_MESSAGE = $3 " +
+                (password ? ", USER_PASSWORD = $4 " : "") +
+                "WHERE USER_ID=$1;";
+            return PG.query(q,
+                [userId, disabled, disabledMessage], password)
+        })
+        .then(function (res) {
+            console.log('PgUsers.prototype.edit');
+            return res;
+        })
+        .catch(function (err) {
+            console.log(err);
+            throw 'PgUsers.prototype.edit ' + err
+        })
+}
 module.exports = PgUsers;

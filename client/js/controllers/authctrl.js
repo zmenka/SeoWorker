@@ -6,10 +6,10 @@ function AuthCtrl($scope, $state, $alert, Authenticate) {
 
     function login (user) {
         Authenticate.login(user)
-            .success(function (data, status, header) {
+            .then(function (data) {
                 console.log("$scope.login ", data)
                 $state.go("main.promotion.chart");
-            }).error(function (data) {
+            }).catch(function (data) {
                 console.log("$scope.login error ", data)
                 if (data.message) {
                     $alert({title: 'Внимание!', content: data.message,

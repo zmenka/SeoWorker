@@ -85,6 +85,12 @@ seoApp.config(["$stateProvider", "$urlRouterProvider",
                 authenticate: true,
                 isAdmin: true
             })
+            .state('main.edit_user', {
+                url: 'user/:user_id',
+                templateUrl: 'partials/edit_user.html',
+                authenticate: true,
+                isAdmin: true
+            })
             .state('main.accessdenied', {
                 url: 'accessdenied',
                 templateUrl: 'partials/accessdenied.html'

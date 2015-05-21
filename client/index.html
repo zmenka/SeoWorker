@@ -33,7 +33,7 @@
     <script src="js/controllers/mainctrl.js"></script>
     <script src="js/controllers/settingsctrl.js"></script>
     <script src="js/controllers/sitesctrl.js"></script>
-    <script src="js/controllers/usersctrl.js"></script>
+    <script src="js/controllers/userctrl.js"></script>
     <script src="js/controllers/managectrl.js"></script>
 
     <script src="js/services/services.js"></script>
@@ -69,6 +69,8 @@
                 <li><a ui-sref="main.manage" ng-show="vm.checkAdmin()">Управление</a></li>
             </ul>
             <ul class="nav navbar-nav navbar-right">
+                <li style="padding-top: 15px; padding-bottom: 15px;"><span>{{vm.userLogin()}}</span></li>
+
                 <li>
                     <a ng-hide="vm.isSignedIn()" ui-sref="main.login">Войти
                         <span class="glyphicon glyphicon-log-in" style="top: 3px;"></span>

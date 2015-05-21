@@ -86,7 +86,11 @@ CREATE TABLE users
   -- Время создания записи
   DATE_CREATE       TIMESTAMP WITH TIME ZONE NOT NULL,
   -- Куки пользователя
-  COOKIES     TEXT
+  COOKIES     TEXT,
+  -- Cообщение пользователю, если он заблокирован
+  DISABLE_MESSAGE     VARCHAR,
+  -- Время последнего захода пользователя
+  LAST_VISIT       TIMESTAMP WITH TIME ZONE
 );
 
 INSERT INTO users(USER_ID, USER_LOGIN, USER_PASSWORD, ROLE_ID, DATE_CREATE, COOKIES) VALUES

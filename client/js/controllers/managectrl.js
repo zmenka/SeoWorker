@@ -1,9 +1,15 @@
 'use strict';
 
-function ManageCtrl($scope, $state, $alert, Authenticate) {
+function ManageCtrl($scope, $state, $alert, Authenticate, Api) {
     var vm = this;
     vm.register = register;
     vm.oneAtATime = true;
+    vm.loading = false;
+    vm.loadUser = loadUsers;
+    vm.users = [];
+    vm.loginAs = loginAs;
+
+    vm.loadUser();
 
     function register (user) {
         Authenticate.register(user)
@@ -33,6 +39,29 @@ function ManageCtrl($scope, $state, $alert, Authenticate) {
                     });
                 }
             });
+    }
+
+    function loadUsers() {
+        vm.loading = true;
+        Api.users()
+            .then(function (res) {
+                console.log('users are reseived ', res.data);
+                vm.users = res.data;
+            })
+            .catch(function (err) {
+                console.log('get users return ERROR!', err);
+                vm.users = [];
+                vm.loading = false;
+                $alert({title: 'Внимание!', content: "Ошибка при получении списка пользователей: " + err.data,
+                    placement: 'top', type: 'danger', show: true,
+                    duration: '3',
+                    container: '.alerts-container'
+                });
+            });
+    };
+
+    function loginAs(user_id){
+
     }
 
 }
