@@ -16,12 +16,15 @@
                 <div ng-hide="vm.site" class="site-name">Выберите сайт на панели слева</div>
                 <div ng-show="vm.site" style="display: inline-flex; justify-content: flex-end; width: 100%;" >
                     <div class="site-name " style=" flex: 1;" >
-                        <div class="link" style="flex: 1;">
-                            <a ng-href="{{vm.site.data.url}}" target="_blank">{{vm.site.data.url}}</a>
+                        <div class="link" style="flex: 1;" >
+                            <a ng-href="{{vm.site.data.url}}" target="_blank"
+                               bs-tooltip data-placement="top" data-title="{{vm.site.data.url}}">
+                                {{vm.site.data.url}}
+                            </a>
                         </div>
 
                         <div class="link" style="flex: 2;" >
-                            &nbsp; &nbsp; &nbsp;{{vm.site.title}}
+                            <span bs-tooltip data-placement="top" data-title="{{vm.site.title}}">&nbsp; &nbsp; &nbsp;{{vm.site.title}}</span>
                         </div>
                         <!--
                         <span ng-show="vm.site.position!=null" > (на {{vm.site.position}} месте) </span>
@@ -32,15 +35,22 @@
                     <div style="margin-right: 5px; margin-left: 5px;">
                         <button class="btn btn-primary " ng-disabled="vm.loading"
                                 ng-click="vm.getParams()"
-                                data-type="info" data-placement="top" data-delay="500" data-animation="am-flip-x" bs-tooltip data-title="Получить выборку">
+                                data-type="info" data-placement="top" bs-tooltip data-title="Получить выборку">
                             {{vm.data.searchDate | date:'HH.mm dd.MM.yy'}}
                             <span class="glyphicon glyphicon-download-alt"></span>
+                        </button>
+                    </div>
+                    <div style="margin-right: 5px;">
+                        <button class="btn btn-danger " ng-show="vm.isAdmin()"
+                                ng-disabled="vm.loading"  ng-click="vm.calcParams()"
+                                data-type="info" data-placement="top"  bs-tooltip data-title="Пересчитать всю выборку">
+                            <span class="glyphicon glyphicon-warning-sign"></span>
                         </button>
                     </div>
                     <div>
                         <button class="btn btn-success "
                                 ng-disabled="vm.loading"  ng-click="vm.calcSiteParams()"
-                                data-type="info" data-placement="top" data-delay="500" data-animation="am-flip-x" bs-tooltip data-title="Пересчитать сайт">
+                                data-type="info" data-placement="top"  bs-tooltip data-title="Пересчитать сайт">
                             <span >{{vm.data.siteUpdateDate | date:'HH.mm dd.MM.yy'}}</span>
                             <span class="glyphicon glyphicon-refresh"></span>
                         </button>

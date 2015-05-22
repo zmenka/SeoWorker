@@ -24,6 +24,7 @@
                     <th style="text-align: center;">Отключен</th>
                     <th>Когда заходил</th>
                     <th>Был создан</th>
+                    <th style="text-align: center;">Сайтов</th>
                     <th style="text-align: center;">Редактировать</th>
                     <th style="text-align: center;">Посмотреть</th>
                 </tr>
@@ -32,6 +33,7 @@
                     <td style="text-align: center;">{{user.disabled ? 'Да' : 'Нет'}}</td>
                     <td>{{user.last_visit | date : 'hh.mm dd.MM.yy'}}</td>
                     <td>{{user.date_create | date : 'hh.mm dd.MM.yy'}}</td>
+                    <td style="text-align: center;">{{user.sites_count}}</td>
                     <td style="text-align: center;">
                         <a ui-sref="main.edit_user({user_id:user.user_id})">
                             <span class="glyphicon glyphicon-pencil" ></span>

@@ -1,4 +1,4 @@
-function SitesCtrl ($scope, $stateParams, $rootScope, $alert, $aside, $timeout,  Api) {
+function SitesCtrl ($scope, $stateParams, $rootScope, $alert, $aside, $timeout,  Api, Authenticate) {
 
 
     var vm = this;
@@ -9,9 +9,11 @@ function SitesCtrl ($scope, $stateParams, $rootScope, $alert, $aside, $timeout, 
     vm.sites = [];
     vm.site = null;
     vm.getParams = getParams;
+    vm.calcParams = calcParams;
     vm.calcSiteParams = calcSiteParams;
     vm.selectParam = selectParam;
     vm.data = {};
+    vm.isAdmin = isAdmin;
 
     vm.options = {
         chart: {
@@ -30,6 +32,10 @@ function SitesCtrl ($scope, $stateParams, $rootScope, $alert, $aside, $timeout, 
                 axisLabelDistance: 30
             }
         }
+    }
+
+    function isAdmin () {
+        return Authenticate.isAdmin()
     }
 
     $scope.$watch('vm.site', function(current, original) {
@@ -160,6 +166,31 @@ function SitesCtrl ($scope, $stateParams, $rootScope, $alert, $aside, $timeout, 
                     duration: '3',
                     container: '.alerts-container'
                 });
+            })
+    }
+
+    function calcParams() {
+        if (!vm.site){
+            return;
+        }
+        vm.loading = true;
+
+        vm.data = {};
+        return Api.calc_params(vm.site.data.url, vm.site.data.condition_id, vm.site.data.task_id, $stateParams.user_id)
+
+            .catch(function (err) {
+                console.log('calcParams Api.calc_params err ', err);
+                vm.loading = false;
+
+                $alert({title: 'Внимание!', content: "Параметры не пересчитаны.  " + (err.data ? ": " + err.data : "!"),
+                    placement: 'top', type: 'danger', show: true,
+                    duration: '3',
+                    container: '.alerts-container'
+                });
+            })
+            .then(function () {
+
+                return vm.getParams()
             })
     }
 

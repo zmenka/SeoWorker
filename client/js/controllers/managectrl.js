@@ -17,7 +17,7 @@ function ManageCtrl($scope, $state, $alert, Authenticate, Api) {
 //                    Authenticate.isAuthenticated = true
 //                    $location.path("/sites");
                 $alert({title: 'Внимание!', content: "Пользователь успешно зарегистрирован!",
-                    placement: 'top', type: 'success', show: true,
+                    placement: 'top', type: 'warning', show: true,
                     duration: '3',
                     container: '.alerts-container'
                 });

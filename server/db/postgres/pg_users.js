@@ -168,6 +168,24 @@ PgUsers.prototype.list = function () {
         })
 }
 
+PgUsers.prototype.listWithSitesCount = function () {
+    return PG.query("SELECT * FROM users u " +
+        "LEFT JOIN (SELECT user_id, COUNT(*)  as sites_count " +
+        "FROM usurls " +
+        "GROUP BY user_id) as uu " +
+        "ON uu.user_id=u.user_id " +
+        "ORDER BY u.date_create desc;",
+        [])
+        .then(function (res) {
+            console.log("PgUsers.prototype.listWithSitesCount")
+            return res.rows;
+        })
+        .catch(function (err) {
+            throw 'PgUsers.prototype.listWithSitesCount' + err;
+            console.log(err);
+        })
+}
+
 PgUsers.prototype.get = function (id) {
     return PG.query("SELECT * FROM users WHERE user_id = $1;",
         [id])
@@ -227,6 +245,20 @@ PgUsers.prototype.updateCookies = function (id, cookies) {
         .catch(function (err) {
             console.log(err);
             throw 'PgUsers.prototype.get' + err;
+
+        })
+}
+
+PgUsers.prototype.deleteCookies = function () {
+    return PG.query("UPDATE users SET cookies = '';",
+        [])
+        .then(function (res) {
+            console.log("PgUsers.prototype.deleteCookies")
+            return;
+        })
+        .catch(function (err) {
+            console.log(err);
+            throw 'PgUsers.prototype.deleteCookies' + err;
 
         })
 }

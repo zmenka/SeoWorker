@@ -47,7 +47,7 @@ seoApp.config(["$stateProvider", "$urlRouterProvider",
             .state('main.hello', {
                 url: "/",
                 templateUrl: "partials/main.html",
-                authenticate: false
+                authenticate: true
             })
             .state('main.promotion', {
                 url: "/promotion/:user_id",

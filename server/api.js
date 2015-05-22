@@ -37,7 +37,7 @@ module.exports = function Api(app, passport) {
             return;
         }
 
-        return new PgUsers().list()
+        return new PgUsers().listWithSitesCount()
             .then(function (users) {
                 callback(users, res);
             })
@@ -114,13 +114,13 @@ module.exports = function Api(app, passport) {
             return;
         }
 
-        if (!req.query.user_id) {
-            errback("не найден параметр user_id ", res);
+        if (req.query.user_id != req.user.user_id && req.user.role_id!=1) {
+            errback("Нет доступа.", res);
             return;
         }
 
-        if (req.query.user_id != req.user.user_id && req.user.role_id!=1) {
-            errback("Нет доступа.", res);
+        if (!req.query.user_id) {
+            errback("не найден параметр user_id ", res);
             return;
         }
 
@@ -246,15 +246,34 @@ module.exports = function Api(app, passport) {
             errback("Сервер занят, попробуйте позже.", res);
             return;
         }
+
+        if (!req.body.url) {
+            errback("Не найден параметр url.", res);
+            return;
+        }
+
         if (!req.body.condition_id) {
             errback("Не найден параметр condition_id.", res);
             return;
         }
 
+        if (!req.body.task_id) {
+            errback("Не найден параметр task_id.", res);
+            return;
+        }
+
+        if (!req.body.user_id) {
+            errback("Не найден параметр user_id.", res);
+            return;
+        }
+
         serverFree = false;
-        return new Core().calcParams(req.body.condition_id, req.body.captcha, req.headers, req.user.user_id)
+        return new Core().calcParams(req.body.condition_id, req.body.user_id)
             .then(function () {
                 return new Core().calcParamsByUrl(req.body.url, req.body.condition_id)
+            })
+            .then(function (res2) {
+                return new PgTasks().updateWithDateCalc(req.body.task_id, new Date())
             })
             .then(function () {
                 callback("ok", res);
@@ -397,7 +416,7 @@ module.exports = function Api(app, passport) {
 
         return callback("logout ok", res);
     });
-
+-
     app.post('/api/register', function (req, res, next) {
         console.log('/api/register', req.body);
 

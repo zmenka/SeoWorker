@@ -97,7 +97,7 @@ function SettingsCtrl ($scope,$stateParams, $alert, Api) {
                     console.log('site is saved');
                     load();
                     vm.loading = false;
-                    $alert({title: 'Запрс добавлен',
+                    $alert({title: 'Запрос добавлен',
                         placement: 'top', type: 'warning', show: true,
                         duration: '2',
                         container: '.alerts-container'

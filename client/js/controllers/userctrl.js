@@ -47,7 +47,7 @@ function UserCtrl($scope, $state, $stateParams, $alert, Authenticate, Api) {
                 console.log("editUser ", res.data)
                 vm.user = res.data;
                 $alert({title: '', content: 'Пользователь успешно обновлен!',
-                    placement: 'top', type: 'info', show: true,
+                    placement: 'top', type: 'warning', show: true,
                     duration: '3',
                     container: '.alerts-container'
                 });
