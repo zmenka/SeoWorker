@@ -26,13 +26,13 @@ var seoApp = angular.module('seoApp', [
 
 seoApp.config(["$stateProvider", "$urlRouterProvider",
     function ($stateProvider, $urlRouterProvider) {
-        $urlRouterProvider.otherwise("/promotion/chart");
+        $urlRouterProvider.otherwise("/index");
         //
         // Now set up the states
         $stateProvider
             .state('main', {
-                url: "/",
-                template: "<div ui-view></div>",
+                url: "",
+                template: "<div ui-view>qweqwe</div>",
                 abstract: true,
                 authenticate: true,
                 resolve: {
@@ -44,8 +44,13 @@ seoApp.config(["$stateProvider", "$urlRouterProvider",
                     ]
                 }
             })
+            .state('main.hello', {
+                url: "/",
+                templateUrl: "partials/main.html",
+                authenticate: false
+            })
             .state('main.promotion', {
-                url: "promotion",
+                url: "/promotion/:user_id",
                 templateUrl: "partials/sites.html",
                 authenticate: true
             })
@@ -60,43 +65,43 @@ seoApp.config(["$stateProvider", "$urlRouterProvider",
                 authenticate: true
             })
             .state('main.settings', {
-                url: "settings",
+                url: "/settings/:user_id",
                 templateUrl: 'partials/settings.html',
                 authenticate: true
             })
             .state('main.login', {
-                url: 'login',
+                url: '/login',
                 templateUrl: 'partials/login.html',
                 authenticate: false
             })
             .state('main.logout', {
-                url: 'logout',
+                url: '/logout',
                 redirectTo: '/login',
                 authenticate: false
             })
             .state('main.users', {
-                url: 'users',
+                url: '/users',
                 templateUrl: 'partials/users.html',
                 authenticate: true
             })
             .state('main.manage', {
-                url: 'manage',
+                url: '/manage',
                 templateUrl: 'partials/manage.html',
                 authenticate: true,
                 isAdmin: true
             })
             .state('main.edit_user', {
-                url: 'user/:user_id',
+                url: '/user/:user_id',
                 templateUrl: 'partials/edit_user.html',
                 authenticate: true,
                 isAdmin: true
             })
             .state('main.accessdenied', {
-                url: 'accessdenied',
+                url: '/accessdenied',
                 templateUrl: 'partials/accessdenied.html'
             })
             .state('main.error', {
-                url: 'error',
+                url: '/error',
                 templateUrl: 'partials/error.html'
             })
 //            .state('main.captcha_test', {

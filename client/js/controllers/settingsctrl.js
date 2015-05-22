@@ -1,4 +1,4 @@
-function SettingsCtrl ($scope, $alert, Api) {
+function SettingsCtrl ($scope,$stateParams, $alert, Api) {
     var vm = this;
         vm.url = null;
         vm.site = null;
@@ -11,7 +11,7 @@ function SettingsCtrl ($scope, $alert, Api) {
 
         var load = function () {
             vm.loading = true;
-            Api.user_sites_and_tasks()
+            Api.user_sites_and_tasks($stateParams.user_id)
                 .then(function (res) {
                     console.log("load Api.user_sites_and_tasks ", res);
                     vm.sites = res.data;
@@ -89,7 +89,7 @@ function SettingsCtrl ($scope, $alert, Api) {
                 return;
             }
             vm.loading = true;
-            Api.create_site(vm.url)
+            Api.create_site(vm.url, $stateParams.user_id)
                 .then(function () {
                     vm.url = null;
                     // чтобы не показывалась форма

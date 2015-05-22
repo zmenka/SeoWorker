@@ -7,7 +7,6 @@ function ManageCtrl($scope, $state, $alert, Authenticate, Api) {
     vm.loading = false;
     vm.loadUser = loadUsers;
     vm.users = [];
-    vm.loginAs = loginAs;
 
     vm.loadUser();
 
@@ -60,9 +59,6 @@ function ManageCtrl($scope, $state, $alert, Authenticate, Api) {
             });
     };
 
-    function loginAs(user_id){
-
-    }
 
 }
 

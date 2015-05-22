@@ -113,8 +113,19 @@ module.exports = function Api(app, passport) {
             errback("Вы не зарегистрировались.", res);
             return;
         }
+
+        if (!req.query.user_id) {
+            errback("не найден параметр user_id ", res);
+            return;
+        }
+
+        if (req.query.user_id != req.user.user_id && req.user.role_id!=1) {
+            errback("Нет доступа.", res);
+            return;
+        }
+
         var sites;
-        return new PgUsurls().listWithTasks(req.user.user_id)
+        return new PgUsurls().listWithTasks(req.query.user_id)
             .then(function (dirty_sites) {
                 SF = new SeoFormat();
                 sites = SF.createSiteTree(dirty_sites);
@@ -159,7 +170,12 @@ module.exports = function Api(app, passport) {
             return;
         }
 
-        return new PgUsurls().insertWithUrl(req.body.url, req.user.user_id)
+        if (!req.body.user_id) {
+            errback("не найден параметр url ", res);
+            return;
+        }
+
+        return new PgUsurls().insertWithUrl(req.body.url, req.body.user_id)
             .then(function (db_res) {
                 callback(db_res, res);
             })
@@ -412,7 +428,8 @@ module.exports = function Api(app, passport) {
     app.get('/api/check_auth', function (req, res, next) {
         // if user is authenticated in the session, carry on
         var r = {isAuth: req.isAuthenticated(), isAdmin:  req.isAuthenticated() && req.user.role_id == 1,
-        userLogin: req.isAuthenticated() ? req.user.user_login : ""}
+            userLogin: req.isAuthenticated() ? req.user.user_login : "",
+            userId: req.isAuthenticated() ? req.user.user_id : ""}
 
         if (req.isAuthenticated() && req.user.disabled){
             console.log('user ' + req.user.user_login + ' is disabled!')

@@ -19,5 +19,9 @@ function MainCtrl($scope, $state,  Authenticate) {
     vm.userLogin = function () {
         return Authenticate.userLogin();
     }
+
+    vm.userId = function () {
+        return Authenticate.userId();
+    }
 }
 angular.module('seoControllers').controller('MainCtrl', MainCtrl);

@@ -25,7 +25,7 @@
                     <th>Когда заходил</th>
                     <th>Был создан</th>
                     <th style="text-align: center;">Редактировать</th>
-                    <th style="text-align: center;">Войти за</th>
+                    <th style="text-align: center;">Посмотреть</th>
                 </tr>
                 <tr ng-repeat="user in vm.users">
                     <td ng-class="{'text-danger' : user.role_id == 1}">{{user.user_login}}</td>
@@ -38,8 +38,13 @@
                         </a>
                     </td>
                     <td style="text-align: center;">
-                        <a ng-click="vm.loginAs(user.user_id)">
-                            <span class="glyphicon glyphicon-user" style="top: 3px;"></span>
+                        <a ui-sref="main.promotion.chart({user_id:user.user_id})" target="_blank">
+                            <span class="glyphicon glyphicon-th-list" style="top: 3px; margin-right: 15px;"
+                                 data-placement="left" bs-tooltip data-title="Сайты"></span>
+                        </a>
+                        <a ui-sref="main.settings({user_id:user.user_id})" target="_blank">
+                            <span class="glyphicon glyphicon-wrench" style="top: 3px;"
+                                  data-placement="right" bs-tooltip data-title="Настройки"></span>
                         </a>
                     </td>
                 </tr>

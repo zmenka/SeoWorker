@@ -19,14 +19,16 @@ seoServices.factory('Api', ['$http',
                 return $http.post('/api/edit_user',
                     {user_id:user_id, new_login:new_login, new_pasw: new_pasw, disabled:disabled, disabled_message:disabled_message});
             },
-            user_sites_and_tasks: function () {
-                return $http.get('/api/user_sites_and_tasks', {});
+            user_sites_and_tasks: function (user_id) {
+                return $http.get('/api/user_sites_and_tasks', {
+                    params : {user_id:user_id}
+                });
             },
             sengines: function () {
                 return $http.get('/api/sengines', {});
             },
-            create_site: function (url) {
-                return $http.post('/api/create_site', {url: url});
+            create_site: function (url, user_id) {
+                return $http.post('/api/create_site', {url: url, user_id: user_id});
             },
             create_task: function (usurl_id, condition_query, sengine_id, region, size_search) {
                 return $http.post('/api/create_task', {usurl_id: usurl_id,
@@ -85,7 +87,7 @@ seoServices.factory('Authenticate', ['$rootScope', '$http', '$state', '$q',
 
         var isAuthenticated = undefined;
         var isAdmin = false;
-        var userLogin = undefined;
+        var user = {login: null, id: null};
 
         function initDone() {
             return angular.isDefined(isAuthenticated);
@@ -100,7 +102,11 @@ seoServices.factory('Authenticate', ['$rootScope', '$http', '$state', '$q',
         }
 
         function getUserLogin() {
-            return userLogin;
+            return user.login;
+        }
+
+        function getUserId() {
+            return user.id;
         }
 
         function checkAuth () {
@@ -113,7 +119,8 @@ seoServices.factory('Authenticate', ['$rootScope', '$http', '$state', '$q',
                         isAuthenticated = false;
                         isAdmin = false;
                     }
-                    userLogin = res.data.userLogin;
+                    user.id =  res.data.userId;
+                    user.login =  res.data.userLogin;
                     console.log('check_auth DONE', 'isAuthenticated ', isAuthenticated, ' isAdmin ', isAdmin)
                     return res;
 
@@ -121,7 +128,7 @@ seoServices.factory('Authenticate', ['$rootScope', '$http', '$state', '$q',
                     console.log("check_auth service error ", err.data)
                     isAuthenticated = null;
                     isAdmin = false;
-                    userLogin = null;
+                    user = {login: null, id: null};
                     throw err;
                 });
         }
@@ -175,7 +182,7 @@ seoServices.factory('Authenticate', ['$rootScope', '$http', '$state', '$q',
                     console.log("login service error ", err.data)
                     isAuthenticated = null;
                     isAdmin = false;
-                    userLogin = null;
+                    user = {login: null, id: null};
                     throw err;
                 });
         };
@@ -187,7 +194,7 @@ seoServices.factory('Authenticate', ['$rootScope', '$http', '$state', '$q',
                 .then(function (res) {
                     isAuthenticated = false;
                     isAdmin = false;
-                    userLogin = null;
+                    user = {login: null, id: null};
                     return res
                 }).catch(function (err) {
                     console.log("logout service error ", err.data)
@@ -211,6 +218,7 @@ seoServices.factory('Authenticate', ['$rootScope', '$http', '$state', '$q',
             isAuthenticated: getIsAuthenticated,
             isAdmin: getIsAdmin,
             userLogin: getUserLogin,
+            userId: getUserId,
             checkAccess: checkAccess,
             initDone: initDone
         }

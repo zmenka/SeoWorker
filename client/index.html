@@ -43,13 +43,13 @@
 <nav class="navbar  navbar-fixed-top bg-success app-header">
     <div class="container">
         <div class="navbar-header">
-            <div class="navbar-brand">PrAkula</div>
+            <a class="navbar-brand" ui-sref="main.hello" style="color:black">PrAkula</a>
         </div>
 
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1"  ng-controller="MainCtrl as vm">
             <ul class="nav navbar-nav">
                 <li>
-                    <a  ui-sref="main.promotion.chart" style="margin-right: 25px; padding-right: 5px; padding-left: 10px" >Продвижение</a>
+                    <a  ui-sref="main.promotion.chart({user_id:vm.userId()})" style="margin-right: 25px; padding-right: 5px; padding-left: 10px" >Продвижение</a>
 
                     <a class="dropdown dropdown-toggle pull-right" data-toggle="dropdown" role="button" aria-expanded="false"
                        style="position: absolute; top: 0; right: 0; padding-left: 5px; padding-right: 5px;">
@@ -58,14 +58,14 @@
 
                     <ul class="dropdown-menu" role="menu">
                         <li>
-                            <a ui-sref="main.promotion.chart" ><i class='glyphicon glyphicon-signal'></i>&nbsp;Графики</a>
+                            <a ui-sref="main.promotion.chart({user_id:vm.userId()})" ><i class='glyphicon glyphicon-signal'></i>&nbsp;Графики</a>
                         </li>
                         <li>
                             <a ui-sref="main.promotion.selection" ><span class="glyphicon glyphicon-list-alt"></span>&nbsp;Выдача</a>
                         </li>
                     </ul>
                 </li>
-                <li><a ui-sref="main.settings">Настройки</a></li>
+                <li><a ui-sref="main.settings({user_id:vm.userId()})">Настройки</a></li>
                 <li><a ui-sref="main.manage" ng-show="vm.checkAdmin()">Управление</a></li>
             </ul>
             <ul class="nav navbar-nav navbar-right">

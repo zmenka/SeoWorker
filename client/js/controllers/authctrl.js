@@ -8,7 +8,7 @@ function AuthCtrl($scope, $state, $alert, Authenticate) {
         Authenticate.login(user)
             .then(function (res) {
                 console.log("$scope.login ", res.data)
-                $state.go("main.promotion.chart");
+                $state.go("main.hello");
             }).catch(function (err) {
                 console.log("$scope.login error ", err.data)
                 if (err.data && err.data.message) {
