@@ -95,9 +95,9 @@ module.exports = function Api(app, passport) {
             return;
         }
 
-        return new PgUsers().edit(req.body.user_id, req.body.new_pasw, req.body.disabled, req.body.disabled_message)
-            .then(function (db_res) {
-                callback(db_res, res);
+        return new PgUsers().edit(req.body.user_id, req.body.new_login, req.body.new_pasw, req.body.disabled, req.body.disabled_message)
+            .then(function (user) {
+                callback(user, res);
             })
             .catch(function (err) {
                 console.log(err.stack);
@@ -130,6 +130,11 @@ module.exports = function Api(app, passport) {
     app.get('/api/sengines', function (req, res, next) {
         console.log('/api/sengines');
 
+        if (!req.user || !req.user.user_id) {
+            errback("Вы не зарегистрировались.", res);
+            return;
+        }
+
         return new PgSengines().list()
             .then(function (sites) {
                 callback(sites, res);
@@ -144,13 +149,13 @@ module.exports = function Api(app, passport) {
     app.post('/api/create_site', function (req, res, next) {
         console.log('/api/create_site', req.body);
 
-        if (!req.body.url) {
-            errback("не найден параметр url ", res);
+        if (!req.user || !req.user.user_id) {
+            errback("Вы не зарегистрировались.", res);
             return;
         }
 
-        if (!req.user || !req.user.user_id) {
-            errback("Вы не зарегистрировались.", res);
+        if (!req.body.url) {
+            errback("не найден параметр url ", res);
             return;
         }
 
@@ -166,6 +171,11 @@ module.exports = function Api(app, passport) {
 
     app.post('/api/create_task', function (req, res, next) {
         console.log('/api/create_site', req.body);
+
+        if (!req.user || !req.user.user_id) {
+            errback("Вы не зарегистрировались.", res);
+            return;
+        }
 
         if (!req.body.usurl_id || !req.body.condition_query || !req.body.sengine_id
             || !req.body.region || !req.body.size_search) {
@@ -205,6 +215,17 @@ module.exports = function Api(app, passport) {
     var serverFree = true;
     app.post('/api/calc_params', function (req, res, next) {
         console.log('/api/calc_params', req.body);
+
+        if (!req.user || !req.user.user_id) {
+            errback("Вы не зарегистрировались.", res);
+            return;
+        }
+
+        if (req.user.role_id!=1){
+            errback("Вы не админ.", res);
+            return;
+        }
+
         if (!serverFree) {
             errback("Сервер занят, попробуйте позже.", res);
             return;
@@ -214,10 +235,6 @@ module.exports = function Api(app, passport) {
             return;
         }
 
-        if (!req.user || !req.user.user_id) {
-            errback("Нет зарегистрированного пользователя!", res);
-            return;
-        }
         serverFree = false;
         return new Core().calcParams(req.body.condition_id, req.body.captcha, req.headers, req.user.user_id)
             .then(function () {
@@ -238,15 +255,16 @@ module.exports = function Api(app, passport) {
     app.post('/api/calc_site_params', function (req, res, next) {
         console.log('/api/calc_site_params', req.body);
 
+        if (!req.user || !req.user.user_id) {
+            errback("Вы не зарегистрировались.", res);
+            return;
+        }
+
         if (!req.body.condition_id) {
             errback("Не найден параметр condition_id.", res);
             return;
         }
 
-        if (!req.user || !req.user.user_id) {
-            errback("Вы не зарегистрировались.", res);
-            return;
-        }
         return new Core().calcParamsByUrl(req.body.url, req.body.condition_id)
             .then(function () {
                 callback("ok", res);
@@ -259,6 +277,12 @@ module.exports = function Api(app, passport) {
 
     app.post('/api/get_params', function (req, res, next) {
         console.log('/api/get_params', req.body);
+
+        if (!req.user || !req.user.user_id) {
+            errback("Вы не зарегистрировались.", res);
+            return;
+        }
+
         if (!req.body.condition_id) {
             errback("не найдены параметры condition_id", res);
             return;

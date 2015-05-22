@@ -231,7 +231,7 @@ PgUsers.prototype.updateCookies = function (id, cookies) {
         })
 }
 
-PgUsers.prototype.edit = function (userId, newPaswd, disabled, disabledMessage) {
+PgUsers.prototype.edit = function (userId, newLogin,  newPaswd, disabled, disabledMessage) {
 
     return this.get(userId)
         .then(function (user) {
@@ -239,20 +239,28 @@ PgUsers.prototype.edit = function (userId, newPaswd, disabled, disabledMessage) 
                 throw("Нет такого пользователя!")
                 return;
             }
+            var q = "UPDATE users SET DISABLED = $2 " +
+                ", DISABLED_MESSAGE = $3 "
+
+            var params = [userId, disabled, disabledMessage]
             var password;
             if (newPaswd){
-                password = this.generateHash(newPaswd);
+                password = new PgUsers().generateHash(newPaswd);
+                q += ", USER_PASSWORD = $4 "
+                params.push(password)
             }
-            var q = "UPDATE users SET DISABLED = $2 " +
-                ", DISABLED_MESSAGE = $3 " +
-                (password ? ", USER_PASSWORD = $4 " : "") +
-                "WHERE USER_ID=$1;";
-            return PG.query(q,
-                [userId, disabled, disabledMessage], password)
+            if (newLogin){
+                q += ", USER_LOGIN = $" + (params.length + 1)
+                params.push(newLogin)
+            }
+
+            q += " WHERE USER_ID=$1;";
+            console.log(q, params)
+            return PG.query(q, params)
         })
         .then(function (res) {
             console.log('PgUsers.prototype.edit');
-            return res;
+            return new PgUsers().get(userId)
         })
         .catch(function (err) {
             console.log(err);

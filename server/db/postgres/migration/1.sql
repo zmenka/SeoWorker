@@ -88,7 +88,7 @@ CREATE TABLE users
   -- Куки пользователя
   COOKIES     TEXT,
   -- Cообщение пользователю, если он заблокирован
-  DISABLE_MESSAGE     VARCHAR,
+  DISABLED_MESSAGE     VARCHAR,
   -- Время последнего захода пользователя
   LAST_VISIT       TIMESTAMP WITH TIME ZONE
 );

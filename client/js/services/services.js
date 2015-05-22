@@ -15,9 +15,9 @@ seoServices.factory('Api', ['$http',
                     params: {user_id: user_id}
                 })
             },
-            edit_user: function (user_id, new_pasw, disabled, disabled_message) {
+            edit_user: function (user_id, new_login, new_pasw, disabled, disabled_message) {
                 return $http.post('/api/edit_user',
-                    {user_id:user_id, new_pasw: new_pasw, disabled:disabled, disabled_message:disabled_message});
+                    {user_id:user_id, new_login:new_login, new_pasw: new_pasw, disabled:disabled, disabled_message:disabled_message});
             },
             user_sites_and_tasks: function () {
                 return $http.get('/api/user_sites_and_tasks', {});
@@ -104,13 +104,11 @@ seoServices.factory('Authenticate', ['$rootScope', '$http', '$state', '$q',
         }
 
         function checkAuth () {
-            return $http.get("/api/check_auth")
+            return $http.get("/api/check_auth", {})
                 .then(function (res ) {
                     if (res.data.isAuth){
                         isAuthenticated = true;
-                        if (res.data.isAdmin){
-                            isAdmin = true;
-                        }
+                        isAdmin = res.data.isAdmin
                     } else {
                         isAuthenticated = false;
                         isAdmin = false;
@@ -138,7 +136,7 @@ seoServices.factory('Authenticate', ['$rootScope', '$http', '$state', '$q',
 
             checkAuth()
                 .then(function () {
-                    console.log('init auth isAuthenticated ', isAuthenticated, ' isAdmin ', isAdmin)
+                    console.log('init auth isAuthenticated ', isAuthenticated, ' isAdmin ', getIsAdmin())
                     deferred.resolve(isAuthenticated);
                 })
                 .catch(function () {
@@ -151,14 +149,14 @@ seoServices.factory('Authenticate', ['$rootScope', '$http', '$state', '$q',
         var checkAccess = function () {
             return initAuth()
                 .then(function() {
-                    console.log('checkAccess', $rootScope.toState, 'isAuthenticated ', isAuthenticated, ' isAdmin ', isAdmin)
+                    console.log('checkAccess', $rootScope.toState, 'isAuthenticated ', isAuthenticated, ' isAdmin ', getIsAdmin())
                     if ($rootScope.toState.authenticate && !isAuthenticated) {
                         $rootScope.returnToState = $rootScope.toState;
                         $rootScope.returnToStateParams = $rootScope.toStateParams;
 
                         console.log("redirect to login");
                         $state.go('main.login');
-                    } else if ($rootScope.toState.isAdmin && !isAdmin) {
+                    } else if ($rootScope.toState.isAdmin && !getIsAdmin()) {
                         console.log("cant go to this page if not admin");
                         $state.go('main.accessdenied');
                     }
@@ -181,6 +179,8 @@ seoServices.factory('Authenticate', ['$rootScope', '$http', '$state', '$q',
                     throw err;
                 });
         };
+
+
 
         var logout = function () {
             return $http.get("/api/logout")

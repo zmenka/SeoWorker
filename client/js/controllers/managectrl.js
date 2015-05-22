@@ -49,7 +49,7 @@ function ManageCtrl($scope, $state, $alert, Authenticate, Api) {
                 vm.users = res.data;
             })
             .catch(function (err) {
-                console.log('get users return ERROR!', err);
+                console.log('get users return ERROR!', err.data);
                 vm.users = [];
                 vm.loading = false;
                 $alert({title: 'Внимание!', content: "Ошибка при получении списка пользователей: " + err.data,

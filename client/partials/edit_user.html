@@ -9,6 +9,10 @@
     <div class="col-xs-6">
         <form ng-submit="vm.editUser(vm.user)" >
             <div class="form-group">
+                <label>Поменять логин</label>
+                <input type="text" class="form-control" ng-model="vm.user.new_login">
+            </div>
+            <div class="form-group">
                 <label>Поменять пароль</label>
                 <input type="password" class="form-control" ng-model="vm.user.new_pasw">
             </div>

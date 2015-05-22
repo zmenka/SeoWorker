@@ -42,9 +42,10 @@ function UserCtrl($scope, $state, $stateParams, $alert, Authenticate, Api) {
             return;
         }
 
-        Api.edit_user(user.user_id, user.new_pasw, user.disabled, user.disabled_message)
+        Api.edit_user(user.user_id, user.new_login, user.new_pasw, user.disabled, user.disabled_message)
             .then(function (res) {
-                console.log("editUser ", res)
+                console.log("editUser ", res.data)
+                vm.user = res.data;
                 $alert({title: '', content: 'Пользователь успешно обновлен!',
                     placement: 'top', type: 'info', show: true,
                     duration: '3',
