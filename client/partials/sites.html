@@ -16,10 +16,10 @@
                 <div ng-hide="vm.site" class="site-name">Выберите сайт на панели слева</div>
                 <div ng-show="vm.site" style="display: inline-flex; justify-content: flex-end; width: 100%;" >
                     <div class="site-name " style=" flex: 1;" >
-                        <div class="link" style="flex: 1;" >
+                        <div class="link" style="flex: 1;" bs-tooltip data-placement="top" data-title="{{vm.site.data.url}}">
                             <a ng-href="{{vm.site.data.url}}" target="_blank"
-                               bs-tooltip data-placement="top" data-title="{{vm.site.data.url}}">
-                                {{vm.site.data.url}}
+                               >
+                                <span>{{vm.site.data.url}}</span>
                             </a>
                         </div>
 
