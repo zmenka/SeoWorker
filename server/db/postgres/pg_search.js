@@ -220,4 +220,16 @@ PgSearch.prototype.getLastSearch = function(condition_id, date_old) {
         })
 }
 
+PgSearch.prototype.getCorridor = function(search_id, paramtype_id) {
+    return PG.query("SELECT  C.* FROM corridor C WHERE S.SEARCH_ID = $1 AND S.PARAMTYPE_ID $2",
+        [search_id, paramtype_id])
+        .then(function (res) {
+            console.log("PgSearch.prototype.getCorridor")
+            return res.rows;
+        })
+        .catch(function (err) {
+            throw 'PgSearch.prototype.getCorridor' + err;
+        })
+}
+
 module.exports = PgSearch;

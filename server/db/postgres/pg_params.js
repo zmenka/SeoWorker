@@ -126,7 +126,7 @@ PgParams.prototype.getParamDiagram = function (search_id, paramtype_id, callback
             callback(res.rows);
         },
         function (err) {
-            console.log('PgParams.prototype.find');
+            console.log('PgParams.prototype.getParamDiagram');
             console.log(err);
         })
 }
