@@ -14,19 +14,19 @@
  *      <callback>,
  *      <errback>
  *  )
- *    returns <new params_id>
+ *    returns <new param_id>
  *
  *  //получить все строки из params
  *  params.list (<callback>,<errback>)
- *    returns [{params_id , condition_id , ...}, ...]
+ *    returns [{param_id , condition_id , ...}, ...]
  *
- *  //получить строку из params с помощью params_id
- *  params.get (<params_id>,<callback>,<errback>)
- *    returns {params_id , condition_id , ...}
+ *  //получить строку из params с помощью param_id
+ *  params.get (<param_id>,<callback>,<errback>)
+ *    returns {param_id , condition_id , ...}
  *
  *  //получить строки из params с помощью condition_id и html_id
  *  params.find (<condition_id>,<html_id>,<callback>,<errback>)
- *    returns [{params_id , condition_id , ...}, ...]
+ *    returns [{param_id , condition_id , ...}, ...]
  */
 
 var PG = require('./pg');
@@ -80,7 +80,7 @@ PgParams.prototype.list = function (callback, errback) {
 }
 
 PgParams.prototype.get = function (id, callback, errback) {
-    PG.query("SELECT P.*,PT.* FROM params P JOIN paramtypes PT WHERE P.params_id = $1;",
+    PG.query("SELECT P.*,PT.* FROM params P JOIN paramtypes PT ON P.PARAMTYPE_ID = PT.PARAMTYPE_ID WHERE P.param_id = $1;",
         [id],
         function (res) {
             callback(res.rows);
@@ -92,8 +92,36 @@ PgParams.prototype.get = function (id, callback, errback) {
 }
 
 PgParams.prototype.find = function (condition_id, html_id, callback, errback) {
-    PG.query("SELECT P.*,PT.* FROM params P JOIN paramtypes PT WHERE P.html_id = $1 and P.condition_id = $2;",
+    PG.query("SELECT P.*,PT.* FROM params P JOIN paramtypes PT ON P.PARAMTYPE_ID = PT.PARAMTYPE_ID WHERE P.html_id = $1 and P.condition_id = $2;",
         [html_id, condition_id],
+        function (res) {
+            callback(res.rows);
+        },
+        function (err) {
+            console.log('PgParams.prototype.find');
+            console.log(err);
+        })
+}
+
+PgParams.prototype.getParamDiagram = function (search_id, paramtype_id, callback, errback) {
+    PG.query( "SELECT " +
+              "    SC.POSITION, " +
+              "    P.PARAM_VALUE" +
+              "FROM " +
+              "    search S " +
+              "    JOIN spages SP  " + 
+              "        ON S.SEARCH_ID = SP.SEARCH_ID " + 
+              "    JOIN scontents SC  " + 
+              "        ON SP.SPAGE_ID = SC.SPAGE_ID" + 
+              "    JOIN params P  " + 
+              "         ON SC.HTML_ID = P.HTML_ID " + 
+              "         AND S.CONDITION_ID = P.CONDITION_ID " + 
+              "    JOIN paramtypes PT  " + 
+              "         ON P.PARAMTYPE_ID = PT.PARAMTYPE_ID " + 
+              "WHERE " + 
+              "    S.SEARCH_ID  = $1  " + 
+              "    AND PT.PARAMTYPE_ID = $2;",
+        [search_id, paramtype_id],
         function (res) {
             callback(res.rows);
         },

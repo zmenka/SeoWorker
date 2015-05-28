@@ -199,7 +199,7 @@ CREATE TABLE search
 (
   SEARCH_ID         SERIAL PRIMARY KEY,
   -- Содержимое странички выдачи поискового запроса
-  --HTML_ID           INT REFERENCES htmls (HTML_ID) NOT NULL,
+  -- HTML_ID           INT REFERENCES htmls (HTML_ID) NOT NULL,
   -- Условия для анализа
   CONDITION_ID      INT REFERENCES conditions (CONDITION_ID) NOT NULL,
   -- Время создания записи

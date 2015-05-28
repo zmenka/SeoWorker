@@ -72,7 +72,7 @@ CREATE TABLE params
   -- Условия для анализа
   PARAMTYPE_ID      INT REFERENCES paramtypes (PARAMTYPE_ID) NOT NULL,
   -- Параметры
-  PARAM_VALUE       VARCHAR,
+  PARAM_VALUE       VARCHAR(100),
   -- Время создания записи
   DATE_CREATE       TIMESTAMP WITH TIME ZONE NOT NULL
 );
