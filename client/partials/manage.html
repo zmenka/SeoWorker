@@ -1,0 +1,56 @@
+<div class="container" ng-controller="ManageCtrl as vm" style="margin-top: 10px">
+
+    <accordion close-others="vm.oneAtATime">
+        <accordion-group heading="Регистрация новых пользователей" >
+            <div class="alerts-container"></div>
+
+            <form ng-submit="vm.register(form)" style="width: 400px">
+                <div class="form-group">
+                    <label>Логин</label>
+                    <input type="text" class="form-control" ng-model="form.login">
+                </div>
+                <div class="form-group">
+                    <label>Пароль</label>
+                    <input type="password" class="form-control" ng-model="form.password">
+                </div>
+                <input type="submit" class="btn btn-primary  btn-lg " id="submit" value="Зарегистрировать"/>
+            </form>
+        </accordion-group>
+        <accordion-group heading="Мониторинг пользователей" is-open="true">
+            <p ng-hide="vm.users.length">Нет пользователей</p>
+            <table class="table" ng-show="vm.users.length" >
+                <tr>
+                    <th >Логин</th>
+                    <th style="text-align: center;">Отключен</th>
+                    <th>Когда заходил</th>
+                    <th>Был создан</th>
+                    <th style="text-align: center;">Сайтов</th>
+                    <th style="text-align: center;">Редактировать</th>
+                    <th style="text-align: center;">Посмотреть</th>
+                </tr>
+                <tr ng-repeat="user in vm.users">
+                    <td ng-class="{'text-danger' : user.role_id == 1}">{{user.user_login}}</td>
+                    <td style="text-align: center;">{{user.disabled ? 'Да' : 'Нет'}}</td>
+                    <td>{{user.last_visit | date : 'hh.mm dd.MM.yy'}}</td>
+                    <td>{{user.date_create | date : 'hh.mm dd.MM.yy'}}</td>
+                    <td style="text-align: center;">{{user.sites_count}}</td>
+                    <td style="text-align: center;">
+                        <a ui-sref="main.edit_user({user_id:user.user_id})">
+                            <span class="glyphicon glyphicon-pencil" ></span>
+                        </a>
+                    </td>
+                    <td style="text-align: center;">
+                        <a ui-sref="main.promotion.chart({user_id:user.user_id})" target="_blank">
+                            <span class="glyphicon glyphicon-th-list" style="top: 3px; margin-right: 15px;"
+                                 data-placement="left" bs-tooltip data-title="Сайты"></span>
+                        </a>
+                        <a ui-sref="main.settings({user_id:user.user_id})" target="_blank">
+                            <span class="glyphicon glyphicon-wrench" style="top: 3px;"
+                                  data-placement="right" bs-tooltip data-title="Настройки"></span>
+                        </a>
+                    </td>
+                </tr>
+            </table>
+        </accordion-group>
+    </accordion>
+</div>

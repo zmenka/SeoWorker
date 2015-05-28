@@ -86,7 +86,11 @@ CREATE TABLE users
   -- Время создания записи
   DATE_CREATE       TIMESTAMP WITH TIME ZONE NOT NULL,
   -- Куки пользователя
-  COOKIES     TEXT
+  COOKIES     TEXT,
+  -- Cообщение пользователю, если он заблокирован
+  DISABLED_MESSAGE     VARCHAR,
+  -- Время последнего захода пользователя
+  LAST_VISIT       TIMESTAMP WITH TIME ZONE
 );
 
 INSERT INTO users(USER_ID, USER_LOGIN, USER_PASSWORD, ROLE_ID, DATE_CREATE, COOKIES) VALUES
@@ -239,3 +243,21 @@ CREATE TABLE scontents
 -- Уникальнай ключ
 -- CREATE UNIQUE INDEX UIDX_scontents_html_search ON scontents (HTML_ID,SEARCH_ID);
 CREATE UNIQUE INDEX UIDX_scontents_search_n ON scontents (SPAGE_ID,POSITION);
+
+
+/* Менеджер задач */
+DROP TABLE IF EXISTS manager CASCADE;
+CREATE TABLE manager
+(
+  MANAGER_ID       SERIAL PRIMARY KEY,
+  -- Название задачи
+  MANAGER_NAME     VARCHAR(50),
+  -- Время обновления задачи
+  DATE_UPDATE       TIMESTAMP WITH TIME ZONE NOT NULL,
+  -- Время создания записи
+  DATE_CREATE       TIMESTAMP WITH TIME ZONE NOT NULL
+);
+-- Данные
+INSERT INTO manager (MANAGER_ID,MANAGER_NAME,DATE_UPDATE,DATE_CREATE) VALUES
+  (1,'cookie clean',NOW(),NOW())
+;

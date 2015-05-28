@@ -6,6 +6,8 @@ var PgSpages = require("./db/postgres/pg_spages");
 var PgParams = require("./db/postgres/pg_params");
 var PgSengines = require("./db/postgres/pg_sengines");
 var PgTasks = require("./db/postgres/pg_tasks")
+var PgManager = require("./db/postgres/pg_manager")
+var PgUsers = require("./db/postgres/pg_users")
 
 var Searcher = require("./searcher");
 var SearcherType = require("./searcher_type");
@@ -28,7 +30,24 @@ Core.prototype.bg = function () {
     var calcParams = this.calcParams;
     var calcSiteParams = this.calcParamsByUrl;
     function f() {
-        return new PgConditions().getLastNotSearchedRandomTask(10, new Date())
+        return new PgManager().getCookieTaskUpdateTime()
+            .then(function(date){
+                //если куки удалялись больше чем 5 часов -чистим
+                if (date && (Math.abs(new Date() - date) / 36e5) > 3){
+                    console.log('Core.prototype.bg clean cookie!')
+                    new PgUsers().deleteCookies()
+                        .then(function(date){
+                            new PgManager().updateCookieTaskUpdateTime(new Date())
+                        })
+                }
+
+            })
+            .catch(function (err) {
+                console.log('Core.bg getCookieTaskUpdateTime err ', err);
+            })
+            .then(function(date){
+                return new PgConditions().getLastNotSearchedRandomTask(10, new Date())
+            })
             .catch(function (err) {
                 console.log('Core.bg getLastNotSearchedRandomTask err ', err);
             })

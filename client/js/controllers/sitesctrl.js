@@ -1,4 +1,4 @@
-function SitesCtrl ($scope, $rootScope, $alert, $aside, $timeout,  Api) {
+function SitesCtrl ($scope, $stateParams, $rootScope, $alert, $aside, $timeout,  Api, Authenticate) {
 
 
     var vm = this;
@@ -9,9 +9,11 @@ function SitesCtrl ($scope, $rootScope, $alert, $aside, $timeout,  Api) {
     vm.sites = [];
     vm.site = null;
     vm.getParams = getParams;
+    vm.calcParams = calcParams;
     vm.calcSiteParams = calcSiteParams;
     vm.selectParam = selectParam;
     vm.data = {};
+    vm.isAdmin = isAdmin;
 
     vm.options = {
         chart: {
@@ -32,10 +34,12 @@ function SitesCtrl ($scope, $rootScope, $alert, $aside, $timeout,  Api) {
         }
     }
 
+    function isAdmin () {
+        return Authenticate.isAdmin()
+    }
+
     $scope.$watch('vm.site', function(current, original) {
         console.log("clear");
-
-
     });
 
     load();
@@ -75,6 +79,13 @@ function SitesCtrl ($scope, $rootScope, $alert, $aside, $timeout,  Api) {
                     placement: "left", animation: "fade-and-slide-left",
                     template: 'partials/sites_aside_template.html'});
 
+            } else {
+                vm.asideLoading = false;
+                $alert({title: 'Внимание!', content: "У вас пока нет сайтов.",
+                    placement: 'top', type: 'danger', show: true,
+                    duration: '3',
+                    container: '.alerts-container'
+                });
             }
 
         }
@@ -104,7 +115,7 @@ function SitesCtrl ($scope, $rootScope, $alert, $aside, $timeout,  Api) {
 
     function load () {
         vm.loading = true;
-        Api.user_sites_and_tasks()
+        Api.user_sites_and_tasks($stateParams.user_id)
             .then(function (res) {
                 console.log("load Api.user_sites_and_tasks ", res);
                 vm.sites = res.data;
@@ -155,6 +166,31 @@ function SitesCtrl ($scope, $rootScope, $alert, $aside, $timeout,  Api) {
                     duration: '3',
                     container: '.alerts-container'
                 });
+            })
+    }
+
+    function calcParams() {
+        if (!vm.site){
+            return;
+        }
+        vm.loading = true;
+
+        vm.data = {};
+        return Api.calc_params(vm.site.data.url, vm.site.data.condition_id, vm.site.data.task_id, $stateParams.user_id)
+
+            .catch(function (err) {
+                console.log('calcParams Api.calc_params err ', err);
+                vm.loading = false;
+
+                $alert({title: 'Внимание!', content: "Параметры не пересчитаны.  " + (err.data ? ": " + err.data : "!"),
+                    placement: 'top', type: 'danger', show: true,
+                    duration: '3',
+                    container: '.alerts-container'
+                });
+            })
+            .then(function () {
+
+                return vm.getParams()
             })
     }
 

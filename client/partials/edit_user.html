@@ -1,0 +1,33 @@
+<div class="container"  ng-controller="UserCtrl as vm">
+
+        <h1>Изменить пользователя {{vm.user.user_login}}</h1>
+
+        <hr>
+
+        <div class="alerts-container"></div>
+
+    <div class="col-xs-6">
+        <form ng-submit="vm.editUser(vm.user)" >
+            <div class="form-group">
+                <label>Поменять логин</label>
+                <input type="text" class="form-control" ng-model="vm.user.new_login">
+            </div>
+            <div class="form-group">
+                <label>Поменять пароль</label>
+                <input type="password" class="form-control" ng-model="vm.user.new_pasw">
+            </div>
+            <div class="checkbox">
+                <label>
+                    <input type="checkbox" ng-model="vm.user.disabled"> Заблокирован
+                </label>
+            </div>
+            <div class="form-group">
+                <label>Сообщение при блокировании</label>
+                <input type="text" class="form-control" ng-model="vm.user.disabled_message">
+            </div>
+
+            <input type="submit"  class="btn btn-primary  btn-lg " id="submit" value="Сохранить изменения" />
+        </form>
+
+    </div>
+</div>

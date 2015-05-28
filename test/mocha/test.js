@@ -21,7 +21,7 @@ describe('Test', function(){
 
         })
 
-        it.only('start bg', function(){
+        it('start bg', function(){
 
             var core = require("../../server/core")
             return new core().bg()
@@ -34,8 +34,8 @@ describe('Test', function(){
         })
 
         it('calc params for condition_id', function(){
-            var cond_id = 100;
-            var url = "http://dauer.su/catalog/suhie_smesi/";
+            var cond_id = 369;
+            var url = "http://plitca.ru"
             var core = require("../../server/core")
             return new core().calcParams(cond_id, 1)
                 .catch(function (err) {
@@ -133,6 +133,21 @@ describe('Test', function(){
                 .then(function (links) {
                     console.log(links);
                 })
+
+        })
+
+        it('check manager', function(){
+
+            var PgManager = require("../../server/db/postgres/pg_manager")
+            return new PgManager().getCookieTaskUpdateTime()
+                .then(function(date){
+                    if (date && (Math.abs(new Date("23 May 2015 10:12") - date) / 36e5) > 3){
+                        console.log('пора обновить!')
+                        new PgManager().updateCookieTaskUpdateTime(new Date())
+                    }
+
+                })
+
 
         })
 

@@ -15,8 +15,8 @@ var seoApp = angular.module('seoApp', [
     'mgcrea.ngStrap.aside',
     'mgcrea.ngStrap.dropdown',
 //    'ui.bootstrap',
-//    'ui.bootstrap.tpls',
-//    'ui.bootstrap.accordion',
+    'ui.bootstrap.tpls',
+    'ui.bootstrap.accordion',
 //    'ui.bootstrap.tooltip',
     'ui.tree',
     'ngAnimate',
@@ -26,18 +26,31 @@ var seoApp = angular.module('seoApp', [
 
 seoApp.config(["$stateProvider", "$urlRouterProvider",
     function ($stateProvider, $urlRouterProvider) {
-        $urlRouterProvider.otherwise("/promotion/chart");
+        $urlRouterProvider.otherwise("/index");
         //
         // Now set up the states
         $stateProvider
             .state('main', {
-                url: "/",
-                template: "<div ui-view></div>",
+                url: "",
+                template: "<div ui-view>qweqwe</div>",
                 abstract: true,
+                authenticate: true,
+                resolve: {
+                    Authenticate: ['Authenticate',
+                        function(Authenticate) {
+                            console.log('RESOLVE checkAccess')
+                            return Authenticate.checkAccess();
+                        }
+                    ]
+                }
+            })
+            .state('main.hello', {
+                url: "/",
+                templateUrl: "partials/main.html",
                 authenticate: true
             })
             .state('main.promotion', {
-                url: "promotion",
+                url: "/promotion/:user_id",
                 templateUrl: "partials/sites.html",
                 authenticate: true
             })
@@ -52,29 +65,44 @@ seoApp.config(["$stateProvider", "$urlRouterProvider",
                 authenticate: true
             })
             .state('main.settings', {
-                url: "settings",
+                url: "/settings/:user_id",
                 templateUrl: 'partials/settings.html',
                 authenticate: true
             })
             .state('main.login', {
-                url: 'login',
+                url: '/login',
                 templateUrl: 'partials/login.html',
-                authenticate: true
-            })
-            .state('main.register', {
-                url: 'register',
-                templateUrl: 'partials/register.html',
-                authenticate: true
+                authenticate: false
             })
             .state('main.logout', {
-                url: 'logout',
+                url: '/logout',
                 redirectTo: '/login',
                 authenticate: false
             })
-            .state('users', {
-                url: 'users',
+            .state('main.users', {
+                url: '/users',
                 templateUrl: 'partials/users.html',
                 authenticate: true
+            })
+            .state('main.manage', {
+                url: '/manage',
+                templateUrl: 'partials/manage.html',
+                authenticate: true,
+                isAdmin: true
+            })
+            .state('main.edit_user', {
+                url: '/user/:user_id',
+                templateUrl: 'partials/edit_user.html',
+                authenticate: true,
+                isAdmin: true
+            })
+            .state('main.accessdenied', {
+                url: '/accessdenied',
+                templateUrl: 'partials/accessdenied.html'
+            })
+            .state('main.error', {
+                url: '/error',
+                templateUrl: 'partials/error.html'
             })
 //            .state('main.captcha_test', {
 //                templateUrl: 'partials/captchatest.html',
@@ -86,43 +114,14 @@ seoApp.config(["$stateProvider", "$urlRouterProvider",
 seoApp.run(['$rootScope', '$state',  'Authenticate',
     function ($rootScope, $state, Authenticate) {
         $rootScope.$on('$stateChangeStart',
-            function(event, toState, toParams, fromState, fromParams){
-//                console.log('isAuthenticated', Authenticate.isAuthenticated)
-
-            if (Authenticate.isAuthenticated == null ) {
-                Authenticate.initAuth()
-                    .then(function (result) {
-                        if (typeof result.data === "boolean"){
-                            Authenticate.isAuthenticated = result.data;
-                        } else {
-                            Authenticate.isAuthenticated = false;
-                        }
-
-                        console.log("Authenticate.initAuth ", Authenticate.isAuthenticated)
-
-
-                    }).catch(function (err) {
-                        Authenticate.isAuthenticated = false;
-                        console.log("Authenticate.initAuth error ", err)
-                    })
-                    .then(function () {
-                        console.log("stateChangeStart init ", toState.authenticate, Authenticate.isAuthenticated)
-                        if ((typeof(toState.authenticate) === "undefined" || toState.authenticate) && Authenticate.isAuthenticated == false) {
-                            console.log("redirect to login");
-                            $state.go('main.login');
-                        }
-                    })
-            } else {
-                console.log("stateChangeStart", toState, Authenticate.isAuthenticated)
-                if (toState.url == 'login'){
-                    return;
+            function (event, toState, toParams, fromState, fromParams) {
+                $rootScope.toState = toState;
+                $rootScope.toStateParams = toParams;
+                console.log('$stateChangeStart go? ', Authenticate.initDone())
+                if (Authenticate.initDone()) {
+                    Authenticate.checkAccess();
                 }
-                if (toState.authenticate   && !Authenticate.isAuthenticated) {
-                    console.log("redirect to login");
 
-                    $state.go('main.login');
-                    console.log($state);
-                }
             }
-        })
+        );
     }]);

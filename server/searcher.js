@@ -71,8 +71,8 @@ Searcher.prototype.getContentByUrl = function (url, captcha, cookies) {
 
         var j = request.jar()
 
-        //используем куки только для капчи
-        if (cookies && captcha) {
+        //используем куки
+        if (cookies) {
 //            console.log("saved cookies", cookies)
             for (var i in cookies) {
                 j.setCookie(cookies[i].key + "=" + cookies[i].value, options.url);
@@ -86,7 +86,7 @@ Searcher.prototype.getContentByUrl = function (url, captcha, cookies) {
 
         request(options, function (error, response, body) {
             if (error) {
-                deferred.reject('Searcher.prototype.getContentByUrl Ошибка при получении html ' + error.toString());
+                deferred.reject('Searcher.prototype.getContentByUrl Ошибка при получении html ' + (error ? error.toString(): ""));
             } else {
 
                 var cookies = j.getCookies(options.url)
@@ -103,7 +103,7 @@ Searcher.prototype.getContentByUrl = function (url, captcha, cookies) {
 
                     zlib.gunzip(body, function (err, decoded) {
                         if (error) {
-                            deferred.reject('Searcher.prototype.getContentByUrl Ошибка при получении zlib ' + err.toString());
+                            deferred.reject('Searcher.prototype.getContentByUrl Ошибка при получении zlib ' + (error ? error.toString(): ""));
                         }
 
                         deferred.resolve({html: responseDecode(response, decoded), cookies: cookies});
@@ -111,7 +111,7 @@ Searcher.prototype.getContentByUrl = function (url, captcha, cookies) {
                 } else if (encoding == 'deflate') {
                     zlib.inflate(body, function (err, decoded) {
                         if (error) {
-                            deferred.reject('Searcher.prototype.getContentByUrl Ошибка при получении zlib ' + err.toString());
+                            deferred.reject('Searcher.prototype.getContentByUrl Ошибка при получении zlib ' + (error ? error.toString(): ""));
                         }
 
                         deferred.resolve({html: responseDecode(response, decoded), cookies: cookies});
@@ -190,8 +190,7 @@ Searcher.prototype.getContentByUrlOrCaptcha = function (url, captcha, user_id,se
             return _this2.getCaptcha(content.html,sengine_name)
         })
         .catch(function (error) {
-            console.log('getContentByUrlOrCaptcha err', error.stack)
-            throw 'getContentByUrlOrCaptcha error:' + error.toString();
+            console.log('getContentByUrlOrCaptcha err', error, error.stack)
         })
         .then(function (rescaptcha) {
             if (rescaptcha) {

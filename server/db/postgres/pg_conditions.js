@@ -160,8 +160,7 @@ PgConditions.prototype.getLastNotSearchedRandomTask = function (range, dateOld){
                 "t.date_create desc " +
             "OFFSET random()*$1 " +
             "LIMIT 1;",
-        [range,dateOld.toISOString().substr(0,10)],
-        false
+        [range,dateOld.toISOString().substr(0,10)]
     )
         .then(function (res) {
 //            console.log('PgConditions.prototype.getLastNotSearchedRandomCondition')

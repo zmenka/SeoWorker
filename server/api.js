@@ -32,7 +32,12 @@ module.exports = function Api(app, passport) {
             return;
         }
 
-        return new PgUsers().list()
+        if (req.user.role_id!=1){
+            errback("Вы не админ.", res);
+            return;
+        }
+
+        return new PgUsers().listWithSitesCount()
             .then(function (users) {
                 callback(users, res);
             })
@@ -42,6 +47,64 @@ module.exports = function Api(app, passport) {
             })
 
     });
+
+    app.get('/api/user', function (req, res, next) {
+        console.log('/api/user',  req.query);
+
+        if (!req.user || !req.user.user_id) {
+            errback("Вы не зарегистрировались.", res);
+            return;
+        }
+
+        if (req.user.role_id!=1){
+            errback("Вы не админ.", res);
+            return;
+        }
+
+        if (!req.query.user_id) {
+            errback("Не найден ид пользователя.", res);
+            return;
+        }
+
+        return new PgUsers().get(req.query.user_id)
+            .then(function (user) {
+                callback(user, res);
+            })
+            .catch(function (err) {
+                console.log(err.stack);
+                errback(err, res);
+            })
+
+    });
+
+    app.post('/api/edit_user', function (req, res, next) {
+        console.log('/api/edit_user', req.body);
+
+        if (!req.user || !req.user.user_id) {
+            errback("Вы не зарегистрировались.", res);
+            return;
+        }
+
+        if (req.user.role_id!=1){
+            errback("Вы не админ.", res);
+            return;
+        }
+
+        if (!req.body.user_id) {
+            errback("не найден параметр user_id ", res);
+            return;
+        }
+
+        return new PgUsers().edit(req.body.user_id, req.body.new_login, req.body.new_pasw, req.body.disabled, req.body.disabled_message)
+            .then(function (user) {
+                callback(user, res);
+            })
+            .catch(function (err) {
+                console.log(err.stack);
+                errback(err, res);
+            })
+    });
+
 // get all sites and tasks
     app.get('/api/user_sites_and_tasks', function (req, res, next) {
         console.log('/api/user_sites_and_tasks');
@@ -50,8 +113,19 @@ module.exports = function Api(app, passport) {
             errback("Вы не зарегистрировались.", res);
             return;
         }
+
+        if (req.query.user_id != req.user.user_id && req.user.role_id!=1) {
+            errback("Нет доступа.", res);
+            return;
+        }
+
+        if (!req.query.user_id) {
+            errback("не найден параметр user_id ", res);
+            return;
+        }
+
         var sites;
-        return new PgUsurls().listWithTasks(req.user.user_id)
+        return new PgUsurls().listWithTasks(req.query.user_id)
             .then(function (dirty_sites) {
                 SF = new SeoFormat();
                 sites = SF.createSiteTree(dirty_sites);
@@ -67,6 +141,11 @@ module.exports = function Api(app, passport) {
     app.get('/api/sengines', function (req, res, next) {
         console.log('/api/sengines');
 
+        if (!req.user || !req.user.user_id) {
+            errback("Вы не зарегистрировались.", res);
+            return;
+        }
+
         return new PgSengines().list()
             .then(function (sites) {
                 callback(sites, res);
@@ -81,17 +160,22 @@ module.exports = function Api(app, passport) {
     app.post('/api/create_site', function (req, res, next) {
         console.log('/api/create_site', req.body);
 
-        if (!req.body.url) {
-            errback("не найден параметр url ", res);
-            return;
-        }
-
         if (!req.user || !req.user.user_id) {
             errback("Вы не зарегистрировались.", res);
             return;
         }
 
-        return new PgUsurls().insertWithUrl(req.body.url, req.user.user_id)
+        if (!req.body.url) {
+            errback("не найден параметр url ", res);
+            return;
+        }
+
+        if (!req.body.user_id) {
+            errback("не найден параметр url ", res);
+            return;
+        }
+
+        return new PgUsurls().insertWithUrl(req.body.url, req.body.user_id)
             .then(function (db_res) {
                 callback(db_res, res);
             })
@@ -103,6 +187,11 @@ module.exports = function Api(app, passport) {
 
     app.post('/api/create_task', function (req, res, next) {
         console.log('/api/create_site', req.body);
+
+        if (!req.user || !req.user.user_id) {
+            errback("Вы не зарегистрировались.", res);
+            return;
+        }
 
         if (!req.body.usurl_id || !req.body.condition_query || !req.body.sengine_id
             || !req.body.region || !req.body.size_search) {
@@ -142,23 +231,49 @@ module.exports = function Api(app, passport) {
     var serverFree = true;
     app.post('/api/calc_params', function (req, res, next) {
         console.log('/api/calc_params', req.body);
+
+        if (!req.user || !req.user.user_id) {
+            errback("Вы не зарегистрировались.", res);
+            return;
+        }
+
+        if (req.user.role_id!=1){
+            errback("Вы не админ.", res);
+            return;
+        }
+
         if (!serverFree) {
             errback("Сервер занят, попробуйте позже.", res);
             return;
         }
+
+        if (!req.body.url) {
+            errback("Не найден параметр url.", res);
+            return;
+        }
+
         if (!req.body.condition_id) {
             errback("Не найден параметр condition_id.", res);
             return;
         }
 
-        if (!req.user || !req.user.user_id) {
-            errback("Нет зарегистрированного пользователя!", res);
+        if (!req.body.task_id) {
+            errback("Не найден параметр task_id.", res);
             return;
         }
+
+        if (!req.body.user_id) {
+            errback("Не найден параметр user_id.", res);
+            return;
+        }
+
         serverFree = false;
-        return new Core().calcParams(req.body.condition_id, req.body.captcha, req.headers, req.user.user_id)
+        return new Core().calcParams(req.body.condition_id, req.body.user_id)
             .then(function () {
                 return new Core().calcParamsByUrl(req.body.url, req.body.condition_id)
+            })
+            .then(function (res2) {
+                return new PgTasks().updateWithDateCalc(req.body.task_id, new Date())
             })
             .then(function () {
                 callback("ok", res);
@@ -175,15 +290,16 @@ module.exports = function Api(app, passport) {
     app.post('/api/calc_site_params', function (req, res, next) {
         console.log('/api/calc_site_params', req.body);
 
+        if (!req.user || !req.user.user_id) {
+            errback("Вы не зарегистрировались.", res);
+            return;
+        }
+
         if (!req.body.condition_id) {
             errback("Не найден параметр condition_id.", res);
             return;
         }
 
-        if (!req.user || !req.user.user_id) {
-            errback("Вы не зарегистрировались.", res);
-            return;
-        }
         return new Core().calcParamsByUrl(req.body.url, req.body.condition_id)
             .then(function () {
                 callback("ok", res);
@@ -196,6 +312,12 @@ module.exports = function Api(app, passport) {
 
     app.post('/api/get_params', function (req, res, next) {
         console.log('/api/get_params', req.body);
+
+        if (!req.user || !req.user.user_id) {
+            errback("Вы не зарегистрировались.", res);
+            return;
+        }
+
         if (!req.body.condition_id) {
             errback("не найдены параметры condition_id", res);
             return;
@@ -278,15 +400,11 @@ module.exports = function Api(app, passport) {
                 if (!user) {
                     return errback({ message: info.message }, res);
                 }
-
-                if (user.disabled) {
-                    return errback({ message: 'Пользователь отключен от системы!' }, res);
-                }
                 req.logIn(user, function (err) {
                     if (err) {
                         return next(err);
                     }
-                    return callback({ message: info.message }, res);
+                    return callback({ message: info.message}, res);
                 });
             })(req, res, next);
         }
@@ -298,24 +416,7 @@ module.exports = function Api(app, passport) {
 
         return callback("logout ok", res);
     });
-
-//    app.post('/api/register', function (req, res, next) {
-//        passport.authenticate('register', function (err, user, info) {
-//            if (err) {
-//                return next(err)
-//            }
-//            if (!user) {
-//                return errback({ message: info.message }, res);
-//            }
-//            req.logIn(user, function (err) {
-//                if (err) {
-//                    return next(err);
-//                }
-//                return callback({ message: info.message }, res);
-//            });
-//        })(req, res, next);
-//    });
-
+-
     app.post('/api/register', function (req, res, next) {
         console.log('/api/register', req.body);
 
@@ -345,8 +446,23 @@ module.exports = function Api(app, passport) {
 
     app.get('/api/check_auth', function (req, res, next) {
         // if user is authenticated in the session, carry on
-        console.log('/api/check_auth', req.isAuthenticated())
-        callback(req.isAuthenticated(), res);
+        var r = {isAuth: req.isAuthenticated(), isAdmin:  req.isAuthenticated() && req.user.role_id == 1,
+            userLogin: req.isAuthenticated() ? req.user.user_login : "",
+            userId: req.isAuthenticated() ? req.user.user_id : ""}
+
+        if (req.isAuthenticated() && req.user.disabled){
+            console.log('user ' + req.user.user_login + ' is disabled!')
+            req.logout();
+            r.isAuth = false;
+            r.isAdmin = false;
+        }
+
+        if (req.isAuthenticated()) {
+            // запомним, что пользователь заходил
+            new PgUsers().updateLastVisit(req.user.user_id);
+        }
+        console.log('/api/check_auth', r)
+        callback(r, res);
     });
 
 }
