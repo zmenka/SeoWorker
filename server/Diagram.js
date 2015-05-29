@@ -36,12 +36,14 @@ function Diagram() {
 Diagram.prototype.getParamsDiagram = function (params, siteParam) {
     if (!params || params.length == 0 || !siteParam) {
             return null;
-        }   
+        }
             var paramsValues = params.map(function(el){
                 return [el.position, parseFloat(el.value)]
             })
             //получаем данные о "коридоре"
-            var mathstat = new MathStat(params);
+            var mathstat = new MathStat(params.map(function(el){
+                return parseFloat(el.value)
+            }));
             mathstat.calc();
             //получаем крайние x-координаты
             var x1 = 0;
