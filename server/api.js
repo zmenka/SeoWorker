@@ -3,6 +3,8 @@ var PgUsurls = require("./db/postgres/pg_usurls");
 var PgTasks = require("./db/postgres/pg_tasks");
 var PgSearch = require("./db/postgres/pg_search");
 var PgSengines = require("./db/postgres/pg_sengines");
+var PgParams = require("./db/postgres/pg_params");
+var PgHtmls = require("./db/postgres/pg_htmls");
 var SeoFormat = require("./SeoFormat");
 var Diagram = require("./Diagram");
 var Core = require("./core");
@@ -310,6 +312,40 @@ module.exports = function Api(app, passport) {
             })
     });
 
+    app.post('/api/get_paramtypes', function (req, res, next) {
+        console.log('/api/get_paramtypes', req.body);
+
+        if (!req.user || !req.user.user_id) {
+            errback("Вы не зарегистрировались.", res);
+            return;
+        }
+
+        if (!req.body.condition_id) {
+            errback("не найдены параметры condition_id", res);
+            return;
+        }
+        return new PgSearch().getLastSearch(req.body.condition_id)
+            .then(function (search) {
+                if (!search){
+                    errback( 'Не найдена поисковая выдача', res)
+                    return
+                }
+                return new PgParams().getParamtypes(search.search_id)
+            })
+            .then(function (paramtypes) {
+                if (!paramtypes){
+                    errback( 'Не найден ни один тип параметра', res)
+                    return
+                }
+                var tree = new SeoFormat().getTreeFromParamtypes(paramtypes)
+                callback(tree, res)
+            })
+            .catch(function (err) {
+                console.log(err, err.stack);
+                errback("", res);
+            })
+    })
+
     app.post('/api/get_params', function (req, res, next) {
         console.log('/api/get_params', req.body);
 
@@ -322,6 +358,55 @@ module.exports = function Api(app, passport) {
             errback("не найдены параметры condition_id", res);
             return;
         }
+
+        if (!req.body.url_id) {
+            errback("не найдены параметры url_id", res);
+            return;
+        }
+
+        if (!req.body.param_type) {
+            errback("не найдены параметры param_type", res);
+            return;
+        }
+
+        var paramsChart;
+        return new PgSearch().getLastSearch(req.body.condition_id)
+            .then(function (search) {
+                if (!search){
+                    errback( 'Не найдена поисковая выдача', res)
+                    return
+                }
+                return new PgParams().getParamDiagram(search.search_id, req.body.param_type)
+            })
+            .then(function (paramsChartRes) {
+                if (!paramsChartRes){
+                    errback( 'Еще не получены данные', res)
+                    return
+                }
+                paramsChart = paramsChartRes;
+                return new PgHtmls().getLastHtml(req.body.url_id)
+            })
+            .then(function (html) {
+                if (!html) {
+                    errback('Еще не получены данные для Вашего сайта', res)
+                    return
+                }
+                return new PgParams().getSiteParam(req.body.condition_id, html.html_id, req.body.param_type )
+            })
+            .then(function (siteParams) {
+                if (!siteParams){
+                    errback( 'Еще не расчитан параметр Вашего сайта', res)
+                    return
+                }
+                diagram = new Diagram();
+                //форматируем данные работаем с диаграммой.
+                var paramsDiagram = diagram.getParamsDiagram(paramsChart, siteParams);
+                callback(paramsDiagram, res)
+            })
+            .catch(function (err) {
+                console.log(err, err.stack);
+                errback("", res);
+            })
 
         var paramsDirty;
         return new PgSearch().listWithHtmls(req.body.condition_id)
@@ -346,7 +431,7 @@ module.exports = function Api(app, passport) {
                 //работаем с диаграммой. Транспонируем данные от "страницы и их параметры" к "параметры страниц"
                 var params = SF.transponateParams(paramsDirty);
                 var paramsDiagram = diagram.getParamsDiagram(params, site_params);
-                var paramsTree = diagram.getTreeParamsDiagram(paramsDiagram);
+                //var paramsTree = diagram.getTreeParamsDiagram(paramsDiagram);
                 var paramsTable = SF.prettyTable(paramsDirty, site_params);
                 var paramsPosition = SF.getSitePosition(paramsDirty, site_params);
                 var searchDate = null;

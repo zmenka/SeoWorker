@@ -157,5 +157,34 @@ SeoFormat.prototype.prettyTable = function (data, site_data) {
     return table;
 }
 
+SeoFormat.prototype.getTreeFromParamtypes = function (paramtypes) {
+
+    if (!paramtypes || paramtypes.length == 0) {
+        return null;
+    }
+    var tree = [];
+    for (var key in paramtypes) {
+        //console.log(paramtypes[key].paramtype_tag, paramtypes[key]);
+        var groups = tree.filter(function (v) {
+            return v.title === paramtypes[key].paramtype_tag;
+        });
+
+        var node;
+        if (groups.length > 0) {
+            node = groups[0];
+        } else {
+            node = new TaskTreeNode();
+            node.create(paramtypes[key].paramtype_tag, true,
+                {}, 'group');
+            tree.push(node)
+        }
+        var keyPar = new TaskTreeNode();
+        keyPar.create(paramtypes[key].paramtype_ru_name, true, paramtypes[key], 'key');
+        node.nodes.push(keyPar);
+//        console.log('keyPar',keyPar);
+    }
+    return tree;
+
+}
 
 module.exports = SeoFormat;

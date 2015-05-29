@@ -35,7 +35,9 @@ PG.prototype.rollback = function (client, done) {
     //the pool.  If you leave a client in the pool with an unaborted
     //transaction weird, hard to diagnose problems might happen.
     client.query('ROLLBACK', function (err) {
-        console.log(err)
+        if (err){
+            console.log(err)
+        }
         return done(err);
     });
 };

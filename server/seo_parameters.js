@@ -226,7 +226,7 @@ SeoParameters.prototype.getAllParams = function () {
 //  sList.ru_name = "Выдача";
 //  sList.description = "Посиковая выдача на страничке (google,yandex)";
 
-    var params = {params: [
+    return [
         titleCS, h1CS,
 //      h2CS, h3CS,
         h2Count, h3Count,
@@ -236,8 +236,7 @@ SeoParameters.prototype.getAllParams = function () {
         pLength, pLengthFirst, pLengthAvg,
         bodyLength, pCount, pNotEmptyCount,
         pCSAvg, bodyCSAvg
-    ]};
-    return params;
+    ];
 }
 //процент вхождения фразы в первом тэге tag
 SeoParameters.prototype.tagCSFirst = function (tag) {

@@ -29,14 +29,15 @@ function Core() {
 Core.prototype.bg = function () {
     var calcParams = this.calcParams;
     var calcSiteParams = this.calcParamsByUrl;
+
     function f() {
         return new PgManager().getCookieTaskUpdateTime()
-            .then(function(date){
+            .then(function (date) {
                 //если куки удалялись больше чем 5 часов -чистим
-                if (date && (Math.abs(new Date() - date) / 36e5) > 3){
+                if (date && (Math.abs(new Date() - date) / 36e5) > 3) {
                     console.log('Core.prototype.bg clean cookie!')
                     new PgUsers().deleteCookies()
-                        .then(function(date){
+                        .then(function (date) {
                             new PgManager().updateCookieTaskUpdateTime(new Date())
                         })
                 }
@@ -45,7 +46,7 @@ Core.prototype.bg = function () {
             .catch(function (err) {
                 console.log('Core.bg getCookieTaskUpdateTime err ', err);
             })
-            .then(function(date){
+            .then(function (date) {
                 return new PgConditions().getLastNotSearchedRandomTask(10, new Date())
             })
             .catch(function (err) {
@@ -90,7 +91,7 @@ Core.prototype.bg = function () {
                 console.log('Core.bg err ', err);
             })
             .then(function (res) {
-                return  f();
+                return f();
             })
     }
 
@@ -125,6 +126,9 @@ Core.prototype.calcParams = function (condition_id, user_id) {
         })
         .then(function (links_obj) {
             return calcLinksParams(links_obj, condition_id, condition.condition_query)
+        })
+        .then(function (links_obj) {
+            return new PgSearch().updateDone(search_id, true)
         })
         .then(function (res) {
             console.log('Core.prototype.calcParams done');
@@ -178,11 +182,10 @@ Core.prototype.getLinksFromSearcher = function (search_objects, search_id, user_
                     })
                     .then(function (links) {
                         console.log("Core.prototype.getLinksFromSearcher получили ", links.length, " ссылок из ", search_object.url)
-                        // обнуляем капчу
-                        captcha = null;
+
                         if (links.length == 0) throw "Core.prototype.getLinksFromSearcher Ссылки сайтов не получены из " + search_object.url;
 //                        console.log(links)
-                        result.push({spage_id: spage_id, links: links, page: search_object.page });
+                        result.push({spage_id: spage_id, links: links, page: search_object.page});
                     })
             })
             // add the link onto the chain
@@ -235,114 +238,28 @@ Core.prototype.calcLinksParams = function (links_obj, condition_id, condition_qu
                             return new SeoParameters().init(condition_query, current_html)
                         })
                         .then(function (params) {
-                            var link_params = params.getAllParams()
-                            return new PgParams().insert(condition_id, current_html_id, link_params)
+                            var allParams = params.getAllParams()
+                            var paramPromises = [];
+                            for (var i = 0; i < allParams.length; i++) {
+                                if (!allParams[i].val){
+                                    continue;
+                                }
+                                (function (param, condition_id, html_id) {
+                                    console.log("сейчас обрабатывается параметр ", param)
+                                    var current_html_id;
+                                    paramPromises.push(new PgParams().insert(condition_id, html_id, param.name, param.val))
+
+                                })(allParams[i], condition_id, current_html_id)
+
+                            }
+
+                            return Q.allSettled(paramPromises)
                         })
                 })(link, position, spage_id))
             })(links_obj[i].links[j], j + links_obj[i].start, links_obj[i].spage_id)
         }
     }
     return Q.allSettled(promises)
-}
-
-Core.prototype.calcParamsOld = function (condition_id, captcha, headers, user_id) {
-    var search_id;
-    var url;
-    var condition;
-    var raw_html;
-    var sites_count = 0;
-    var page = 0;
-    var spage_id;
-    return new PgConditions().getWithSengines(condition_id)
-        .then(function (condition_res) {
-            return new PgConditions().getCurrentSearchPage(condition_id, new Date(new Date() - 10 * 60000))
-                .then(function (res) {
-                    condition = condition_res
-                    if (res) {
-                        if (res.page_number > 1) {
-                            throw 'Данные уже обновлены.'
-                            return
-                        }
-                        page = res.page_number + 1
-                        sites_count = res.count;
-                        return res.search_id
-
-                    } else {
-                        return new PgSearch().insert(condition_id)
-                    }
-
-                })
-        })
-        .then(function (search_id_res) {
-            search_id = search_id_res
-            url = condition.sengine_qmask + condition.condition_query.replace(/\s/g, '%20') + "%26p%3D" + page;
-            console.log("хотим яндекс урл ", url)
-            return new Searcher().getContentByUrlOrCaptcha(url, captcha, headers, user_id)
-        })
-        .then(function (res) {
-            raw_html = res.html;
-            return new PgHtmls().insertWithUrl(raw_html, url)
-        })
-        .then(function (html_id) {
-            console.log('PgSpages().insert ', search_id, html_id, page)
-            return new PgSpages().insert(search_id, html_id, page)
-        })
-        .then(function (spage_id_res) {
-            spage_id = spage_id_res;
-
-            return new SeoParameters().init(condition.condition_query, url, raw_html)
-        })
-        .then(function (params) {
-            var links = params.getSearchPicks();
-            console.log("получили ", links.length, " ссылок")
-            var length = links.length;
-            var promises = [];
-            for (var i = 1; i <= length; i++) {//links.length
-
-                (function (link, position) {
-                    console.log("сейчас обрабатывается ссылка ", link, position)
-                    promises.push((function (link, position) {
-                        var current_html_id;
-                        var current_html;
-                        return new Searcher().getContentByUrl(link.url)
-                            .then(function (res) {
-                                current_html = res.html
-                                return new PgHtmls().insertWithUrl(escape(current_html), link.url)
-                            })
-                            .then(function (html_id) {
-                                current_html_id = html_id;
-                                return new PgScontents().insert(spage_id, html_id, position + parseInt(sites_count), false)
-                            })
-                            .then(function (scontent_id) {
-                                return new SeoParameters().init(condition.condition_query, link.url, current_html)
-                            })
-                            .then(function (params) {
-                                var link_params = params.getAllParams()
-                                return new PgParams().insert(condition_id, current_html_id, link_params)
-                            })
-                    })(link, position))
-                })(links[i - 1], i)
-
-            }
-
-            return Q.allSettled(promises)
-        })
-        .then(function (res) {
-            console.log(res)
-            console.log("параметры успешно посчитаны")
-//            return new PgSearch().listWithParams(condition_id)
-        })
-
-        .catch(function (res) {
-            if (res.captcha) {
-                throw res;
-            } else {
-
-                console.error('Core.prototype.calcParams ', res, res.stack)
-                throw  res;
-            }
-
-        })
 }
 
 Core.prototype.calcParamsByUrl = function (url, condition_id) {
@@ -366,11 +283,25 @@ Core.prototype.calcParamsByUrl = function (url, condition_id) {
             return new SeoParameters().init(condition.condition_query, current_html)
         })
         .then(function (params) {
-            var link_params = params.getAllParams()
-            return new PgParams().insert(condition_id, current_html_id, link_params)
+            var allParams = params.getAllParams()
+            var promises = [];
+            for (var i = 0; i < allParams.length; i++) {
+                if (!allParams[i].val){
+                    continue;
+                }
+                (function (param, condition_id, html_id) {
+                    //console.log("сейчас обрабатывается параметр ", param)
+                    var current_html_id;
+                    promises.push(new PgParams().insert(condition_id, html_id, param.name, param.val))
+
+                })(allParams[i], condition_id, current_html_id)
+
+            }
+
+            return Q.allSettled(promises)
         })
         .then(function (res) {
-            console.log(res)
+            //console.log(res)
             console.log("параметры САЙТА " + url + " успешно посчитаны")
         })
         .catch(function (res) {

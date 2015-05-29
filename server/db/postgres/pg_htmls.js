@@ -130,6 +130,24 @@ PgHtmls.prototype.insertWithUrl = function (html, url) {
         })
 }
 
+PgHtmls.prototype.getLastHtml = function(url_id) {
+    return PG.query("SELECT  H.*  " +
+        "FROM " +
+        "htmls H " +
+        "WHERE " +
+        "H.url_id = $1 " +
+        "ORDER BY H.DATE_CREATE DESC " +
+        "LIMIT 1 ",
+        [url_id])
+        .then(function (res) {
+            console.log("PgHtmls.prototype.getLastHtml")
+            return res.rows[0];
+        })
+        .catch(function (err) {
+            throw 'PgHtmls.prototype.getLastHtml ' + err;
+        })
+}
+
 PgHtmls.prototype.list = function (callback, errback) {
     PG.query("SELECT * FROM htmls ORDER BY date_create desc;",
         [],

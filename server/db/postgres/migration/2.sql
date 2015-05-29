@@ -33,6 +33,7 @@ INSERT INTO paramtypes (DATE_CREATE,PARAMTYPE_GROUP,PARAMTYPE_TAG,PARAMTYPE_NAME
     (NOW(),'title'   ,'title'     ,'titleLength'      ,'Длина в символах title'             ,'Длина в символах тега title'),
      
     (NOW(),'h1'      ,'h1'        ,'h1Count'          ,'Счет (h1)'                          ,'Количество тегов h1.'),
+    (NOW(),'h1'      ,'h1'        ,'h1CS'             ,'ССЗ (h1)'                          ,'Среднее совпадение ключевой фразы с тегом h1.'),
     (NOW(),'h1'      ,'h1'        ,'h1CSAvg'          ,'Взвешенное ССЗ(h1)'                 ,'Взвешенное ССЗ(h1)= (ССЗ(h1(1))+ССЗ(h1(2))+ ...+ССЗ(h1(n)))/n, где n = счет(h1).'),
     (NOW(),'h1'      ,'h1'        ,'h1Length'         ,'Длина в символах h1'                ,'Длина в символах тега h1'),
     (NOW(),'h1'      ,'h1'        ,'h1LengthFirst'    ,'Длина в символах h1(1)'             ,'Длина в символах первого тега h1'),
@@ -72,7 +73,7 @@ CREATE TABLE params
   -- Условия для анализа
   PARAMTYPE_ID      INT REFERENCES paramtypes (PARAMTYPE_ID) NOT NULL,
   -- Параметры
-  PARAM_VALUE       VARCHAR(100),
+  PARAM_VALUE       VARCHAR(100) NOT NULL,
   -- Время создания записи
   DATE_CREATE       TIMESTAMP WITH TIME ZONE NOT NULL
 );
@@ -99,3 +100,5 @@ CREATE TABLE corridor
 CREATE UNIQUE INDEX UIDX_corridor_ptype_search ON corridor (SEARCH_ID,PARAMTYPE_ID);
 
 
+delete from htmls;
+delete from search;

@@ -194,8 +194,9 @@ PgUsers.prototype.get = function (id) {
             return res.rows[0];
         })
         .catch(function (err) {
-            throw 'PgUsers.prototype.get' + err;
             console.log(err);
+            throw 'PgUsers.prototype.get' + err;
+
         })
 }
 

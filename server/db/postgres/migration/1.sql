@@ -202,6 +202,8 @@ CREATE TABLE search
   -- HTML_ID           INT REFERENCES htmls (HTML_ID) NOT NULL,
   -- Условия для анализа
   CONDITION_ID      INT REFERENCES conditions (CONDITION_ID) NOT NULL,
+  --флаг что все параметры посчитаны
+  DONE          BOOLEAN NOT NULL DEFAULT FALSE,
   -- Время создания записи
   DATE_CREATE       TIMESTAMP WITH TIME ZONE NOT NULL
 );

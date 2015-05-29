@@ -63,6 +63,28 @@ PgSearch.prototype.insert = function (condition_id) {
     );
 }
 
+PgSearch.prototype.updateDone = function (searchId, done) {
+
+    return new PgSearch().get(searchId)
+        .then(function (search) {
+            if (!search) {
+                throw("Нет такой поисковой выдачи! " + searchId)
+                return;
+            }
+            return PG.query("UPDATE search SET DONE = $2 " +
+                "WHERE SEARCH_ID=$1;",
+                [searchId, done])
+        })
+        .then(function (res) {
+            console.log('PgSearch.prototype.updateDone');
+            return res;
+        })
+        .catch(function (err) {
+            throw 'PgSearch.prototype.updateDone err  ' + err
+        })
+}
+
+
 PgSearch.prototype.list = function (callback, errback) {
     PG.query("SELECT * FROM search ORDER BY date_create desc;",
         [],
@@ -76,16 +98,16 @@ PgSearch.prototype.list = function (callback, errback) {
         })
 }
 
-PgSearch.prototype.get = function (id, callback, errback) {
-    PG.query("SELECT * FROM search WHERE search_id = $1;",
-        [id],
-        function (res) {
-            callback(res.rows[0]);
-        },
-        function (err) {
+PgSearch.prototype.get = function (id) {
+    return PG.query("SELECT * FROM search WHERE search_id = $1;",
+        [id])
+        .then(function (res) {
             console.log('PgSearch.prototype.get');
-            console.log(err);
-            errback(err)
+            return res.rows[0];
+        })
+        .catch(function (err) {
+            console.log('PgSearch.prototype.get err', err);
+            throw 'PgSearch.prototype.get err  ' + err
         })
 }
 
@@ -202,21 +224,22 @@ PgSearch.prototype.siteWithParams = function(url_id, condition_id) {
 }
 
 PgSearch.prototype.getLastSearch = function(condition_id, date_old) {
-    return PG.query("SELECT  S.SEARCH_ID  \
-    FROM\
-    search S\
-    WHERE\
-    S.CONDITION_ID = $1\
-    AND S.DATE_CREATE >= '" +  date_old.toISOString() + "'\
-    ORDER BY S.DATE_CREATE DESC\
-    LIMIT 1 ",
+    return PG.query("SELECT  S.*  " +
+    "FROM " +
+        "search S " +
+    "WHERE " +
+        "S.CONDITION_ID = $1 " +
+        "AND S.DONE = TRUE " +
+        (date_old ? ("AND S.DATE_CREATE >= '" +  date_old.toISOString() + "' ") : "") +
+        "ORDER BY S.DATE_CREATE DESC " +
+        "LIMIT 1 ",
         [condition_id])
         .then(function (res) {
-            console.log("PgSearch.prototype.lastSearch")
-            return res.rows;
+            console.log("PgSearch.prototype.getLastSearch")
+            return res.rows[0];
         })
         .catch(function (err) {
-            throw 'PgSearch.prototype.lastSearch' + err;
+            throw 'PgSearch.prototype.getLastSearch' + err;
         })
 }
 

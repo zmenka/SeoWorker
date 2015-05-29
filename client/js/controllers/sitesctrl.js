@@ -1,4 +1,4 @@
-function SitesCtrl ($scope, $stateParams, $rootScope, $alert, $aside, $timeout,  Api, Authenticate) {
+function SitesCtrl($scope, $stateParams, $rootScope, $alert, $aside, $timeout, $q, Api, Authenticate) {
 
 
     var vm = this;
@@ -9,6 +9,7 @@ function SitesCtrl ($scope, $stateParams, $rootScope, $alert, $aside, $timeout, 
     vm.sites = [];
     vm.site = null;
     vm.getParams = getParams;
+    vm.getParamtypes = getParamtypes;
     vm.calcParams = calcParams;
     vm.calcSiteParams = calcSiteParams;
     vm.selectParam = selectParam;
@@ -19,14 +20,18 @@ function SitesCtrl ($scope, $stateParams, $rootScope, $alert, $aside, $timeout, 
         chart: {
             type: 'lineChart',
 //            height: '350',
-            x: function(d){ return d[0]; },
-            y: function(d){ return d[1]; },
+            x: function (d) {
+                return d[0];
+            },
+            y: function (d) {
+                return d[1];
+            },
             xAxis: {
                 axisLabel: 'Место в выдаче'
             },
             yAxis: {
                 axisLabel: 'Значение параметра',
-                tickFormat: function(d){
+                tickFormat: function (d) {
                     return d3.format('.02f')(d);
                 },
                 axisLabelDistance: 30
@@ -34,11 +39,11 @@ function SitesCtrl ($scope, $stateParams, $rootScope, $alert, $aside, $timeout, 
         }
     }
 
-    function isAdmin () {
+    function isAdmin() {
         return Authenticate.isAdmin()
     }
 
-    $scope.$watch('vm.site', function(current, original) {
+    $scope.$watch('vm.site', function (current, original) {
         console.log("clear");
     });
 
@@ -52,17 +57,17 @@ function SitesCtrl ($scope, $stateParams, $rootScope, $alert, $aside, $timeout, 
         });
     }
 
-    function showAside(){
-        if (vm.myAside){
+    function showAside() {
+        if (vm.myAside) {
 //            console.log("OLD");
             var d = new Date();
 
-            vm.myAside.$promise.then(function() {
+            vm.myAside.$promise.then(function () {
                 vm.myAside.show();
             })
 
-        } else{
-            if (vm.sites && vm.sites.length){
+        } else {
+            if (vm.sites && vm.sites.length) {
                 //            console.log("NEW");
                 var scope = $rootScope.$new();
                 scope.sites = vm.sites;
@@ -75,13 +80,16 @@ function SitesCtrl ($scope, $stateParams, $rootScope, $alert, $aside, $timeout, 
                     console.log("onAsideFinishRender");
 
                 });
-                vm.myAside = $aside({scope: scope, show: true,
+                vm.myAside = $aside({
+                    scope: scope, show: true,
                     placement: "left", animation: "fade-and-slide-left",
-                    template: 'partials/sites_aside_template.html'});
+                    template: 'partials/sites_aside_template.html'
+                });
 
-            } else {
+            } else if (!vm.loading) {
                 vm.asideLoading = false;
-                $alert({title: 'Внимание!', content: "У вас пока нет сайтов.",
+                $alert({
+                    title: 'Внимание!', content: "У вас пока нет сайтов.",
                     placement: 'top', type: 'danger', show: true,
                     duration: '3',
                     container: '.alerts-container'
@@ -94,12 +102,20 @@ function SitesCtrl ($scope, $stateParams, $rootScope, $alert, $aside, $timeout, 
 
     function selectSite(node) {
         console.log("selectSite", node);
-        if (node.type == 'task'){
+        if (node.type == 'task') {
             vm.site = node;
-            if (vm.myAside){
+            if (vm.myAside) {
                 vm.myAside.hide();
             }
-            vm.getParams();
+            if (!node.data.types){
+                vm.getParamtypes()
+                    .then(function (types) {
+                        node.data.types = types
+                        vm.data.chart = types
+                    });
+            } else {
+                vm.data.chart = node.data.types;
+            }
             vm.asideLoading = false;
         }
 
@@ -107,13 +123,23 @@ function SitesCtrl ($scope, $stateParams, $rootScope, $alert, $aside, $timeout, 
 
     function selectParam(node) {
         console.log("selectParam", node);
-        if (node.type == 'key'){
-            vm.data.chartValue = node.data.values;
+        if (node.type == 'key') {
+            vm.data.chartParamType = node.data.paramtype_id;
+            if (node.data.chart) {
+                vm.data.chartValue = node.data.chart
+            } else if (vm.site ){
+                vm.getParams(vm.site.data.url_id, vm.site.data.condition_id, vm.data.chartParamType)
+                    .then(function (chart) {
+                        node.data.chart = chart
+                        vm.data.chartValue = chart
+                    })
+            }
+
         }
 
     }
 
-    function load () {
+    function load() {
         vm.loading = true;
         Api.user_sites_and_tasks($stateParams.user_id)
             .then(function (res) {
@@ -126,7 +152,8 @@ function SitesCtrl ($scope, $stateParams, $rootScope, $alert, $aside, $timeout, 
                 console.log('load Api.user_sites_and_tasks err ', err);
                 vm.sites = [];
                 vm.loading = false;
-                $alert({title: 'Внимание!', content: "Ошибка при получении списка сайтов"
+                $alert({
+                    title: 'Внимание!', content: "Ошибка при получении списка сайтов"
                     + (err.data ? ": " + err.data : "!"),
                     placement: 'top', type: 'danger', show: true,
                     duration: '3',
@@ -136,32 +163,28 @@ function SitesCtrl ($scope, $stateParams, $rootScope, $alert, $aside, $timeout, 
     };
 
 
-    function getParams() {
-        if (!vm.site){
-            return;
+    function getParamtypes() {
+        if (!vm.site) {
+            return $q(undefined);
         }
         vm.loading = true;
 
-        vm.data = {};
-        return Api.get_params(vm.site.data.url_id, vm.site.data.condition_id)
+        return Api.get_paramtypes(vm.site.data.condition_id)
             .then(function (res) {
-                console.log("getParams Api.get_params", res);
+                console.log("get_paramtypes Api.get_paramtypes", res);
 
 //                vm.site_params = res.data.site_params[0];
 
-                vm.data.chart = res.data.paramsDiagram;
-                vm.data.sitesParams = res.data.paramsTable;
-                vm.data.position = res.data.paramsPosition;
-                vm.data.searchDate = res.data.searchDate;
-                vm.data.siteUpdateDate = res.data.siteUpdateDate;
-
                 vm.loading = false;
+                return res.data
             })
             .catch(function (err) {
-                console.log('getParams Api.get_params err ', err);
+                console.log('get_paramtypes Api.get_paramtypes err ', err);
                 vm.loading = false;
+                vm.data.chart = [];
 
-                $alert({title: 'Внимание!', content: "Параметры не получены " + (err.data ? ": " + err.data : "!"),
+                $alert({
+                    title: 'Внимание!', content: "Параметры не получены " + (err.data ? ": " + err.data : "!"),
                     placement: 'top', type: 'danger', show: true,
                     duration: '3',
                     container: '.alerts-container'
@@ -169,8 +192,33 @@ function SitesCtrl ($scope, $stateParams, $rootScope, $alert, $aside, $timeout, 
             })
     }
 
+    function getParams(url_id, condition_id, type_param) {
+
+        vm.loading = true;
+
+        return Api.get_params(url_id, condition_id, type_param)
+            .then(function (res) {
+                console.log("getParams Api.get_params", res);
+
+                vm.loading = false;
+                return res.data;
+            })
+            .catch(function (err) {
+                console.log('getParams Api.get_params err ', err);
+                vm.loading = false;
+
+                $alert({
+                    title: 'Внимание!', content: "Параметры не получены " + (err.data ? ": " + err.data : "!"),
+                    placement: 'top', type: 'danger', show: true,
+                    duration: '3',
+                    container: '.alerts-container'
+                });
+            })
+    }
+
+
     function calcParams() {
-        if (!vm.site){
+        if (!vm.site) {
             return;
         }
         vm.loading = true;
@@ -182,7 +230,8 @@ function SitesCtrl ($scope, $stateParams, $rootScope, $alert, $aside, $timeout, 
                 console.log('calcParams Api.calc_params err ', err);
                 vm.loading = false;
 
-                $alert({title: 'Внимание!', content: "Параметры не пересчитаны.  " + (err.data ? ": " + err.data : "!"),
+                $alert({
+                    title: 'Внимание!', content: "Параметры не пересчитаны.  " + (err.data ? ": " + err.data : "!"),
                     placement: 'top', type: 'danger', show: true,
                     duration: '3',
                     container: '.alerts-container'
@@ -204,8 +253,9 @@ function SitesCtrl ($scope, $stateParams, $rootScope, $alert, $aside, $timeout, 
 //        Api.calc_site_params(vm.site.data.url, vm.site.data.condition_id)
             .catch(function (err) {
                 console.log("calcSiteParams Api.calc_site_params ", err)
-                $alert({title: 'Внимание!', content: "Параметры страницы не получены "
-                        + (err.data ? ": " + err.data : "!"),
+                $alert({
+                    title: 'Внимание!', content: "Параметры страницы не получены "
+                    + (err.data ? ": " + err.data : "!"),
                     placement: 'top', type: 'danger', show: true,
                     duration: '3',
                     container: '.alerts-container'
@@ -216,7 +266,7 @@ function SitesCtrl ($scope, $stateParams, $rootScope, $alert, $aside, $timeout, 
                 vm.loading = false;
                 vm.getParams();
             })
-        }
     }
+}
 
 angular.module('seoControllers').controller('SitesCtrl', SitesCtrl);

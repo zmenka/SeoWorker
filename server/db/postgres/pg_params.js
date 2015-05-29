@@ -38,7 +38,6 @@ function PgParams() {
 };
 
 PgParams.prototype.insert = function (condition_id, html_id, paramtype_name, param_value) {
-
     var date_create = new Date();
     // create a Url
     var db;
@@ -46,8 +45,9 @@ PgParams.prototype.insert = function (condition_id, html_id, paramtype_name, par
         .then(function (db_res) {
             db=db_res
             return db.transact(
-                "INSERT INTO params (condition_id, html_id, paramtype_id, param_value date_create) VALUES ($1, $2, (SELECT PARAMTYPE_ID FROM paramtypes WHERE PARAMTYPE_NAME = $3 LIMIT 1), $4, $5);",
-                [condition_id, html_id, paramtype_name, param_value, date_create])
+                "INSERT INTO params (condition_id, html_id, paramtype_id, param_value,  date_create) " +
+                "VALUES ($1, $2, (SELECT PARAMTYPE_ID FROM paramtypes WHERE PARAMTYPE_NAME = $3 LIMIT 1), $4, $5);",
+                [condition_id, html_id, paramtype_name, param_value,  date_create])
         })
         .then(function (res) {
             return db.transact(
@@ -67,11 +67,11 @@ PgParams.prototype.insert = function (condition_id, html_id, paramtype_name, par
 
 }
 
-PgParams.prototype.list = function (callback, errback) {
+PgParams.prototype.list = function () {
     PG.query("SELECT * FROM paramtypes ORDER BY paramtype_name desc;",
         [],
         function (res) {
-            callback(res.rows);
+            return res.rows;
         },
         function (err) {
             console.log('PgParams.prototype.list');
@@ -79,11 +79,11 @@ PgParams.prototype.list = function (callback, errback) {
         })
 }
 
-PgParams.prototype.get = function (id, callback, errback) {
+PgParams.prototype.get = function (id) {
     PG.query("SELECT P.*,PT.* FROM params P JOIN paramtypes PT ON P.PARAMTYPE_ID = PT.PARAMTYPE_ID WHERE P.param_id = $1;",
         [id],
         function (res) {
-            callback(res.rows);
+            return res.rows;
         },
         function (err) {
             console.log('PgParams.prototype.get');
@@ -91,22 +91,23 @@ PgParams.prototype.get = function (id, callback, errback) {
         })
 }
 
-PgParams.prototype.find = function (condition_id, html_id, callback, errback) {
-    PG.query("SELECT P.*,PT.* FROM params P JOIN paramtypes PT ON P.PARAMTYPE_ID = PT.PARAMTYPE_ID WHERE P.html_id = $1 and P.condition_id = $2;",
-        [html_id, condition_id],
-        function (res) {
-            callback(res.rows);
-        },
-        function (err) {
-            console.log('PgParams.prototype.find');
-            console.log(err);
+PgParams.prototype.getSiteParam = function (condition_id, html_id, paramtype_id) {
+    return PG.query("SELECT P.*, PT.* FROM params P JOIN paramtypes PT ON P.PARAMTYPE_ID = PT.PARAMTYPE_ID " +
+        "WHERE P.html_id = $1 and P.condition_id = $2 and P.paramtype_id = $3;",
+        [html_id, condition_id, paramtype_id])
+        .then(function (res) {
+            console.log('PgParams.prototype.getSiteParam');
+            return res.rows[0];
+        })
+        .catch(function (err) {
+            throw 'PgParams.prototype.getSiteParam' + err;
         })
 }
 
-PgParams.prototype.getParamDiagram = function (search_id, paramtype_id, callback, errback) {
-    PG.query( "SELECT " +
-              "    SC.POSITION, " +
-              "    P.PARAM_VALUE" +
+PgParams.prototype.getParamDiagram = function (search_id, paramtype_id) {
+    return PG.query( "SELECT " +
+              "    SC.POSITION + 1 as POSITION, " +
+              "    P.PARAM_VALUE as VALUE " +
               "FROM " +
               "    search S " +
               "    JOIN spages SP  " + 
@@ -120,15 +121,39 @@ PgParams.prototype.getParamDiagram = function (search_id, paramtype_id, callback
               "         ON P.PARAMTYPE_ID = PT.PARAMTYPE_ID " + 
               "WHERE " + 
               "    S.SEARCH_ID  = $1  " + 
-              "    AND PT.PARAMTYPE_ID = $2;",
-        [search_id, paramtype_id],
-        function (res) {
-            callback(res.rows);
-        },
-        function (err) {
-            console.log('PgParams.prototype.getParamDiagram');
-            console.log(err);
+              "    AND PT.PARAMTYPE_ID = $2 " +
+        "ORDER BY SC.POSITION;",
+        [search_id, paramtype_id])
+        .then(function (res) {
+            return res.rows;
+        })
+        .catch(function (err) {
+            throw 'PgParams.prototype.getParamDiagram' + err;
         })
 }
 
+
+PgParams.prototype.getParamtypes = function (search_id) {
+    return PG.query(
+        "SELECT " +
+        "DISTINCT PT.* " +
+        "FROM " +
+        "spages SP " +
+        "INNER JOIN scontents SC " +
+        "ON SP.SPAGE_ID = SC.SPAGE_ID " +
+        "INNER JOIN params P " +
+        "ON SC.HTML_ID = P.HTML_ID " +
+        "INNER JOIN paramtypes PT " +
+        "ON P.PARAMTYPE_ID = PT.PARAMTYPE_ID " +
+        "WHERE SP.search_id = $1;",
+        [search_id])
+        .then(function (res) {
+            console.log('PgParams.prototype.getParamtypes');
+            return res.rows;
+        })
+        .catch(function (err) {
+            console.log('PgParams.prototype.getParamtypes err', err);
+            throw 'PgParams.prototype.getParamtypes err  ' + err
+        })
+}
 module.exports = PgParams;
