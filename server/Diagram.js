@@ -60,12 +60,14 @@ Diagram.prototype.getParamsDiagram = function (params, siteParam) {
             //увет графика
             var paramsColor = '#1F77B4';
             //получаем цвет уровня нашего сайта
-            var kColor = 0.25; //скорость "покраснения"
+            var kColor = 1; //скорость "покраснения"
             var delta = Math.abs(ys - mathstat.M);
             var siteColorR = parseInt(delta < radius ? (255 * delta/radius) : 255,10);
             var siteColorG = parseInt(delta < radius ? 255 : (Math.max(255 *(1 - kColor * (delta-radius)/radius),0)),10);
             var siteColorB = 0;
             var siteColor = 'rgb(' + [siteColorR,siteColorG,siteColorB].join(',') + ')';
+
+            var percent = delta < 2 * radius ? 100 * (2 * radius - delta) / 2 * radius : 0
 
             //строим "коридор"
             this.addFigure('Граница коридора',[[x1, yk2], [x2, yk2],[x2, yk1],[x1, yk1],[x1, yk2]],'#D0FFFF',true);
