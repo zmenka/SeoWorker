@@ -5,6 +5,7 @@ var PgSearch = require("./db/postgres/pg_search");
 var PgSengines = require("./db/postgres/pg_sengines");
 var PgParams = require("./db/postgres/pg_params");
 var PgHtmls = require("./db/postgres/pg_htmls");
+var PgCorridor = require("./db/postgres/pg_corridor");
 var SeoFormat = require("./SeoFormat");
 var Diagram = require("./Diagram");
 var Core = require("./core");
@@ -369,13 +370,16 @@ module.exports = function Api(app, passport) {
             return;
         }
 
+        var search;
         var paramsChart;
+        var corridor;
         return new PgSearch().getLastSearch(req.body.condition_id)
-            .then(function (search) {
-                if (!search){
+            .then(function (searchRes) {
+                if (!searchRes){
                     errback( 'Не найдена поисковая выдача', res)
                     return
                 }
+                search = searchRes;
                 return new PgParams().getParamDiagram(search.search_id, req.body.param_type)
             })
             .then(function (paramsChartRes) {
@@ -384,6 +388,11 @@ module.exports = function Api(app, passport) {
                     return
                 }
                 paramsChart = paramsChartRes;
+                return new PgCorridor().get(search.search_id, req.body.param_type)
+            })
+            .then(function (corridorRes) {
+
+                corridor = corridorRes;
                 return new PgHtmls().getLastHtml(req.body.url_id)
             })
             .then(function (html) {
@@ -394,13 +403,9 @@ module.exports = function Api(app, passport) {
                 return new PgParams().getSiteParam(req.body.condition_id, html.html_id, req.body.param_type )
             })
             .then(function (siteParams) {
-                if (!siteParams){
-                    errback( 'Еще не расчитан параметр Вашего сайта', res)
-                    return
-                }
                 diagram = new Diagram();
                 //форматируем данные работаем с диаграммой.
-                var paramsDiagram = diagram.getParamsDiagram(paramsChart, siteParams);
+                var paramsDiagram = diagram.getParamsDiagram(paramsChart, siteParams, corridor);
                 callback(paramsDiagram, res)
             })
             .catch(function (err) {

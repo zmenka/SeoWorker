@@ -239,7 +239,10 @@ function SitesCtrl($scope, $stateParams, $rootScope, $alert, $aside, $timeout, $
             })
             .then(function () {
 
-                return vm.getParams()
+                return vm.getParamtypes()
+            })
+            .finally(function () {
+                vm.loading = false;
             })
     }
 
@@ -264,7 +267,7 @@ function SitesCtrl($scope, $stateParams, $rootScope, $alert, $aside, $timeout, $
             .then(function (res) {
                 console.log("calcSiteParams Api.calc_site_params err", res);
                 vm.loading = false;
-                vm.getParams();
+                vm.getParamtypes()
             })
     }
 }

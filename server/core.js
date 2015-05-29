@@ -8,10 +8,13 @@ var PgSengines = require("./db/postgres/pg_sengines");
 var PgTasks = require("./db/postgres/pg_tasks")
 var PgManager = require("./db/postgres/pg_manager")
 var PgUsers = require("./db/postgres/pg_users")
+var PgCorridor = require("./db/postgres/pg_corridor")
 
 var Searcher = require("./searcher");
 var SearcherType = require("./searcher_type");
 var SeoParameters = require("./seo_parameters");
+
+var MathStat = require("./MathStat")
 
 var Q = require("q");
 
@@ -104,6 +107,7 @@ Core.prototype.calcParams = function (condition_id, user_id) {
     var search_objects
     var getLinksFromSearcher = Core.prototype.getLinksFromSearcher;
     var calcLinksParams = Core.prototype.calcLinksParams;
+    var calcCoridors = Core.prototype.calcCoridors;
     var search_id;
 
     return new PgConditions().getWithSengines(condition_id)
@@ -126,6 +130,9 @@ Core.prototype.calcParams = function (condition_id, user_id) {
         })
         .then(function (links_obj) {
             return calcLinksParams(links_obj, condition_id, condition.condition_query)
+        })
+        .then(function () {
+            return calcCoridors(search_id)
         })
         .then(function (links_obj) {
             return new PgSearch().updateDone(search_id, true)
@@ -245,7 +252,7 @@ Core.prototype.calcLinksParams = function (links_obj, condition_id, condition_qu
                                     continue;
                                 }
                                 (function (param, condition_id, html_id) {
-                                    console.log("сейчас обрабатывается параметр ", param)
+                                    //console.log("сейчас обрабатывается параметр ", param)
                                     var current_html_id;
                                     paramPromises.push(new PgParams().insert(condition_id, html_id, param.name, param.val))
 
@@ -255,11 +262,56 @@ Core.prototype.calcLinksParams = function (links_obj, condition_id, condition_qu
 
                             return Q.allSettled(paramPromises)
                         })
+
                 })(link, position, spage_id))
             })(links_obj[i].links[j], j + links_obj[i].start, links_obj[i].spage_id)
         }
     }
     return Q.allSettled(promises)
+}
+
+Core.prototype.calcCoridors = function (search_id){
+    if (!search_id){
+        throw 'for calcCoridors no search_id'
+    }
+    return new PgParams().getParamtypes(search_id)
+        .then(function (paramtypes) {
+            if (!paramtypes) {
+                throw 'no paramtypes for search'
+            }
+                var paramPromises = [];
+                for (var i = 0; i < paramtypes.length; i++) {
+
+                    (function (search_id, paramtype_id) {
+
+                        paramPromises.push(new PgParams().getParamDiagram(search_id, paramtype_id)
+                            .then(function (params) {
+                                if (!params){
+                                    throw 'no params for paramtype'
+                                }
+                                //получаем данные о "коридоре"
+                                var mathstat = new MathStat(params.map(function(el){
+                                    return parseFloat(el.value)
+                                }));
+                                mathstat.calc();
+                                return new PgCorridor().insert(search_id, paramtype_id, mathstat.M, mathstat.D)
+                            })
+                            .catch(function (res) {
+                                console.error('Core.prototype.calcCoridors ', res)
+                                throw  res;
+                            }))
+
+                    })(search_id, paramtypes[i].paramtype_id)
+
+                }
+
+                return Q.allSettled(paramPromises)
+
+        })
+        .catch(function (err) {
+            console.error('Core.prototype.calcalcCoridorscParamsByUrl ', err )
+            throw  err;
+        })
 }
 
 Core.prototype.calcParamsByUrl = function (url, condition_id) {

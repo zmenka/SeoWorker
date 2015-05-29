@@ -10,6 +10,8 @@
 var PG = require('./pg');
 var fs = require('fs');
 var path = require('path');
+var PgParams = require("./pg_params");
+var PgHtmls = require("./pg_htmls");
 
 function PgCorridor() {
 
@@ -44,44 +46,47 @@ PgCorridor.prototype.insert = function (search_id, paramtype_id, m, d) {
 
 }
 
-PgCorridor.prototype.find = function (search_id, paramtype_id) {
-    return PG.query("SELECT C.* FROM corridor P JOIN paramtypes PT ON P.PARAMTYPE_ID = PT.PARAMTYPE_ID WHERE P.html_id = $1 and P.condition_id = $2;",
-        [html_id, condition_id])
+PgCorridor.prototype.get = function (search_id, paramtype_id) {
+    return PG.query("SELECT C.* FROM corridor C  WHERE C.search_id = $1 and C.paramtype_id = $2;",
+        [search_id, paramtype_id])
         .then(function (res) {
-            return res.rows;
+            return res.rows[0];
         })
         .catch(function (err) {
-            console.log('PgCorridor.prototype.find');
+            console.log('PgCorridor.prototype.get');
             console.log(err);
         })
 }
 
-PgCorridor.prototype.getParamDiagram = function (search_id, paramtype_id) {
-    PG.query("SELECT " +
-        "    SC.POSITION, " +
-        "    P.PARAM_VALUE" +
-        "FROM " +
-        "    search S " +
-        "    JOIN spages SP  " +
-        "        ON S.SEARCH_ID = SP.SEARCH_ID " +
-        "    JOIN scontents SC  " +
-        "        ON SP.SPAGE_ID = SC.SPAGE_ID" +
-        "    JOIN corridor P  " +
-        "         ON SC.HTML_ID = P.HTML_ID " +
-        "         AND S.CONDITION_ID = P.CONDITION_ID " +
-        "    JOIN paramtypes PT  " +
-        "         ON P.PARAMTYPE_ID = PT.PARAMTYPE_ID " +
-        "WHERE " +
-        "    S.SEARCH_ID  = $1  " +
-        "    AND PT.PARAMTYPE_ID = $2;",
-        [search_id, paramtype_id],
-        function (res) {
-            return res.rows;
-        },
-        function (err) {
-            console.log('PgCorridor.prototype.getParamDiagram');
+PgCorridor.prototype.getByParam = function (search_id, paramtype_id, url_id) {
+    var corridor;
+    return new PgCorridor().get(search_id, paramtype_id)
+.then(function (corridorRes) {
+
+    corridor = corridorRes;
+    return new PgHtmls().getLastHtml(url_id)
+})
+    .then(function (html) {
+        if (!html) {
+            throw 'Еще не получены данные по url_id'
+            return
+        }
+        return new PgParams().getSiteParam(req.body.condition_id, html.html_id, req.body.param_type )
+    })
+    .then(function (siteParams) {
+        diagram = new Diagram();
+        //форматируем данные работаем с диаграммой.
+        var paramsDiagram = diagram.getParamsDiagram(paramsChart, siteParams, corridor);
+        callback(paramsDiagram, res)
+    })
+    return PG.query("SELECT C.* FROM corridor C  WHERE C.search_id = $1 and C.paramtype_id = $2;",
+        [search_id, paramtype_id])
+        .then(function (res) {
+            return res.rows[0];
+        })
+        .catch(function (err) {
+            console.log('PgCorridor.prototype.get');
             console.log(err);
         })
 }
-
 module.exports = PgCorridor;
