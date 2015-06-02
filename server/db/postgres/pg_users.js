@@ -169,12 +169,7 @@ PgUsers.prototype.list = function () {
 }
 
 PgUsers.prototype.listWithSitesCount = function () {
-    return PG.query("SELECT * FROM users u " +
-        "LEFT JOIN (SELECT user_id, COUNT(*)  as sites_count " +
-        "FROM usurls " +
-        "GROUP BY user_id) as uu " +
-        "ON uu.user_id=u.user_id " +
-        "ORDER BY u.date_create desc;",
+    return PG.query("PERFORM USERS_URL_COUNT()",
         [])
         .then(function (res) {
             console.log("PgUsers.prototype.listWithSitesCount")

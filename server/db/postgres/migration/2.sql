@@ -100,5 +100,10 @@ CREATE TABLE corridor
 CREATE UNIQUE INDEX UIDX_corridor_ptype_search ON corridor (SEARCH_ID,PARAMTYPE_ID);
 
 
-delete from htmls;
-delete from search;
+-- HTML
+CREATE INDEX IDX_htmls_url_datecreate ON htmls (URL_ID, DATE_CREATE);
+CREATE INDEX IDX_search_cond_datecreate ON search (CONDITION_ID, DATE_CREATE);
+
+
+DELETE FROM htmls;
+DELETE FROM search;
