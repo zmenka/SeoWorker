@@ -155,29 +155,37 @@ describe('Test', function () {
         it.only('search LINKS', function () {
 
             var SeoParameters = require("../../server/seo_parameters.js")
-            var Searcher = require("../../server/searcher.js")
-            var PgHtmls = require("../../server/db/postgres/pg_htmls.js")
-            var url = 'http://yandex.ru/yandsearch?lr=54&text=%D0%BF%D1%80%D0%BE%D0%B4%D0%B2%D0%B8%D0%B6%D0%B5%D0%BD%D0%B8%D0%B5%20%D1%81%D0%B0%D0%B9%D1%82%D0%B0&p=0'
-            return new Searcher().getContentByUrlOrCaptcha(url, null, 1, 'Yandex', true)
-                .then(function (res) {
-                    var raw_html = res.html;
-                    return new  SeoParameters().getSearchPicks(raw_html, 'Yandex')
-             })
-             .then(function (links) {
-                    console.log(JSON.stringify(links, null, 2) )
-                    console.log(links.length)
-             })
-             /*
+            //var Searcher = require("../../server/searcher.js")
+            //var PgHtmls = require("../../server/db/postgres/pg_htmls.js")
+            //var url = 'http://yandex.ru/yandsearch?lr=54&text=%D0%BF%D1%80%D0%BE%D0%B4%D0%B2%D0%B8%D0%B6%D0%B5%D0%BD%D0%B8%D0%B5%20%D1%81%D0%B0%D0%B9%D1%82%D0%B0&p=0'
+            //return new Searcher().getContentByUrlOrCaptcha(url, null, 1, 'Yandex', true)
+            //    .then(function (res) {
+            //        var raw_html = res.html;
+            //        return new  SeoParameters().getSearchPicks(raw_html, 'Yandex')
+            // })
+            // .then(function (links) {
+            //        console.log(JSON.stringify(links, null, 2) )
+            //        console.log(links.length)
+            // })
+            //
+            var cheerio = require('cheerio')
+
             raw_html = '<html>' +
                 '<h2>' +
                 '<span><a href = "test.url1" >TITLE1</a></span>' +
                 '<a href = "test.url2" >TITLE2</a>' +
                 '</h2>' +
                 '</html>'
-            return new  SeoParameters().getSearchPicks(raw_html, 'Yandex')
-                .then(function (links) {
-                    console.log(JSON.stringify(links, null, 2) )
-                })*/
+
+            $ = cheerio.load(raw_html);
+            $('h2 > a').each(function(i, elem) {
+                console.log('qwe',$(this).text());
+            });
+            console.log('asd', $('html').length)
+            //return new  SeoParameters().getSearchPicks(raw_html, 'Yandex')
+            //    .then(function (links) {
+            //        console.log(JSON.stringify(links, null, 2) )
+            //    })
 
         })
 
