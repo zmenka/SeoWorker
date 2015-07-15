@@ -105,5 +105,10 @@ CREATE INDEX IDX_htmls_url_datecreate ON htmls (URL_ID, DATE_CREATE);
 CREATE INDEX IDX_search_cond_datecreate ON search (CONDITION_ID, DATE_CREATE);
 
 
+CREATE INDEX IDX_spages_html ON spages (HTML_ID);
+CREATE INDEX IDX_params_html ON params (HTML_ID);
+CREATE INDEX IDX_scontents_html ON scontents (HTML_ID);
+
+
 DELETE FROM htmls;
 DELETE FROM search;

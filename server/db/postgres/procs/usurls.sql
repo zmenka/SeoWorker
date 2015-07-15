@@ -12,7 +12,7 @@ BEGIN
             usurls;
     CREATE INDEX IDX_tt_lst_urls ON tt_lst_urls (URL_ID);
             
-    PERFORM GET_URL_PERCENT();
+    SELECT GET_PERCENT_BY_URL();
     
     DROP TABLE IF EXISTS tt_res_uspercents;
     CREATE TEMPORARY TABLE tt_res_uspercents AS
@@ -54,7 +54,7 @@ BEGIN
             USER_ID = vUSER_ID;
     CREATE INDEX IDX_tt_lst_urls ON tt_lst_urls (URL_ID);
             
-    PERFORM GET_URL_PERCENT();
+    SELECT GET_PERCENT_BY_URL();
     
     DROP TABLE IF EXISTS tt_res_upercents;
     CREATE TEMPORARY TABLE tt_res_upercents AS
@@ -69,13 +69,22 @@ BEGIN
     
     
     SELECT 
-        usurls.*, urls.*, tasks.task_id, conditions.*, sengines.* , tt_res_upercents.*
+        usurls.*, 
+        urls.*, 
+        tasks.task_id, 
+        conditions.*, 
+        sengines.* , 
+        tt_res_upercents.*
     FROM
         usurls
-        INNER JOIN urls on usurls.url_id = urls.url_id 
-        LEFT JOIN tt_res_upercents ON urls.url_id = tt_res_upercents.url_id
-        LEFT JOIN tasks on usurls.usurl_id = tasks.usurl_id 
-        LEFT JOIN conditions on conditions.condition_id = tasks.condition_id 
+        INNER JOIN urls 
+            ON USURLS.URL_ID = URLS.URL_ID 
+        LEFT JOIN tt_res_upercents 
+            ON URLS.URL_ID = TT_RES_UPERCENTS.URL_ID
+        LEFT JOIN tasks 
+            ON USURLS.USURL_ID = TASKS.USURL_ID 
+        LEFT JOIN conditions 
+            ON CONDITIONS.CONDITION_ID = TASKS.CONDITION_ID 
         LEFT JOIN sengines on sengines.sengine_id = conditions.sengine_id 
     WHERE usurls.user_id = vUSER_ID
     ORDER BY tasks.date_create desc;
@@ -84,13 +93,27 @@ END;
 $$ LANGUAGE plpgsql;
 
 
-CREATE OR REPLACE FUNCTION GET_URL_PERCENT() 
+/*
+Подготовка процентов приближенности к коридору по списку urls
+
+ВХОД:  tt_lst_urls (URL_ID, ...) + INDEX на URL_ID
+ВЫХОД: tt_res_hpercents (tt_lst_urls.*, HTML_ID, CONDITION_ID, PARAMTYPE_ID, PERCENT, DELTA) + INDEX на URL_ID, HTML_ID, CONDITION_ID
+
+ТЕСТ:
+
+DROP TABLE IF EXISTS tt_lst_htmls;
+CREATE TEMPORARY TABLE tt_lst_htmls (HTML_ID INT, CONDITION_ID INT);
+INSERT INTO tt_lst_htmls VALUES (1,1);
+SELECT GET_PERCENT_BY_HTML();
+*/
+CREATE OR REPLACE FUNCTION GET_PERCENT_BY_URL() 
 RETURNS void AS $$
 BEGIN
 
-    PERFORM GET_LAST_HTML();
-    CREATE INDEX IDX_tt_lst_htmls ON tt_lst_htmls (HTML_ID, URL_ID);
-    PERFORM GET_HTML_PERCENT();
+    SELECT GET_LAST_HTML();
+    CREATE INDEX IDX_tt_lst_htmls_hu ON tt_lst_htmls (HTML_ID, URL_ID);
+    ALTER TABLE tt_lst_htmls ADD COLUMN CONDITION_ID INT;
+    SELECT GET_PERCENT_BY_HTML();
     CREATE INDEX IDX_tt_res_hpercents ON tt_res_hpercents (URL_ID, HTML_ID, CONDITION_ID);
     
 END;
