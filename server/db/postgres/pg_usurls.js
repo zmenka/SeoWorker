@@ -194,15 +194,12 @@ PgUsurls.prototype.findByUser = function (val, callback, errback) {
         })
 }
 
-PgUsurls.prototype.listWithTasks = function (user_id) {
-    return PG.query("PERFORM USURLS_WITH_TASKS($1)",
-        [user_id])
-        .then( function (res) {
-            console.log('PgUsurls.prototype.listWithTasks')
-            return res.rows;
-        })
+PgUsurls.prototype.listWithTasks = function () {
+    console.log("PgUsurls.prototype.listWithTasks")
+	return PgExpressions.execute_list(PgExpressions.USURLS_WITH_TASKS(user_id))
         .catch(function (err) {
             throw 'PgUsurls.prototype.listWithTasks' + err;
+            console.log(err);
         })
 }
 

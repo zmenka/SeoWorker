@@ -160,7 +160,7 @@ PgExpressions.prototype.USERS_URL_COUNT = function () {
 	    	            UU.USER_ID;');
     list.push(' CREATE INDEX IDX_tt_res_uspercents ON tt_res_uspercents (USER_ID);');
     list.push(' SELECT                                                          \
-	    	        U.*,T.PERCENT, T.SITES_COUNT AS SITES_COUNT                 \
+	    	        U.*,T.PERCENT, COALESCE(T.SITES_COUNT,0) AS SITES_COUNT                 \
 	    	    FROM                                                            \
 	    	        users U                                                     \
 	    	        LEFT JOIN tt_res_uspercents T ON U.user_id = T.user_id      \
@@ -189,6 +189,26 @@ PgExpressions.prototype.USURLS_WITH_TASKS = function (vUSER_ID) {
 	    	        GROUP BY                                                   \
 	    	            URL_ID;');
     list.push(' CREATE INDEX IDX_tt_res_upercents ON tt_res_upercents (URL_ID);');
+    list.push(' SELECT                                                              \
+		            usurls.*,                                                       \
+		            urls.*,                                                         \
+		            tasks.task_id,                                                  \
+		            conditions.*,                                                   \
+		            sengines.* ,                                                    \
+		            tt_res_upercents.*                                              \
+		        FROM                                                                \
+		            usurls                                                          \
+		            INNER JOIN urls                                                 \
+		                ON USURLS.URL_ID = URLS.URL_ID                              \
+		            LEFT JOIN tt_res_upercents                                      \
+		                ON URLS.URL_ID = TT_RES_UPERCENTS.URL_ID                    \
+		            LEFT JOIN tasks                                                 \
+		                ON USURLS.USURL_ID = TASKS.USURL_ID                         \
+		            LEFT JOIN conditions                                            \
+		                ON CONDITIONS.CONDITION_ID = TASKS.CONDITION_ID             \
+		            LEFT JOIN sengines on sengines.sengine_id = conditions.sengine_id\
+		        WHERE usurls.user_id = '+vUSER_ID+'                                     \
+		        ORDER BY tasks.date_create desc;');
     return list
 }
 
