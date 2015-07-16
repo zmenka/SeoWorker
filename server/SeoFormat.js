@@ -26,7 +26,11 @@ SeoFormat.prototype.createSiteTree = function (sites) {
         } else {
             domenNode = new TaskTreeNode();
             domenNode.create(domen, true,
-                {title: site.url, usurl_id: site.usurl_id, url_id: site.url_id}, 'domen');
+                {
+                    title: site.url,
+                    usurl_id: site.usurl_id,
+                    url_id: site.url_id,
+                    percent: site.percent}, 'domen');
             tree.push(domenNode)
         }
 
@@ -40,7 +44,12 @@ SeoFormat.prototype.createSiteTree = function (sites) {
         } else {
             page = new TaskTreeNode();
             page.create(site.url, true,
-                {title: site.url, usurl_id: site.usurl_id, url_id: site.url_id,url: site.url}, 'page');
+                {
+                    title: site.url,
+                    usurl_id: site.usurl_id,
+                    url_id: site.url_id,
+                    url: site.url,
+                    percent: site.percent}, 'page');
             domenNode.nodes.push(page);
         }
 
@@ -48,11 +57,19 @@ SeoFormat.prototype.createSiteTree = function (sites) {
             var task = new TaskTreeNode();
             task.create(site.condition_query+ " (" + site.sengine_name + ", " + site.size_search + "), " + site.region + " регион",
                 true,
-                {title: site.condition_query ,
-                    usurl_id: site.usurl_id, url_id: site.url_id, task_id: site.task_id, url: site.url,
-                    condition_id: site.condition_id, condition_query: site.condition_query, sengine_name: site.sengine_name,
+                {
+                    title: site.condition_query ,
+                    usurl_id: site.usurl_id,
+                    url_id: site.url_id,
+                    task_id: site.task_id,
+                    url: site.url,
+                    condition_id: site.condition_id,
+                    condition_query: site.condition_query,
+                    sengine_name: site.sengine_name,
                     sengine_id: site.sengine_id,
-                    region: site.region, size_search: site.size_search},
+                    region: site.region,
+                    size_search: site.size_search,
+                    percent: site.percent},
                 'task')
             page.nodes.push(task);
         }

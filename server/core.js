@@ -278,6 +278,7 @@ Core.prototype.calcCoridors = function (search_id){
         .then(function (paramtypes) {
             if (!paramtypes) {
                 throw 'no paramtypes for search'
+                return;
             }
                 var paramPromises = [];
                 for (var i = 0; i < paramtypes.length; i++) {

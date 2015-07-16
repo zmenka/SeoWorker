@@ -103,6 +103,7 @@ PgUsers.prototype.insert = function (user_login, user_password, role_id, user_fn
                 "SELECT currval(pg_get_serial_sequence('users','user_id'))",
                 [], true
             )
+
         })
         .then(function (res) {
             console.log('PgUsers.prototype.insert');
@@ -169,7 +170,7 @@ PgUsers.prototype.list = function () {
 }
 
 PgUsers.prototype.listWithSitesCount = function () {
-    return PG.query("PERFORM USERS_URL_COUNT()",
+    return PG.query("select USERS_URL_COUNT()",
         [])
         .then(function (res) {
             console.log("PgUsers.prototype.listWithSitesCount")
