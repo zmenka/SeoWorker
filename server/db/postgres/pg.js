@@ -82,6 +82,21 @@ PG.prototype.transact = function (query, params, endTransaction, logTime) {
     return deferred.promise;
 }
 
+PG.prototype.commit = function () {
+    var _this = this;
+
+    var deferred = Q.defer();
+
+    process.nextTick(function() {
+    	 _this.client.query('COMMIT', function (err, res) {
+             _this.done(err);
+             console.log(-date.getTime() + (new Date().getTime()))
+             deferred.resolve(result);
+         });
+    })
+    return deferred.promise;
+}
+
 PG.query = function PG(query, params, logTime) {
     logTime = logTime || false;
     var deferred = Q.defer();

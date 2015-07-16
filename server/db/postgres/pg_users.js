@@ -43,6 +43,7 @@
 
 var PG = require('./pg');
 var fs = require('fs');
+var PgExpressions = require("./pg_expressions");
 var path = require('path');
 var bcrypt = require('bcrypt-nodejs');
 
@@ -170,12 +171,8 @@ PgUsers.prototype.list = function () {
 }
 
 PgUsers.prototype.listWithSitesCount = function () {
-    return PG.query("select USERS_URL_COUNT()",
-        [])
-        .then(function (res) {
-            console.log("PgUsers.prototype.listWithSitesCount")
-            return res.rows;
-        })
+    console.log("PgUsers.prototype.listWithSitesCount")
+	return PgExpressions.execute_list(PgExpressions.USERS_URL_COUNT())
         .catch(function (err) {
             throw 'PgUsers.prototype.listWithSitesCount' + err;
             console.log(err);
