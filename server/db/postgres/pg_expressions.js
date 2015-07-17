@@ -12,7 +12,8 @@ function PgExpressions() {
  * **************************************************************************************
  * **************************************************************************************
  */
-PgExpressions.prototype.execute_list = function (list, commit) {
+PgExpressions.prototype.execute_list = function (list, commit, debug) {
+	debug = debug || false
     var db;
     return new PG()
         .then(function (dbres) {
@@ -20,11 +21,13 @@ PgExpressions.prototype.execute_list = function (list, commit) {
  
             var result = Q(function(){});
             list.forEach(function (command) {
+            	if (debug) {console.log(command)}
                 result = result.then(function(){
             		return db.transact(command);
             	});
             });
             if (commit) {
+            	if (debug) {console.log('list COMMIT')}
 	            result = result.then(function(){
 	            	return db.commit()
 	            })
@@ -55,44 +58,48 @@ SELECT GET_PERCENT_BY_HTML();
 PgExpressions.prototype.GET_PERCENT_BY_HTML = function () {
     var list = []
     delta = '@ (COALESCE(C.CORRIDOR_M,0) - COALESCE(CAST(P.PARAM_VALUE AS numeric),0))';
-    list.push('DROP TABLE IF EXISTS tt_res_hpercents;');
+    
+    list.push('DROP TABLE IF EXISTS tt_lst_conditions;');
+    list.push(' CREATE TEMPORARY TABLE tt_lst_conditions AS    \
+    				SELECT                                     \
+    		            DISTINCT TT.CONDITION_ID               \
+    				FROM                                       \
+    		            tt_lst_htmls TT;' );
+    list = list.concat(this.GET_LAST_SEARCH());
+    list.push(' CREATE INDEX IDX_tt_lst_search_cs ON tt_lst_search (CONDITION_ID, SEARCH_ID);')
+    list.push(' DROP TABLE IF EXISTS tt_res_hpercents;');
     list.push(' CREATE TEMPORARY TABLE tt_res_hpercents AS                                 \
 	            SELECT                                                                     \
 	                LST.*,                                                                 \
 	                P.PARAMTYPE_ID,                                                        \
-	                '+delta+' AS DELTA,                    \
+	                '+delta+' AS DELTA,                                                    \
 	                CASE                                                                   \
-	                    WHEN COALESCE(C.CORRIDOR_D,0) <= 0 THEN 0                                   \
-	                    WHEN '+delta+' < 2 * C.CORRIDOR_D THEN (1 - '+delta+' / 2 * C.CORRIDOR_D) * 100              \
+	                    WHEN COALESCE(C.CORRIDOR_D,0) <= 0 THEN 0                          \
+	                    WHEN '+delta+' < 2 * C.CORRIDOR_D THEN (1 - '+delta+' / (2 * C.CORRIDOR_D)) * 100              \
 	                    ELSE 0                                                             \
 	                END AS PERCENT                                                         \
 	            FROM                                                                       \
 	                tt_lst_htmls LST                                                       \
 	                INNER JOIN params P                                                    \
 	                    ON LST.HTML_ID = P.HTML_ID                                         \
-	                    AND (LST.CONDITION_ID = P.CONDITION_ID OR LST.CONDITION_ID IS NULL) \
-		            INNER JOIN scontents SC                                                    \
-		            	ON LST.HTML_ID = SC.HTML_ID                                 \
-		            INNER JOIN spages SP                                                 \
-		            	ON SC.SPAGE_ID = SP.SPAGE_ID                                 \
-		            INNER JOIN search S                                                    \
-		            	ON S.SEARCH_ID = SP.SEARCH_ID                                 \
+	                    AND (LST.CONDITION_ID = P.CONDITION_ID OR LST.CONDITION_ID IS NULL)\
+	                INNER JOIN tt_lst_search TTS                                           \
+	                    ON LST.CONDITION_ID = TTS.CONDITION_ID                             \
 	                INNER JOIN corridor C                                                  \
-	                    ON S.SEARCH_ID = C.SEARCH_ID                                 \
-	                    AND P.PARAMTYPE_ID = C.PARAMTYPE_ID ;')
+	                    ON TTS.SEARCH_ID = C.SEARCH_ID                                       \
+	                    AND P.PARAMTYPE_ID = C.PARAMTYPE_ID ;');
     return list
 }
 /*
 Подготовка процентов приближенности к коридору по списку urls
 
-ВХОД:  tt_lst_urls (URL_ID, ...) + INDEX на URL_ID
-ВЫХОД: tt_res_hpercents (tt_lst_urls.*, HTML_ID, CONDITION_ID, PARAMTYPE_ID, PERCENT, DELTA) + INDEX на URL_ID, HTML_ID, CONDITION_ID
+ВХОД:  tt_lst_urls (URL_ID, CONDITION_ID ...) + INDEX на URL_ID
+ВЫХОД: tt_res_hpercents (tt_lst_urls.*, HTML_ID, PARAMTYPE_ID, PERCENT, DELTA) + INDEX на URL_ID, HTML_ID, CONDITION_ID
 */
 PgExpressions.prototype.GET_PERCENT_BY_URL = function () {
     var list = []
     list = list.concat(this.GET_LAST_HTML());
     list.push(' CREATE INDEX IDX_tt_lst_htmls_hu ON tt_lst_htmls (HTML_ID, URL_ID); ');
-    list.push(' ALTER TABLE tt_lst_htmls ADD COLUMN CONDITION_ID INT; ');
     list = list.concat(this.GET_PERCENT_BY_HTML());
     list.push(' CREATE INDEX IDX_tt_res_hpercents ON tt_res_hpercents (URL_ID, HTML_ID, CONDITION_ID);');
     return list
@@ -101,7 +108,7 @@ PgExpressions.prototype.GET_PERCENT_BY_URL = function () {
 Подготовка последних htmls по urls
 
 ВХОД:  tt_lst_urls (URL_ID, ...) + INDEX на URL_ID
-ВЫХОД: tt_lst_htmls (URL_ID, HTML_ID, ...) + INDEX IDX_tt_lst_htmls_udc (URL_ID, DATE_CREATE)
+ВЫХОД: tt_lst_htmls (HTML_ID, HTML_DATE_CREATE, tt_lst_urls.*) + INDEX IDX_tt_lst_htmls_udc (URL_ID, HTML_DATE_CREATE)
 */
 PgExpressions.prototype.GET_LAST_HTML = function () {
     var list = []
@@ -130,6 +137,38 @@ PgExpressions.prototype.GET_LAST_HTML = function () {
     return list
 }
 /*
+Подготовка последних search по conditions
+
+ВХОД:  tt_lst_conditions (CONDITION_ID, ...) + INDEX на CONDITION_ID
+ВЫХОД: tt_lst_search (SEARCH_ID, CONDITION_DATE_CREATE, tt_lst_conditions.*) + INDEX IDX_tt_lst_htmls_udc (CONDITION_ID, CONDITION_DATE_CREATE)
+*/
+PgExpressions.prototype.GET_LAST_SEARCH = function () {
+    var list = []
+    list.push('DROP TABLE IF EXISTS tt_lst_search;');
+    list.push('CREATE TEMPORARY TABLE tt_lst_search AS                                    \
+	    	        SELECT                                                                   \
+	    	            H.DATE_CREATE AS CONDITION_DATE_CREATE,                                   \
+	    	            LST.*,                                                               \
+	    	            H.SEARCH_ID                                                            \
+	    	        FROM                                                                     \
+    					tt_lst_conditions LST                                                      \
+	    	            INNER JOIN search H                                                   \
+	    	                  ON LST.CONDITION_ID = H.CONDITION_ID;');
+    list.push('CREATE INDEX IDX_tt_lst_search_cdc ON tt_lst_search (CONDITION_ID, CONDITION_DATE_CREATE);')
+    list.push('DELETE                                                                    \
+	    	    FROM                                                                         \
+    				tt_lst_search H                                                           \
+	    	    WHERE                                                                        \
+	    	        EXISTS (SELECT                                                           \
+	    	                    1                                                            \
+	    	                FROM                                                             \
+	    	                    search H2                                                     \
+	    	                WHERE                                                            \
+	    	                    H.CONDITION_ID = H2.CONDITION_ID                                         \
+	    	                    AND H2.DATE_CREATE > H.CONDITION_DATE_CREATE);');
+    return list
+}
+/*
  * **************************************************************************************
  * **************************************************************************************
  * **************************************QUERYS******************************************
@@ -141,9 +180,10 @@ PgExpressions.prototype.USERS_URL_COUNT = function () {
     list.push(' DROP TABLE IF EXISTS tt_lst_urls;');
     list.push(' CREATE TEMPORARY TABLE tt_lst_urls AS                           \
 	    	        SELECT                                                      \
-	    	            DISTINCT URL_ID                                         \
+	    	            DISTINCT UU.URL_ID, T.CONDITION_ID                                         \
 	    	        FROM                                                        \
-	    	            usurls;');
+	    	            usurls UU                                                  \
+    		            JOIN tasks T ON UU.USURL_ID = T.USURL_ID;');
     list.push(' CREATE INDEX IDX_tt_lst_urls ON tt_lst_urls (URL_ID);');
     list = list.concat(this.GET_PERCENT_BY_URL());
     list.push(' DROP TABLE IF EXISTS tt_res_uspercents;');
@@ -159,7 +199,7 @@ PgExpressions.prototype.USERS_URL_COUNT = function () {
 	    	            UU.USER_ID;');
     list.push(' CREATE INDEX IDX_tt_res_uspercents ON tt_res_uspercents (USER_ID);');
     list.push(' SELECT                                                          \
-	    	        U.*,MAX(T.PERCENT) AS PERCENT, COUNT(UU.USURL_ID) AS SITES_COUNT                 \
+	    	        U.*,MAX(CAST(T.PERCENT AS INT)) AS PERCENT, COUNT(UU.USURL_ID) AS SITES_COUNT                 \
 	    	    FROM                                                            \
 	    	        users U                                                     \
 	    	        LEFT JOIN usurls UU ON U.USER_ID = UU.USER_ID\
@@ -196,7 +236,7 @@ PgExpressions.prototype.USURLS_WITH_TASKS = function (vUSER_ID) {
 		            tasks.task_id,                                                  \
 		            conditions.*,                                                   \
 		            sengines.* ,                                                    \
-		            tt_res_upercents.*                                              \
+		            CAST(tt_res_upercents.PERCENT AS INT)                                              \
 		        FROM                                                                \
 		            usurls                                                          \
 		            INNER JOIN urls                                                 \
