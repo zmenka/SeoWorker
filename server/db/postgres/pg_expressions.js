@@ -199,7 +199,10 @@ PgExpressions.prototype.USERS_URL_COUNT = function () {
 	    	            UU.USER_ID;');
     list.push(' CREATE INDEX IDX_tt_res_uspercents ON tt_res_uspercents (USER_ID);');
     list.push(' SELECT                                                          \
-	    	        U.*,MAX(CAST(T.PERCENT AS INT)) AS PERCENT, COUNT(UU.USURL_ID) AS SITES_COUNT                 \
+	    	        U.*,MAX(CAST(T.PERCENT AS INT)) AS PERCENT,                 \
+			        MAX(CAST(T.PERCENT*255/100 AS INT)) AS COLOR_G,             \
+			        MAX(CAST((100 - T.PERCENT)*255/100 AS INT)) AS COLOR_R,             \
+    		        COUNT(UU.USURL_ID) AS SITES_COUNT                 \
 	    	    FROM                                                            \
 	    	        users U                                                     \
 	    	        LEFT JOIN usurls UU ON U.USER_ID = UU.USER_ID\

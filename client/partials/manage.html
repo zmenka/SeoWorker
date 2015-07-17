@@ -35,7 +35,7 @@
                     <td>{{user.last_visit | date : 'hh.mm dd.MM.yy'}}</td>
                     <td>{{user.date_create | date : 'hh.mm dd.MM.yy'}}</td>
                     <td style="text-align: center;">{{user.sites_count}}</td>
-                    <td style="text-align: center;">{{user.percent}}</td>
+                    <td style="text-align: center ; color: rgb({{user.color_r}}, {{user.color_g}}, 0)">{{user.percent}}</td>
                     <td style="text-align: center;">
                         <a ui-sref="main.edit_user({user_id:user.user_id})">
                             <span class="glyphicon glyphicon-pencil" ></span>
