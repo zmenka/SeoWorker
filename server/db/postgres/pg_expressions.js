@@ -150,8 +150,7 @@ PgExpressions.prototype.USERS_URL_COUNT = function () {
     list.push(' CREATE TEMPORARY TABLE tt_res_uspercents AS                     \
 	    	        SELECT                                                      \
 	    	            UU.USER_ID,                                             \
-	    	            SUM(PERCENT)/COUNT(UU.URL_ID) AS PERCENT,               \
-	    	            COUNT(UU.URL_ID) AS SITES_COUNT                         \
+	    	            SUM(PERCENT)/COUNT(UU.URL_ID) AS PERCENT               \
 	    	        FROM                                                        \
 	    	            tt_res_hpercents T                                      \
 	    	            JOIN usurls UU                                           \
@@ -160,10 +159,12 @@ PgExpressions.prototype.USERS_URL_COUNT = function () {
 	    	            UU.USER_ID;');
     list.push(' CREATE INDEX IDX_tt_res_uspercents ON tt_res_uspercents (USER_ID);');
     list.push(' SELECT                                                          \
-	    	        U.*,T.PERCENT, COALESCE(T.SITES_COUNT,0) AS SITES_COUNT                 \
+	    	        U.*,MAX(T.PERCENT) AS PERCENT, COUNT(UU.USURL_ID) AS SITES_COUNT                 \
 	    	    FROM                                                            \
 	    	        users U                                                     \
+	    	        LEFT JOIN usurls UU ON U.USER_ID = UU.USER_ID\
 	    	        LEFT JOIN tt_res_uspercents T ON U.user_id = T.user_id      \
+	    	    GROUP BY U.USER_ID\
 	    	    ORDER BY u.date_create desc;');
     return list
 }

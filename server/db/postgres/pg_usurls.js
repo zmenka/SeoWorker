@@ -33,6 +33,7 @@
 
 var PG = require('./pg');
 var PgUrls = require('./pg_urls');
+var PgExpressions = require('./pg_expressions');
 var fs = require('fs');
 var path = require('path');
 
@@ -194,9 +195,10 @@ PgUsurls.prototype.findByUser = function (val, callback, errback) {
         })
 }
 
-PgUsurls.prototype.listWithTasks = function () {
+PgUsurls.prototype.listWithTasks = function (user_id) {
     console.log("PgUsurls.prototype.listWithTasks")
-	return PgExpressions.execute_list(PgExpressions.USURLS_WITH_TASKS(user_id))
+    var ex = new PgExpressions();
+	return ex.execute_list(ex.USURLS_WITH_TASKS(user_id))
         .catch(function (err) {
             throw 'PgUsurls.prototype.listWithTasks' + err;
             console.log(err);

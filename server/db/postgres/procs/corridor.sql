@@ -22,21 +22,27 @@ BEGIN
         SELECT 
             LST.*,
             P.PARAMTYPE_ID,
-            @ (COALESCE(C.M,0) - COALESCE(P.VALUE,0)) AS DELTA,
+            @ (COALESCE(C.CORRIDOR_M,0) - COALESCE(CAST(P.PARAM_VALUE AS NUMERIC),0)) AS DELTA,
             CASE 
                 -- если дисперсия некорректна (ну а что? вдруг?!), то процент = 0
-                WHEN COALESCE(C.D,0) <= 0 THEN 0
+                WHEN COALESCE(C.CORRIDOR_D,0) <= 0 THEN 0
                 -- если отклонение меньше двух дисперсий, то НЕ ноль
-                WHEN DELTA < 2 * C.D THEN (1 - DELTA / 2 * C.D) * 100
+                WHEN @ (COALESCE(C.CORRIDOR_M,0) - COALESCE(CAST(P.PARAM_VALUE AS NUMERIC),0)) < 2 * C.CORRIDOR_D THEN (1 - @ (COALESCE(C.CORRIDOR_M,0) - COALESCE(CAST(P.PARAM_VALUE AS NUMERIC),0)) / 2 * C.CORRIDOR_D) * 100
                 ELSE 0
             END AS PERCENT
-        FROM
-            tt_lst_htmls LST
-            INNER JOIN params P
-                ON LST.HTML_ID = P.HTML_ID
-                AND (LST.CONDITION_ID = P.CONDITION_ID OR LST.CONDITION_ID IS NULL)
-            INNER JOIN corridor C
-                ON P.CONDITION_ID = C.CONDITION_ID
+        FROM                                                                      
+            tt_lst_htmls LST                                                       
+            INNER JOIN params P                                                    
+                ON LST.HTML_ID = P.HTML_ID                                         
+                AND (LST.CONDITION_ID = P.CONDITION_ID OR LST.CONDITION_ID IS NULL) 
+            INNER JOIN scontents SC                                                    
+                ON LST.HTML_ID = SC.HTML_ID                                 
+            INNER JOIN spages SP                                                 
+                ON SC.SPAGE_ID = SP.SPAGE_ID                                 
+            INNER JOIN search S                                                    
+                ON S.SEARCH_ID = SP.SEARCH_ID                                 
+            INNER JOIN corridor C                                                  
+                ON S.SEARCH_ID = C.SEARCH_ID                                 
                 AND P.PARAMTYPE_ID = C.PARAMTYPE_ID
         ;
     

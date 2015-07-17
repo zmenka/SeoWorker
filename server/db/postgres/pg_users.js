@@ -172,7 +172,8 @@ PgUsers.prototype.list = function () {
 
 PgUsers.prototype.listWithSitesCount = function () {
     console.log("PgUsers.prototype.listWithSitesCount")
-	return PgExpressions.execute_list(PgExpressions.USERS_URL_COUNT())
+    var ex = new PgExpressions();
+	return ex.execute_list(ex.USERS_URL_COUNT())
         .catch(function (err) {
             throw 'PgUsers.prototype.listWithSitesCount' + err;
             console.log(err);

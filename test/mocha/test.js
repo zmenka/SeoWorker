@@ -151,7 +151,7 @@ describe('Test', function(){
 
         })
 
-        it.only('check search', function(){
+        it('check search', function(){
 
             var PgParams = require("../../server/db/postgres/pg_params")
             return new PgParams().getParamDiagram(294, 2)

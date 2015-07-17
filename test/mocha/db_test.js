@@ -2,7 +2,16 @@
 describe('DB TEST', function(){
     describe('All', function(){
 
-        it('sql test 1', function(){
+        it('sql test 4', function(){
+
+            var PgParams = require("../../server/db/postgres/pg_params");
+            return new PgParams().getParamtypes(1)
+                .then(function(res){
+                    console.log(res);
+                });
+
+        })
+        it.only('sql test 1', function(){
 
             var PgExpressions = require("../../server/db/postgres/pg_expressions");
             var express = new PgExpressions()
@@ -12,7 +21,7 @@ describe('DB TEST', function(){
                 });
 
         })
-        it.only('sql test 3', function(){
+        it('sql test 3', function(){
 
             var PgExpressions = require("../../server/db/postgres/pg_expressions");
             var express = new PgExpressions()

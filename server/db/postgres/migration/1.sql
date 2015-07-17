@@ -171,7 +171,7 @@ CREATE TABLE tasks
   -- Время создания записи
   DATE_CREATE       TIMESTAMP WITH TIME ZONE NOT NULL,
   -- Время последнего пересчета
-  DATE_CALC         TIMESTAMP WITH TIME ZONE NOT NULL
+  DATE_CALC         TIMESTAMP WITH TIME ZONE
 );
 -- Уникальнай ключ
 CREATE UNIQUE INDEX UIDX_tasks_usu_cond ON tasks (USURL_ID,CONDITION_ID);

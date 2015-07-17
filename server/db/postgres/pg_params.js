@@ -137,21 +137,12 @@ PgParams.prototype.getParamtypes = function (search_id) {
     return PG.query(
         "SELECT " +
         "DISTINCT PT.* " +
-        "@ (C.M - P.VALUE) AS DELTA, " +
-        "CASE  " +
-        "    -- если отклонение меньше двух дисперсий, то НЕ ноль " +
-        "    WHEN DELTA < 2 * C.D THEN (1 - DELTA / 2 * C.D) * 100 " +
-        "    ELSE 0 " +
-        "END AS PERCENT " + 
         "FROM " +
         "spages SP " +
         "INNER JOIN scontents SC " +
         "ON SP.SPAGE_ID = SC.SPAGE_ID " +
         "INNER JOIN params P " +
         "ON SC.HTML_ID = P.HTML_ID " +
-        "INNER JOIN corridor C " +
-        "ON P.CONDITION_ID = C.CONDITION_ID " +
-        "AND SP.SEARCH_ID = C.SEARCH_ID " +
         "INNER JOIN paramtypes PT " +
         "ON P.PARAMTYPE_ID = PT.PARAMTYPE_ID " +
         "WHERE SP.search_id = $1;",
