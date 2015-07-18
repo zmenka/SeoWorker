@@ -404,10 +404,12 @@ SeoParameters.prototype.getSearchPicks = function (search_html, sengine_name) {
                     //получаем URL-ы и title-ы
                     for (var i in tags) {
                         var tag = tags[i];
+                        //если нет родителя или он не h2 (логотип), то выходим
+                        if (tag.parent == undefined || !(tag.parent.name == 'h2'))
+                            continue;
                         //если нет атрибутов, то выходим
                         if (!tag.hasOwnProperty('attribs'))
                             continue;
-                        //если не отображается, то выходим
                         if (tag.attribs['style'] == 'display:none')
                             continue;
                         //если нет URL-а, то выходим
@@ -429,7 +431,7 @@ SeoParameters.prototype.getSearchPicks = function (search_html, sengine_name) {
                     break;
             }
 
-            console.log(-date.getTime() + (new Date().getTime()))
+            //console.log(-date.getTime() + (new Date().getTime()))
             console.log("SeoParameters.getSearchPicks");
             return res;
         })

@@ -43,8 +43,9 @@
     "pg": "^3.6.2",
     "q": "^1.1.2",
     "request": "^2.45.0",
-    "soupselect": "^0.2.0",
-    "tough-cookie": "^0.12.1"
+    "tough-cookie": "^0.12.1",
+    "soupselect": "~0.2.0",
+    "cheerio": "~0.19.0"
   },
   "scripts": {
     "postinstall": "node ./node_modules/bower/bin/bower install",
