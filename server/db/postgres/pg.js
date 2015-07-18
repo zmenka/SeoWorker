@@ -56,7 +56,9 @@ PG.prototype.transact = function (query, params, endTransaction, logTime) {
     process.nextTick(function() {
         _this.client.query(query, params, function (err, result) {
             if (err) {
-                console.log('pg transact', err_text(err))
+                console.log('pg transact', err_text(err));
+                console.log('PG ERROR IN COMMAND: ');
+                console.log(query);
                 _this.rollback(_this.client, _this.done);
                 deferred.reject(err_text(err));
                 return;
@@ -125,6 +127,8 @@ PG.query = function PG(query, params, logTime) {
 
         client.query(query, params, function (err, result) {
             if (handleError(err)) {
+                console.log('PG ERROR IN COMMAND: ')
+                console.log(query)
                 return;
             }
             done();

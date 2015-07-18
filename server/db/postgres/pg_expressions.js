@@ -214,13 +214,14 @@ PgExpressions.prototype.USERS_URL_COUNT = function () {
 PgExpressions.prototype.USURLS_WITH_TASKS = function (vUSER_ID) {
     var list = []
     list.push(' DROP TABLE IF EXISTS tt_lst_urls;');
-    list.push(' CREATE TEMPORARY TABLE tt_lst_urls AS                          \
-	    	        SELECT                                                     \
-	    	            DISTINCT URL_ID                                        \
-	    	        FROM                                                       \
-	    	            usurls                                                 \
+	list.push(' CREATE TEMPORARY TABLE tt_lst_urls AS                           \
+	    	        SELECT                                                      \
+	    	            DISTINCT UU.URL_ID, T.CONDITION_ID                                         \
+	    	        FROM                                                        \
+	    	            usurls UU                                                  \
+    		            JOIN tasks T ON UU.USURL_ID = T.USURL_ID         \
 	    	        WHERE                                                      \
-	    	            USER_ID =' + vUSER_ID + ';');
+	    	            UU.USER_ID =' + vUSER_ID + ';');
     list.push(' CREATE INDEX IDX_tt_lst_urls ON tt_lst_urls (URL_ID);');
     list = list.concat(this.GET_PERCENT_BY_URL());
     list.push(' DROP TABLE IF EXISTS tt_res_upercents;');

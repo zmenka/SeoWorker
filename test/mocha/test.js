@@ -163,6 +163,15 @@ describe('Test', function(){
 
         })
 
+        it.only('create pwd', function(){
+
+            var PgUsers = require("../../server/db/postgres/pg_users")
+            console.log(new PgUsers().generateHash('1'))
+
+
+
+        })
+
     })
 })
 
