@@ -16,7 +16,7 @@ var SeoParameters = require("./seo_parameters");
 
 var MathStat = require("./MathStat")
 
-var Q = require("q");
+var Q = require("./utils/q");
 
 function Core() {
     // console.log('core init');
@@ -310,7 +310,7 @@ Core.prototype.calcCoridors = function (search_id){
 
         })
         .catch(function (err) {
-            console.error('Core.prototype.calcalcCoridorscParamsByUrl ', err )
+            console.error('Core.prototype.calcCoridors ', err )
             throw  err;
         })
 }

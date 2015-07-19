@@ -1,12 +1,15 @@
 <div ui-tree-handle class="app-tree-node app-tree-node-content"
-     ng-click="node.collapsed = collapsed; nodeselect(node); " >
+     ng-click="node.collapsed = collapsed; nodeselect(node); "
+        style="background-color:  rgba({{node.data.color_r}}, {{node.data.color_g}}, 0, 0.3)">
 
     <a class="btn btn-success btn-xs app-tree-arrow" ng-if="node.nodes && node.nodes.length > 0" nodrag ng-click="toggle();">
         <span class="glyphicon"
               ng-class="{'glyphicon-chevron-right': collapsed, 'glyphicon-chevron-down': !collapsed}"></span>
     </a>
     <a ng-click="toggle()" title="{{node.title}}">
-    <div class="app-tree-node-text " style="color: #808080;"> {{node.title}}</div>
+    <div class="app-tree-node-text " style="color: #808080; ">
+        {{node.title}}
+    </div>
     </a>
 </div>
 

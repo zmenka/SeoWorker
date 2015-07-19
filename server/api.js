@@ -15,7 +15,7 @@ var callback = function (data, response) {
 };
 
 var errback = function (err, response) {
-    console.log(err, err.stack);
+    console.log((err && err.stack) ? err.stack : (err ? err : 'no error'));
     response.statusCode = 440;
     response.send(err);
 };
@@ -123,11 +123,10 @@ module.exports = function Api(app, passport) {
             return;
         }
 
-        var sites;
         return new PgUsurls().listWithTasks(req.query.user_id)
             .then(function (dirty_sites) {
-                SF = new SeoFormat();
-                sites = SF.createSiteTree(dirty_sites);
+                var SF = new SeoFormat();
+                var sites = SF.createSiteTree(dirty_sites);
                 callback(sites, res);
             })
             .catch(function (err) {
@@ -316,14 +315,12 @@ module.exports = function Api(app, passport) {
             errback("не найдены параметры condition_id", res);
             return;
         }
-        return new PgSearch().getLastSearch(req.body.condition_id)
-            .then(function (search) {
-                if (!search){
-                    errback( 'Не найдена поисковая выдача', res)
-                    return
-                }
-                return new PgParams().getParamtypes(search.search_id)
-            })
+
+        if (!req.body.url_id) {
+            errback("не найдены параметры url_id", res);
+            return;
+        }
+        return new PgParams().getParamtypesForUrl(req.body.condition_id, req.body.url_id)
             .then(function (paramtypes) {
                 if (!paramtypes){
                     errback( 'Не найден ни один тип параметра', res)

@@ -163,12 +163,12 @@ describe('Test', function () {
 
         })
 
-        it.only('create pwd', function() {
+        it('create pwd', function() {
 
             var PgUsers = require("../../server/db/postgres/pg_users")
             console.log(new PgUsers().generateHash('1'))
         })
-        it.only('search LINKS', function () {
+        it('search LINKS', function () {
 
             var SeoParameters = require("../../server/seo_parameters.js")
             //var Searcher = require("../../server/searcher.js")

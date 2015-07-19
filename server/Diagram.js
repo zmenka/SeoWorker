@@ -37,10 +37,9 @@ Diagram.prototype.getParamsDiagram = function (params, siteParam, corridor) {
     if (!params || params.length == 0) {
         return null;
     }
-
-    var corridor_m = corridor ? corridor.corridor_m : 0;
-    var corridor_d = corridor ? corridor.corridor_d : 0;
-    var site_value = siteParam ? siteParam.param_value : 0
+    var corridor_m = corridor ? parseFloat(corridor.corridor_m) : 0;
+    var corridor_d = corridor ? parseFloat(corridor.corridor_d) : 0;
+    var site_value = siteParam ? parseFloat(siteParam.param_value) : 0
     var param_name = siteParam ? siteParam.paramtype_ru_name : "";
 
     var paramsValues = params.map(function (el) {
@@ -52,17 +51,21 @@ Diagram.prototype.getParamsDiagram = function (params, siteParam, corridor) {
     //получаем y нашего сайта
     var ys = parseFloat(site_value);
     //получаем y коридора
-    var kD = 0.5; //кол-во дисперсий в радиусе коридора
+    var kD = 1; //кол-во дисперсий в радиусе коридора
     var radius = kD * corridor_d;
-    var yk1 = (corridor_m - radius) > 0 ? (corridor_m - radius) : 0;
-    var yk2 = (corridor_m + radius) > 0 ? (corridor_m + radius) : 0;
+    var yk1 = corridor_m - radius;
+    var yk2 = corridor_m + radius;
+    var yk1 = yk1 > 0 ? yk1 : 0;
+    var yk2 = yk2 > 0 ? yk2 : 0;
+    x1 = x1.toFixed(2);
+    x2 = x2.toFixed(2);
     yk1 = yk1.toFixed(2);
     yk2 = yk2.toFixed(2);
     //увет графика
     var paramsColor = '#1F77B4';
     //получаем цвет уровня нашего сайта
 
-    var siteColor = this.getCoridorRGB(corridor, ys)
+    var siteColor = this.getCoridorRGB(siteParam)
     //строим "коридор"
     this.addFigure('Граница коридора', [[x1, yk2], [x2, yk2], [x2, yk1], [x1, yk1], [x1, yk2]], '#D0FFFF', true);
     //строим уровень нашего сайта
@@ -73,31 +76,16 @@ Diagram.prototype.getParamsDiagram = function (params, siteParam, corridor) {
     return this.diagram;
 }
 
-Diagram.prototype.getCoridorPercent = function (corridor, valueY) {
-    if (!corridor) {
-        return 0;
-    }
-    var kD = 0.5; //кол-во дисперсий в радиусе коридора
-    var radius = kD * corridor.corridor_d;
-    var delta = Math.abs(valueY - corridor.corridor_m);
-
-    var percent = delta < 2 * radius ? 100 * (2 * radius - delta) / 2 * radius : 0
-    return percent;
-}
-
-Diagram.prototype.getCoridorRGB = function (corridor, valueY) {
-    if (!corridor) {
+Diagram.prototype.getCoridorRGB = function (siteParam) {
+    if (!siteParam) {
         return 'rgb(255,255,255)';
     }
-    var kD = 0.5; //кол-во дисперсий в радиусе коридора
-    var radius = kD * corridor.corridor_d;
-    var delta = Math.abs(valueY - corridor.corridor_m);
-    var kColor = 1; //скорость "покраснения"
-    var siteColorR = parseInt(delta < radius ? (255 * delta / radius) : 255, 10);
-    var siteColorG = parseInt(delta < radius ? 255 : (Math.max(255 * (1 - kColor * (delta - radius) / radius), 0)), 10);
+    var siteColorR = siteParam.color_r
+    var siteColorG = siteParam.color_g
     var siteColorB = 0;
     var siteColor = 'rgb(' + [siteColorR, siteColorG, siteColorB].join(',') + ')';
-
+    console.log('siteColor')
+    console.log(siteColor)
     return siteColor;
 
 }

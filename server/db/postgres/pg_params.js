@@ -31,6 +31,7 @@
 
 var PG = require('./pg');
 var fs = require('fs');
+var PgExpressions = require('./pg_expressions');
 var path = require('path');
 
 function PgParams() {
@@ -92,12 +93,11 @@ PgParams.prototype.get = function (id) {
 }
 
 PgParams.prototype.getSiteParam = function (condition_id, html_id, paramtype_id) {
-    return PG.query("SELECT P.*, PT.* FROM params P JOIN paramtypes PT ON P.PARAMTYPE_ID = PT.PARAMTYPE_ID " +
-        "WHERE P.html_id = $1 and P.condition_id = $2 and P.paramtype_id = $3;",
-        [html_id, condition_id, paramtype_id])
+    var ex = new PgExpressions();
+    return ex.execute_list(ex.GET_SITE_PARAM(condition_id, html_id, paramtype_id))
         .then(function (res) {
             console.log('PgParams.prototype.getSiteParam');
-            return res.rows[0];
+            return res[0];
         })
         .catch(function (err) {
             throw 'PgParams.prototype.getSiteParam' + err;
@@ -133,23 +133,25 @@ PgParams.prototype.getParamDiagram = function (search_id, paramtype_id) {
 }
 
 
-PgParams.prototype.getParamtypes = function (search_id) {
-    return PG.query(
-        "SELECT " +
-        "DISTINCT PT.* " +
-        "FROM " +
-        "spages SP " +
-        "INNER JOIN scontents SC " +
-        "ON SP.SPAGE_ID = SC.SPAGE_ID " +
-        "INNER JOIN params P " +
-        "ON SC.HTML_ID = P.HTML_ID " +
-        "INNER JOIN paramtypes PT " +
-        "ON P.PARAMTYPE_ID = PT.PARAMTYPE_ID " +
-        "WHERE SP.search_id = $1;",
-        [search_id])
+PgParams.prototype.getParamtypesForUrl = function (condition_id, url_id) {
+    var ex = new PgExpressions();
+    return ex.execute_list(ex.GET_PARAMTYPES_FOR_URL(condition_id, url_id))
         .then(function (res) {
             console.log('PgParams.prototype.getParamtypes');
-            return res.rows;
+            return res;
+        })
+        .catch(function (err) {
+            console.log('PgParams.prototype.getParamtypes err', err);
+            throw 'PgParams.prototype.getParamtypes err  ' + err
+        })
+}
+
+PgParams.prototype.getParamtypes = function (search_id) {
+    var ex = new PgExpressions();
+    return ex.execute_list(ex.GET_PARAMTYPES(search_id))
+        .then(function (res) {
+            console.log('PgParams.prototype.getParamtypes');
+            return res;
         })
         .catch(function (err) {
             console.log('PgParams.prototype.getParamtypes err', err);

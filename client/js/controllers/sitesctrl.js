@@ -169,7 +169,7 @@ function SitesCtrl($scope, $stateParams, $rootScope, $alert, $aside, $timeout, $
         }
         vm.loading = true;
 
-        return Api.get_paramtypes(vm.site.data.condition_id)
+        return Api.get_paramtypes(vm.site.data.condition_id, vm.site.data.url_id)
             .then(function (res) {
                 console.log("get_paramtypes Api.get_paramtypes", res);
 

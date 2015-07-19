@@ -47,8 +47,8 @@ seoServices.factory('Api', ['$http',
             calc_site_params: function ( url, condition_id) {
                 return $http.post('/api/calc_site_params', {url: url, condition_id: condition_id});
             },
-            get_paramtypes: function (condition_id) {
-                return $http.post('/api/get_paramtypes', { condition_id: condition_id});
+            get_paramtypes: function (condition_id, url_id) {
+                return $http.post('/api/get_paramtypes', { condition_id: condition_id, url_id: url_id});
             },
             get_params: function (url_id, condition_id, param_type) {
                 return $http.post('/api/get_params', {url_id:url_id, condition_id: condition_id, param_type:param_type});

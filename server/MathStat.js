@@ -29,7 +29,7 @@ MathStat.prototype.calc = function () {
     //обработка ошибок
     if(this.array == null || this.array.length == 0){
         throw new Error('MathStat. Пустой массив данных');
-    } 
+    }
     //степень "сжатия"
     var powM = 0.25;
     var powD = 0.5;

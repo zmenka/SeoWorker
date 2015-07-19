@@ -1,4 +1,4 @@
-var Q = require("q")
+var Q = require("./utils/q");
 var SeoParser = require("./seo_parser");
 
 function SeoParameters() {

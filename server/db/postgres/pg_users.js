@@ -171,13 +171,10 @@ PgUsers.prototype.list = function () {
 }
 
 PgUsers.prototype.listWithSitesCount = function () {
-    console.log("PgUsers.prototype.listWithSitesCount")
+    //console.log("PgUsers.prototype.listWithSitesCount")
     var ex = new PgExpressions();
 	return ex.execute_list(ex.USERS_URL_COUNT())
-        .catch(function (err) {
-            throw 'PgUsers.prototype.listWithSitesCount' + err;
-            console.log(err);
-        })
+
 }
 
 PgUsers.prototype.get = function (id) {

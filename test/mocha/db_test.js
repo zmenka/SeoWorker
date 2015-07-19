@@ -16,7 +16,7 @@ describe('DB TEST', function(){
             var PgExpressions = require("../../server/db/postgres/pg_expressions");
             var express = new PgExpressions()
             var list = []
-            list = list.concat(express.USERS_URL_COUNT(1))
+            list = list.concat(express.GET_PARAMTYPES_BY_SEARCH(1,1))
             return express.execute_list(list)
                 .then(function(res){
                     console.log(res);

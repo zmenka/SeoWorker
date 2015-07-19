@@ -109,6 +109,7 @@ CREATE INDEX IDX_spages_html ON spages (HTML_ID);
 CREATE INDEX IDX_params_html ON params (HTML_ID);
 CREATE INDEX IDX_scontents_html ON scontents (HTML_ID);
 
+CREATE TYPE COLOR AS ENUM ('R', 'G', 'B');
 
 DELETE FROM htmls;
 DELETE FROM search;

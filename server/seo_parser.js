@@ -1,6 +1,6 @@
 var htmlparser = require("htmlparser2");
 var select = require('soupselect').select;
-var Q = require('q')
+var Q = require("./utils/q");
 function SeoParser() {
     //console.log('Parser init');
 };

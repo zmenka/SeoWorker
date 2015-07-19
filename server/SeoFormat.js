@@ -13,7 +13,7 @@ SeoFormat.prototype.createSiteTree = function (sites) {
     for (var i = 0; i < sites.length; i++) {
         var site = sites[i];
         //console.log("site", site);
-        var domen = site.url.match(/(?:http:\/\/|https:\/\/|)(?:www.|)([^\/]+)\/?(.*)/)[1].toLowerCase();
+        var domen = site.domen;
         //console.log("domen", domen);
 
         var domens = tree.filter(function (v) {
@@ -30,9 +30,13 @@ SeoFormat.prototype.createSiteTree = function (sites) {
                     title: site.url,
                     usurl_id: site.usurl_id,
                     url_id: site.url_id,
-                    percent: site.percent}, 'domen');
+                    percent: 0,
+                    color_r: 0,
+                    color_g: 0
+                }, 'domen');
             tree.push(domenNode)
         }
+        domenNode.data.percent += site.percent;
 
         var pages = domenNode.nodes.filter(function (v) {
             return v.title === site.url;
@@ -49,16 +53,21 @@ SeoFormat.prototype.createSiteTree = function (sites) {
                     usurl_id: site.usurl_id,
                     url_id: site.url_id,
                     url: site.url,
-                    percent: site.percent}, 'page');
+                    percent: 0,
+                    color_r: 0,
+                    color_g: 0
+                }, 'page');
             domenNode.nodes.push(page);
         }
 
+        page.data.percent += site.percent;
+
         if (site.task_id) {
             var task = new TaskTreeNode();
-            task.create(site.condition_query+ " (" + site.sengine_name + ", " + site.size_search + "), " + site.region + " регион",
+            task.create(site.condition_query + " (" + site.sengine_name + ", " + site.size_search + "), " + site.region + " регион",
                 true,
                 {
-                    title: site.condition_query ,
+                    title: site.condition_query,
                     usurl_id: site.usurl_id,
                     url_id: site.url_id,
                     task_id: site.task_id,
@@ -69,18 +78,35 @@ SeoFormat.prototype.createSiteTree = function (sites) {
                     sengine_id: site.sengine_id,
                     region: site.region,
                     size_search: site.size_search,
-                    percent: site.percent},
+                    color_r: site.color_r,
+                    color_g: site.color_g
+                },
                 'task')
             page.nodes.push(task);
         }
 
+    }
+
+    for (var i = 0; i < tree.length; i++) {
+        var domen = tree[i];
+        cnt = 0;
+        for (var j = 0; j < domen.nodes.length; j++) {
+            var page = domen.nodes[j];
+            cnt += page.nodes.length
+            page.data.percent = page.data.percent / page.nodes.length
+            page.data.color_r = this.getColorByPercent(page.data.percent,'R')
+            page.data.color_g = this.getColorByPercent(page.data.percent,'G')
+        }
+        domen.data.percent = domen.data.percent / cnt
+        domen.data.color_r = this.getColorByPercent(domen.data.percent,'R')
+        domen.data.color_g = this.getColorByPercent(domen.data.percent,'G')
     }
 //    console.log("sites ", sites, " tree ", tree);
     return tree;
 }
 
 SeoFormat.prototype.getSitePosition = function (allParams, siteParams) {
-    if (!allParams || !siteParams){
+    if (!allParams || !siteParams) {
         return;
     }
     var url = siteParams.url.replace(/^(ftp:\/\/|http:\/\/|https:\/\/)*(www\.)*/g, '')
@@ -163,8 +189,10 @@ SeoFormat.prototype.prettyTable = function (data, site_data) {
 //            })
     var table = []
     for (var key in data) {
-        table.push({url: data[key].url, name: data[key].url, params: data[key].param.params, surl: data[key].surl,
-            position: data[key].position + 1})
+        table.push({
+            url: data[key].url, name: data[key].url, params: data[key].param.params, surl: data[key].surl,
+            position: data[key].position + 1
+        })
     }
 
     table.push({url: site_data.url, name: 'Ваш сайт', params: site_data.param.params, surl: "-"})
@@ -192,16 +220,43 @@ SeoFormat.prototype.getTreeFromParamtypes = function (paramtypes) {
         } else {
             node = new TaskTreeNode();
             node.create(paramtypes[key].paramtype_tag, true,
-                {}, 'group');
+                {
+                    percent: 0,
+                    color_r: 0,
+                    color_g: 0
+                }, 'group');
             tree.push(node)
         }
+        node.data.percent += paramtypes[key].percent;
+
         var keyPar = new TaskTreeNode();
         keyPar.create(paramtypes[key].paramtype_ru_name, true, paramtypes[key], 'key');
         node.nodes.push(keyPar);
 //        console.log('keyPar',keyPar);
     }
+
+    for (var i = 0; i < tree.length; i++) {
+        var group = tree[i];
+        group.data.percent = group.data.percent / group.nodes.length
+        group.data.color_r = this.getColorByPercent(group.data.percent,'R')
+        group.data.color_g = this.getColorByPercent(group.data.percent,'G')
+    }
     return tree;
 
 }
+
+SeoFormat.prototype.getColorByPercent = function (percent, color) {
+    if (color == 'R' && percent > 50)
+        return parseInt((100 - percent)*255/50)
+    else if (color == 'G' && percent < 50)
+        return parseInt(percent*255/50)
+    else if (color == 'B')
+        return 0
+    else
+        return 255
+
+
+}
+
 
 module.exports = SeoFormat;

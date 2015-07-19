@@ -1,5 +1,17 @@
 \c seo;
-
+/*
+Возвращаем цвет по проценту
+*/
+CREATE OR REPLACE FUNCTION GET_COLOR(vPROCENT float, vCOLOR COLOR) RETURNS integer AS $$
+        BEGIN
+                RETURN CASE
+                            WHEN vCOLOR = 'R' AND vPROCENT > 50 THEN CAST((100 - vPROCENT)*255/50 AS INT)
+                            WHEN vCOLOR = 'G' AND vPROCENT < 50 THEN CAST(vPROCENT*255/50 AS INT)
+                            WHEN vCOLOR = 'B' THEN 0
+                            ELSE 255
+                       END;
+        END;
+$$ LANGUAGE plpgsql;
 /*
 Один из этапов чистки базы. 
 Удаление SEARCH (и все что с ними связано) таких, что по ним есть более свежие SEARCH с таким же CONDITION
