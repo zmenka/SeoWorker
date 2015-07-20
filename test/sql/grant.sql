@@ -1,6 +1,6 @@
 --REVOKE ALL PRIVILEGES ON DATABASE seo  FROM seouser;
 CREATE USER webadministrator WITH PASSWORD 'feHfkeN2';
-GRANT CONNECT ON DATABASE seo TO webadministrator;
+GRANT CREATE, CONNECT, TEMPORARY ON DATABASE seo TO webadministrator;
 GRANT SELECT, UPDATE, INSERT,DELETE, TRUNCATE ON ALL TABLES in schema public TO webadministrator;
 GRANT SELECT, USAGE  ON ALL SEQUENCES in schema public TO webadministrator;
 /*

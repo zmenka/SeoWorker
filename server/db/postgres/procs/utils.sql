@@ -22,7 +22,7 @@ BEGIN
     
     
     DROP TABLE IF EXISTS tt_lst_search;
-    CREATE TEMPORARY TABLE tt_lst_search AS
+    CREATE /*TEMPORARY*/ TABLE tt_lst_search AS
         SELECT 
             SEARCH_ID
         FROM 
@@ -40,7 +40,7 @@ BEGIN
     
         
     DROP TABLE IF EXISTS tt_lst_spages;
-    CREATE TEMPORARY TABLE tt_lst_spages AS
+    CREATE /*TEMPORARY*/ TABLE tt_lst_spages AS
         SELECT 
             T.SPAGE_ID
         FROM 
@@ -52,7 +52,7 @@ BEGIN
     
     
     DROP TABLE IF EXISTS tt_lst_scontents;
-    CREATE TEMPORARY TABLE tt_lst_scontents AS
+    CREATE /*TEMPORARY*/ TABLE tt_lst_scontents AS
         SELECT 
             T.SCONTENT_ID
         FROM 
@@ -64,7 +64,7 @@ BEGIN
     
     
     DROP TABLE IF EXISTS tt_lst_htmls;
-    CREATE TEMPORARY TABLE tt_lst_htmls AS
+    CREATE /*TEMPORARY*/ TABLE tt_lst_htmls AS
         SELECT 
             T.HTML_ID
         FROM 
@@ -75,7 +75,7 @@ BEGIN
     CREATE INDEX IDX_tt_lst_htmls ON tt_lst_htmls (HTML_ID);
     
     SELECT PG_SIZE_PRETTY(PG_DATABASE_SIZE('seo')) AS TOTAL_DB_SIZE_BEFORE;
-    START TRANSACTION;
+    
     DELETE FROM scontents AS D USING tt_lst_scontents T WHERE D.SCONTENT_ID = T.SCONTENT_ID;
     DELETE FROM params    AS D USING tt_lst_htmls T     WHERE D.HTML_ID = T.HTML_ID;
     DELETE FROM htmls     AS D USING tt_lst_htmls T     WHERE D.HTML_ID = T.HTML_ID;
@@ -83,9 +83,14 @@ BEGIN
     -- DELETE FROM corridor  AS D USING tt_lst_search T    WHERE D.SEARCH_ID = T.SEARCH_ID;
     DELETE FROM search    AS D USING tt_lst_search T    WHERE D.SEARCH_ID = T.SEARCH_ID;
     
-    COMMIT;
-    
+    VACUUM FULL;
     SELECT PG_SIZE_PRETTY(PG_DATABASE_SIZE('seo')) AS TOTAL_DB_SIZE_AFTER;
+    SELECT PG_SIZE_PRETTY(PG_TOTAL_RELATION_SIZE('htmls')) AS TOTAL_DB_SIZE_AFTER;
+    SELECT PG_SIZE_PRETTY(PG_TOTAL_RELATION_SIZE('params')) AS TOTAL_DB_SIZE_AFTER;
+    DROP TABLE IF EXISTS tt_lst_search;
+    DROP TABLE IF EXISTS tt_lst_scontents;
+    DROP TABLE IF EXISTS tt_lst_spages;
+    DROP TABLE IF EXISTS tt_lst_htmls;
                 
 END;
 $$ LANGUAGE plpgsql;
