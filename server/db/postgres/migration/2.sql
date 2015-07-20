@@ -7,6 +7,8 @@
 */
 \c seo;
 
+ALTER TABLE  search ADD COLUMN DONE BOOLEAN NOT NULL DEFAULT FALSE;
+
 /* Параметры страницы по условиям */
 DROP TABLE IF EXISTS paramtypes CASCADE;
 CREATE TABLE paramtypes
