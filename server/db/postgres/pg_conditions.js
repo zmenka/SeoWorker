@@ -43,7 +43,7 @@ PgConditions.prototype.insert = function (condition_query, sengine_id, region, s
     return new PG()
         .then(function (dbres) {
             db = dbres;
-            console.log("INSERT INTO conditions (condition_query, sengine_id, region, size_search, date_create) VALUES ("+condition_query+"," +sengine_id+"," + region+"," +size_search+"," + date_create+");")
+            //console.log("INSERT INTO conditions (condition_query, sengine_id, region, size_search, date_create) VALUES ("+condition_query+"," +sengine_id+"," + region+"," +size_search+"," + date_create+");")
             return db.transact(
                 "INSERT INTO conditions (condition_query, sengine_id, region, size_search, date_create) VALUES ($1, $2, $3, $4, $5);",
                 [condition_query, sengine_id, region, size_search, date_create])
@@ -54,13 +54,14 @@ PgConditions.prototype.insert = function (condition_query, sengine_id, region, s
                 [], true)
         })
         .then(function (res) {
-            console.log("PgConditions.prototype.insert");
+            //console.log("PgConditions.prototype.insert");
             return res.rows[0].currval;
         })
 
         .catch(function (err) {
-            console.log(err)
-            throw('PgConditions.prototype.insert ' + err);
+            //console.log(err)
+            //throw('PgConditions.prototype.insert ' + err);
+            throw err
         });
 }
 
@@ -94,12 +95,12 @@ PgConditions.prototype.getWithSengines = function (id) {
             " WHERE condition_id = $1;",
         [id])
         .then(function (res) {
-            console.log("PgConditions.prototype.getWithSengines")
+            //console.log("PgConditions.prototype.getWithSengines")
             return res.rows ? res.rows[0] : null;
         })
         .catch(function (err) {
-            throw 'PgConditions.prototype.getWithSengines ' + err;
-
+            //throw 'PgConditions.prototype.getWithSengines ' + err;
+            throw err
         })
 }
 
@@ -177,11 +178,11 @@ PgConditions.prototype.find = function (condition_query, sengine_id, region, siz
         [condition_query, sengine_id, region, size_search]
     )
         .then(function (res) {
-            console.log('PgConditions.prototype.find')
+            //console.log('PgConditions.prototype.find')
             return res.rows;
         })
         .catch(function (err) {
-            throw 'PgConditions.prototype.find ' + err;
+            throw err;
         })
 }
 

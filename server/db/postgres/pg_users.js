@@ -107,11 +107,12 @@ PgUsers.prototype.insert = function (user_login, user_password, role_id, user_fn
 
         })
         .then(function (res) {
-            console.log('PgUsers.prototype.insert');
+            //console.log('PgUsers.prototype.insert');
             return res.rows[0].currval;
         })
         .catch(function (err) {
-            throw 'PgUsers.prototype.insert ' + err
+            //throw 'PgUsers.prototype.insert ' + err
+            throw err
         })
 }
 
@@ -181,26 +182,25 @@ PgUsers.prototype.get = function (id) {
     return PG.query("SELECT * FROM users WHERE user_id = $1;",
         [id])
         .then(function (res) {
-            console.log("PgUsers.prototype.get")
+            //console.log("PgUsers.prototype.get")
             return res.rows[0];
         })
         .catch(function (err) {
-            console.log(err);
-            throw 'PgUsers.prototype.get' + err;
-
-        })
+            throw err
+        });
 }
 
 PgUsers.prototype.getByLogin = function (login) {
     return PG.query("SELECT * FROM users WHERE user_login = $1;",
         [login])
         .then(function (res) {
-            console.log("PgUsers.prototype.getByLogin")
+            //console.log("PgUsers.prototype.getByLogin")
             return res.rows;
         })
         .catch(function (err) {
-            throw 'PgUsers.prototype.getByLogin' + err;
-            console.log(err);
+            //throw 'PgUsers.prototype.getByLogin' + err;
+            //console.log(err);
+            throw err;
         })
 }
 
@@ -231,13 +231,13 @@ PgUsers.prototype.updateCookies = function (id, cookies) {
     return PG.query("UPDATE users SET cookies = $1 WHERE user_id = $2;",
         [cookies, id])
         .then(function (res) {
-            console.log("PgUsers.prototype.updateCookies")
+            //console.log("PgUsers.prototype.updateCookies")
             return;
         })
         .catch(function (err) {
-            console.log(err);
-            throw 'PgUsers.prototype.get' + err;
-
+            //console.log(err);
+            //throw 'PgUsers.prototype.get' + err;
+            throw err
         })
 }
 
@@ -260,7 +260,7 @@ PgUsers.prototype.edit = function (userId, newLogin,  newPaswd, disabled, disabl
     return this.get(userId)
         .then(function (user) {
             if (!user) {
-                throw("Нет такого пользователя!")
+                throw new Error("Нет такого пользователя!")
                 return;
             }
             var q = "UPDATE users SET DISABLED = $2 " +
@@ -279,16 +279,15 @@ PgUsers.prototype.edit = function (userId, newLogin,  newPaswd, disabled, disabl
             }
 
             q += " WHERE USER_ID=$1;";
-            console.log(q, params)
+            //console.log(q, params)
             return PG.query(q, params)
         })
         .then(function (res) {
-            console.log('PgUsers.prototype.edit');
+            //console.log('PgUsers.prototype.edit');
             return new PgUsers().get(userId)
         })
         .catch(function (err) {
-            console.log(err);
-            throw 'PgUsers.prototype.edit ' + err
+            throw err
         })
 }
 module.exports = PgUsers;

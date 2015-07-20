@@ -99,7 +99,7 @@ PgTasks.prototype.insertWithCondition = function (usurl_id, condition_query, sen
                         if (tasks.length > 0) {
                             throw "Дубликат условий у пользователя для сайта!"
                         }
-                        console.log("old condition")
+                        //console.log("old condition")
                         return conds[0].condition_id
                     })
             }
@@ -119,13 +119,13 @@ PgTasks.prototype.insertWithCondition = function (usurl_id, condition_query, sen
                 [], true)
         })
         .then(function (res) {
-            console.log("PgTasks.prototype.insertWithCondition");
+            //console.log("PgTasks.prototype.insertWithCondition");
             return res.rows[0].currval;
         })
 
         .catch(function (err) {
-            console.log('PgTasks.prototype.insertWithCondition ' + err);
-            console.log(err);
+            //console.log('PgTasks.prototype.insertWithCondition ' + err);
+            //console.log(err);
             throw err
         });
 }
@@ -220,12 +220,13 @@ PgTasks.prototype.find = function (usurl_id, condition_id) {
         [usurl_id, condition_id])
 
         .then(function (res) {
-            console.log('PgTasks.prototype.findByCondition')
+            //console.log('PgTasks.prototype.findByCondition')
             return res.rows;
         })
         .catch(function (err) {
-            throw 'PgTasks.prototype.findByCondition' + err;
-            console.log('PgTasks.prototype.findByCondition error: ', err);
+            //throw 'PgTasks.prototype.findByCondition' + err;
+            //console.log('PgTasks.prototype.findByCondition error: ', err);
+            throw err
         })
 }
 

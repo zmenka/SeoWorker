@@ -99,7 +99,7 @@ PgHtmls.prototype.insertWithUrl = function (html, url) {
                             [])
                     })
                     .then(function (res) {
-                        console.log("insertWithUrl")
+                        //console.log("insertWithUrl")
                         return res.rows[0].currval;
 
                     })
@@ -121,12 +121,13 @@ PgHtmls.prototype.insertWithUrl = function (html, url) {
                 [], true)
         })
         .then(function (res) {
-            console.log("insertWithUrl saved", res.rows[0].currval)
+            //console.log("insertWithUrl saved", res.rows[0].currval)
             return res.rows[0].currval;
         })
 
         .catch(function (err) {
-            throw 'PgHtmls.prototype.insert ' + err;
+            //throw 'PgHtmls.prototype.insert ' + err;
+            throw err
         })
 }
 

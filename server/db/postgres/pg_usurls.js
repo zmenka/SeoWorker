@@ -103,7 +103,7 @@ PgUsurls.prototype.insertWithUrl = function (url, user_id) {
                             [])
                     })
                     .then(function (res) {
-                        console.log("url saved");
+                        //console.log("url saved");
                         return res.rows[0].currval;
                     })
 
@@ -133,11 +133,11 @@ PgUsurls.prototype.insertWithUrl = function (url, user_id) {
                 [], true)
         })
         .then(function (res) {
-            console.log("PgUsurls.prototype.insertWithUrl");
+            //console.log("PgUsurls.prototype.insertWithUrl");
             return res.rows[0].currval;
         })
         .catch(function (err) {
-            console.log('PgUsurls.prototype.insert ' + err)
+            //console.log('PgUsurls.prototype.insert ' + err)
             throw err;
 
         });
@@ -198,14 +198,6 @@ PgUsurls.prototype.findByUser = function (val, callback, errback) {
 PgUsurls.prototype.listWithTasks = function (user_id) {
     var ex = new PgExpressions();
 	return ex.execute_list(ex.USURLS_WITH_TASKS(user_id))
-        .then(function (res) {
-            console.log('PgUsurls.prototype.listWithTasks')
-            return res;
-        })
-        .catch(function (err) {
-            throw 'PgUsurls.prototype.listWithTasks' + err;
-            console.log(err);
-        })
 }
 
 module.exports = PgUsurls;

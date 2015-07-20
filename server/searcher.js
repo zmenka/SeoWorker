@@ -122,7 +122,7 @@ Searcher.prototype.getContentByUrl = function (url, captcha, cookies) {
 
 
             }
-            console.log(-date.getTime() + (new Date().getTime()))
+            //console.log(-date.getTime() + (new Date().getTime()))
         })
 
 
@@ -190,7 +190,7 @@ Searcher.prototype.getContentByUrlOrCaptcha = function (url, captcha, user_id,se
             return _this2.getCaptcha(content.html,sengine_name)
         })
         .catch(function (error) {
-            console.log('getContentByUrlOrCaptcha err', error, error.stack)
+            //console.log('getContentByUrlOrCaptcha err', error, error.stack)
         })
         .then(function (rescaptcha) {
             if (rescaptcha) {
@@ -210,7 +210,7 @@ Searcher.prototype.getContentByUrlOrCaptcha = function (url, captcha, user_id,se
 
 Searcher.prototype.getCaptcha = function (raw_html,sengine_name) {
     _this = this;
-    console.log('Searcher.prototype.getCaptcha')
+    //console.log('Searcher.prototype.getCaptcha')
     if (!raw_html){
         throw 'Searcher.prototype.getCaptcha Не получено содержимой страницы!';
     }
@@ -232,7 +232,7 @@ Searcher.prototype.getCaptcha = function (raw_html,sengine_name) {
 //                    console.log('Key', key[0].attribs.value);
                     var retpath = parser.getTag('form[action=/checkcaptcha] input[name=retpath]')[0].attribs.value;
 //                    console.log('retpath', retpath.attribs.value);
-                    console.log(-date.getTime() + (new Date().getTime()));
+//                    console.log(-date.getTime() + (new Date().getTime()));
 
 
                     return antigate(img)
@@ -241,7 +241,7 @@ Searcher.prototype.getCaptcha = function (raw_html,sengine_name) {
                                 + encodeURIComponent(key) +
                                 '&retpath=' + encodeURIComponent(retpath) +
                                 '&rep=' + encodeURIComponent(res);
-                            console.log('Searcher.prototype.getCaptcha Yandex Капча ', kaptcha);
+                            //console.log('Searcher.prototype.getCaptcha Yandex Капча ', kaptcha);
                             return kaptcha;
                         })
 
@@ -252,7 +252,7 @@ Searcher.prototype.getCaptcha = function (raw_html,sengine_name) {
 
             }
 
-            console.log(-date.getTime() + (new Date().getTime()))
+            //console.log(-date.getTime() + (new Date().getTime()))
 //            console.log("Капчи не нашлось")
             return null;
         } else if (sengine_name=='Google'){
@@ -266,7 +266,7 @@ Searcher.prototype.getCaptcha = function (raw_html,sengine_name) {
                         var continue1 = parser.getTag('form[action=CaptchaRedirect] input[name=continue]')[0].attribs.value;
                         var id = parser.getTag('form[action=CaptchaRedirect] input[name=id]')[0].attribs.value;
 
-                        console.log(-date.getTime() + (new Date().getTime()));
+                        //console.log(-date.getTime() + (new Date().getTime()));
 //                        console.log('Searcher.prototype.getCaptcha Google Капча!!!!');
 
                         return antigate(img)
@@ -275,7 +275,7 @@ Searcher.prototype.getCaptcha = function (raw_html,sengine_name) {
                                     'continue=' + encodeURIComponent(continue1) +
                                     '&id=' + encodeURIComponent(id) +
                                     '&captcha=' + encodeURIComponent(res);
-                                console.log('Searcher.prototype.getCaptcha Google Капча ', kaptcha);
+                                //console.log('Searcher.prototype.getCaptcha Google Капча ', kaptcha);
                                 return kaptcha;
                             })
                     }
@@ -285,7 +285,7 @@ Searcher.prototype.getCaptcha = function (raw_html,sengine_name) {
 
                 }
 
-                console.log(-date.getTime() + (new Date().getTime()))
+                //console.log(-date.getTime() + (new Date().getTime()))
 //                console.log("Капчи не нашлось")
                 return null;
             } else {

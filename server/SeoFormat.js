@@ -246,6 +246,9 @@ SeoFormat.prototype.getTreeFromParamtypes = function (paramtypes) {
 }
 
 SeoFormat.prototype.getColorByPercent = function (percent, color) {
+    //console.log(percent,color)
+    if (!percent && percent !=0)
+        return 0;
     if (color == 'R' && percent > 50)
         return parseInt((100 - percent)*255/50)
     else if (color == 'G' && percent < 50)

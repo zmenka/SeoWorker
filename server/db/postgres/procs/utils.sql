@@ -5,8 +5,8 @@
 CREATE OR REPLACE FUNCTION GET_COLOR(vPROCENT float, vCOLOR COLOR) RETURNS integer AS $$
         BEGIN
                 RETURN CASE
-                            WHEN vCOLOR = 'R' AND vPROCENT > 50 THEN CAST((100 - vPROCENT)*255/50 AS INT)
-                            WHEN vCOLOR = 'G' AND vPROCENT < 50 THEN CAST(vPROCENT*255/50 AS INT)
+                            WHEN vCOLOR = 'R' AND COALESCE(vPROCENT,0) > 50 THEN CAST((100 - COALESCE(vPROCENT,0))*255/50 AS INT)
+                            WHEN vCOLOR = 'G' AND COALESCE(vPROCENT,0) < 50 THEN CAST(COALESCE(vPROCENT,0)*255/50 AS INT)
                             WHEN vCOLOR = 'B' THEN 0
                             ELSE 255
                        END;
