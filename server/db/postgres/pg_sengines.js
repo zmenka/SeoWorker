@@ -30,11 +30,11 @@ PgSengines.prototype.list = function () {
     return PG.query("SELECT * FROM sengines;",
         [])
         .then( function (res) {
-            console.log('PgSengines.prototype.list')
+            //console.log('PgSengines.prototype.list')
             return res.rows;
         })
         .catch(function (err) {
-            throw 'PgSengines.prototype.list' + err;
+            throw  err;
         })
 }
 

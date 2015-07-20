@@ -11,7 +11,7 @@ describe('DB TEST', function(){
                 });
 
         })
-        it.only('sql by list', function(){
+        it('sql by list', function(){
             
             var PgExpressions = require("../../server/db/postgres/pg_expressions");
             var express = new PgExpressions()
@@ -23,7 +23,7 @@ describe('DB TEST', function(){
                 });
 
         })
-        it('sql test 0', function(){
+        it.only('sql test 0', function(){
 
             var PgExpressions = require("../../server/db/postgres/pg_expressions");
             var express = new PgExpressions()

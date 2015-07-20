@@ -15,13 +15,13 @@ function AuthCtrl($scope, $state, $alert, Authenticate) {
                     $alert({title: 'Внимание!', content: err.data.message,
                         placement: 'top', type: 'danger', show: true,
                         duration: '3',
-                        container: '.alerts-container'
+                        container: 'body'
                     });
                 } else if (err.data) {
                     $alert({title: 'Внимание!', content: err.data,
                         placement: 'top', type: 'danger', show: true,
                         duration: '3',
-                        container: '.alerts-container'
+                        container: 'body'
                     });
                 }
             });

@@ -15,9 +15,10 @@ var callback = function (data, response) {
 };
 
 var errback = function (err, response) {
-    console.log((err && err.stack) ? err.stack : (err ? err : 'no error'));
+    var msg = (err && err.stack) ? err.stack : (err ? err : 'no error')
+    console.log(msg);
     response.statusCode = 440;
-    response.send(err);
+    response.send( err && err.message ? err.message : '');
 };
 
 module.exports = function Api(app, passport) {
@@ -397,75 +398,10 @@ module.exports = function Api(app, passport) {
                 callback(paramsDiagram, res)
             })
             .catch(function (err) {
-                console.log(err, err.stack);
-                errback("", res);
-            })
-
-        var paramsDirty;
-        return new PgSearch().listWithHtmls(req.body.condition_id)
-            .then(function (params_res) {
-                paramsDirty = params_res;
-                if (!params_res || params_res.length==0){
-                    console.log('new PgSearch().listWithHtmls empty params!', req.body.condition_id)
-                    throw 'Параметры выборки еще не расчитаны.';
-                }
-                params_res = params_res.forEach(function(el,i,list) {el.params = new PgSearch().siteWithParams(el.url,req.body.condition_id);});
-                return new PgSearch().siteWithParams(req.body.url_id, req.body.condition_id)
-            })
-            .then(function (site_params) {
-                if (!site_params || site_params.length==0){
-                    console.log('new PgSearch().siteWithParams empty params!')
-                    throw 'Параметры сайта еще не расчитаны.';
-
-                }
-                SF = new SeoFormat();
-                diagram = new Diagram();
-                //форматируем данные
-                //работаем с диаграммой. Транспонируем данные от "страницы и их параметры" к "параметры страниц"
-                var params = SF.transponateParams(paramsDirty);
-                var paramsDiagram = diagram.getParamsDiagram(params, site_params);
-                //var paramsTree = diagram.getTreeParamsDiagram(paramsDiagram);
-                var paramsTable = SF.prettyTable(paramsDirty, site_params);
-                var paramsPosition = SF.getSitePosition(paramsDirty, site_params);
-                var searchDate = null;
-                if (paramsDirty && paramsDirty.length) {
-                    searchDate = paramsDirty[0].date_create;
-                }
-                var siteUpdateDate = null;
-                if (site_params && site_params.length) {
-                    siteUpdateDate = site_params[0].date_create;
-                }
-
-                //возвращаем
-                callback({
-                    paramsDiagram: paramsTree,
-                    paramsTable: paramsTable,
-                    paramsPosition: paramsPosition,
-                    site_params: site_params,
-                    searchDate: searchDate,
-                    siteUpdateDate: siteUpdateDate}, res);
-
-            })
-            .catch(function (err) {
+                //console.log(err, err.stack);
+                //errback("", res);
                 errback(err, res);
             })
-
-    });
-
-
-    app.post('/api/captcha', function (req, res, next) {
-        console.log('/api/captcha', req.body);
-        //console.log('headers', JSON.stringify(req.headers))
-        try {
-            new BunSearcher().test(req.body, req.headers, function (result) {
-                callback(result, res)
-
-            }, function (err) {
-                errback(err, res);
-            })
-        } catch (e) {
-            errback(e, res);
-        }
     });
 
     app.post('/api/login', function (req, res, next) {
@@ -497,7 +433,7 @@ module.exports = function Api(app, passport) {
         console.log('/api/register', req.body);
 
         if (!req.body.login || !req.body.password) {
-            errback("не найдены все параметры  ", res);
+            errback("Не найдены все параметры  ", res);
             return;
         }
 

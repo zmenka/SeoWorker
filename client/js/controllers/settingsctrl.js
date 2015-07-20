@@ -33,7 +33,7 @@ function SettingsCtrl ($scope,$stateParams, $alert, Api) {
                         + (err.data ? ": " + err.data : "!"),
                         placement: 'top', type: 'danger', show: true,
                         duration: '3',
-                        container: '.alerts-container'
+                        container: 'body'
                     });
                 });
         };
@@ -47,7 +47,7 @@ function SettingsCtrl ($scope,$stateParams, $alert, Api) {
                 $alert({title: 'Внимание!', content: "Не заполнены все необходимые поля. ",
                     placement: 'top', type: 'danger', show: true,
                     duration: '3',
-                    container: '.alerts-container'
+                    container: 'body'
                 });
                 return;
             }
@@ -63,7 +63,7 @@ function SettingsCtrl ($scope,$stateParams, $alert, Api) {
                     $alert({title: 'Задача добавлена',
                         placement: 'top', type: 'warning', show: true,
                         duration: '2',
-                        container: '.alerts-container'
+                        container: 'body'
                     });
                 })
                 .catch(function (err) {
@@ -73,7 +73,7 @@ function SettingsCtrl ($scope,$stateParams, $alert, Api) {
                         + (err.data ? ": " + err.data : "!"),
                         placement: 'top', type: 'danger', show: true,
                         duration: '3',
-                        container: '.alerts-container'
+                        container: 'body'
                     });
                 })
         };
@@ -84,7 +84,7 @@ function SettingsCtrl ($scope,$stateParams, $alert, Api) {
                 $alert({title: 'Внимание!', content: "Введите url. ",
                     placement: 'top', type: 'danger', show: true,
                     duration: '3',
-                    container: '.alerts-container'
+                    container: 'body'
                 });
                 return;
             }
@@ -100,16 +100,16 @@ function SettingsCtrl ($scope,$stateParams, $alert, Api) {
                     $alert({title: 'Запрос добавлен',
                         placement: 'top', type: 'warning', show: true,
                         duration: '2',
-                        container: '.alerts-container'
+                        container: 'body'
                     });
                 })
-                .catch(function (response) {
-                    console.log('newSite Api.create_site err ', response);
+                .catch(function (err) {
+                    console.log('newSite Api.create_site err ', err);
                     $alert({title: 'Внимание!', content: "Новый сайт не добавлен: "
                         + (err.data ? ": " + err.data : "!"),
                         placement: 'top', type: 'danger', show: true,
                         duration: '3',
-                        container: '.alerts-container'
+                        container: 'body'
                     });
                     vm.loading = false;
                 })

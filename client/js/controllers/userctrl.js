@@ -24,13 +24,13 @@ function UserCtrl($scope, $state, $stateParams, $alert, Authenticate, Api) {
                     $alert({title: 'Внимание!', content: "Данный пользователя не получены. " + err.data,
                         placement: 'top', type: 'danger', show: true,
                         duration: '3',
-                        container: '.alerts-container'
+                        container: 'body'
                     });
                 }else if (err) {
                     $alert({title: 'Внимание!', content: 'Данный пользователя не получены. ' + err,
                         placement: 'top', type: 'danger', show: true,
                         duration: '3',
-                        container: '.alerts-container'
+                        container: 'body'
                     });
                 }
             });
@@ -49,7 +49,7 @@ function UserCtrl($scope, $state, $stateParams, $alert, Authenticate, Api) {
                 $alert({title: '', content: 'Пользователь успешно обновлен!',
                     placement: 'top', type: 'warning', show: true,
                     duration: '3',
-                    container: '.alerts-container'
+                    container: 'body'
                 });
             }).catch(function (err) {
                 console.log("editUser error ", err)
@@ -57,13 +57,13 @@ function UserCtrl($scope, $state, $stateParams, $alert, Authenticate, Api) {
                     $alert({title: 'Внимание!', content: 'Изменения не сохранены. ' + err.data,
                         placement: 'top', type: 'danger', show: true,
                         duration: '3',
-                        container: '.alerts-container'
+                        container: 'body'
                     });
                 } else if (err) {
                     $alert({title: 'Внимание!', content: 'Изменения не сохранены. ' + err,
                         placement: 'top', type: 'danger', show: true,
                         duration: '3',
-                        container: '.alerts-container'
+                        container: 'body'
                     });
                 }
             });

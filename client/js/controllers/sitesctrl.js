@@ -92,7 +92,7 @@ function SitesCtrl($scope, $stateParams, $rootScope, $alert, $aside, $timeout, $
                     title: 'Внимание!', content: "У вас пока нет сайтов.",
                     placement: 'top', type: 'danger', show: true,
                     duration: '3',
-                    container: '.alerts-container'
+                    container: 'body'
                 });
             }
 
@@ -157,7 +157,7 @@ function SitesCtrl($scope, $stateParams, $rootScope, $alert, $aside, $timeout, $
                     + (err.data ? ": " + err.data : "!"),
                     placement: 'top', type: 'danger', show: true,
                     duration: '3',
-                    container: '.alerts-container'
+                    container: 'body'
                 });
             });
     };
@@ -187,7 +187,7 @@ function SitesCtrl($scope, $stateParams, $rootScope, $alert, $aside, $timeout, $
                     title: 'Внимание!', content: "Параметры не получены " + (err.data ? ": " + err.data : "!"),
                     placement: 'top', type: 'danger', show: true,
                     duration: '3',
-                    container: '.alerts-container'
+                    container: 'body'
                 });
             })
     }
@@ -211,7 +211,7 @@ function SitesCtrl($scope, $stateParams, $rootScope, $alert, $aside, $timeout, $
                     title: 'Внимание!', content: "Параметры не получены " + (err.data ? ": " + err.data : "!"),
                     placement: 'top', type: 'danger', show: true,
                     duration: '3',
-                    container: '.alerts-container'
+                    container: 'body'
                 });
             })
     }
@@ -234,7 +234,7 @@ function SitesCtrl($scope, $stateParams, $rootScope, $alert, $aside, $timeout, $
                     title: 'Внимание!', content: "Параметры не пересчитаны.  " + (err.data ? ": " + err.data : "!"),
                     placement: 'top', type: 'danger', show: true,
                     duration: '3',
-                    container: '.alerts-container'
+                    container: 'body'
                 });
             })
             .then(function () {
@@ -261,7 +261,7 @@ function SitesCtrl($scope, $stateParams, $rootScope, $alert, $aside, $timeout, $
                     + (err.data ? ": " + err.data : "!"),
                     placement: 'top', type: 'danger', show: true,
                     duration: '3',
-                    container: '.alerts-container'
+                    container: 'body'
                 });
             })
             .then(function (res) {

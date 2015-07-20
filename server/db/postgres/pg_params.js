@@ -128,7 +128,8 @@ PgParams.prototype.getParamDiagram = function (search_id, paramtype_id) {
             return res.rows;
         })
         .catch(function (err) {
-            throw 'PgParams.prototype.getParamDiagram' + err;
+            //throw 'PgParams.prototype.getParamDiagram' + err;
+            throw err
         })
 }
 

@@ -1,22 +1,22 @@
 <div class="container" ng-controller="ManageCtrl as vm" style="margin-top: 10px">
 
-    <accordion close-others="vm.oneAtATime">
+    <accordion close-others="vm.oneAtATime" >
         <accordion-group heading="Регистрация новых пользователей" >
             <div class="alerts-container"></div>
 
-            <form ng-submit="vm.register(form)" style="width: 400px">
+            <form ng-submit="vm.register()" style="width: 400px">
                 <div class="form-group">
                     <label>Логин</label>
-                    <input type="text" class="form-control" ng-model="form.login">
+                    <input type="text" class="form-control" ng-model="vm.form.login">
                 </div>
                 <div class="form-group">
                     <label>Пароль</label>
-                    <input type="password" class="form-control" ng-model="form.password">
+                    <input type="password" class="form-control" ng-model="vm.form.password">
                 </div>
                 <input type="submit" class="btn btn-primary  btn-lg " id="submit" value="Зарегистрировать"/>
             </form>
         </accordion-group>
-        <accordion-group heading="Мониторинг пользователей" is-open="true">
+        <accordion-group heading="Мониторинг пользователей" is-open="vm.isOpen">
             <p ng-hide="vm.users.length">Нет пользователей</p>
             <table class="table" ng-show="vm.users.length" >
                 <tr>
@@ -24,8 +24,8 @@
                     <th style="text-align: center;">Отключен</th>
                     <th>Когда заходил</th>
                     <th>Был создан</th>
-                    <th style="text-align: center;">Сайтов</th>
-                    <th style="text-align: center;">Продвинутость</th>
+                    <th style="text-align: center;">Страниц</th>
+                    <th style="text-align: center;">Продвинутость, %</th>
                     <th style="text-align: center;">Редактировать</th>
                     <th style="text-align: center;">Посмотреть</th>
                 </tr>
@@ -35,7 +35,8 @@
                     <td>{{user.last_visit | date : 'hh.mm dd.MM.yy'}}</td>
                     <td>{{user.date_create | date : 'hh.mm dd.MM.yy'}}</td>
                     <td style="text-align: center;">{{user.sites_count}}</td>
-                    <td style="text-align: center ; color: rgb({{user.color_r}}, {{user.color_g}}, 0)">{{user.percent}}%</td>
+                    <td style="text-align: center ; ">
+                        <span ng-show="user.percent" style="color: rgb({{user.color_r}}, {{user.color_g}}, 0)">{{user.percent}}</span></td>
                     <td style="text-align: center;">
                         <a ui-sref="main.edit_user({user_id:user.user_id})">
                             <span class="glyphicon glyphicon-pencil" ></span>

@@ -96,7 +96,7 @@ PgUrls.prototype.findByUrl = function (url) {
             return res.rows;
         })
         .catch(function (err) {
-            throw 'PgUrls.prototype.find' + err;
+            throw  err;
 
         })
 }

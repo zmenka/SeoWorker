@@ -7,28 +7,31 @@ var Q = require('../../utils/q');
 var Config = require('../../config');
 var Client = require('pg').Client;
 
-function err_text (err){
+function err_text(err) {
     return err ? err.toString() : ''
 }
 function PG() {
     var deferred = Q.defer();
     var _this = this;
-    pg.connect(Config.postgres, function(err, client, done) {
+    pg.connect(Config.postgres, function (err, client, done) {
         if (err) {
-            deferred.reject(new Error('pg connect ' + err_text(err)));
+            deferred.reject('pg connect ' + err_text(err));
             return;
         }
         _this.client = client;
         _this.done = done;
-        client.query('BEGIN', function(err) {
+        client.query('BEGIN', function (err) {
             if (err) {
-                deferred.reject(new Error('pg begin ' + err_text(err)));
+                deferred.reject('pg begin ' + err_text(err));
                 return _this.rollback(client, done);
             }
             deferred.resolve(_this);
         })
     })
-    return deferred.promise;
+    return deferred.promise
+        .catch(function (err) {
+            throw new Error(err)
+        });
 }
 PG.prototype.rollback = function (client, done) {
     //if there was a problem rolling back the query
@@ -37,7 +40,7 @@ PG.prototype.rollback = function (client, done) {
     //the pool.  If you leave a client in the pool with an unaborted
     //transaction weird, hard to diagnose problems might happen.
     client.query('ROLLBACK', function (err) {
-        if (err){
+        if (err) {
             console.log('pg rollback ', err_text(err))
         }
         return done(err);
@@ -50,11 +53,11 @@ PG.prototype.transact = function (query, params, endTransaction, logTime) {
     var deferred = Q.defer();
     endTransaction = endTransaction || false;
     logTime = logTime || false;
-    process.nextTick(function() {
+    process.nextTick(function () {
         _this.client.query(query, params, function (err, result) {
             if (err) {
                 _this.rollback(_this.client, _this.done);
-                deferred.reject(new Error('pg transact ' + err_text(err) + ' in query: ' + query.replace(/\s+/g, " ")));
+                deferred.reject('pg transact ' + err_text(err) + ' in query: ' + query.replace(/\s+/g, " "));
                 return;
             }
 
@@ -62,7 +65,7 @@ PG.prototype.transact = function (query, params, endTransaction, logTime) {
                 //disconnect after successful commit
                 _this.client.query('COMMIT', function (err, res) {
                     _this.done(err);
-                    if (logTime){
+                    if (logTime) {
                         console.log(-date.getTime() + (new Date().getTime()))
                     }
                     deferred.resolve(result);
@@ -75,7 +78,11 @@ PG.prototype.transact = function (query, params, endTransaction, logTime) {
 
         });
     })
-    return deferred.promise;
+    return deferred.promise
+        .catch(function (err) {
+            throw new Error(err)
+        });
+
 }
 
 PG.prototype.commit = function (result) {
@@ -83,17 +90,20 @@ PG.prototype.commit = function (result) {
 
     var deferred = Q.defer();
 
-    process.nextTick(function() {
-    	 _this.client.query('COMMIT', function (err, res) {
-             _this.done(err);
-             //console.log(-date.getTime() + (new Date().getTime()))
-             deferred.resolve(result);
-         });
+    process.nextTick(function () {
+        _this.client.query('COMMIT', function (err, res) {
+            _this.done(err);
+            //console.log(-date.getTime() + (new Date().getTime()))
+            deferred.resolve(result);
+        });
     })
-    return deferred.promise;
+    return deferred.promise
+        .catch(function (err) {
+            throw new Error(err)
+        });
 }
 
-PG.query = function PG(query, params, logTime) {
+PG.query = function (query, params, logTime) {
     logTime = logTime || false;
     var deferred = Q.defer();
     var date = new Date();
@@ -110,7 +120,7 @@ PG.query = function PG(query, params, logTime) {
             // In this case, if we have successfully received a client (truthy)
             // then it will be removed from the pool.
             done(client);
-            deferred.reject(new Error(err_text('pg query ' + err1)));
+            deferred.reject('pg query ' + err_text(err1) + ' in query: ' + query.replace(/\s+/g, " "));
             return true;
         };
 
@@ -129,7 +139,10 @@ PG.query = function PG(query, params, logTime) {
             deferred.resolve(result);
         });
     });
-    return deferred.promise;
+    return deferred.promise
+        .catch(function (err) {
+            throw new Error(err)
+        });
 }
 
 module.exports = PG;
