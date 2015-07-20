@@ -96,11 +96,12 @@ PgParams.prototype.getSiteParam = function (condition_id, html_id, paramtype_id)
     var ex = new PgExpressions();
     return ex.execute_list(ex.GET_SITE_PARAM(condition_id, html_id, paramtype_id))
         .then(function (res) {
-            console.log('PgParams.prototype.getSiteParam');
+            //console.log('PgParams.prototype.getSiteParam');
             return res[0];
         })
         .catch(function (err) {
-            throw 'PgParams.prototype.getSiteParam' + err;
+            //throw 'PgParams.prototype.getSiteParam' + err;
+            throw err;
         })
 }
 

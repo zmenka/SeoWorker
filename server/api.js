@@ -331,8 +331,9 @@ module.exports = function Api(app, passport) {
                 callback(tree, res)
             })
             .catch(function (err) {
-                console.log(err, err.stack);
-                errback("", res);
+                //console.log(err, err.stack);
+                //errback("", res);
+                errback(err, res)
             })
     })
 

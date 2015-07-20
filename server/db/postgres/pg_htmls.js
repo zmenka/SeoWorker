@@ -141,11 +141,12 @@ PgHtmls.prototype.getLastHtml = function(url_id) {
         "LIMIT 1 ",
         [url_id])
         .then(function (res) {
-            console.log("PgHtmls.prototype.getLastHtml")
+            //console.log("PgHtmls.prototype.getLastHtml")
             return res.rows[0];
         })
         .catch(function (err) {
-            throw 'PgHtmls.prototype.getLastHtml ' + err;
+            //throw 'PgHtmls.prototype.getLastHtml ' + err;
+            throw err;
         })
 }
 

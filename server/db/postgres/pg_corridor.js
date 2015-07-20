@@ -53,8 +53,9 @@ PgCorridor.prototype.get = function (search_id, paramtype_id) {
             return res.rows[0];
         })
         .catch(function (err) {
-            console.log('PgCorridor.prototype.get');
-            console.log(err);
+            //console.log('PgCorridor.prototype.get');
+            //console.log(err);
+            throw err;
         })
 }
 
