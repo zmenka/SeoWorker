@@ -59,7 +59,7 @@ PgExpressions.prototype.GET_PERCENT_BY_HTML = function () {
     var list = []
     delta = '@ (COALESCE(C.CORRIDOR_M,0) - COALESCE(CAST(P.PARAM_VALUE AS numeric),0))';
     
-    //list.push('DROP TABLE IF EXISTS tt_lst_conditions;');
+    list.push('DROP TABLE IF EXISTS tt_lst_conditions;');
     list.push(' CREATE TEMPORARY TABLE tt_lst_conditions AS    \
     				SELECT                                     \
     		            DISTINCT TT.CONDITION_ID               \
@@ -67,7 +67,7 @@ PgExpressions.prototype.GET_PERCENT_BY_HTML = function () {
     		            tt_lst_htmls TT;' );
     list = list.concat(this.GET_LAST_SEARCH());
     list.push(' CREATE INDEX IDX_tt_lst_search_cs ON tt_lst_search (CONDITION_ID, SEARCH_ID);')
-    //list.push('DROP TABLE IF EXISTS tt_res_hpercents;');
+    list.push('DROP TABLE IF EXISTS tt_res_hpercents;');
     list.push(" CREATE TEMPORARY TABLE tt_res_hpercents AS                                 \
 	            WITH with_table AS (SELECT                                                                     \
 	                LST.*,                                                                 \
@@ -118,7 +118,7 @@ PgExpressions.prototype.GET_PERCENT_BY_URL = function () {
 */
 PgExpressions.prototype.GET_LAST_HTML = function () {
     var list = []
-    //list.push('DROP TABLE IF EXISTS tt_lst_htmls;');
+    list.push('DROP TABLE IF EXISTS tt_lst_htmls;');
     list.push('CREATE TEMPORARY TABLE tt_lst_htmls AS                                    \
 	    	        SELECT                                                                   \
 	    	            H.DATE_CREATE AS HTML_DATE_CREATE,                                   \
@@ -150,7 +150,7 @@ PgExpressions.prototype.GET_LAST_HTML = function () {
 */
 PgExpressions.prototype.GET_LAST_SEARCH = function () {
     var list = []
-    //list.push('DROP TABLE IF EXISTS tt_lst_search;');
+    list.push('DROP TABLE IF EXISTS tt_lst_search;');
     list.push('CREATE TEMPORARY TABLE tt_lst_search AS                                    \
 	    	        SELECT                                                                   \
 	    	            H.DATE_CREATE AS CONDITION_DATE_CREATE,                                   \
@@ -183,7 +183,7 @@ PgExpressions.prototype.GET_LAST_SEARCH = function () {
  */
 PgExpressions.prototype.USERS_URL_COUNT = function () {
     var list = []
-    //list.push('DROP TABLE IF EXISTS tt_lst_urls;');
+    list.push('DROP TABLE IF EXISTS tt_lst_urls;');
     list.push(' CREATE TEMPORARY TABLE tt_lst_urls AS                           \
 	    	        SELECT                                                      \
 	    	            DISTINCT UU.URl_ID, T.CONDITION_ID                                         \
@@ -192,7 +192,7 @@ PgExpressions.prototype.USERS_URL_COUNT = function () {
     		            JOIN tasks T ON UU.USURL_ID = T.USURL_ID;');
     list.push(' CREATE INDEX IDX_tt_lst_urls ON tt_lst_urls (URL_ID);');
     list = list.concat(this.GET_PERCENT_BY_URL());
-    //list.push('DROP TABLE IF EXISTS tt_res_uspercents;');
+    list.push('DROP TABLE IF EXISTS tt_res_uspercents;');
     list.push(' CREATE TEMPORARY TABLE tt_res_uspercents AS                     \
 	    	        SELECT                                                      \
 	    	            UU.USER_ID,                                             \
@@ -224,7 +224,7 @@ PgExpressions.prototype.USERS_URL_COUNT = function () {
 }
 PgExpressions.prototype.USURLS_WITH_TASKS = function (vUSER_ID) {
     var list = []
-    //list.push('DROP TABLE IF EXISTS tt_lst_urls;');
+    list.push('DROP TABLE IF EXISTS tt_lst_urls;');
 	list.push(' CREATE TEMPORARY TABLE tt_lst_urls AS                           \
 	    	        SELECT                                                      \
 	    	            DISTINCT UU.URL_ID, T.CONDITION_ID                                         \
@@ -235,7 +235,7 @@ PgExpressions.prototype.USURLS_WITH_TASKS = function (vUSER_ID) {
 	    	            UU.USER_ID =' + vUSER_ID + ';');
     list.push(' CREATE INDEX IDX_tt_lst_urls ON tt_lst_urls (URL_ID);');
     list = list.concat(this.GET_PERCENT_BY_URL());
-    //list.push('DROP TABLE IF EXISTS tt_res_upercents;');
+    list.push('DROP TABLE IF EXISTS tt_res_upercents;');
     list.push(' CREATE TEMPORARY TABLE tt_res_upercents AS                     \
 	    	        SELECT                                                     \
 	    	            URL_ID,                                                \
@@ -278,7 +278,7 @@ PgExpressions.prototype.USURLS_WITH_TASKS = function (vUSER_ID) {
 
 PgExpressions.prototype.GET_SITE_PARAM = function (vCONDITION_ID, vHTML_ID, vPARAMTYPE_ID) {
 	var list = []
-	//list.push('DROP TABLE IF EXISTS tt_lst_htmls;');
+	list.push('DROP TABLE IF EXISTS tt_lst_htmls;');
 	list.push(' CREATE TEMPORARY TABLE tt_lst_htmls AS    ' +
     				'SELECT + ' + vCONDITION_ID + ' AS CONDITION_ID, ' +
 		                         vHTML_ID + ' AS HTML_ID;' );
@@ -298,7 +298,7 @@ PgExpressions.prototype.GET_SITE_PARAM = function (vCONDITION_ID, vHTML_ID, vPAR
 }
 PgExpressions.prototype.GET_PARAMTYPES_FOR_URL = function (vCONDITION_ID, vURL_ID) {
 	var list = []
-	//list.push('DROP TABLE IF EXISTS tt_lst_urls;');
+	list.push('DROP TABLE IF EXISTS tt_lst_urls;');
 	list.push(' CREATE TEMPORARY TABLE tt_lst_urls AS ' +
 		'SELECT ' +
 		vURL_ID + ' AS URL_ID,' +

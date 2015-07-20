@@ -277,8 +277,9 @@ module.exports = function Api(app, passport) {
             .catch(function (err) {
                 serverFree = true
                 errback(err, res);
+                serverFree = true
             })
-        serverFree = true
+
     });
 
     app.post('/api/calc_site_params', function (req, res, next) {
@@ -299,8 +300,9 @@ module.exports = function Api(app, passport) {
                 callback("ok", res);
             })
             .catch(function (err) {
-                console.log(err, err.stack);
-                errback("", res);
+                //console.log(err, err.stack);
+                //errback("", res);
+                errback(err, res)
             })
     });
 
