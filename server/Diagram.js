@@ -84,8 +84,8 @@ Diagram.prototype.getCoridorRGB = function (siteParam) {
     var siteColorG = siteParam.color_g
     var siteColorB = 0;
     var siteColor = 'rgb(' + [siteColorR, siteColorG, siteColorB].join(',') + ')';
-    console.log('siteColor')
-    console.log(siteColor)
+    //console.log('siteColor')
+    //console.log(siteColor)
     return siteColor;
 
 }

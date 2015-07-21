@@ -92,9 +92,9 @@ PgParams.prototype.get = function (id) {
         })
 }
 
-PgParams.prototype.getSiteParam = function (condition_id, html_id, paramtype_id) {
+PgParams.prototype.getSiteParam = function (condition_id, url_id, paramtype_id) {
     var ex = new PgExpressions();
-    return ex.execute_list(ex.GET_SITE_PARAM(condition_id, html_id, paramtype_id))
+    return ex.execute_list(ex.GET_SITE_PARAM(condition_id, url_id, paramtype_id))
         .then(function (res) {
             //console.log('PgParams.prototype.getSiteParam');
             return res[0];

@@ -100,7 +100,7 @@ PgExpressions.prototype.GET_PERCENT_BY_HTML = function () {
 /*
 Подготовка процентов приближенности к коридору по списку urls
 
-ВХОД:  tt_lst_urls (URL_ID, CONDITION_ID ...) + INDEX на URL_ID
+ВХОД:  tt_lst_urls (URL_ID, CONDITION_ID ...) + INDEX на URL_ID,CONDITION_ID
 ВЫХОД: tt_res_hpercents (tt_lst_urls.*, HTML_ID, PARAMTYPE_ID, PERCENT, DELTA) + INDEX на URL_ID, HTML_ID, CONDITION_ID
 */
 PgExpressions.prototype.GET_PERCENT_BY_URL = function () {
@@ -114,7 +114,7 @@ PgExpressions.prototype.GET_PERCENT_BY_URL = function () {
 /*
 Подготовка последних htmls по urls
 
-ВХОД:  tt_lst_urls (URL_ID, ...) + INDEX на URL_ID
+ВХОД:  tt_lst_urls (URL_ID, CONDITION_ID ...) + INDEX на URL_ID,CONDITION_ID
 ВЫХОД: tt_lst_htmls (HTML_ID, HTML_DATE_CREATE, tt_lst_urls.*) + INDEX IDX_tt_lst_htmls_udc (URL_ID, HTML_DATE_CREATE)
 */
 PgExpressions.prototype.GET_LAST_HTML = function () {
@@ -122,14 +122,18 @@ PgExpressions.prototype.GET_LAST_HTML = function () {
     list.push('DROP TABLE IF EXISTS tt_lst_htmls;');
     list.push('CREATE TEMPORARY TABLE tt_lst_htmls AS                                    \
                 SELECT                                                                   \
-                    H.DATE_CREATE AS HTML_DATE_CREATE,                                   \
+                    DISTINCT H.DATE_CREATE AS HTML_DATE_CREATE,                          \
                     LST.*,                                                               \
                     H.HTML_ID                                                            \
                 FROM                                                                     \
                     tt_lst_urls LST                                                      \
                     INNER JOIN htmls H                                                   \
-                          ON LST.URL_ID = H.URL_ID;');
-    list.push('CREATE INDEX IDX_tt_lst_htmls_udc ON tt_lst_htmls (URL_ID, HTML_DATE_CREATE);')
+                          ON LST.URL_ID = H.URL_ID                                       \
+                    INNER JOIN params P                                                  \
+                          ON H.HTML_ID = P.HTML_ID                                       \
+                          AND LST.CONDITION_ID = P.CONDITION_ID                          \
+                    ;');
+    list.push('CREATE INDEX IDX_tt_lst_htmls_udc ON tt_lst_htmls (URL_ID, CONDITION_ID, HTML_DATE_CREATE);')
     list.push('DELETE                                                                    \
             FROM                                                                         \
                 tt_lst_htmls H                                                           \
@@ -138,8 +142,11 @@ PgExpressions.prototype.GET_LAST_HTML = function () {
                             1                                                            \
                         FROM                                                             \
                             htmls H2                                                     \
+                            JOIN params P                                                \
+                                ON H2.HTML_ID = P.HTML_ID                                \
                         WHERE                                                            \
                             H.URL_ID = H2.URL_ID                                         \
+                            AND H.CONDITION_ID = P.CONDITION_ID                                     \
                             AND H2.DATE_CREATE > H.HTML_DATE_CREATE);');
     return list
 }
@@ -191,7 +198,7 @@ PgExpressions.prototype.USERS_URL_COUNT = function () {
                 FROM                                                        \
                     usurls UU                                                  \
                     JOIN tasks T ON UU.USURL_ID = T.USURL_ID;');
-    list.push(' CREATE INDEX IDX_tt_lst_urls ON tt_lst_urls (URL_ID);');
+    list.push(' CREATE INDEX IDX_tt_lst_urls ON tt_lst_urls (URL_ID,CONDITION_ID);');
     list = list.concat(this.GET_PERCENT_BY_URL());
     list.push('DROP TABLE IF EXISTS tt_res_uspercents;');
     list.push(' CREATE TEMPORARY TABLE tt_res_uspercents AS                     \
@@ -229,25 +236,25 @@ PgExpressions.prototype.USURLS_WITH_TASKS = function (vUSER_ID) {
     list.push('DROP TABLE IF EXISTS tt_lst_urls;');
   list.push(' CREATE TEMPORARY TABLE tt_lst_urls AS                           \
                 SELECT                                                      \
-                    DISTINCT UU.URL_ID, T.CONDITION_ID, T.TASK_ID                                         \
+                    DISTINCT UU.URL_ID, T.CONDITION_ID                                         \
                 FROM                                                        \
                     usurls UU                                                  \
                     JOIN tasks T ON UU.USURL_ID = T.USURL_ID         \
                 WHERE                                                      \
                     UU.USER_ID =' + vUSER_ID + ';');
-    list.push(' CREATE INDEX IDX_tt_lst_urls ON tt_lst_urls (URL_ID);');
+    list.push(' CREATE INDEX IDX_tt_lst_urls ON tt_lst_urls (URL_ID,CONDITION_ID);');
     list = list.concat(this.GET_PERCENT_BY_URL());
     list.push('DROP TABLE IF EXISTS tt_res_upercents;');
     list.push(' CREATE TEMPORARY TABLE tt_res_upercents AS                     \
                 SELECT                                                     \
                     URL_ID,                                                \
-                    TASK_ID,                                                \
+                    CONDITION_ID,                                                \
                     CAST(SUM(T.PERCENT)/COUNT(*) AS INT) AS PERCENT                 \
                 FROM                                                       \
                     tt_res_hpercents T                                   \
                 GROUP BY                                                   \
-                    URL_ID,TASK_ID;');
-    list.push(' CREATE INDEX IDX_tt_res_upercents ON tt_res_upercents (URL_ID,TASK_ID);');
+                    URL_ID,CONDITION_ID;');
+    list.push(' CREATE INDEX IDX_tt_res_upercents ON tt_res_upercents (URL_ID,CONDITION_ID);');
     list.push(" SELECT                                                             " + 
                 "usurls.USURL_ID,                                                      " +
                 "urls.URL_ID,                                                        " +
@@ -272,7 +279,7 @@ PgExpressions.prototype.USURLS_WITH_TASKS = function (vUSER_ID) {
              "       ON USURLS.USURL_ID = TASKS.USURL_ID                        " +
              "   LEFT JOIN tt_res_upercents                                     " +
              "       ON URLS.URL_ID = TT_RES_UPERCENTS.URL_ID                   " +
-             "       AND TASKS.TASK_ID = TT_RES_UPERCENTS.TASK_ID                   " +
+             "       AND TASKS.CONDITION_ID = TT_RES_UPERCENTS.CONDITION_ID                   " +
              "   LEFT JOIN conditions                                           " +
              "       ON CONDITIONS.CONDITION_ID = TASKS.CONDITION_ID            " +
              "   LEFT JOIN sengines on sengines.sengine_id = conditions.sengine_id " +
@@ -281,13 +288,14 @@ PgExpressions.prototype.USURLS_WITH_TASKS = function (vUSER_ID) {
     return list
 }
 
-PgExpressions.prototype.GET_SITE_PARAM = function (vCONDITION_ID, vHTML_ID, vPARAMTYPE_ID) {
+PgExpressions.prototype.GET_SITE_PARAM = function (vCONDITION_ID, vURL_ID, vPARAMTYPE_ID) {
   var list = []
-  list.push('DROP TABLE IF EXISTS tt_lst_htmls;');
-  list.push(' CREATE TEMPORARY TABLE tt_lst_htmls AS    ' +
+  list.push('DROP TABLE IF EXISTS tt_lst_urls;');
+  list.push(' CREATE TEMPORARY TABLE tt_lst_urls AS    ' +
             'SELECT + ' + vCONDITION_ID + ' AS CONDITION_ID, ' +
-                             vHTML_ID + ' AS HTML_ID;' );
-  list = list.concat(this.GET_PERCENT_BY_HTML());
+                             vURL_ID + ' AS URL_ID;' );
+    list.push(' CREATE INDEX IDX_tt_lst_urls ON tt_lst_urls (URL_ID,CONDITION_ID);');
+  list = list.concat(this.GET_PERCENT_BY_URL());
   list.push('SELECT ' +
                 'P.*, PT.*, ' +
                 'TTS.PERCENT_INT AS PERCENT,  ' +
@@ -308,7 +316,7 @@ PgExpressions.prototype.GET_PARAMTYPES_FOR_URL = function (vCONDITION_ID, vURL_I
     'SELECT ' +
     vURL_ID + ' AS URL_ID,' +
     vCONDITION_ID + ' AS CONDITION_ID;');
-  list.push(' CREATE INDEX IDX_tt_lst_urls ON tt_lst_urls (URL_ID);');
+  list.push(' CREATE INDEX IDX_tt_lst_urls ON tt_lst_urls (URL_ID,CONDITION_ID);');
   list = list.concat(this.GET_PERCENT_BY_URL());
   list.push('SELECT ' +
                 'P.*, PT.*, ' +

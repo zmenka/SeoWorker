@@ -385,17 +385,10 @@ module.exports = function Api(app, passport) {
             })
             .then(function (corridorRes) {
                 corridor = corridorRes;
-                return new PgHtmls().getLastHtml(req.body.url_id)
-            })
-            .then(function (html) {
-                if (!html) {
-                    errback(null, res, 'Еще не получены данные для Вашего сайта. Нажмите "Пересчитать сайт".')
-                    return
-                }
-                return new PgParams().getSiteParam(req.body.condition_id, html.html_id, req.body.param_type )
+                return new PgParams().getSiteParam(req.body.condition_id, req.body.url_id, req.body.param_type )
             })
             .then(function (siteParams) {
-                if (!siteParams || !siteParams.length){
+                if (!siteParams){
                     errback( null, res, 'Еще не получены параметры для Вашего сайта. Нажмите "Пересчитать сайт".')
                     return
                 }
