@@ -27,7 +27,7 @@ describe('DB TEST', function(){
 
             var PgExpressions = require("../../server/db/postgres/pg_expressions");
             var express = new PgExpressions()
-            return express.execute_list(express.USERS_URL_COUNT())
+            return express.execute_list(express.USURLS_WITH_TASKS(1))
                 .then(function(res){
                     console.log(res);
                 });
