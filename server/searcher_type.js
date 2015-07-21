@@ -60,7 +60,7 @@ SearcherType.prototype.getSearchUrls = function (condition) {
         default:
             throw new Error('Не найден требуемый поисковик!');
     }
-    console.log('Сформированы ', search_links.length, ' урла для поисковика')
+    //console.log('Сформированы ', search_links.length, ' урла для поисковика')
     return search_links;
 }
 

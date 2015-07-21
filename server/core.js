@@ -38,7 +38,7 @@ Core.prototype.bg = function () {
             .then(function (date) {
                 //если куки удалялись больше чем 5 часов -чистим
                 if (date && (Math.abs(new Date() - date) / 36e5) > 3) {
-                    console.log('Core.prototype.bg clean cookie!')
+                    console.log('Core.bg clean cookie!')
                     new PgUsers().deleteCookies()
                         .then(function (date) {
                             new PgManager().updateCookieTaskUpdateTime(new Date())
@@ -47,17 +47,19 @@ Core.prototype.bg = function () {
 
             })
             .catch(function (err) {
-                console.log('Core.bg getCookieTaskUpdateTime err ', err);
+                console.log('Core.bg getCookieTaskUpdateTime err ', err, err.stack);
             })
             .then(function (date) {
                 return new PgConditions().getLastNotSearchedRandomTask(10, new Date())
             })
             .catch(function (err) {
-                console.log('Core.bg getLastNotSearchedRandomTask err ', err);
+                console.log('Core.bg getLastNotSearchedRandomTask err ', err, err.stack);
             })
             .then(function (res) {
                 if (res) {
-                    console.log('Core.bg START conds ', res.condition_id, res.task_id, res.url, res.is_cond_already_calc)
+                    console.log('Core.bg START condition_id ', res.condition_id,
+                        ', task_id ', res.task_id, ', is_cond_already_calc ', res.is_cond_already_calc,
+                    ', url ', res.url)
                     return Q.fcall(function () {
                         if (res.is_cond_already_calc) {
                             console.log('Core.bg calcParams conds ', res.condition_id, res.task_id, res.url, res.is_cond_already_calc, ' is_cond_already_calc')
@@ -189,7 +191,7 @@ Core.prototype.getLinksFromSearcher = function (search_objects, search_id, user_
                         return new SeoParameters().getSearchPicks(raw_html, search_object.sengine)
                     })
                     .then(function (links) {
-                        console.log("Получили ", links.length, " ссылок из ", search_object.url)
+                        //console.log("Получили ", links.length, " ссылок из ", search_object.url)
 
                         if (links.length == 0) throw new Error ("Ссылки сайтов не получены из " + search_object.url);
 //                        console.log(links)

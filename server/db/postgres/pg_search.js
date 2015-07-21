@@ -103,12 +103,13 @@ PgSearch.prototype.get = function (id) {
     return PG.query("SELECT * FROM search WHERE search_id = $1;",
         [id])
         .then(function (res) {
-            console.log('PgSearch.prototype.get');
+            //console.log('PgSearch.prototype.get');
             return res.rows[0];
         })
         .catch(function (err) {
-            console.log('PgSearch.prototype.get err', err);
-            throw 'PgSearch.prototype.get err  ' + err
+            //console.log('PgSearch.prototype.get err', err);
+            //throw 'PgSearch.prototype.get err  ' + err
+            throw err
         })
 }
 

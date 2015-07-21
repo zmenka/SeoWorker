@@ -125,7 +125,7 @@ PgUsers.prototype.disabledUser = function (user_login, disabled) {
                 return;
             }
             return PG.query("UPDATE users SET DISABLED = $2 " +
-            "WHERE USER_LOGIN=$1;",
+                "WHERE USER_LOGIN=$1;",
                 [user_login, disabled])
         })
         .then(function (res) {
@@ -175,7 +175,7 @@ PgUsers.prototype.list = function () {
 PgUsers.prototype.listWithSitesCount = function () {
     //console.log("PgUsers.prototype.listWithSitesCount")
     var ex = new PgExpressions();
-	return ex.execute_list(ex.USERS_URL_COUNT())
+    return ex.execute_list(ex.USERS_URL_COUNT())
 
 }
 
@@ -246,17 +246,17 @@ PgUsers.prototype.deleteCookies = function () {
     return PG.query("UPDATE users SET cookies = '';",
         [])
         .then(function (res) {
-            console.log("PgUsers.prototype.deleteCookies")
+            //console.log("PgUsers.prototype.deleteCookies")
             return;
         })
         .catch(function (err) {
-            console.log(err);
-            throw 'PgUsers.prototype.deleteCookies' + err;
-
+            //console.log(err);
+            //throw 'PgUsers.prototype.deleteCookies' + err;
+            throw err
         })
 }
 
-PgUsers.prototype.edit = function (userId, newLogin,  newPaswd, disabled, disabledMessage) {
+PgUsers.prototype.edit = function (userId, newLogin, newPaswd, disabled, disabledMessage) {
 
     return this.get(userId)
         .then(function (user) {
@@ -269,12 +269,12 @@ PgUsers.prototype.edit = function (userId, newLogin,  newPaswd, disabled, disabl
 
             var params = [userId, disabled, disabledMessage]
             var password;
-            if (newPaswd){
+            if (newPaswd) {
                 password = new PgUsers().generateHash(newPaswd);
                 q += ", USER_PASSWORD = $4 "
                 params.push(password)
             }
-            if (newLogin){
+            if (newLogin) {
                 q += ", USER_LOGIN = $" + (params.length + 1)
                 params.push(newLogin)
             }
