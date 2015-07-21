@@ -38,10 +38,11 @@
                     <td>{{user.date_create | date : 'hh.mm dd.MM.yy'}}</td>
                     <td style="text-align: center;">{{user.sites_count}}</td>
                     <td style="text-align: center ; ">
-                        <span ng-show="user.percent"
-                              style="color: rgb({{user.color_r}}, {{user.color_g}}, {{user.color_b}})">
+                        <div ng-show="user.percent"
+                              style="background-color: rgb({{user.color_r}}, {{user.color_g}}, {{user.color_b}})">
                             {{user.percent}}
-                        </span></td>
+                        </div>
+                    </td>
                     <td style="text-align: center;">
                         <a ui-sref="main.edit_user({user_id:user.user_id})">
                             <span class="glyphicon glyphicon-pencil" ></span>

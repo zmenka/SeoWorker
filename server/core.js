@@ -104,7 +104,7 @@ Core.prototype.bg = function () {
 Core.prototype.calcParams = function (condition_id, user_id) {
     _this3 = this;
     var condition;
-    var search_objects
+    var search_objects;
     var getLinksFromSearcher = Core.prototype.getLinksFromSearcher;
     var calcLinksParams = Core.prototype.calcLinksParams;
     var calcCoridors = Core.prototype.calcCoridors;
@@ -114,7 +114,7 @@ Core.prototype.calcParams = function (condition_id, user_id) {
         .then(function (condition_res) {
             condition = condition_res
             if (!condition) {
-                throw 'Core.prototype.calcParams Не найдены условия c condition_id ' + condition_id
+                throw new Error('Не найдены условия c condition_id ' + condition_id)
             }
 
             //Формируется массив объектов {page:<>, url:<>, sengine:<>} для поиска
@@ -138,13 +138,14 @@ Core.prototype.calcParams = function (condition_id, user_id) {
             return new PgSearch().updateDone(search_id, true)
         })
         .then(function (res) {
-            console.log('Core.prototype.calcParams done');
+            console.log('Расчет параметров для выборки с condition_id ', condition_id,
+                ' и search_id ',search_id, ' пользователем ', user_id, ' DONE');
         })
         .catch(function (res) {
             if (res.captcha) {
                 throw res;
             } else {
-                console.error('Core.prototype.calcParams ', res, res.stack)
+                //console.error('Core.prototype.calcParams ', res, res.stack)
                 throw  res;
             }
 
@@ -188,9 +189,9 @@ Core.prototype.getLinksFromSearcher = function (search_objects, search_id, user_
                         return new SeoParameters().getSearchPicks(raw_html, search_object.sengine)
                     })
                     .then(function (links) {
-                        console.log("Core.prototype.getLinksFromSearcher получили ", links.length, " ссылок из ", search_object.url)
+                        console.log("Получили ", links.length, " ссылок из ", search_object.url)
 
-                        if (links.length == 0) throw "Core.prototype.getLinksFromSearcher Ссылки сайтов не получены из " + search_object.url;
+                        if (links.length == 0) throw new Error ("Ссылки сайтов не получены из " + search_object.url);
 //                        console.log(links)
                         result.push({spage_id: spage_id, links: links, page: search_object.page});
                     })
@@ -272,12 +273,12 @@ Core.prototype.calcLinksParams = function (links_obj, condition_id, condition_qu
 
 Core.prototype.calcCoridors = function (search_id){
     if (!search_id){
-        throw 'for calcCoridors no search_id'
+        throw new Error('for calcCoridors no search_id')
     }
     return new PgParams().getParamtypes(search_id)
         .then(function (paramtypes) {
             if (!paramtypes) {
-                throw 'no paramtypes for search'
+                throw new Errir('no paramtypes for search')
                 return;
             }
                 var paramPromises = [];
@@ -288,7 +289,7 @@ Core.prototype.calcCoridors = function (search_id){
                         paramPromises.push(new PgParams().getParamDiagram(search_id, paramtype_id)
                             .then(function (params) {
                                 if (!params){
-                                    throw 'no params for paramtype'
+                                    throw new Error('no params for paramtype ' + paramtype_id + 'with search_id ' + search_id)
                                 }
                                 //получаем данные о "коридоре"
                                 var mathstat = new MathStat(params.map(function(el){
@@ -298,7 +299,7 @@ Core.prototype.calcCoridors = function (search_id){
                                 return new PgCorridor().insert(search_id, paramtype_id, mathstat.M, mathstat.D)
                             })
                             .catch(function (res) {
-                                console.error('Core.prototype.calcCoridors ', res)
+                                //console.error('Core.prototype.calcCoridors ', res)
                                 throw  res;
                             }))
 
@@ -310,7 +311,7 @@ Core.prototype.calcCoridors = function (search_id){
 
         })
         .catch(function (err) {
-            console.error('Core.prototype.calcCoridors ', err )
+            //console.error('Core.prototype.calcCoridors ', err )
             throw  err;
         })
 }
@@ -358,7 +359,7 @@ Core.prototype.calcParamsByUrl = function (url, condition_id) {
             console.log("параметры САЙТА " + url + " успешно посчитаны")
         })
         .catch(function (res) {
-            console.error('Core.prototype.calcParamsByUrl ', res, res.stack)
+            //console.error('Core.prototype.calcParamsByUrl ', res, res.stack)
             throw  res;
         })
 }

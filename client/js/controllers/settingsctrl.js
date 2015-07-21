@@ -11,7 +11,7 @@ function SettingsCtrl ($scope,$stateParams, $alert, Api) {
 
         var load = function () {
             vm.loading = true;
-            Api.user_sites_and_tasks($stateParams.user_id)
+            return Api.user_sites_and_tasks($stateParams.user_id)
                 .then(function (res) {
                     console.log("load Api.user_sites_and_tasks ", res);
                     vm.sites = res.data;
@@ -52,7 +52,7 @@ function SettingsCtrl ($scope,$stateParams, $alert, Api) {
                 return;
             }
             vm.loading = true;
-            Api.create_task(vm.site.data.usurl_id, vm.site.data.condition_query, vm.site.data.sengine_id,
+            return Api.create_task(vm.site.data.usurl_id, vm.site.data.condition_query, vm.site.data.sengine_id,
                 vm.site.data.region, vm.site.data.size_search)
                 .then(function () {
                     console.log('task is saved');
@@ -69,8 +69,8 @@ function SettingsCtrl ($scope,$stateParams, $alert, Api) {
                 .catch(function (err) {
                     console.log('addTask Api.create_task err ', err);
                     vm.loading = false;
-                    $alert({title: 'Внимание!', content: "Новая задача не создана: "
-                        + (err.data ? ": " + err.data : "!"),
+                    $alert({title: 'Внимание!', content: "Новая задача не создана. "
+                        + (err.data ?  err.data : ""),
                         placement: 'top', type: 'danger', show: true,
                         duration: '3',
                         container: 'body'
@@ -105,8 +105,8 @@ function SettingsCtrl ($scope,$stateParams, $alert, Api) {
                 })
                 .catch(function (err) {
                     console.log('newSite Api.create_site err ', err);
-                    $alert({title: 'Внимание!', content: "Новый сайт не добавлен: "
-                        + (err.data ? ": " + err.data : "!"),
+                    $alert({title: 'Внимание!', content: "Новый сайт не добавлен. "
+                        + (err.data ?  err.data : ""),
                         placement: 'top', type: 'danger', show: true,
                         duration: '3',
                         container: 'body'

@@ -55,11 +55,12 @@ PgScontents.prototype.insert = function (spage_id, html_id, position, is_commerc
                 [], true)
         })
         .then(function (res) {
-            console.log("PgScontents.prototype.insert");
+            //console.log("PgScontents.prototype.insert");
             return res.rows[0].currval;
         })
         .catch(function (err) {
-            throw 'PgScontents.prototype.insert 1';
+            //throw 'PgScontents.prototype.insert 1';
+            throw err;
         }
     );
 }

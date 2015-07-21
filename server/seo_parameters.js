@@ -51,12 +51,13 @@ SeoParameters.prototype.init = function (keyText, rawHtml) {
     _this1.parser = new SeoParser();
     return _this1.parser.initDomQ(rawHtml)
         .then(function () {
-            console.log("SeoParameters.prototype.init");
-            console.log(-date.getTime() + (new Date().getTime()))
+            //console.log("SeoParameters.prototype.init");
+            //console.log(-date.getTime() + (new Date().getTime()))
             return _this1
         })
         .catch(function (err) {
-            throw 'SeoParameters.prototype.init err ' + err
+            //throw 'SeoParameters.prototype.init err ' + err
+            throw err
             return
         });
 }
@@ -432,12 +433,12 @@ SeoParameters.prototype.getSearchPicks = function (search_html, sengine_name) {
             }
 
             //console.log(-date.getTime() + (new Date().getTime()))
-            console.log("SeoParameters.getSearchPicks");
+            //console.log("SeoParameters.getSearchPicks");
             return res;
         })
         .catch(function (err) {
-            throw 'SeoParameters.prototype.getSearchPicks err ' + err
-            return
+            //throw 'SeoParameters.prototype.getSearchPicks err ' + err
+            throw err
         });
 
 }
