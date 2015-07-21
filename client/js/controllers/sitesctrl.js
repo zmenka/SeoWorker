@@ -59,11 +59,13 @@ function SitesCtrl($scope, $stateParams, $rootScope, $alert, $aside, $timeout, $
     }
 
 
-    function showAside1() {
-        $rootScope.treeLoading = true;
-        vm.asideLoading = true;
+    function showAside1(quite, reInit) {
+        if (!quite){
+            $rootScope.treeLoading = true;
+            vm.asideLoading = true;
+        }
         $timeout(function () {
-            showAside();
+            showAside(reInit);
         });
     }
 
@@ -149,7 +151,7 @@ function SitesCtrl($scope, $stateParams, $rootScope, $alert, $aside, $timeout, $
 
     }
 
-    function load(quite) {
+    function load(quite, reInitAside) {
         if (!quite){
             vm.loading = true;
         }
@@ -157,7 +159,7 @@ function SitesCtrl($scope, $stateParams, $rootScope, $alert, $aside, $timeout, $
             .then(function (res) {
                 console.log("load Api.user_sites_and_tasks ", res);
                 vm.sites = res.data;
-                vm.showAside();
+                vm.showAside(quite,reInitAside);
             })
             .catch(function (err) {
                 console.log('load Api.user_sites_and_tasks err ', err);
@@ -178,10 +180,7 @@ function SitesCtrl($scope, $stateParams, $rootScope, $alert, $aside, $timeout, $
     };
 
     function reloadSitesAndAside(){
-        return load()
-            .then(function(){
-                showAside(true)
-            })
+        return load(true, true)
     }
 
     function getParamtypes() {
