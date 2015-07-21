@@ -1,5 +1,7 @@
 <div class="container" ng-controller="ManageCtrl as vm" style="margin-top: 10px">
 
+    <span ng-show="vm.loading" class="spinner"></span>
+
     <accordion close-others="vm.oneAtATime" >
         <accordion-group heading="Регистрация новых пользователей" >
             <div class="alerts-container"></div>
@@ -17,8 +19,8 @@
             </form>
         </accordion-group>
         <accordion-group heading="Мониторинг пользователей" is-open="vm.isOpen">
-            <p ng-hide="vm.users.length">Нет пользователей</p>
-            <table class="table" ng-show="vm.users.length" >
+            <p ng-show="vm.startDataLoaded && !vm.users.length">Нет пользователей</p>
+            <table class="table" ng-show=" vm.users.length" >
                 <tr>
                     <th >Логин</th>
                     <th style="text-align: center;">Отключен</th>
@@ -36,7 +38,10 @@
                     <td>{{user.date_create | date : 'hh.mm dd.MM.yy'}}</td>
                     <td style="text-align: center;">{{user.sites_count}}</td>
                     <td style="text-align: center ; ">
-                        <span ng-show="user.percent" style="color: rgb({{user.color_r}}, {{user.color_g}}, 0)">{{user.percent}}</span></td>
+                        <span ng-show="user.percent"
+                              style="color: rgb({{user.color_r}}, {{user.color_g}}, {{user.color_b}})">
+                            {{user.percent}}
+                        </span></td>
                     <td style="text-align: center;">
                         <a ui-sref="main.edit_user({user_id:user.user_id})">
                             <span class="glyphicon glyphicon-pencil" ></span>

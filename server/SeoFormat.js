@@ -30,13 +30,20 @@ SeoFormat.prototype.createSiteTree = function (sites) {
                     title: site.url,
                     usurl_id: site.usurl_id,
                     url_id: site.url_id,
-                    percent: 0,
+                    percent: null,
                     color_r: 0,
-                    color_g: 0
+                    color_g: 0,
+                    color_b: 0
                 }, 'domen');
             tree.push(domenNode)
         }
-        domenNode.data.percent += site.percent;
+        if (domenNode.data.percent) {
+            if (site.percent)
+                domenNode.data.percent += site.percent;
+        }
+        else if (site.percent || site.percent == 0) {
+            domenNode.data.percent = site.percent;
+        }
 
         var pages = domenNode.nodes.filter(function (v) {
             return v.title === site.url;
@@ -53,14 +60,21 @@ SeoFormat.prototype.createSiteTree = function (sites) {
                     usurl_id: site.usurl_id,
                     url_id: site.url_id,
                     url: site.url,
-                    percent: 0,
+                    percent: null,
                     color_r: 0,
-                    color_g: 0
+                    color_g: 0,
+                    color_b: 0
                 }, 'page');
             domenNode.nodes.push(page);
         }
 
-        page.data.percent += site.percent;
+        if (page.data.percent) {
+            if (site.percent)
+                page.data.percent += site.percent;
+        }
+        else if (site.percent || site.percent == 0) {
+            page.data.percent = site.percent;
+        }
 
         if (site.task_id) {
             var task = new TaskTreeNode();
@@ -78,8 +92,10 @@ SeoFormat.prototype.createSiteTree = function (sites) {
                     sengine_id: site.sengine_id,
                     region: site.region,
                     size_search: site.size_search,
+                    percent: site.percent,
                     color_r: site.color_r,
-                    color_g: site.color_g
+                    color_g: site.color_g,
+                    color_b: site.color_b
                 },
                 'task')
             page.nodes.push(task);
@@ -92,14 +108,27 @@ SeoFormat.prototype.createSiteTree = function (sites) {
         cnt = 0;
         for (var j = 0; j < domen.nodes.length; j++) {
             var page = domen.nodes[j];
-            cnt += page.nodes.length
-            page.data.percent = page.data.percent / page.nodes.length
-            page.data.color_r = this.getColorByPercent(page.data.percent,'R')
-            page.data.color_g = this.getColorByPercent(page.data.percent,'G')
+
+
+            if (page.data.percent) {
+                var colorNodesCnt = page.nodes.filter((function (el) {
+                    return el.data.percent || el.data.percent == 0
+                })).length
+                page.data.percent = page.data.percent / colorNodesCnt
+                cnt += colorNodesCnt
+            }
+            page.data.color_r = this.getColorByPercent(page.data.percent, 'R')
+            page.data.color_g = this.getColorByPercent(page.data.percent, 'G')
+            page.data.color_b = this.getColorByPercent(page.data.percent, 'B')
+
+            //console.log(page.title, page.data.percent, page.data.color_r,page.data.color_g,page.data.color_b)
         }
-        domen.data.percent = domen.data.percent / cnt
-        domen.data.color_r = this.getColorByPercent(domen.data.percent,'R')
-        domen.data.color_g = this.getColorByPercent(domen.data.percent,'G')
+        if (domen.data.percent) {
+            domen.data.percent = domen.data.percent / cnt
+        }
+        domen.data.color_r = this.getColorByPercent(domen.data.percent, 'R')
+        domen.data.color_g = this.getColorByPercent(domen.data.percent, 'G')
+        domen.data.color_b = this.getColorByPercent(domen.data.percent, 'B')
     }
 //    console.log("sites ", sites, " tree ", tree);
     return tree;
@@ -221,13 +250,20 @@ SeoFormat.prototype.getTreeFromParamtypes = function (paramtypes) {
             node = new TaskTreeNode();
             node.create(paramtypes[key].paramtype_tag, true,
                 {
-                    percent: 0,
+                    percent: null,
                     color_r: 0,
-                    color_g: 0
+                    color_g: 0,
+                    color_b: 0
                 }, 'group');
             tree.push(node)
         }
-        node.data.percent += paramtypes[key].percent;
+        if (node.data.percent) {
+            if (paramtypes[key].percent)
+                node.data.percent += paramtypes[key].percent;
+        }
+        else if (paramtypes[key].percent || paramtypes[key].percent == 0) {
+            node.data.percent = paramtypes[key].percent;
+        }
 
         var keyPar = new TaskTreeNode();
         keyPar.create(paramtypes[key].paramtype_ru_name, true, paramtypes[key], 'key');
@@ -237,9 +273,17 @@ SeoFormat.prototype.getTreeFromParamtypes = function (paramtypes) {
 
     for (var i = 0; i < tree.length; i++) {
         var group = tree[i];
-        group.data.percent = group.data.percent / group.nodes.length
-        group.data.color_r = this.getColorByPercent(group.data.percent,'R')
-        group.data.color_g = this.getColorByPercent(group.data.percent,'G')
+        if (group.data.percent) {
+            var colorNodesCnt = group.nodes.filter((function (el) {
+                return el.data.percent || el.data.percent == 0
+            })).length
+            group.data.percent = group.data.percent / colorNodesCnt
+        }
+        group.data.color_r = this.getColorByPercent(group.data.percent, 'R')
+        group.data.color_g = this.getColorByPercent(group.data.percent, 'G')
+        group.data.color_b = this.getColorByPercent(group.data.percent, 'B')
+
+        //console.log(group.title, group.data.percent,group.data.color_r,group.data.color_g,group.data.color_b)
     }
     return tree;
 
@@ -247,12 +291,12 @@ SeoFormat.prototype.getTreeFromParamtypes = function (paramtypes) {
 
 SeoFormat.prototype.getColorByPercent = function (percent, color) {
     //console.log(percent,color)
-    if (!percent && percent !=0)
-        return 0;
+    if (!percent && percent != 0)
+        return 255;
     if (color == 'R' && percent > 50)
-        return parseInt((100 - percent)*255/50)
+        return parseInt((100 - percent) * 255 / 50)
     else if (color == 'G' && percent < 50)
-        return parseInt(percent*255/50)
+        return parseInt(percent * 255 / 50)
     else if (color == 'B')
         return 0
     else

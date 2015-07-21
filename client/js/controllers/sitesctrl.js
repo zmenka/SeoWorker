@@ -15,6 +15,8 @@ function SitesCtrl($scope, $stateParams, $rootScope, $alert, $aside, $timeout, $
     vm.selectParam = selectParam;
     vm.data = {};
     vm.isAdmin = isAdmin;
+    vm.reloadSitesAndAside = reloadSitesAndAside;
+    vm.startLoadDone = false;
 
     vm.options = {
         chart: {
@@ -39,15 +41,23 @@ function SitesCtrl($scope, $stateParams, $rootScope, $alert, $aside, $timeout, $
         }
     }
 
+    startLoad()
+
     function isAdmin() {
         return Authenticate.isAdmin()
     }
 
-    $scope.$watch('vm.site', function (current, original) {
-        console.log("clear");
-    });
+    //$scope.$watch('vm.site', function (current, original) {
+    //    console.log("clear");
+    //});
 
-    load();
+    function startLoad(){
+        return load()
+            .then(function(){
+                vm.startLoadDone = true
+            });
+    }
+
 
     function showAside1() {
         $rootScope.treeLoading = true;
@@ -57,11 +67,13 @@ function SitesCtrl($scope, $stateParams, $rootScope, $alert, $aside, $timeout, $
         });
     }
 
-    function showAside() {
+    function showAside(reInit) {
+        if (reInit){
+            console.log('REINIT aside')
+            vm.myAside.destroy()
+            vm.myAside = null;
+        }
         if (vm.myAside) {
-//            console.log("OLD");
-            var d = new Date();
-
             vm.myAside.$promise.then(function () {
                 vm.myAside.show();
             })
@@ -81,12 +93,12 @@ function SitesCtrl($scope, $stateParams, $rootScope, $alert, $aside, $timeout, $
 
                 });
                 vm.myAside = $aside({
-                    scope: scope, show: true,
+                    scope: scope, show: (reInit ? false : true),
                     placement: "left", animation: "fade-and-slide-left",
                     template: 'partials/sites_aside_template.html'
                 });
 
-            } else if (!vm.loading) {
+            } else if (vm.startLoadDone) {
                 vm.asideLoading = false;
                 $alert({
                     title: 'Внимание!', content: "У вас пока нет сайтов.",
@@ -109,9 +121,8 @@ function SitesCtrl($scope, $stateParams, $rootScope, $alert, $aside, $timeout, $
             }
             if (!node.data.types){
                 vm.getParamtypes()
-                    .then(function (types) {
-                        node.data.types = types
-                        vm.data.chart = types
+                    .then(function () {
+                        node.data.types = vm.data.chart
                     });
             } else {
                 vm.data.chart = node.data.types;
@@ -129,9 +140,8 @@ function SitesCtrl($scope, $stateParams, $rootScope, $alert, $aside, $timeout, $
                 vm.data.chartValue = node.data.chart
             } else if (vm.site ){
                 vm.getParams(vm.site.data.url_id, vm.site.data.condition_id, vm.data.chartParamType)
-                    .then(function (chart) {
-                        node.data.chart = chart
-                        vm.data.chartValue = chart
+                    .then(function () {
+                        node.data.chart = vm.data.chartValue
                     })
             }
 
@@ -139,19 +149,19 @@ function SitesCtrl($scope, $stateParams, $rootScope, $alert, $aside, $timeout, $
 
     }
 
-    function load() {
-        vm.loading = true;
-        Api.user_sites_and_tasks($stateParams.user_id)
+    function load(quite) {
+        if (!quite){
+            vm.loading = true;
+        }
+        return Api.user_sites_and_tasks($stateParams.user_id)
             .then(function (res) {
                 console.log("load Api.user_sites_and_tasks ", res);
                 vm.sites = res.data;
-                vm.loading = false;
                 vm.showAside();
             })
             .catch(function (err) {
                 console.log('load Api.user_sites_and_tasks err ', err);
                 vm.sites = [];
-                vm.loading = false;
                 $alert({
                     title: 'Внимание!', content: "Ошибка при получении списка сайтов"
                     + (err.data ? ": " + err.data : "!"),
@@ -159,9 +169,20 @@ function SitesCtrl($scope, $stateParams, $rootScope, $alert, $aside, $timeout, $
                     duration: '3',
                     container: 'body'
                 });
+            })
+            .finally(function(){
+                if (!quite) {
+                    vm.loading = false;
+                }
             });
     };
 
+    function reloadSitesAndAside(){
+        return load()
+            .then(function(){
+                showAside(true)
+            })
+    }
 
     function getParamtypes() {
         if (!vm.site) {
@@ -174,14 +195,14 @@ function SitesCtrl($scope, $stateParams, $rootScope, $alert, $aside, $timeout, $
                 console.log("get_paramtypes Api.get_paramtypes", res);
 
 //                vm.site_params = res.data.site_params[0];
-
+                vm.data.chart = res.data
                 vm.loading = false;
-                return res.data
+                //return res.data
             })
             .catch(function (err) {
                 console.log('get_paramtypes Api.get_paramtypes err ', err);
                 vm.loading = false;
-                vm.data.chart = [];
+                vm.data.chart = null;
 
                 $alert({
                     title: 'Внимание!', content: "Параметры не получены " + (err.data ? ": " + err.data : "!"),
@@ -201,12 +222,13 @@ function SitesCtrl($scope, $stateParams, $rootScope, $alert, $aside, $timeout, $
                 console.log("getParams Api.get_params", res);
 
                 vm.loading = false;
-                return res.data;
+                //return res.data;
+                vm.data.chartValue = res.data;
             })
             .catch(function (err) {
                 console.log('getParams Api.get_params err ', err);
                 vm.loading = false;
-
+                vm.data.chartValue = null;
                 $alert({
                     title: 'Внимание!', content: "Параметры не получены " + (err.data ? ": " + err.data : "!"),
                     placement: 'top', type: 'danger', show: true,
@@ -225,7 +247,10 @@ function SitesCtrl($scope, $stateParams, $rootScope, $alert, $aside, $timeout, $
 
         vm.data = {};
         return Api.calc_params(vm.site.data.url, vm.site.data.condition_id, vm.site.data.task_id, $stateParams.user_id)
-
+            .then(function () {
+                vm.reloadSitesAndAside();
+                return vm.getParamtypes()
+            })
             .catch(function (err) {
                 console.log('calcParams Api.calc_params err ', err);
                 vm.loading = false;
@@ -237,10 +262,7 @@ function SitesCtrl($scope, $stateParams, $rootScope, $alert, $aside, $timeout, $
                     container: 'body'
                 });
             })
-            .then(function () {
 
-                return vm.getParamtypes()
-            })
             .finally(function () {
                 vm.loading = false;
             })
@@ -252,8 +274,14 @@ function SitesCtrl($scope, $stateParams, $rootScope, $alert, $aside, $timeout, $
         }
         vm.loading = true;
 
-        Api.calc_site_params(vm.site.data.url, vm.site.data.condition_id)
+        return Api.calc_site_params(vm.site.data.url, vm.site.data.condition_id)
 //        Api.calc_site_params(vm.site.data.url, vm.site.data.condition_id)
+            .then(function (res) {
+                console.log("calcSiteParams Api.calc_site_params err", res);
+                vm.loading = false;
+                vm.reloadSitesAndAside();
+                return vm.getParamtypes()
+            })
             .catch(function (err) {
                 console.log("calcSiteParams Api.calc_site_params ", err)
                 $alert({
@@ -264,11 +292,7 @@ function SitesCtrl($scope, $stateParams, $rootScope, $alert, $aside, $timeout, $
                     container: 'body'
                 });
             })
-            .then(function (res) {
-                console.log("calcSiteParams Api.calc_site_params err", res);
-                vm.loading = false;
-                vm.getParamtypes()
-            })
+
     }
 }
 

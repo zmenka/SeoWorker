@@ -14,11 +14,12 @@ var callback = function (data, response) {
     response.json(data);
 };
 
-var errback = function (err, response) {
-    var msg = (err && err.stack) ? err.stack : (err ? err : 'no error')
+var errback = function (err, response, userMsg) {
+    var msg = (err && err.stack) ? err.stack : (err ? err : userMsg)
     console.log(msg);
     response.statusCode = 440;
-    response.send( err && err.message ? err.message : '');
+    //var userMsgResult = userMsg ? userMsg : (err && err.message ? err.message : (err ? err : ''));
+    response.send(userMsg);
 };
 
 module.exports = function Api(app, passport) {
@@ -31,12 +32,12 @@ module.exports = function Api(app, passport) {
         console.log('/api/users');
 
         if (!req.user || !req.user.user_id) {
-            errback("Вы не зарегистрировались.", res);
+            errback(null, res, "Вы не зарегистрировались.");
             return;
         }
 
         if (req.user.role_id!=1){
-            errback("Вы не админ.", res);
+            errback(null, res,"Вы не админ.");
             return;
         }
 
@@ -54,17 +55,17 @@ module.exports = function Api(app, passport) {
         console.log('/api/user',  req.query);
 
         if (!req.user || !req.user.user_id) {
-            errback("Вы не зарегистрировались.", res);
+            errback(null, res, "Вы не зарегистрировались.");
             return;
         }
 
         if (req.user.role_id!=1){
-            errback("Вы не админ.", res);
+            errback(null, res, "Вы не админ.");
             return;
         }
 
         if (!req.query.user_id) {
-            errback("Не найден ид пользователя.", res);
+            errback(null, res,"Не найден ид пользователя.");
             return;
         }
 
@@ -82,17 +83,17 @@ module.exports = function Api(app, passport) {
         console.log('/api/edit_user', req.body);
 
         if (!req.user || !req.user.user_id) {
-            errback("Вы не зарегистрировались.", res);
+            errback(null, res, "Вы не зарегистрировались.");
             return;
         }
 
         if (req.user.role_id!=1){
-            errback("Вы не админ.", res);
+            errback(null, res,"Вы не админ.");
             return;
         }
 
         if (!req.body.user_id) {
-            errback("не найден параметр user_id ", res);
+            errback(null, res, "Не найден параметр user_id ");
             return;
         }
 
@@ -110,17 +111,17 @@ module.exports = function Api(app, passport) {
         console.log('/api/user_sites_and_tasks');
 
         if (!req.user || !req.user.user_id) {
-            errback("Вы не зарегистрировались.", res);
+            errback(null, res, "Вы не зарегистрировались.");
             return;
         }
 
         if (req.query.user_id != req.user.user_id && req.user.role_id!=1) {
-            errback("Нет доступа.", res);
+            errback(null, res,"Нет доступа.");
             return;
         }
 
         if (!req.query.user_id) {
-            errback("не найден параметр user_id ", res);
+            errback(null, res,"Не найден параметр user_id ");
             return;
         }
 
@@ -140,7 +141,7 @@ module.exports = function Api(app, passport) {
         console.log('/api/sengines');
 
         if (!req.user || !req.user.user_id) {
-            errback("Вы не зарегистрировались.", res);
+            errback(null, res, "Вы не зарегистрировались.");
             return;
         }
 
@@ -158,17 +159,17 @@ module.exports = function Api(app, passport) {
         console.log('/api/create_site', req.body);
 
         if (!req.user || !req.user.user_id) {
-            errback("Вы не зарегистрировались.", res);
+            errback(null, res,"Вы не зарегистрировались.");
             return;
         }
 
         if (!req.body.url) {
-            errback("не найден параметр url ", res);
+            errback(null, res, "не найден параметр url ");
             return;
         }
 
         if (!req.body.user_id) {
-            errback("не найден параметр url ", res);
+            errback(null, res, "не найден параметр url ");
             return;
         }
 
@@ -185,13 +186,13 @@ module.exports = function Api(app, passport) {
         console.log('/api/create_site', req.body);
 
         if (!req.user || !req.user.user_id) {
-            errback("Вы не зарегистрировались.", res);
+            errback(null, res, "Вы не зарегистрировались.");
             return;
         }
 
         if (!req.body.usurl_id || !req.body.condition_query || !req.body.sengine_id
             || !req.body.region || !req.body.size_search) {
-            errback("не найдены параметры! ", res);
+            errback(null, res, "не найдены параметры! ");
             return;
         }
 
@@ -228,37 +229,37 @@ module.exports = function Api(app, passport) {
         console.log('/api/calc_params', req.body);
 
         if (!req.user || !req.user.user_id) {
-            errback("Вы не зарегистрировались.", res);
+            errback(null, res, "Вы не зарегистрировались.");
             return;
         }
 
         if (req.user.role_id!=1){
-            errback("Вы не админ.", res);
+            errback(null, res, "Вы не админ.");
             return;
         }
 
         if (!serverFree) {
-            errback("Сервер занят, попробуйте позже.", res);
+            errback(null, res, "Сервер занят, попробуйте позже.");
             return;
         }
 
         if (!req.body.url) {
-            errback("Не найден параметр url.", res);
+            errback(null, res, "Не найден параметр url.");
             return;
         }
 
         if (!req.body.condition_id) {
-            errback("Не найден параметр condition_id.", res);
+            errback(null, res, "Не найден параметр condition_id.");
             return;
         }
 
         if (!req.body.task_id) {
-            errback("Не найден параметр task_id.", res);
+            errback(null, res, "Не найден параметр task_id.");
             return;
         }
 
         if (!req.body.user_id) {
-            errback("Не найден параметр user_id.", res);
+            errback(null, res, "Не найден параметр user_id.");
             return;
         }
 
@@ -286,12 +287,12 @@ module.exports = function Api(app, passport) {
         console.log('/api/calc_site_params', req.body);
 
         if (!req.user || !req.user.user_id) {
-            errback("Вы не зарегистрировались.", res);
+            errback(null, res, "Вы не зарегистрировались.");
             return;
         }
 
         if (!req.body.condition_id) {
-            errback("Не найден параметр condition_id.", res);
+            errback(null, res, "Не найден параметр condition_id.");
             return;
         }
 
@@ -310,23 +311,23 @@ module.exports = function Api(app, passport) {
         console.log('/api/get_paramtypes', req.body);
 
         if (!req.user || !req.user.user_id) {
-            errback("Вы не зарегистрировались.", res);
+            errback(null, res, "Вы не зарегистрировались.");
             return;
         }
 
         if (!req.body.condition_id) {
-            errback("не найдены параметры condition_id", res);
+            errback(null, res, "не найдены параметры condition_id");
             return;
         }
 
         if (!req.body.url_id) {
-            errback("не найдены параметры url_id", res);
+            errback(null, res, "не найдены параметры url_id");
             return;
         }
         return new PgParams().getParamtypesForUrl(req.body.condition_id, req.body.url_id)
             .then(function (paramtypes) {
-                if (!paramtypes){
-                    errback( 'Не найден ни один тип параметра', res)
+                if (!paramtypes || !paramtypes.length){
+                    errback( null, res, 'Еще не посчитан ни один тип параметра')
                     return
                 }
                 var tree = new SeoFormat().getTreeFromParamtypes(paramtypes)
@@ -343,22 +344,22 @@ module.exports = function Api(app, passport) {
         console.log('/api/get_params', req.body);
 
         if (!req.user || !req.user.user_id) {
-            errback("Вы не зарегистрировались.", res);
+            errback(null, res,"Вы не зарегистрировались.");
             return;
         }
 
         if (!req.body.condition_id) {
-            errback("не найдены параметры condition_id", res);
+            errback(null, res, "не найдены параметры condition_id");
             return;
         }
 
         if (!req.body.url_id) {
-            errback("не найдены параметры url_id", res);
+            errback(null, res, "не найдены параметры url_id");
             return;
         }
 
         if (!req.body.param_type) {
-            errback("не найдены параметры param_type", res);
+            errback(null, res, "не найдены параметры param_type");
             return;
         }
 
@@ -368,33 +369,36 @@ module.exports = function Api(app, passport) {
         return new PgSearch().getLastSearch(req.body.condition_id)
             .then(function (searchRes) {
                 if (!searchRes){
-                    errback( 'Не найдена поисковая выдача', res)
+                    errback( null, res, 'Еще не получена поисковая выдача')
                     return
                 }
                 search = searchRes;
                 return new PgParams().getParamDiagram(search.search_id, req.body.param_type)
             })
             .then(function (paramsChartRes) {
-                if (!paramsChartRes){
-                    errback( 'Еще не получены данные', res)
+                if (!paramsChartRes || !paramsChartRes.length){
+                    errback( null, res, 'Еще не получены данные выборки')
                     return
                 }
                 paramsChart = paramsChartRes;
                 return new PgCorridor().get(search.search_id, req.body.param_type)
             })
             .then(function (corridorRes) {
-
                 corridor = corridorRes;
                 return new PgHtmls().getLastHtml(req.body.url_id)
             })
             .then(function (html) {
                 if (!html) {
-                    errback('Еще не получены данные для Вашего сайта', res)
+                    errback(null, res, 'Еще не получены данные для Вашего сайта. Нажмите "Пересчитать сайт".')
                     return
                 }
                 return new PgParams().getSiteParam(req.body.condition_id, html.html_id, req.body.param_type )
             })
             .then(function (siteParams) {
+                if (!siteParams || !siteParams.length){
+                    errback( null, res, 'Еще не получены параметры для Вашего сайта. Нажмите "Пересчитать сайт".')
+                    return
+                }
                 diagram = new Diagram();
                 //форматируем данные работаем с диаграммой.
                 var paramsDiagram = diagram.getParamsDiagram(paramsChart, siteParams, corridor);
@@ -413,13 +417,13 @@ module.exports = function Api(app, passport) {
                     return next(err)
                 }
                 if (!user) {
-                    return errback({ message: info.message }, res);
+                    return errback(null, res, info.message);
                 }
                 req.logIn(user, function (err) {
                     if (err) {
                         return next(err);
                     }
-                    return callback({ message: info.message}, res);
+                    return callback(info.message, res);
                 });
             })(req, res, next);
         }
@@ -436,17 +440,17 @@ module.exports = function Api(app, passport) {
         console.log('/api/register', req.body);
 
         if (!req.body.login || !req.body.password) {
-            errback("Не найдены все параметры  ", res);
+            errback(null, res, "Не найдены все параметры  ");
             return;
         }
 
         if (!req.user || !req.user.user_id) {
-            errback("Нет зарегистрированного пользователя!", res);
+            errback(null, res, "Нет зарегистрированного пользователя!");
             return;
         }
 
         if (req.user.role_id != 1) {
-            errback("Нет прав для добавления пользователей!", res);
+            errback(null, res, "Нет прав для добавления пользователей!");
             return;
         }
 

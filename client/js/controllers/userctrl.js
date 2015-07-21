@@ -20,19 +20,12 @@ function UserCtrl($scope, $state, $stateParams, $alert, Authenticate, Api) {
             }).catch(function (err) {
                 console.log("getUser error ", err.data)
                 vm.user = null;
-                if (err.data) {
                     $alert({title: 'Внимание!', content: "Данный пользователя не получены. " + err.data,
                         placement: 'top', type: 'danger', show: true,
                         duration: '3',
                         container: 'body'
                     });
-                }else if (err) {
-                    $alert({title: 'Внимание!', content: 'Данный пользователя не получены. ' + err,
-                        placement: 'top', type: 'danger', show: true,
-                        duration: '3',
-                        container: 'body'
-                    });
-                }
+
             });
     }
 
@@ -53,19 +46,11 @@ function UserCtrl($scope, $state, $stateParams, $alert, Authenticate, Api) {
                 });
             }).catch(function (err) {
                 console.log("editUser error ", err)
-                if (err.data) {
-                    $alert({title: 'Внимание!', content: 'Изменения не сохранены. ' + err.data,
-                        placement: 'top', type: 'danger', show: true,
-                        duration: '3',
-                        container: 'body'
-                    });
-                } else if (err) {
-                    $alert({title: 'Внимание!', content: 'Изменения не сохранены. ' + err,
-                        placement: 'top', type: 'danger', show: true,
-                        duration: '3',
-                        container: 'body'
-                    });
-                }
+                $alert({title: 'Внимание!', content: 'Изменения не сохранены. ' + err.data,
+                    placement: 'top', type: 'danger', show: true,
+                    duration: '3',
+                    container: 'body'
+                });
             });
     }
 

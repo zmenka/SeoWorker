@@ -96,7 +96,7 @@ table.sites td {
 .spinner {
     width: 100px;
     height: 100px;
-    background-image: url("../img/spin100x100.gif");
+    background-image: url("../img/big.GIF");
     /* overflow: hidden; */
     position: absolute;
     z-index: 1000;
@@ -106,7 +106,7 @@ table.sites td {
 .spinner-small {
     width: 34px;
     height: 34px;
-    background-image: url("../img/spin34x34.gif");
+    background-image: url("../img/small.GIF");
 }
 
 .app-tree-node {

@@ -92,7 +92,8 @@ PgExpressions.prototype.GET_PERCENT_BY_HTML = function () {
 					T.*,\
 					CAST(PERCENT AS INT) AS PERCENT_INT, \
 					GET_COLOR(PERCENT,'R') AS COLOR_R,\
-					GET_COLOR(PERCENT,'G') AS COLOR_G\
+					GET_COLOR(PERCENT,'G') AS COLOR_G,\
+					GET_COLOR(PERCENT,'B') AS COLOR_B\
 				FROM with_table T;");
     return list
 }
@@ -218,7 +219,8 @@ PgExpressions.prototype.USERS_URL_COUNT = function () {
 	    	    SELECT \
 	    	    	T.*, \
 	    	        GET_COLOR(T.PERCENT,'G') AS COLOR_G,                 \
-	    	        GET_COLOR(T.PERCENT,'R') AS COLOR_R                 \
+	    	        GET_COLOR(T.PERCENT,'R') AS COLOR_R,                 \
+					GET_COLOR(T.PERCENT,'B') AS COLOR_B\
 	    	    FROM subselect T;");
     return list
 }
@@ -259,6 +261,7 @@ PgExpressions.prototype.USURLS_WITH_TASKS = function (vUSER_ID) {
 		            "sengines.SENGINE_NAME, " +
 					"tt_res_upercents.PERCENT, " +
 					"GET_COLOR(tt_res_upercents.PERCENT,'G') AS COLOR_G, " +
+					"GET_COLOR(tt_res_upercents.PERCENT,'B') AS COLOR_B, " +
 					"GET_COLOR(tt_res_upercents.PERCENT,'R') AS COLOR_R " +
 		        "FROM                                                               " +
 		         "   usurls                                                         " +
@@ -309,7 +312,8 @@ PgExpressions.prototype.GET_PARAMTYPES_FOR_URL = function (vCONDITION_ID, vURL_I
 		'P.*, PT.*, ' +
 		'TTS.PERCENT_INT AS PERCENT,  ' +
 		'TTS.COLOR_G,' +
-		'TTS.COLOR_R ' +
+		'TTS.COLOR_R, ' +
+		'TTS.COLOR_B ' +
 		'FROM ' +
 		'params P ' +
 		'JOIN paramtypes PT ON P.PARAMTYPE_ID = PT.PARAMTYPE_ID ' +

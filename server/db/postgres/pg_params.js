@@ -138,14 +138,15 @@ PgParams.prototype.getParamDiagram = function (search_id, paramtype_id) {
 PgParams.prototype.getParamtypesForUrl = function (condition_id, url_id) {
     var ex = new PgExpressions();
     return ex.execute_list(ex.GET_PARAMTYPES_FOR_URL(condition_id, url_id))
-        .then(function (res) {
-            console.log('PgParams.prototype.getParamtypes');
-            return res;
-        })
-        .catch(function (err) {
-            console.log('PgParams.prototype.getParamtypes err', err);
-            throw 'PgParams.prototype.getParamtypes err  ' + err
-        })
+        //.then(function (res) {
+        //    //console.log('PgParams.prototype.getParamtypes');
+        //    return res;
+        //})
+        //.catch(function (err) {
+        //    //console.log('PgParams.prototype.getParamtypes err', err);
+        //    //throw 'PgParams.prototype.getParamtypes err  ' + err
+        //    throw err
+        //})
 }
 
 PgParams.prototype.getParamtypes = function (search_id) {

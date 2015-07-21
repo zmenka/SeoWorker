@@ -150,11 +150,12 @@ PgUsers.prototype.updateLastVisit = function (user_id) {
                 [user_id, date_visit])
         })
         .then(function (res) {
-            console.log('PgUsers.prototype.updateLastVisit');
+            //console.log('PgUsers.prototype.updateLastVisit');
             return res;
         })
         .catch(function (err) {
-            throw 'PgUsers.prototype.updateLastVisit ' + err
+            //throw 'PgUsers.prototype.updateLastVisit ' + err
+            throw  err
         })
 }
 
