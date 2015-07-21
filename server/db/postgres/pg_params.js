@@ -56,14 +56,14 @@ PgParams.prototype.insert = function (condition_id, html_id, paramtype_name, par
                 [], true)
         })
         .then(function (res) {
-            console.log("PgParams.prototype.insert")
+            //console.log("PgParams.prototype.insert")
             return res.rows[0].currval;
         })
 
         .catch(function (err) {
             //console.log(err)
-            throw 'PgParams.prototype.insert ' + err;
-            console.log(err);
+            //throw 'PgParams.prototype.insert ' + err;
+            throw err
         })
 
 }
@@ -153,12 +153,13 @@ PgParams.prototype.getParamtypes = function (search_id) {
     var ex = new PgExpressions();
     return ex.execute_list(ex.GET_PARAMTYPES(search_id))
         .then(function (res) {
-            console.log('PgParams.prototype.getParamtypes');
+            //console.log('PgParams.prototype.getParamtypes');
             return res;
         })
         .catch(function (err) {
-            console.log('PgParams.prototype.getParamtypes err', err);
-            throw 'PgParams.prototype.getParamtypes err  ' + err
+            //console.log('PgParams.prototype.getParamtypes err', err);
+            //throw 'PgParams.prototype.getParamtypes err  ' + err
+            throw err
         })
 }
 module.exports = PgParams;

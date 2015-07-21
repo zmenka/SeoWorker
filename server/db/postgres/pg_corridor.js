@@ -35,13 +35,14 @@ PgCorridor.prototype.insert = function (search_id, paramtype_id, m, d) {
                 [], true)
         })
         .then(function (res) {
-            console.log("PgCorridor.prototype.insert")
+            //console.log("PgCorridor.prototype.insert")
             return res.rows[0].currval;
         })
 
         .catch(function (err) {
-            console.log(err);
-            throw 'PgCorridor.prototype.insert ' + err;
+            //console.log(err);
+            //throw 'PgCorridor.prototype.insert ' + err;
+            throw err
         })
 
 }

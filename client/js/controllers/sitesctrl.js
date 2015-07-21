@@ -245,7 +245,7 @@ function SitesCtrl($scope, $stateParams, $rootScope, $alert, $aside, $timeout, $
         vm.loading = true;
 
         vm.data = {};
-        return Api.calc_params(vm.site.data.url, vm.site.data.condition_id, vm.site.data.task_id, $stateParams.user_id)
+        return Api.calc_params(vm.site.data.url, vm.site.data.condition_id, vm.site.data.task_id)
             .then(function () {
                 vm.reloadSitesAndAside();
                 return vm.getParamtypes()

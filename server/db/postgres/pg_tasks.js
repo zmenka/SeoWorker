@@ -179,14 +179,14 @@ PgTasks.prototype.updateWithDateCalc = function (task_id, date) {
                 "UPDATE tasks SET date_calc= '" +  date.toISOString() + "' WHERE task_id=$1;",
                 [task_id])
 
-        .then(function (res) {
-            console.log("PgTasks.prototype.updateWithDateCalc");
-            return res;
-        })
+        //.then(function (res) {
+        //    console.log("PgTasks.prototype.updateWithDateCalc", task_id, date);
+        //    return res;
+        //})
 
         .catch(function (err) {
-            console.log('PgTasks.prototype.updateWithDateCalc err ')
-            console.log(err);
+            //console.log('PgTasks.prototype.updateWithDateCalc err ')
+            //console.log(err);
             throw err
         });
 }

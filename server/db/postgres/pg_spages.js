@@ -55,11 +55,12 @@ PgSpages.prototype.insert = function (search_id, html_id, page_number) {
                 [], true)
         })
         .then(function (res) {
-            console.log("PgSpages.prototype.insert");
+            //console.log("PgSpages.prototype.insert");
             return res.rows[0].currval;
         })
         .catch(function (err) {
-            throw 'PgSpages.prototype.insert ' + err;
+            //throw 'PgSpages.prototype.insert ' + err;
+            throw err
         }
     );
 }

@@ -168,7 +168,8 @@ PgConditions.prototype.getLastNotSearchedRandomTask = function (range, dateOld){
             return res.rows[0];
         })
         .catch(function (err) {
-            throw 'PgConditions.prototype.getLastNotSearchedRandomCondition ' + err;
+            //throw 'PgConditions.prototype.getLastNotSearchedRandomCondition ' + err;
+            throw err
         })
 }
 

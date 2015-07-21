@@ -17,12 +17,12 @@ describe('DB TEST', function(){
             var PgExpressions = require("../../server/db/postgres/pg_expressions");
             var express = new PgExpressions()
             var list = []
-  list.push('DROP TABLE IF EXISTS tt_lst_urls;');
-  list.push(' CREATE TEMPORARY TABLE tt_lst_urls AS    ' +
-            'SELECT + ' + 2 + ' AS CONDITION_ID, ' +
-                             1 + ' AS URL_ID;' );
-    list.push(' CREATE INDEX IDX_tt_lst_urls ON tt_lst_urls (URL_ID,CONDITION_ID);');
-  list = list.concat(express.GET_PERCENT_BY_URL());
+            list.push('DROP TABLE IF EXISTS tt_lst_urls;');
+            list.push(' CREATE TEMPORARY TABLE tt_lst_urls AS    ' +
+                      'SELECT + ' + 2 + ' AS CONDITION_ID, ' +
+                                       1 + ' AS URL_ID;' );
+            list.push(' CREATE INDEX IDX_tt_lst_urls ON tt_lst_urls (URL_ID,CONDITION_ID);');
+            list = list.concat(express.GET_PERCENT_BY_URL());
     
             list = list.concat('SELECT * FROM tt_res_hpercents');
             //list = list.concat('SELECT * FROM tt_res_hpercents WHERE paramtype_id = 1');

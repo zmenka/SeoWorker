@@ -13,7 +13,7 @@ SearcherType.prototype.getSearchUrls = function (condition) {
 
     if (!condition || !condition.sengine_name || !condition.condition_query
         || !condition.size_search || !condition.sengine_qmask || !condition.sengine_page_size) {
-        throw 'SearcherType.prototype.getSearchUrls Не хватает условий для формирования поиска!'
+        throw new Error(' Не хватает условий для формирования поиска!')
     }
     var page = 0;
     var size_page = condition.sengine_page_size;
@@ -58,8 +58,9 @@ SearcherType.prototype.getSearchUrls = function (condition) {
             }
             break;
         default:
-            throw 'SearcherType.prototype.getSearchUrls Не найден требуемый поисковик!';
+            throw new Error('Не найден требуемый поисковик!');
     }
+    //console.log('Сформированы ', search_links.length, ' урла для поисковика')
     return search_links;
 }
 

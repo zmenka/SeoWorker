@@ -85,6 +85,7 @@ SeoFormat.prototype.createSiteTree = function (sites) {
                     usurl_id: site.usurl_id,
                     url_id: site.url_id,
                     task_id: site.task_id,
+                    date_calc: site.date_calc,
                     url: site.url,
                     condition_id: site.condition_id,
                     condition_query: site.condition_query,

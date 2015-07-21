@@ -18,8 +18,8 @@ var errback = function (err, response, userMsg) {
     var msg = (err && err.stack) ? err.stack : (err ? err : userMsg)
     console.log(msg);
     response.statusCode = 440;
-    //var userMsgResult = userMsg ? userMsg : (err && err.message ? err.message : (err ? err : ''));
-    response.send(userMsg);
+    var userMsgResult = userMsg ? userMsg : (err && !err.message ? err : '');
+    response.send(userMsgResult);
 };
 
 module.exports = function Api(app, passport) {
@@ -258,13 +258,8 @@ module.exports = function Api(app, passport) {
             return;
         }
 
-        if (!req.body.user_id) {
-            errback(null, res, "Не найден параметр user_id.");
-            return;
-        }
-
         serverFree = false;
-        return new Core().calcParams(req.body.condition_id, req.body.user_id)
+        return new Core().calcParams(req.body.condition_id, req.user.user_id)
             .then(function () {
                 return new Core().calcParamsByUrl(req.body.url, req.body.condition_id)
             })
@@ -278,7 +273,6 @@ module.exports = function Api(app, passport) {
             .catch(function (err) {
                 serverFree = true
                 errback(err, res);
-                serverFree = true
             })
 
     });

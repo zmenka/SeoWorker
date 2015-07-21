@@ -68,7 +68,7 @@ PgSearch.prototype.updateDone = function (searchId, done) {
     return new PgSearch().get(searchId)
         .then(function (search) {
             if (!search) {
-                throw("Нет такой поисковой выдачи! " + searchId)
+                throw new Error("Нет такой поисковой выдачи! " + searchId)
                 return;
             }
             return PG.query("UPDATE search SET DONE = $2 " +
@@ -76,11 +76,12 @@ PgSearch.prototype.updateDone = function (searchId, done) {
                 [searchId, done])
         })
         .then(function (res) {
-            console.log('PgSearch.prototype.updateDone');
+            //console.log('PgSearch.prototype.updateDone');
             return res;
         })
         .catch(function (err) {
-            throw 'PgSearch.prototype.updateDone err  ' + err
+            //throw 'PgSearch.prototype.updateDone err  ' + err
+            throw err
         })
 }
 
@@ -102,12 +103,13 @@ PgSearch.prototype.get = function (id) {
     return PG.query("SELECT * FROM search WHERE search_id = $1;",
         [id])
         .then(function (res) {
-            console.log('PgSearch.prototype.get');
+            //console.log('PgSearch.prototype.get');
             return res.rows[0];
         })
         .catch(function (err) {
-            console.log('PgSearch.prototype.get err', err);
-            throw 'PgSearch.prototype.get err  ' + err
+            //console.log('PgSearch.prototype.get err', err);
+            //throw 'PgSearch.prototype.get err  ' + err
+            throw err
         })
 }
 

@@ -197,7 +197,7 @@ Searcher.prototype.getContentByUrlOrCaptcha = function (url, captcha, user_id,se
                 if (restart){
                     return _this2.getContentByUrlOrCaptcha(null , rescaptcha, user_id, sengine_name, false);
                 } else {
-                    throw 'Searcher.prototype.getContentByUrlOrCaptcha получили капчу опять!'
+                    throw new Error('получили капчу опять!')
                 }
 
             } else {
@@ -212,7 +212,7 @@ Searcher.prototype.getCaptcha = function (raw_html,sengine_name) {
     _this = this;
     //console.log('Searcher.prototype.getCaptcha')
     if (!raw_html){
-        throw 'Searcher.prototype.getCaptcha Не получено содержимой страницы!';
+        throw new Error(' Не получено содержимой страницы!');
     }
     var date = new Date()
     var parser = new SeoParser();
@@ -241,13 +241,13 @@ Searcher.prototype.getCaptcha = function (raw_html,sengine_name) {
                                 + encodeURIComponent(key) +
                                 '&retpath=' + encodeURIComponent(retpath) +
                                 '&rep=' + encodeURIComponent(res);
-                            //console.log('Searcher.prototype.getCaptcha Yandex Капча ', kaptcha);
+                            console.log('Yandex Капча ', kaptcha);
                             return kaptcha;
                         })
 
                 }
 //                console.log('Капча странная ');
-                throw "Searcher.prototype.getCaptcha problems with yandexcaptcha" + tags;
+                throw new Error(" problems with yandexcaptcha" );
                 return;
 
             }
@@ -303,10 +303,10 @@ Searcher.prototype.antigate = function (url) {
 //    console.log('Searcher.prototype.antigate', url);
     ag.processFromURL(url, function(error, text, id) {
         if (error) {
-            console.log('Searcher.prototype.antigate err ', error);
+            //console.log('Searcher.prototype.antigate err ', error);
             deferred.reject(error);
         } else {
-//            console.log('Searcher.prototype.antigate',url, text);
+            console.log('Antigate DONE',url, text);
             deferred.resolve(text);
         }
     });
