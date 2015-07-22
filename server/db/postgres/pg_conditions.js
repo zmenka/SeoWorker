@@ -149,14 +149,17 @@ PgConditions.prototype.getLastNotSearchedRandomTask = function (range, dateOld){
                 "tasks t " +
                 "INNER JOIN usurls uu " +
                     "ON uu.usurl_id=t.usurl_id " +
+                "INNER JOIN users us " +
+                    "ON uu.user_id=us.user_id " +
                 "INNER JOIN urls u " +
                     "ON uu.url_id=u.url_id " +
                 "LEFT JOIN tasks T2 " +
                     "ON T.CONDITION_ID = T2.CONDITION_ID " +
                     "AND T2.DATE_CALC >= $2 " +
             "WHERE " +
-                "t.DATE_CALC is null " +
-                "OR t.DATE_CALC < $2 " +
+                "(t.DATE_CALC is null " +
+                "OR t.DATE_CALC < $2) " +
+                "AND US.disabled = FALSE " +
             "ORDER BY " +
                 "t.date_create desc " +
             "OFFSET random()*$1 " +
