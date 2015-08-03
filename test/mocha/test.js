@@ -21,7 +21,7 @@ describe('Test', function () {
 
         })
 
-        it.only('start bg', function () {
+        it('start bg', function () {
 
             var core = require("../../server/core")
             return new core().bg()
@@ -46,6 +46,18 @@ describe('Test', function () {
                     return new core().calcParamsByUrl(url, cond_id)
 
                 })
+                .catch(function (err) {
+                    console.log('Core.bg calcSiteParams conds ', url, cond_id, ' , err ', err);
+                    throw err;
+                })
+        })
+        
+        it('calc site param failure increment', function () {
+            var cond_id = 1;
+            var task_id = 1;
+            var url = "http://qweqweqwe.ru"
+            var core = require("../../server/core")
+            return new core().calcParamsByUrl(url, cond_id, task_id)
                 .catch(function (err) {
                     console.log('Core.bg calcSiteParams conds ', url, cond_id, ' , err ', err);
                     throw err;
@@ -97,9 +109,9 @@ describe('Test', function () {
 
         })
 
-        it('getLastNotSearchedRandomTask', function () {
+        it.only('getLastNotSearchedRandomTask', function () {
             var PgConditions = require("../../server/db/postgres/pg_conditions")
-            return new PgConditions().getLastNotSearchedRandomTask(50, new Date('2015-03-26'))
+            return new PgConditions().getLastNotSearchedRandomTask(50, new Date())
                 .then(function (res) {
                     console.log(res);
 
