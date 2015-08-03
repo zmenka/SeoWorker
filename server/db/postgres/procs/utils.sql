@@ -74,6 +74,19 @@ BEGIN
                 ON LST.SPAGE_ID = T.SPAGE_ID
         ;
     CREATE INDEX IDX_tt_lst_htmls ON tt_lst_htmls (HTML_ID);
+
+    DROP TABLE IF EXISTS tt_lst_urls;
+    CREATE /*TEMPORARY*/ TABLE tt_lst_urls AS
+        SELECT
+            U.URL_ID
+        FROM
+            urls U
+            LEFT JOIN usurls UU
+                ON U.URL_ID = UU.URL_ID
+        WHERE
+            UU.USURL_ID IS NULL
+        ;
+    CREATE INDEX IDX_tt_lst_urls ON tt_lst_urls (URL_ID);
     
     SELECT PG_SIZE_PRETTY(PG_DATABASE_SIZE('seo')) AS TOTAL_DB_SIZE_BEFORE;
     
@@ -83,6 +96,7 @@ BEGIN
     DELETE FROM spages    AS D USING tt_lst_spages T    WHERE D.SPAGE_ID = T.SPAGE_ID;
     DELETE FROM corridor  AS D USING tt_lst_search T    WHERE D.SEARCH_ID = T.SEARCH_ID;
     DELETE FROM search    AS D USING tt_lst_search T    WHERE D.SEARCH_ID = T.SEARCH_ID;
+    DELETE FROM urls      AS D USING tt_lst_urls T      WHERE D.URL_ID = T.URL_ID;
     
     VACUUM FULL;
     SELECT PG_SIZE_PRETTY(PG_DATABASE_SIZE('seo')) AS TOTAL_DB_SIZE_AFTER;
@@ -92,6 +106,7 @@ BEGIN
     DROP TABLE IF EXISTS tt_lst_scontents;
     DROP TABLE IF EXISTS tt_lst_spages;
     DROP TABLE IF EXISTS tt_lst_htmls;
+    DROP TABLE IF EXISTS tt_lst_urls;
                 
 END;
 $$ LANGUAGE plpgsql;
