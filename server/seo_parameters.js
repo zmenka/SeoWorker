@@ -382,7 +382,7 @@ SeoParameters.prototype.getSearchPicks = function (search_html, sengine_name) {
                 case 'Google':
                     //маска построения результата выдачи
                     //в зависимости от посиковой системы
-                    var aMask = 'div.srg li.g h3 a';
+                    var aMask = 'div.srg h3 a';
                     //парсим страницу
                     var tags = parser.getTag(aMask);
                     //получаем URL-ы и title-ы

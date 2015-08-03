@@ -97,7 +97,7 @@ describe('Test', function () {
 
         })
 
-        it('search links from url', function () {
+        it('bg', function () {
 
             var core = require("../../server/core")
             return new core().bg()
@@ -109,7 +109,7 @@ describe('Test', function () {
 
         })
 
-        it.only('getLastNotSearchedRandomTask', function () {
+        it('getLastNotSearchedRandomTask', function () {
             var PgConditions = require("../../server/db/postgres/pg_conditions")
             return new PgConditions().getLastNotSearchedRandomTask(50, new Date())
                 .then(function (res) {
@@ -133,14 +133,15 @@ describe('Test', function () {
 
         })
 
-        it('get search links', function () {
+        it.only('get search links', function () {
 
             var Searcher = require("../../server/searcher")
             var SeoParameters = require("../../server/seo_parameters")
             var search_url = 'http://yandex.ru/yandsearch?lr=54&text=%D0%BF%D1%80%D0%BE%D0%B4%D0%B2%D0%B8%D0%B6%D0%B5%D0%BD%D0%B8%D0%B5%20%D1%81%D0%B0%D0%B9%D1%82%D0%B0%20%D0%B2%20%D0%B5%D0%BA%D0%B0%D1%82%D0%B5%D1%80%D0%B8%D0%BD%D0%B1%D1%83%D1%80%D0%B3%D0%B5&p=0';
-            return new Searcher().getContentByUrlOrCaptcha(search_url, null, 1, 'Yandex', true)
+            search_url = 'https://www.google.ru/search?q=%D0%BF%D0%BB%D0%B0%D1%81%D1%82%D0%B8%D0%BA%D0%BE%D0%B2%D1%8B%D0%B5+%D0%BE%D0%BA%D0%BD%D0%B0'
+            return new Searcher().getContentByUrlOrCaptcha(search_url, null, 1, 'Google', true)
                 .then(function (res) {
-                    return new SeoParameters().getSearchPicks(res.html, 'Yandex')
+                    return new SeoParameters().getSearchPicks(res.html, 'Google')
                 })
                 .then(function (links) {
                     console.log(links);

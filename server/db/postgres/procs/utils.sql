@@ -83,8 +83,11 @@ BEGIN
             urls U
             LEFT JOIN usurls UU
                 ON U.URL_ID = UU.URL_ID
+            LEFT JOIN htmls H
+                ON U.URL_ID = H.URL_ID
         WHERE
             UU.USURL_ID IS NULL
+            AND H.HTML_ID IS NULL
         ;
     CREATE INDEX IDX_tt_lst_urls ON tt_lst_urls (URL_ID);
     
