@@ -94,7 +94,7 @@ BEGIN
     DELETE FROM params    AS D USING tt_lst_htmls T     WHERE D.HTML_ID = T.HTML_ID;
     DELETE FROM htmls     AS D USING tt_lst_htmls T     WHERE D.HTML_ID = T.HTML_ID;
     DELETE FROM spages    AS D USING tt_lst_spages T    WHERE D.SPAGE_ID = T.SPAGE_ID;
-    -- DELETE FROM corridor  AS D USING tt_lst_search T    WHERE D.SEARCH_ID = T.SEARCH_ID;
+    DELETE FROM corridor  AS D USING tt_lst_search T    WHERE D.SEARCH_ID = T.SEARCH_ID;
     DELETE FROM search    AS D USING tt_lst_search T    WHERE D.SEARCH_ID = T.SEARCH_ID;
     DELETE FROM urls      AS D USING tt_lst_urls T      WHERE D.URL_ID = T.URL_ID;
     
