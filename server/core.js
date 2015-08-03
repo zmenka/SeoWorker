@@ -73,7 +73,7 @@ Core.prototype.bg = function () {
                         }
                     })
                         .then(function (res1) {
-                            return calcSiteParams(res.url, res.condition_id)
+                            return calcSiteParams(res.url, res.condition_id, res.task_id)
                                 .catch(function (err) {
                                     console.log('Core.bg calcSiteParams conds ', res.condition_id, res.task_id, res.url, res.is_cond_already_calc, ' , err ', err);
                                     throw 'next try';
@@ -318,7 +318,7 @@ Core.prototype.calcCoridors = function (search_id){
         })
 }
 
-Core.prototype.calcParamsByUrl = function (url, condition_id) {
+Core.prototype.calcParamsByUrl = function (url, condition_id, task_id) {
     var condition;
     var current_html_id;
     var current_html;
@@ -329,6 +329,10 @@ Core.prototype.calcParamsByUrl = function (url, condition_id) {
                 throw 'Не найдены условия!'
             }
             return new Searcher().getContentByUrl(url)
+        })
+        .catch(function(err){
+            new PgTasks().incrementFailure(task_id, new Date())
+            throw 'incrementFailure! ' + err;
         })
         .then(function (res) {
             current_html = res.html

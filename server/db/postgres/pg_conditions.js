@@ -139,6 +139,8 @@ PgConditions.prototype.getCurrentSearchPage = function (condition_id, date_old) 
 }
 
 PgConditions.prototype.getLastNotSearchedRandomTask = function (range, dateOld){
+    var dateOldOld = new Date(dateOld.getTime());
+    dateOldOld.setDate(dateOldOld.getDate() - 3);
     return PG.query(
             "select " +
                 "t.condition_id, " +
@@ -157,14 +159,14 @@ PgConditions.prototype.getLastNotSearchedRandomTask = function (range, dateOld){
                     "ON T.CONDITION_ID = T2.CONDITION_ID " +
                     "AND T2.DATE_CALC >= $2 " +
             "WHERE " +
-                "(t.DATE_CALC is null " +
-                "OR t.DATE_CALC < $2) " +
-                "AND US.disabled = FALSE " +
+                "(t.FAIL_COUNT = 0 AND (t.DATE_CALC IS NULL OR t.DATE_CALC < $2)) " +
+                "OR (t.FAIL_COUNT = 0 AND US.DISABLED AND (t.DATE_CALC IS NULL OR t.DATE_CALC < $3)) " +
+                "OR (t.FAIL_COUNT > 0 AND t.FAIL_COUNT < 3  AND (t.DATE_CALC IS NULL OR t.DATE_CALC < $3)) " +
             "ORDER BY " +
                 "t.date_create desc " +
             "OFFSET random()*$1 " +
             "LIMIT 1;",
-        [range,dateOld.toISOString().substr(0,10)]
+        [range,dateOld.toISOString().substr(0,10),dateOldOld.toISOString().substr(0,10)]
     )
         .then(function (res) {
 //            console.log('PgConditions.prototype.getLastNotSearchedRandomCondition')

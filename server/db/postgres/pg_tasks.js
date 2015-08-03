@@ -191,6 +191,18 @@ PgTasks.prototype.updateWithDateCalc = function (task_id, date) {
         });
 }
 
+PgTasks.prototype.incrementFailure = function (task_id, date) {
+  
+    console.log('PgTasks.prototype.incrementFailure ' + task_id + ' - ' + date)
+    _this = this;
+            return PG.query(
+                "UPDATE tasks SET FAIL_COUNT = FAIL_COUNT + 1, DATE_CALC = '" +  date.toISOString() + "' WHERE task_id=$1;",
+                [task_id])
+        .catch(function (err) {
+            throw err
+        });
+}
+
 PgTasks.prototype.list = function (callback, errback) {
     PG.query("SELECT * FROM tasks ORDER BY date_create desc;",
         [],
