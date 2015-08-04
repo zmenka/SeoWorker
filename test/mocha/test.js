@@ -218,6 +218,19 @@ describe('Test', function () {
 
         })
 
+        it.only('check getLastNotSearchedRandomTask', function(){
+
+            var PgConditions = require("../../server/db/postgres/pg_conditions")
+            return new PgConditions().getAllNotSearchedRandomTask(new Date())
+                .then(function(res){
+                    console.log(res)
+
+                })
+
+
+        })
+
+
     })
 })
 
