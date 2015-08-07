@@ -196,7 +196,7 @@ PgConditions.prototype.getLastNotSearchedRandomTask = function (range, dateOld){
                     "ON T.CONDITION_ID = T2.CONDITION_ID " +
                     "AND T2.DATE_CALC >= $2 " +
             "WHERE " +
-                "(t.FAIL_COUNT = 0 AND (t.DATE_CALC IS NULL OR t.DATE_CALC < $2)) " +
+                "(t.FAIL_COUNT = 0 AND NOT US.DISABLED AND (t.DATE_CALC IS NULL OR t.DATE_CALC < $2)) " +
                 "OR (t.FAIL_COUNT = 0 AND US.DISABLED AND (t.DATE_CALC IS NULL OR t.DATE_CALC < $3)) " +
                 "OR (t.FAIL_COUNT > 0 AND t.FAIL_COUNT < 3  AND (t.DATE_CALC IS NULL OR t.DATE_CALC < $3)) " +
             "ORDER BY " +
