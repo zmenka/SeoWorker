@@ -33,23 +33,25 @@ MathStat.prototype.calc = function () {
     //степень "сжатия"
     var powM = 0.25;
     var powD = 0.5;
-    //инициализируем количетво эелементов
+    //инициализируем количество элементов
     var count = 0;
     //считаем сумму массива
     var sum = this.array.reduce(function(pv, cv) { count++; return pv + Math.pow(cv, powM); }, 0);
-    //получаем математичекое ожидание
+    //получаем математическое ожидание
     this.M = Math.pow(sum/count, 1/powM);
     var M = this.M;
     //получаем суммарное квадратичное отклонение
     sum = this.array.reduce(function(pv, cv) { return pv + Math.pow(Math.abs(M - cv),powD); }, 0);
-    //получаем "несмещенную" диспресию
+    //получаем "несмещенную" дисперсию
     if(count == 1){
-        //если единственный элемент массива то диспресия нулевая
+        //если единственный элемент массива то дисперсия нулевая
         this.D = 0;
     } else{
         //иначе считаем
         this.D = Math.pow(sum/(count - 1),1/powD);
     }
+    if (this.D > this.M)
+    	this.D = this.M
     //console.log(- date.getTime() + (new Date()).getTime());
 }
 
