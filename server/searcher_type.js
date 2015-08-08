@@ -16,6 +16,7 @@ SearcherType.prototype.getSearchUrls = function (condition) {
         throw new Error(' Не хватает условий для формирования поиска!')
     }
     var page = 0;
+    var all_positions_count = 50;
     var size_page = condition.sengine_page_size;
     var search_links = [];
     var search_count = 0;
@@ -30,8 +31,13 @@ SearcherType.prototype.getSearchUrls = function (condition) {
                 )
                 .join('+')
 
-            while (search_count < condition.size_search) {
-                search_links.push({page: page, sengine: condition.sengine_name ,url: condition.sengine_qmask + 'q=' + words + (search_count > 0 ? '&start=' + search_count : "")})
+            while (search_count < all_positions_count) {
+            	if (search_count < condition.size_search){
+            		search_links.push({to_downloading: true, page: page, sengine: condition.sengine_name ,url: condition.sengine_qmask + 'q=' + words + (search_count > 0 ? '&start=' + search_count : "")})
+            	}
+            	else {
+            		search_links.push({to_downloading: false, page: page, sengine: condition.sengine_name ,url: condition.sengine_qmask + 'q=' + words + (search_count > 0 ? '&start=' + search_count : "")})
+            	}
                 search_count += size_page;
                 page++;
             }
@@ -44,15 +50,18 @@ SearcherType.prototype.getSearchUrls = function (condition) {
                 .split(/\s/)
                 .map(function (item) {
                     return encodeURIComponent(item)
-//                    return item
                 }
             )
                 .join('%20')
-            //http://yandex.ru/yandsearch?lr=54&text=
-            while (search_count < condition.size_search) {
-                search_links.push({page: page, sengine: condition.sengine_name, url: condition.sengine_qmask +
-//                    'lr%3D' + condition.region + '%26text%3D' + words + "%26p%3D" + page})
-                    'lr=' + condition.region + '&text=' + words + "&p=" + page})
+            while (search_count < all_positions_count) {
+            	if (search_count < condition.size_search){
+            		search_links.push({to_downloading: true, page: page, sengine: condition.sengine_name, url: condition.sengine_qmask +
+            			'lr=' + condition.region + '&text=' + words + "&p=" + page})
+            	}
+            	else{
+            		search_links.push({to_downloading: false, page: page, sengine: condition.sengine_name, url: condition.sengine_qmask +
+            			'lr=' + condition.region + '&text=' + words + "&p=" + page})
+            	}
                 search_count += size_page;
                 page++;
             }

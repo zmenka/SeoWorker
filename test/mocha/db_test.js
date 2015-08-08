@@ -33,12 +33,23 @@ describe('DB TEST', function(){
                 });
 
         })
-        //it('sql test 0', function(){
-        it.only('sql test 0', function(){
+        it('sql test 0', function(){
+        //it.only('sql test 0', function(){
 
             var PgExpressions = require("../../server/db/postgres/pg_expressions");
             var express = new PgExpressions()
             return express.execute_list(express.GET_SITE_PARAM(2,1,9))
+                .then(function(res){
+                    console.log(res);
+                });
+
+        })
+        //it('sql test 0', function(){
+        it.only('sql test insert positions', function(){
+
+            var PgPositions = require("../../server/db/postgres/pg_positions");
+            var pg_positions = new PgPositions()
+            return pg_positions.insert('test.com','7','1')
                 .then(function(res){
                     console.log(res);
                 });

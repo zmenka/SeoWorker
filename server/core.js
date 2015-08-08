@@ -2,13 +2,14 @@ var PgConditions = require("./db/postgres/pg_conditions");
 var PgSearch = require("./db/postgres/pg_search");
 var PgScontents = require("./db/postgres/pg_scontents");
 var PgHtmls = require("./db/postgres/pg_htmls");
+var PgPositions = require("./db/postgres/pg_positions");
 var PgSpages = require("./db/postgres/pg_spages");
 var PgParams = require("./db/postgres/pg_params");
 var PgSengines = require("./db/postgres/pg_sengines");
-var PgTasks = require("./db/postgres/pg_tasks")
-var PgManager = require("./db/postgres/pg_manager")
-var PgUsers = require("./db/postgres/pg_users")
-var PgCorridor = require("./db/postgres/pg_corridor")
+var PgTasks = require("./db/postgres/pg_tasks");
+var PgManager = require("./db/postgres/pg_manager");
+var PgUsers = require("./db/postgres/pg_users");
+var PgCorridor = require("./db/postgres/pg_corridor");
 
 var Searcher = require("./searcher");
 var SearcherType = require("./searcher_type");
@@ -110,6 +111,7 @@ Core.prototype.calcParams = function (condition_id, user_id) {
     var getLinksFromSearcher = Core.prototype.getLinksFromSearcher;
     var calcLinksParams = Core.prototype.calcLinksParams;
     var calcCoridors = Core.prototype.calcCoridors;
+    var savePositions = Core.prototype.savePositions;
     var search_id;
 
     return new PgConditions().getWithSengines(condition_id)
@@ -129,6 +131,10 @@ Core.prototype.calcParams = function (condition_id, user_id) {
             //массив объектов {spage_id: <>,start<>, links: {url: <>, title: <>}[]}[]
             return getLinksFromSearcher(search_objects, search_id, user_id, condition.sengine_name)
 
+        })
+        .then(function (links_obj) {
+            savePositions(links_obj, search_id)
+            return links_obj
         })
         .then(function (links_obj) {
             return calcLinksParams(links_obj, condition_id, condition.condition_query)
@@ -160,7 +166,7 @@ Core.prototype.calcParams = function (condition_id, user_id) {
  * @param captcha
  * @param headers
  * @param user_id
- * @returns {spage_id: <>,start<>, links: {url: <>, title: <>}[]}[]
+ * @returns {to_downloading: <true/false>, spage_id: <>,start<>, links: {url: <>, title: <>}[]}[]
  */
 Core.prototype.getLinksFromSearcher = function (search_objects, search_id, user_id, sengine_name) {
     var result = []
@@ -195,7 +201,7 @@ Core.prototype.getLinksFromSearcher = function (search_objects, search_id, user_
 
                         if (links.length == 0) throw new Error ("Ссылки сайтов не получены из " + search_object.url);
 //                        console.log(links)
-                        result.push({spage_id: spage_id, links: links, page: search_object.page});
+                        result.push({to_downloading: search_object.to_downloading,spage_id: spage_id, links: links, page: search_object.page});
                     })
             })
             // add the link onto the chain
@@ -222,55 +228,74 @@ Core.prototype.getLinksFromSearcher = function (search_objects, search_id, user_
         })
 }
 /**
- *
- * @param links_obj {spage_id: <>,start<>, links: {url: <>, title: <>}[]}[]
- * @returns {*}
- */
+*
+* @param links_obj {spage_id: <>,start<>, links: {url: <>, title: <>}[]}[]
+* @returns {*}
+*/
 Core.prototype.calcLinksParams = function (links_obj, condition_id, condition_query) {
-    var promises = [];
-    for (var i = 0; i < links_obj.length; i++) {//links.length
-        for (var j = 0; j < links_obj[i].links.length; j++) {
-            (function (link, position, spage_id) {
-//                console.log("сейчас обрабатывается ссылка ", link, position)
-                promises.push((function (link, position, spage_id) {
-                    var current_html_id;
-                    var current_html;
-                    return new Searcher().getContentByUrl(link.url)
-                        .then(function (res) {
-                            current_html = res.html
-                            return new PgHtmls().insertWithUrl(escape(current_html), link.url)
-                        })
-                        .then(function (html_id) {
-                            current_html_id = html_id;
-                            return new PgScontents().insert(spage_id, html_id, position, false)
-                        })
-                        .then(function (scontent_id) {
-                            return new SeoParameters().init(condition_query, current_html)
-                        })
-                        .then(function (params) {
-                            var allParams = params.getAllParams()
-                            var paramPromises = [];
-                            for (var i = 0; i < allParams.length; i++) {
-                                if (!allParams[i].val){
-                                    continue;
-                                }
-                                (function (param, condition_id, html_id) {
-                                    //console.log("сейчас обрабатывается параметр ", param)
-                                    var current_html_id;
-                                    paramPromises.push(new PgParams().insert(condition_id, html_id, param.name, param.val))
-
-                                })(allParams[i], condition_id, current_html_id)
-
-                            }
-
-                            return Q.allSettled(paramPromises)
-                        })
-
-                })(link, position, spage_id))
-            })(links_obj[i].links[j], j + links_obj[i].start, links_obj[i].spage_id)
-        }
-    }
-    return Q.allSettled(promises)
+   var promises = [];
+   for (var i = 0; i < links_obj.length; i++) {//links.length
+       for (var j = 0; j < links_obj[i].links.length; j++) {
+           (function (link, position, spage_id, to_downloading) {
+//               console.log("сейчас обрабатывается ссылка ", link, position)
+               promises.push((function (link, position, spage_id,to_downloading) {
+                   var current_html_id;
+                   var current_html;
+                   if (to_downloading){
+	                    return new Searcher().getContentByUrl(link.url)
+	                        .then(function (res) {
+	                            current_html = res.html
+	                            return new PgHtmls().insertWithUrl(escape(current_html), link.url)
+	                        })
+	                        .then(function (html_id) {
+	                            current_html_id = html_id;
+	                            return new PgScontents().insert(spage_id, html_id, position, false)
+	                        })
+	                        .then(function (scontent_id) {
+	                            return new SeoParameters().init(condition_query, current_html)
+	                        })
+	                        .then(function (params) {
+	                            var allParams = params.getAllParams()
+	                            var paramPromises = [];
+	                            for (var i = 0; i < allParams.length; i++) {
+	                                if (!allParams[i].val){
+	                                    continue;
+	                                }
+	                                (function (param, condition_id, html_id) {
+	                                    //console.log("сейчас обрабатывается параметр ", param)
+	                                    var current_html_id;
+	                                    paramPromises.push(new PgParams().insert(condition_id, html_id, param.name, param.val))
+	
+	                                })(allParams[i], condition_id, current_html_id)
+	
+	                            }
+	
+	                            return Q.allSettled(paramPromises)
+	                        })
+                   }
+               })(link, position, spage_id,to_downloading))
+           })(links_obj[i].links[j], j + links_obj[i].start, links_obj[i].spage_id, links_obj[i].to_downloading)
+       }
+   }
+   return Q.allSettled(promises)
+}
+/**
+*
+* @param links_obj {spage_id: <>,start<>, links: {url: <>, title: <>}[]}[]
+* @returns {*}
+*/
+Core.prototype.savePositions = function (links_obj, search_id) {
+   var promises = [];
+   for (var i = 0; i < links_obj.length; i++) {//links.length
+       for (var j = 0; j < links_obj[i].links.length; j++) {
+           (function (link, position) {
+//               console.log("сейчас обрабатывается ссылка ", link, position)
+               promises.push((function (link, position) {
+                    return new PgPositions().insert(link.url, position, search_id)               })(link, position))
+           })(links_obj[i].links[j], j + links_obj[i].start)
+       }
+   }
+   return Q.allSettled(promises)
 }
 
 Core.prototype.calcCoridors = function (search_id){
