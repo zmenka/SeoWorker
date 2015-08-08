@@ -218,7 +218,7 @@ describe('Test', function () {
 
         })
 
-        it.only('check getLastNotSearchedRandomTask', function(){
+        it('check getLastNotSearchedRandomTask', function(){
 
             var PgConditions = require("../../server/db/postgres/pg_conditions")
             return new PgConditions().getAllNotSearchedRandomTask(new Date())
@@ -226,6 +226,21 @@ describe('Test', function () {
                     console.log(res)
 
                 })
+
+
+        })
+        it.only('check mathStat', function(){
+
+            var MathStat = require("../../server/MathStat");
+            arr = [1,1,2,2,1,1,0,0,0,0];
+            math = new MathStat(arr);
+            math.calc();
+            console.log('math.D');
+            console.log(math.D);
+            console.log('math.M');
+            console.log(math.M);
+            console.log('math.array');
+            console.log(math.array);
 
 
         })
