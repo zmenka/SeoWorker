@@ -19,9 +19,9 @@
  */
 function MathStat(array) {
     //console.log('MathStat init');
-    this.array = array;
     this.D = null;
     this.M = null;
+    this.array = array.filter(function(number) { return number > 0; });
 };
 
 MathStat.prototype.calc = function () {

@@ -138,6 +138,43 @@ PgConditions.prototype.getCurrentSearchPage = function (condition_id, date_old) 
         })
 }
 
+PgConditions.prototype.getAllNotSearchedRandomTask = function ( dateOld){
+    return PG.query(
+        "select " +
+        "t.condition_id, " +
+        "T2.TASK_ID IS NOT NULL AS IS_COND_ALREADY_CALC, " +
+        "u.url, " +
+        "t.task_id  " +
+        "FROM " +
+        "tasks t " +
+        "INNER JOIN usurls uu " +
+        "ON uu.usurl_id=t.usurl_id " +
+        "INNER JOIN users us " +
+        "ON uu.user_id=us.user_id " +
+        "INNER JOIN urls u " +
+        "ON uu.url_id=u.url_id " +
+        "LEFT JOIN tasks T2 " +
+        "ON T.CONDITION_ID = T2.CONDITION_ID " +
+        "AND T2.DATE_CALC >= $1 " +
+        "WHERE " +
+        "(t.DATE_CALC is null " +
+        "OR t.DATE_CALC < $1) " +
+        "AND US.disabled = FALSE " +
+        "ORDER BY " +
+        "t.date_create desc " +
+        ";",
+        [dateOld.toISOString().substr(0,10)]
+    )
+        .then(function (res) {
+//            console.log('PgConditions.prototype.getLastNotSearchedRandomCondition')
+            return res.rows;
+        })
+        .catch(function (err) {
+            //throw 'PgConditions.prototype.getLastNotSearchedRandomCondition ' + err;
+            throw err
+        })
+}
+
 PgConditions.prototype.getLastNotSearchedRandomTask = function (range, dateOld){
     var dateOldOld = new Date(dateOld.getTime());
     dateOldOld.setDate(dateOldOld.getDate() - 3);
@@ -159,7 +196,7 @@ PgConditions.prototype.getLastNotSearchedRandomTask = function (range, dateOld){
                     "ON T.CONDITION_ID = T2.CONDITION_ID " +
                     "AND T2.DATE_CALC >= $2 " +
             "WHERE " +
-                "(t.FAIL_COUNT = 0 AND (t.DATE_CALC IS NULL OR t.DATE_CALC < $2)) " +
+                "(t.FAIL_COUNT = 0 AND NOT US.DISABLED AND (t.DATE_CALC IS NULL OR t.DATE_CALC < $2)) " +
                 "OR (t.FAIL_COUNT = 0 AND US.DISABLED AND (t.DATE_CALC IS NULL OR t.DATE_CALC < $3)) " +
                 "OR (t.FAIL_COUNT > 0 AND t.FAIL_COUNT < 3  AND (t.DATE_CALC IS NULL OR t.DATE_CALC < $3)) " +
             "ORDER BY " +
