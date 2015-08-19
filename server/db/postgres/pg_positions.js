@@ -29,11 +29,7 @@ PgPositions.prototype.insert = function (url, position, search_id) {
 			        date_create.toISOString() + 
 			"' FROM urls WHERE url = '" + url + "' LIMIT 1");
     return express.execute_list(list)
-    .then(function(res){
-      console.log('PgPositions.prototype.insert', url, position, search_id)
-    }).catch(function(res){
-      console.log('PgPositions.prototype.insert ERROR', url, position, search_id, res)
-    })
+
 }
 
 module.exports = PgPositions;
