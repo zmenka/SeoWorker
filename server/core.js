@@ -113,6 +113,7 @@ Core.prototype.calcParams = function (condition_id, user_id) {
     var calcCoridors = Core.prototype.calcCoridors;
     var savePositions = Core.prototype.savePositions;
     var search_id;
+    var links_obj;
 
     return new PgConditions().getWithSengines(condition_id)
         .then(function (condition_res) {
@@ -132,11 +133,11 @@ Core.prototype.calcParams = function (condition_id, user_id) {
             return getLinksFromSearcher(search_objects, search_id, user_id, condition.sengine_name)
 
         })
-        .then(function (links_obj) {
-            savePositions(links_obj, search_id)
-            return links_obj
+        .then(function (res_links_obj) {
+            links_obj = res_links_obj
+            return savePositions(links_obj, search_id)
         })
-        .then(function (links_obj) {
+        .then(function () {
             return calcLinksParams(links_obj, condition_id, condition.condition_query)
         })
         .then(function () {
