@@ -17,18 +17,23 @@ PgPositions.prototype.insert = function (url, position, search_id) {
     var date_create = new Date();
     // create a Url
     var db
-    express = new PgExpressions()
-	list = []
+    var express = new PgExpressions()
+    var list = []
     list.push("INSERT INTO urls (url, date_create) " +
     		"SELECT '" + url + "', '" + date_create.toISOString() + "' " +
     		"WHERE NOT EXISTS (SELECT 1 FROM urls WHERE url = '" + url + "');");
-	list.push("INSERT INTO positions (url_id,position_n,search_id, date_create) " +
+    list.push("INSERT INTO positions (url_id,position_n,search_id, date_create) " +
 			"SELECT URL_ID," + 
 			        position + ", " + 
 			        search_id + ", '" + 
 			        date_create.toISOString() + 
 			"' FROM urls WHERE url = '" + url + "' LIMIT 1");
     return express.execute_list(list)
+    .then(function(res){
+      console.log('PgPositions.prototype.insert', url, position, search_id)
+    }).catch(function(res){
+      console.log('PgPositions.prototype.insert ERROR', url, position, search_id, res)
+    })
 }
 
 module.exports = PgPositions;

@@ -289,11 +289,10 @@ Core.prototype.savePositions = function (links_obj, search_id) {
    var promises = [];
    for (var i = 0; i < links_obj.length; i++) {//links.length
        for (var j = 0; j < links_obj[i].links.length; j++) {
-           (function (link, position) {
+           (function (link, position, search_id) {
 //               console.log("сейчас обрабатывается ссылка ", link, position)
-               promises.push((function (link, position) {
-                    return new PgPositions().insert(link.url, position, search_id)               })(link, position))
-           })(links_obj[i].links[j], j + links_obj[i].start)
+               promises.push(new PgPositions().insert(link.url, position, search_id))
+           })(links_obj[i].links[j], j + links_obj[i].start, search_id)
        }
    }
    return Q.allSettled(promises)
