@@ -76,20 +76,20 @@ PgTasks.prototype.insert = function (condition_id, usurl_id, callback, errback) 
     );
 }
 
-PgTasks.prototype.insertWithCondition = function (usurl_id, condition_query, sengine_id, region, size_search) {
+PgTasks.prototype.insertWithCondition = function (usurl_id, condition_query, sengine_id, region_id, size_search) {
     _this = this;
     var date_create = new Date();
     // create a Url
 
     var db;
     var conds;
-    return new PgConditions().find(condition_query, sengine_id, region, size_search)
+    return new PgConditions().find(condition_query, sengine_id, region_id, size_search)
         .then(function (conds_res) {
             conds = conds_res
 
             if (conds.length == 0) {
 
-                return new PgConditions().insert(condition_query, sengine_id, region, size_search)
+                return new PgConditions().insert(condition_query, sengine_id, region_id, size_search)
             } else {
                 if (conds.length > 1) {
                     throw "Дубликат условий!"
@@ -203,28 +203,13 @@ PgTasks.prototype.incrementFailure = function (task_id, date) {
         });
 }
 
-PgTasks.prototype.list = function (callback, errback) {
-    PG.query("SELECT * FROM tasks ORDER BY date_create desc;",
-        [],
-        function (res) {
-            callback(res.rows);
-        },
-        function (err) {
-            console.log('PgTasks.prototype.list');
-            console.log(err);
-        })
-}
-
-PgTasks.prototype.get = function (id, callback, errback) {
-    PG.query("SELECT * FROM tasks WHERE task_id = $1;",
-        [id],
-        function (res) {
-            callback(res.rows[0]);
-        },
-        function (err) {
-            console.log('PgTasks.prototype.get');
-            console.log(err);
-        })
+PgTasks.prototype.remove = function (task_id) {
+    return PG.query(
+        "UPDATE tasks SET TASK_DISABLED = True WHERE task_id=$1;",
+        [task_id])
+        .catch(function (err) {
+            throw err
+        });
 }
 
 PgTasks.prototype.find = function (usurl_id, condition_id) {

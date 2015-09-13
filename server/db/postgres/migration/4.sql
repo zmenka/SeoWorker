@@ -2,6 +2,8 @@
 версия 4:
 
 1. Позиции сайтов
+2. Группы пользователей
+3. "Корзина" запросов
 2. Коды Регионов. Ya
 
 */
@@ -13,7 +15,7 @@ CREATE TABLE positions
 (
   POSITION_ID       SERIAL PRIMARY KEY,
   -- Выдача
-  SEARCH_ID         INT REFERENCES search (SEARCH_ID) NOT NULL,
+  CONDITION_ID      INT REFERENCES condition (CONDITION_ID) NOT NULL,
   -- Выдача
   URL_ID            INT REFERENCES urls (URL_ID) NOT NULL,
   -- URL страницы сайта
@@ -22,25 +24,60 @@ CREATE TABLE positions
   DATE_CREATE       TIMESTAMP WITH TIME ZONE NOT NULL
 );
 -- Уникальнай ключ
-CREATE UNIQUE INDEX UIDX_positions_s_n ON positions (SEARCH_ID, POSITION_N);
-CREATE INDEX IDX_positions_s_url ON positions (SEARCH_ID, URL_ID);
+CREATE UNIQUE INDEX UIDX_positions_s_n ON positions (CONDITION_ID, POSITION_N, DATE_CREATE);
+CREATE INDEX IDX_positions_s_url ON positions (CONDITION_ID, URL_ID, DATE_CREATE);
 
-/* Позиции */
+/* Группы */
+DROP TABLE IF EXISTS groups CASCADE;
+CREATE TABLE groups
+(
+  GROUP_ID          SERIAL PRIMARY KEY,
+  -- Название
+  GROUP_NAME        VARCHAR(128) NOT NULL,
+  -- Время создания записи
+  DATE_CREATE       TIMESTAMP WITH TIME ZONE NOT NULL
+);
+-- Уникальнай ключ
+CREATE UNIQUE INDEX UIDX_groups ON groups (GROUP_NAME);
+
+/* Группы пользователей */
+DROP TABLE IF EXISTS usgroups CASCADE;
+CREATE TABLE usgroups
+(
+  USGROUP_ID          SERIAL PRIMARY KEY,
+  -- Группа
+  GROUP_ID          INT REFERENCES groups (GROUP_ID) NOT NULL,
+  -- Группа
+  USER_ID           INT REFERENCES users (USER_ID) NOT NULL,
+  -- Роль
+  ROLE_ID           INT REFERENCES roles (ROLE_ID) NOT NULL,
+  -- Время создания записи
+  DATE_CREATE       TIMESTAMP WITH TIME ZONE NOT NULL
+);
+-- Уникальнай ключ
+CREATE UNIQUE INDEX UIDX_usgroups ON usgroups (GROUP_ID, USER_ID);
+
+/* Корзина */
+ALTER TABLE usurls ADD COLUMN USURL_DISABLED BOOLEAN NOT NULL DEFAULT FALSE;
+CREATE INDEX IDX_usurls_user_url_dis ON usurls (USER_ID, URL_ID, USURL_DISABLED);
+ALTER TABLE tasks ADD COLUMN TASK_DISABLED BOOLEAN NOT NULL DEFAULT FALSE;
+
+/* Регионы */
 DROP TABLE IF EXISTS regions CASCADE;
 CREATE TABLE regions
 (
   REGION_ID         SERIAL PRIMARY KEY,
-  -- Выдача
+  -- Название
   REGION_NAME       VARCHAR(128) NOT NULL,
   -- Поисковая система
   SENGINE_ID        INT REFERENCES sengines (SENGINE_ID) NOT NULL,
-  -- Выдача
+  -- Код
   REGION_CODE       INT NOT NULL,
   -- Время создания записи
   DATE_CREATE       TIMESTAMP WITH TIME ZONE NOT NULL
 );
 -- Уникальнай ключ
-CREATE UNIQUE INDEX UIDX_regions_name ON regions (REGION_CODE);
+CREATE UNIQUE INDEX UIDX_regions_name ON regions (SENGINE_ID,REGION_CODE);
 WITH sel (REGION_CODE, REGION_NAME) AS ( VALUES
   (0,'Регионы'),
   (111,'Европа'),
@@ -855,3 +892,6 @@ FROM
         ON C.REGION = R.REGION_CODE;
 
 ALTER TABLE conditions ALTER COLUMN REGION_ID SET NOT NULL;
+
+ALTER TABLE conditions DROP COLUMN REGION;
+

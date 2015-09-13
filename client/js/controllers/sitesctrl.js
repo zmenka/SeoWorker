@@ -155,7 +155,7 @@ function SitesCtrl($scope, $stateParams, $rootScope, $alert, $aside, $timeout, $
         if (!quite){
             vm.loading = true;
         }
-        return Api.user_sites_and_tasks($stateParams.user_id)
+        return Api.user_sites_and_tasks($stateParams.user_id, false)
             .then(function (res) {
                 console.log("load Api.user_sites_and_tasks ", res);
                 vm.sites = res.data;

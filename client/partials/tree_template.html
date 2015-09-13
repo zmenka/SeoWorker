@@ -1,7 +1,13 @@
 <div ui-tree-handle class="app-tree-node app-tree-node-content"
      ng-click="node.collapsed = collapsed; nodeselect(node); "
-        style="background-color:  rgba({{node.data.color_r}}, {{node.data.color_g}}, {{node.data.color_b}}, 0.3)">
+        ng-style="{'background-color':
+         node.data.disabled  ?
+        '#eee' :  'rgba({{node.data.color_r}}, {{node.data.color_g}}, {{node.data.color_b}}, 0.3)'}">
 
+    <a class="btn btn-danger btn-xs pull-right" ng-if="noderemove && node.type!='domen' && !node.data.disabled"
+       nodrag ng-click="noderemove(node); $event.stopPropagation();">
+        <span class="glyphicon glyphicon-remove"></span>
+    </a>
     <a class="btn btn-success btn-xs app-tree-arrow" ng-if="node.nodes && node.nodes.length > 0" nodrag ng-click="toggle();">
         <span class="glyphicon"
               ng-class="{'glyphicon-chevron-right': collapsed, 'glyphicon-chevron-down': !collapsed}"></span>

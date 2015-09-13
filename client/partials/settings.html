@@ -21,7 +21,9 @@
                     </form>
                 </div>
 
-                <sites-tree ng-show="vm.sites && vm.sites.length>0" sites="vm.sites" nodeselect="vm.selectSettings"></sites-tree>
+                <sites-tree ng-show="vm.sites && vm.sites.length>0" sites="vm.sites"
+                            nodeselect="vm.selectSettings"
+                            noderemove="vm.removeTask"></sites-tree>
 
 
             </div>
@@ -33,7 +35,8 @@
             <div class="panel-body" ng-show="vm.site && (vm.IsSiteSelected() || vm.IsTaskSelected())">
                 <form>
                     <div class="form-group">
-                        <label class="control-label ">Выбранный сайт:</label>
+                        <label class="control-label ">
+                            Выбранный сайт (<span ng-show="vm.site.data.disabled">УДАЛЕН</span>):</label>
 
                         <div class="link">{{vm.site.data.url}}</div>
                     </div>
@@ -57,9 +60,9 @@
 
                     <div class="form-group">
                         <label class="control-label ">Регион: </label>
-                        <input type="text" class="form-control "
-                               ng-disabled="vm.IsTaskSelected()"
-                               ng-model="vm.site.data.region" placeholder="54">
+                        <select ng-model="vm.site.data.region_id" class="form-control"
+                                ng-disabled="vm.IsTaskSelected()"
+                                ng-options="region.region_id as region.region_name for region in vm.regions"></select>
                     </div>
 
 

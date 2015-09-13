@@ -221,6 +221,7 @@ PgExpressions.prototype.USERS_URL_COUNT = function () {
                 users U                                                     \
                 LEFT JOIN usurls UU ON U.USER_ID = UU.USER_ID\
                 LEFT JOIN tt_res_uspercents T ON U.user_id = T.user_id      \
+            WHERE NOT UU.USURL_DISABLED    \
             GROUP BY U.USER_ID\
             ORDER BY u.date_create desc)\
             SELECT \
@@ -231,7 +232,7 @@ PgExpressions.prototype.USERS_URL_COUNT = function () {
             FROM subselect T;");
     return list
 }
-PgExpressions.prototype.USURLS_WITH_TASKS = function (vUSER_ID) {
+PgExpressions.prototype.USURLS_WITH_TASKS = function (vUSER_ID, withDisabled) {
     var list = []
     list.push('DROP TABLE IF EXISTS tt_lst_urls;');
   list.push(' CREATE TEMPORARY TABLE tt_lst_urls AS                           \
@@ -257,16 +258,19 @@ PgExpressions.prototype.USURLS_WITH_TASKS = function (vUSER_ID) {
     list.push(' CREATE INDEX IDX_tt_res_upercents ON tt_res_upercents (URL_ID,CONDITION_ID);');
     list.push(" SELECT                                                             " + 
                 "usurls.USURL_ID,                                                      " +
+                "usurls.USURL_DISABLED,                                                      " +
                 "urls.URL_ID,                                                        " +
                 "urls.URL,                                                        " +
                 "(regexp_matches(urls.url, '(?:http:\/\/|https:\/\/|)(?:www.|)([^\/]+)\/?(.*)'))[1] AS DOMEN, " +
                 "tasks.date_calc, " +
                 "tasks.task_id, " +
+                "tasks.task_disabled, " +
                 "conditions.condition_query, " +
                 "conditions.condition_id, " +
                 "conditions.size_search, " +
-                "conditions.region, " +
                 "sengines.SENGINE_NAME, " +
+                "regions.REGION_ID, " +
+                "regions.REGION_NAME, " +
           "tt_res_upercents.PERCENT, " +
           "GET_COLOR(tt_res_upercents.PERCENT,'G') AS COLOR_G, " +
           "GET_COLOR(tt_res_upercents.PERCENT,'B') AS COLOR_B, " +
@@ -283,8 +287,10 @@ PgExpressions.prototype.USURLS_WITH_TASKS = function (vUSER_ID) {
              "   LEFT JOIN conditions                                           " +
              "       ON CONDITIONS.CONDITION_ID = TASKS.CONDITION_ID            " +
              "   LEFT JOIN sengines on sengines.sengine_id = conditions.sengine_id " +
+            "   LEFT JOIN regions on regions.region_id = conditions.region_id " +
             "WHERE usurls.user_id = "+vUSER_ID+"                                    " +
-            "ORDER BY tasks.date_create desc;");
+        (withDisabled ? "" : " AND  usurls.USURL_DISABLED is false AND tasks.TASK_DISABLED is false " ) +
+            " ORDER BY tasks.date_create desc;");
     return list
 }
 

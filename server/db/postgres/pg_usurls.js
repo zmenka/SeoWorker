@@ -182,6 +182,15 @@ PgUsurls.prototype.findByUrl = function (url_id, user_id) {
         })
 }
 
+PgUsurls.prototype.remove = function (usurl_id) {
+    return PG.query(
+        "UPDATE usurls SET USURL_DISABLED = True WHERE usurl_id=$1;",
+        [usurl_id])
+        .catch(function (err) {
+            throw 'PgUsurls.prototype.findByUrl ' + err;
+        })
+}
+
 PgUsurls.prototype.findByUser = function (val, callback, errback) {
     PG.query("SELECT * FROM usurls WHERE user_id = $1;",
         [val],
@@ -195,9 +204,9 @@ PgUsurls.prototype.findByUser = function (val, callback, errback) {
         })
 }
 
-PgUsurls.prototype.listWithTasks = function (user_id) {
+PgUsurls.prototype.listWithTasks = function (user_id, with_disabled) {
     var ex = new PgExpressions();
-	return ex.execute_list(ex.USURLS_WITH_TASKS(user_id))
+	return ex.execute_list(ex.USURLS_WITH_TASKS(user_id, with_disabled))
 }
 
 module.exports = PgUsurls;

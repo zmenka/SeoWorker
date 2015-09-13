@@ -21,7 +21,11 @@ seoDirectives.directive('sitesTree', function(){
             /*
                 function(node){} // метод обработки выбранных данных
              */
-            nodeselect: "="
+            nodeselect: "=",
+            /*
+             function(node){} // метод удалающий выбранных данных
+             */
+            noderemove: "="
         }
     };
 });

@@ -35,7 +35,7 @@ function PgConditions() {
 
 };
 
-PgConditions.prototype.insert = function (condition_query, sengine_id, region, size_search) {
+PgConditions.prototype.insert = function (condition_query, sengine_id, region_id, size_search) {
 
     var date_create = new Date();
     // create a Url
@@ -45,8 +45,8 @@ PgConditions.prototype.insert = function (condition_query, sengine_id, region, s
             db = dbres;
             //console.log("INSERT INTO conditions (condition_query, sengine_id, region, size_search, date_create) VALUES ("+condition_query+"," +sengine_id+"," + region+"," +size_search+"," + date_create+");")
             return db.transact(
-                "INSERT INTO conditions (condition_query, sengine_id, region, size_search, date_create) VALUES ($1, $2, $3, $4, $5);",
-                [condition_query, sengine_id, region, size_search, date_create])
+                "INSERT INTO conditions (condition_query, sengine_id, region_id, size_search, date_create) VALUES ($1, $2, $3, $4, $5);",
+                [condition_query, sengine_id, region_id, size_search, date_create])
         })
         .then(function (res) {
             return db.transact(
@@ -196,9 +196,10 @@ PgConditions.prototype.getLastNotSearchedRandomTask = function (range, dateOld){
                     "ON T.CONDITION_ID = T2.CONDITION_ID " +
                     "AND T2.DATE_CALC >= $2 " +
             "WHERE " +
-                "(t.FAIL_COUNT = 0 AND NOT US.DISABLED AND (t.DATE_CALC IS NULL OR t.DATE_CALC < $2)) " +
-                "OR (t.FAIL_COUNT = 0 AND US.DISABLED AND (t.DATE_CALC IS NULL OR t.DATE_CALC < $3)) " +
-                "OR (t.FAIL_COUNT > 0 AND t.FAIL_COUNT < 3  AND (t.DATE_CALC IS NULL OR t.DATE_CALC < $3)) " +
+                "((t.FAIL_COUNT = 0 AND NOT US.DISABLED AND (t.DATE_CALC IS NULL OR t.DATE_CALC < $2)) " +
+                    "OR (t.FAIL_COUNT = 0 AND US.DISABLED AND (t.DATE_CALC IS NULL OR t.DATE_CALC < $3)) " +
+                    "OR (t.FAIL_COUNT > 0 AND t.FAIL_COUNT < 3  AND (t.DATE_CALC IS NULL OR t.DATE_CALC < $3))) " +
+                "AND NOT UU.USURL_DISABLED" +
             "ORDER BY " +
                 "t.date_create desc " +
             "OFFSET random()*$1 " +
@@ -217,7 +218,7 @@ PgConditions.prototype.getLastNotSearchedRandomTask = function (range, dateOld){
 
 PgConditions.prototype.find = function (condition_query, sengine_id, region, size_search) {
     return PG.query("SELECT * FROM conditions WHERE condition_query = $1 and sengine_id = $2 and " +
-            "region = $3 and size_search = $4;",
+            "region_id = $3 and size_search = $4;",
         [condition_query, sengine_id, region, size_search]
     )
         .then(function (res) {

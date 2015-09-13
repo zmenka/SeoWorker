@@ -3,6 +3,7 @@ var PgUsurls = require("./db/postgres/pg_usurls");
 var PgTasks = require("./db/postgres/pg_tasks");
 var PgSearch = require("./db/postgres/pg_search");
 var PgSengines = require("./db/postgres/pg_sengines");
+var PgRegions = require("./db/postgres/pg_regions");
 var PgParams = require("./db/postgres/pg_params");
 var PgHtmls = require("./db/postgres/pg_htmls");
 var PgCorridor = require("./db/postgres/pg_corridor");
@@ -120,12 +121,13 @@ module.exports = function Api(app, passport) {
             return;
         }
 
-        if (!req.query.user_id) {
-            errback(null, res,"Не найден параметр user_id ");
+        if (!req.query.user_id || !req.query.with_disabled) {
+            errback(null, res,"Не найдены все параметры ");
             return;
         }
+        var with_disabled = req.query.with_disabled == 'true' ? true : false;
 
-        return new PgUsurls().listWithTasks(req.query.user_id)
+        return new PgUsurls().listWithTasks(req.query.user_id, with_disabled)
             .then(function (dirty_sites) {
                 var SF = new SeoFormat();
                 var sites = SF.createSiteTree(dirty_sites);
@@ -155,6 +157,25 @@ module.exports = function Api(app, passport) {
 
     });
 
+    app.get('/api/regions', function (req, res, next) {
+        console.log('/api/regions');
+
+        if (!req.user || !req.user.user_id) {
+            errback(null, res, "Вы не зарегистрировались.");
+            return;
+        }
+
+        return new PgRegions().list()
+            .then(function (sites) {
+                callback(sites, res);
+            })
+            .catch(function (err) {
+                errback(err, res);
+            })
+
+    });
+
+
     app.post('/api/create_site', function (req, res, next) {
         console.log('/api/create_site', req.body);
 
@@ -182,6 +203,27 @@ module.exports = function Api(app, passport) {
             })
     });
 
+    app.post('/api/remove_site', function (req, res, next) {
+        console.log('/api/remove_site', req.body);
+
+        if (!req.user || !req.user.user_id) {
+            errback(null, res,"Вы не зарегистрировались.");
+            return;
+        }
+
+        if (!req.body.usurl_id) {
+            errback(null, res, "не найден параметр usurl_id ");
+            return;
+        }
+        return new PgUsurls().remove(req.body.usurl_id)
+            .then(function (db_res) {
+                callback(db_res, res);
+            })
+            .catch(function (err) {
+                errback(err, res);
+            })
+    });
+
     app.post('/api/create_task', function (req, res, next) {
         console.log('/api/create_site', req.body);
 
@@ -191,13 +233,35 @@ module.exports = function Api(app, passport) {
         }
 
         if (!req.body.usurl_id || !req.body.condition_query || !req.body.sengine_id
-            || !req.body.region || !req.body.size_search) {
+            || !req.body.region_id || !req.body.size_search) {
             errback(null, res, "не найдены параметры! ");
             return;
         }
 
         return new PgTasks().insertWithCondition(req.body.usurl_id, req.body.condition_query, req.body.sengine_id,
-            req.body.region, req.body.size_search)
+            req.body.region_id, req.body.size_search)
+            .then(function (db_res) {
+                callback(db_res, res);
+            })
+            .catch(function (err) {
+                errback(err, res);
+            })
+    });
+
+    app.post('/api/remove_task', function (req, res, next) {
+        console.log('/api/remove_task', req.body);
+
+        if (!req.user || !req.user.user_id) {
+            errback(null, res, "Вы не зарегистрировались.");
+            return;
+        }
+
+        if (!req.body.task_id ) {
+            errback(null, res, "не найдены все параметры! ");
+            return;
+        }
+
+        return new PgTasks().remove(req.body.task_id)
             .then(function (db_res) {
                 callback(db_res, res);
             })

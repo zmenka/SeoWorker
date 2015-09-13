@@ -22,10 +22,10 @@ PgPositions.prototype.insert = function (url, position, search_id) {
 	list.push("INSERT INTO urls (url, date_create) " +
 		"SELECT '" + url + "', '" + date_create.toISOString() + "' " +
 		"WHERE NOT EXISTS (SELECT 1 FROM urls WHERE url = '" + url + "');");
-	list.push("INSERT INTO positions (url_id,position_n,search_id, date_create) " +
+	list.push("INSERT INTO positions (url_id, position_n, condition_id, date_create) " +
 		"SELECT URL_ID," +
 		position + ", " +
-		search_id + ", '" +
+		"( SELECT CONDITION_ID FROM search WHERE SEARCH_ID = " + search_id + "), '" +
 		date_create.toISOString() +
 		"' FROM urls WHERE url = '" + url + "' LIMIT 1");
 	return express.execute_list(list)
@@ -47,10 +47,8 @@ PgPositions.prototype.get_positions_by_url = function (url) {
 				"urls U " +
 				"JOIN positions POS " +
 					"ON U.URL_ID = POS.URL_ID " +
-				"JOIN search S " +
-					"ON POS.SEARCH_ID = S.SEARCH_ID " +
 				"JOIN condition C " +
-					"ON S.CONDITION_ID = C.CONDITION_ID " +
+					"ON POS.CONDITION_ID = C.CONDITION_ID " +
 				"JOIN sengine SE " +
 					"ON C.SENGINE_ID = SE.SENGINE_ID " +
 			" WHERE url = '" + url + "');");

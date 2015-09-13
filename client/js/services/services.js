@@ -19,21 +19,30 @@ seoServices.factory('Api', ['$http',
                 return $http.post('/api/edit_user',
                     {user_id:user_id, new_login:new_login, new_pasw: new_pasw, disabled:disabled, disabled_message:disabled_message});
             },
-            user_sites_and_tasks: function (user_id) {
+            user_sites_and_tasks: function (user_id, with_disabled) {
                 return $http.get('/api/user_sites_and_tasks', {
-                    params : {user_id:user_id}
+                    params : {user_id:user_id, with_disabled:with_disabled}
                 });
             },
             sengines: function () {
                 return $http.get('/api/sengines', {});
             },
+            regions: function () {
+                return $http.get('/api/regions', {});
+            },
             create_site: function (url, user_id) {
                 return $http.post('/api/create_site', {url: url, user_id: user_id});
             },
-            create_task: function (usurl_id, condition_query, sengine_id, region, size_search) {
+            remove_site: function (usurl_id) {
+                return $http.post('/api/remove_site', {usurl_id: usurl_id});
+            },
+            create_task: function (usurl_id, condition_query, sengine_id, region_id, size_search) {
                 return $http.post('/api/create_task', {usurl_id: usurl_id,
                     condition_query: condition_query, sengine_id:sengine_id,
-                    region: region, size_search: size_search});
+                    region_id: region_id, size_search: size_search});
+            },
+            remove_task: function (task_id) {
+                return $http.post('/api/remove_task', {task_id: task_id});
             },
 //            save_task: function (task_id, condition_query, sengine_id, region, size_search) {
 //                return $http.post('/api/save_task', {task_id: task_id,
@@ -258,4 +267,47 @@ var SitesAside = (function () {
 seoServices.service("SitesAside", function ($modal, $rootScope, $q) {
     return new SitesAside($modal, $rootScope, $q);
 });
+
+seoServices.factory('ModalApi', ['$modal', '$rootScope', '$q',
+    function ($modal, $rootScope, $q) {
+        // instantiate our initial object
+        var MyModal = function ($modal, $rootScope, $q) {
+            this.$modal = $modal;
+            this.$rootScope = $rootScope
+            this.$q = $q;
+            this.currentModal = null;
+        };
+
+        MyModal.prototype.show = function ( params, template, backdrop) {
+            template = template || 'partials/default_modal.html'
+            backdrop = backdrop || false
+            if (this.currentModal) {
+                //console.log("modal=", this.currentModal)
+                this.currentModal.destroy();
+            }
+            var scope = this.$rootScope.$new(true);
+            scope.params = params;
+
+            scope.deferred = this.$q.defer();
+
+            scope.confirm = function (res) {
+                this.deferred.resolve(res);
+                this.$parent.$hide();
+
+            }
+
+            this.currentModal = this.$modal({
+                template: 'partials/modal_parent.html',
+                scope: scope,
+                show: true,
+                placement: "center",
+                content: template,
+                container: 'body',
+                backdrop: backdrop,
+            })
+
+            return scope.deferred.promise;
+        }
+        return new MyModal($modal, $rootScope, $q);
+    }]);
 
