@@ -133,7 +133,7 @@ describe('Test', function () {
 
         })
 
-        it.only('get search links', function () {
+        it('get search links', function () {
 
             var Searcher = require("../../server/searcher")
             var SeoParameters = require("../../server/seo_parameters")
@@ -229,7 +229,7 @@ describe('Test', function () {
 
 
         })
-        it.only('check mathStat', function(){
+        it('check mathStat', function(){
 
             var MathStat = require("../../server/MathStat");
             arr = [1,1,2,2,1,1,0,0,0,0];

@@ -12,6 +12,7 @@ var PgCorridor = require("./db/postgres/pg_corridor");
 var SeoFormat = require("./SeoFormat");
 var Diagram = require("./Diagram");
 var Core = require("./core");
+var Access = require("./utils/access");
 
 var callback = function (data, response) {
     response.json(data);
@@ -50,20 +51,20 @@ module.exports = function Api(app, passport) {
     });
 
     app.get('/api/user', function (req, res, next) {
-        console.log('/api/user',  req.query);
+        console.log('/api/user', req.query);
 
         if (!req.user || !req.user.user_id) {
             errback(null, res, "Вы не зарегистрировались.");
             return;
         }
 
-        if (req.user.role_id!=1){
+        if (req.user.role_id != 1) {
             errback(null, res, "Вы не админ.");
             return;
         }
 
         if (!req.query.user_id) {
-            errback(null, res,"Не найден ид пользователя.");
+            errback(null, res, "Не найден ид пользователя.");
             return;
         }
 
@@ -85,8 +86,8 @@ module.exports = function Api(app, passport) {
             return;
         }
 
-        if (req.user.role_id!=1){
-            errback(null, res,"Вы не админ.");
+        if (req.user.role_id != 1) {
+            errback(null, res, "Вы не админ.");
             return;
         }
 
@@ -113,25 +114,27 @@ module.exports = function Api(app, passport) {
             return;
         }
 
-        if (req.query.user_id != req.user.user_id && req.user.role_id!=1) {
-            errback(null, res,"Нет доступа.");
-            return;
-        }
-
         if (!req.query.user_id || !req.query.with_disabled) {
-            errback(null, res,"Не найдены все параметры ");
+            errback(null, res, "Не найдены все параметры ");
             return;
         }
         var with_disabled = req.query.with_disabled == 'true' ? true : false;
 
-        return new PgUsurls().listWithTasks(req.query.user_id, with_disabled)
-            .then(function (dirty_sites) {
-                var SF = new SeoFormat();
-                var sites = SF.createSiteTree(dirty_sites);
-                callback(sites, res);
-            })
-            .catch(function (err) {
-                errback(err, res);
+        return new Access().isUserAvailableToUser(req.query.user_id, req.user.user_id, req.user.role_id)
+            .then(function (isAvailable) {
+                if (!isAvailable) {
+                    errback("Нет доступа", res)
+                    return
+                }
+                return new PgUsurls().listWithTasks(req.query.user_id, with_disabled)
+                    .then(function (dirty_sites) {
+                        var SF = new SeoFormat();
+                        var sites = SF.createSiteTree(dirty_sites);
+                        callback(sites, res);
+                    })
+                    .catch(function (err) {
+                        errback(err, res);
+                    })
             })
 
     });
@@ -198,13 +201,13 @@ module.exports = function Api(app, passport) {
             return;
         }
 
-        if (req.user.role_id!=1){
+        if (req.user.role_id != 1) {
             errback(null, res, "Вы не админ.");
             return;
         }
 
-        if (!req.body.name ) {
-            errback(null, res,"Не найдено название группы ");
+        if (!req.body.name) {
+            errback(null, res, "Не найдено название группы ");
             return;
         }
 
@@ -240,7 +243,7 @@ module.exports = function Api(app, passport) {
         console.log('/api/create_site', req.body);
 
         if (!req.user || !req.user.user_id) {
-            errback(null, res,"Вы не зарегистрировались.");
+            errback(null, res, "Вы не зарегистрировались.");
             return;
         }
 
@@ -267,7 +270,7 @@ module.exports = function Api(app, passport) {
         console.log('/api/remove_site', req.body);
 
         if (!req.user || !req.user.user_id) {
-            errback(null, res,"Вы не зарегистрировались.");
+            errback(null, res, "Вы не зарегистрировались.");
             return;
         }
 
@@ -293,7 +296,7 @@ module.exports = function Api(app, passport) {
         }
 
         if (!req.body.usurl_id || !req.body.condition_query || !req.body.sengine_id
-            || !req.body.region_id || !req.body.size_search) {
+             || !req.body.size_search) {
             errback(null, res, "не найдены параметры! ");
             return;
         }
@@ -316,7 +319,7 @@ module.exports = function Api(app, passport) {
             return;
         }
 
-        if (!req.body.task_id ) {
+        if (!req.body.task_id) {
             errback(null, res, "не найдены все параметры! ");
             return;
         }
@@ -357,7 +360,7 @@ module.exports = function Api(app, passport) {
             return;
         }
 
-        if (req.user.role_id!=1){
+        if (req.user.role_id != 1) {
             errback(null, res, "Вы не админ.");
             return;
         }
@@ -444,8 +447,8 @@ module.exports = function Api(app, passport) {
         }
         return new PgParams().getParamtypesForUrl(req.body.condition_id, req.body.url_id)
             .then(function (paramtypes) {
-                if (!paramtypes || !paramtypes.length){
-                    errback( null, res, 'Еще не посчитан ни один тип параметра')
+                if (!paramtypes || !paramtypes.length) {
+                    errback(null, res, 'Еще не посчитан ни один тип параметра')
                     return
                 }
                 var tree = new SeoFormat().getTreeFromParamtypes(paramtypes)
@@ -460,11 +463,6 @@ module.exports = function Api(app, passport) {
 
     app.post('/api/get_params', function (req, res, next) {
         console.log('/api/get_params', req.body);
-
-        if (!req.user || !req.user.user_id) {
-            errback(null, res,"Вы не зарегистрировались.");
-            return;
-        }
 
         if (!req.body.condition_id) {
             errback(null, res, "не найдены параметры condition_id");
@@ -486,16 +484,16 @@ module.exports = function Api(app, passport) {
         var corridor;
         return new PgSearch().getLastSearch(req.body.condition_id)
             .then(function (searchRes) {
-                if (!searchRes){
-                    errback( null, res, 'Еще не получена поисковая выдача')
+                if (!searchRes) {
+                    errback(null, res, 'Еще не получена поисковая выдача')
                     return
                 }
                 search = searchRes;
                 return new PgParams().getParamDiagram(search.search_id, req.body.param_type)
             })
             .then(function (paramsChartRes) {
-                if (!paramsChartRes || !paramsChartRes.length){
-                    errback( null, res, 'Еще не получены данные выборки')
+                if (!paramsChartRes || !paramsChartRes.length) {
+                    errback(null, res, 'Еще не получены данные выборки')
                     return
                 }
                 paramsChart = paramsChartRes;
@@ -503,11 +501,11 @@ module.exports = function Api(app, passport) {
             })
             .then(function (corridorRes) {
                 corridor = corridorRes;
-                return new PgParams().getSiteParam(req.body.condition_id, req.body.url_id, req.body.param_type )
+                return new PgParams().getSiteParam(req.body.condition_id, req.body.url_id, req.body.param_type)
             })
             .then(function (siteParams) {
-                if (!siteParams){
-                    errback( null, res, 'Еще не получены параметры для Вашего сайта. Нажмите "Пересчитать сайт".')
+                if (!siteParams) {
+                    errback(null, res, 'Еще не получены параметры для Вашего сайта. Нажмите "Пересчитать сайт".')
                     return
                 }
                 diagram = new Diagram();
@@ -546,44 +544,46 @@ module.exports = function Api(app, passport) {
 
         return callback("logout ok", res);
     });
--
-    app.post('/api/register', function (req, res, next) {
-        console.log('/api/register', req.body);
+    -
+        app.post('/api/register', function (req, res, next) {
+            console.log('/api/register', req.body);
 
-        if (!req.body.login || !req.body.password || !req.body.role_id) {
-            errback(null, res, "Не найдены все параметры  ");
-            return;
-        }
+            if (!req.body.login || !req.body.password || !req.body.role_id) {
+                errback(null, res, "Не найдены все параметры  ");
+                return;
+            }
 
-        if (!req.user || !req.user.user_id) {
-            errback(null, res, "Вы не зарегистрированы.");
-            return;
-        }
+            if (!req.user || !req.user.user_id) {
+                errback(null, res, "Вы не зарегистрированы.");
+                return;
+            }
 
-        new PgUsers().insert(req.body.login, req.body.password, 3)
-            .then(function (user_id) {
-                if (req.body.group_id){
-                    return new PgGroups().addUsGroup(user_id, req.body.group_id, req.body.role_id)
-                        .then(function (dbres) {
-                            callback(dbres, res)
-                        })
-                } else{
-                    callback(user_id, res);
-                }
-            })
-            .catch(function (err) {
-                errback(err, res);
-            })
-    });
+            new PgUsers().insert(req.body.login, req.body.password, 3)
+                .then(function (user_id) {
+                    if (req.body.group_id) {
+                        return new PgGroups().addUsGroup(user_id, req.body.group_id, req.body.role_id)
+                            .then(function (dbres) {
+                                callback(dbres, res)
+                            })
+                    } else {
+                        callback(user_id, res);
+                    }
+                })
+                .catch(function (err) {
+                    errback(err, res);
+                })
+        });
 
     app.get('/api/check_auth', function (req, res, next) {
         // if user is authenticated in the session, carry on
-        var r = {isAuth: req.isAuthenticated(), isAdmin:  req.isAuthenticated() && req.user.role_id == 1,
+        var r = {
+            isAuth: req.isAuthenticated(), isAdmin: req.isAuthenticated() && req.user.role_id == 1,
             userLogin: req.isAuthenticated() ? req.user.user_login : "",
             userId: req.isAuthenticated() ? req.user.user_id : "",
-            groups: req.user.groups}
+            groups: (req.user ? req.user.groups : [])
+        }
 
-        if (req.isAuthenticated() && req.user.disabled){
+        if (req.isAuthenticated() && req.user.disabled) {
             console.log('user ' + req.user.user_login + ' is disabled!')
             req.logout();
             r.isAuth = false;

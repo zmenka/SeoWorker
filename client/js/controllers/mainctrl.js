@@ -1,14 +1,7 @@
 function MainCtrl($scope, $state,  Authenticate) {
     var vm = this;
-    vm.isSignedIn = function () {
-        return Authenticate.isAuthenticated();
-    };
 
-    vm.checkRole  = function () {
-        if (!Authenticate.getUser())
-            return false
-        return Authenticate.isAdmin() || Authenticate.getUser().groups.length > 0
-    }
+    vm.Authenticate = Authenticate
 
     vm.logout  = function () {
         Authenticate.logout()
@@ -18,12 +11,5 @@ function MainCtrl($scope, $state,  Authenticate) {
             });
     }
 
-    vm.userLogin = function () {
-        return Authenticate.userLogin();
-    }
-
-    vm.userId = function () {
-        return Authenticate.userId();
-    }
 }
 angular.module('seoControllers').controller('MainCtrl', MainCtrl);

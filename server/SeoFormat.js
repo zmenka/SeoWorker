@@ -30,6 +30,7 @@ SeoFormat.prototype.createSiteTree = function (sites) {
                     title: site.url,
                     usurl_id: site.usurl_id,
                     url_id: site.url_id,
+                    removable: false,
                     percent: null,
                     color_r: 0,
                     color_g: 0,
@@ -61,6 +62,7 @@ SeoFormat.prototype.createSiteTree = function (sites) {
                     url_id: site.url_id,
                     url: site.url,
                     usurl_disabled: site.usurl_disabled,
+                    removable: !site.usurl_disabled,
                     percent: null,
                     color_r: 0,
                     color_g: 0,
@@ -79,7 +81,7 @@ SeoFormat.prototype.createSiteTree = function (sites) {
 
         if (site.task_id) {
             var task = new TaskTreeNode();
-            task.create(site.condition_query + " (" + site.sengine_name + ", " + site.size_search + ", регион " + site.region_name + ")",
+            task.create(site.condition_query + " (" + site.sengine_name + ", " + site.size_search + (site.region_name ? ", " + site.region_name : "") + ")",
                 true,
                 {
                     title: site.condition_query,
@@ -87,6 +89,7 @@ SeoFormat.prototype.createSiteTree = function (sites) {
                     url_id: site.url_id,
                     task_id: site.task_id,
                     disabled: site.task_disabled || site.usurl_disabled,
+                    removable: !site.task_disabled,
                     date_calc: site.date_calc,
                     url: site.url,
                     condition_id: site.condition_id,
@@ -115,7 +118,7 @@ SeoFormat.prototype.createSiteTree = function (sites) {
             var page = domen.nodes[j];
             page.data.disabled = page.nodes.filter((function (el) {
                     return el.data.disabled
-                })).length == page.nodes.length
+                })).length == page.nodes.length && page.nodes.length > 0
 
             if (page.data.percent) {
                 var colorNodesCnt = page.nodes.filter((function (el) {
@@ -132,8 +135,8 @@ SeoFormat.prototype.createSiteTree = function (sites) {
         }
 
         domen.data.disabled = domen.nodes.filter((function (el) {
-                return el.data.usurl_disabled
-            })).length == domen.nodes.length
+                return el.data.disabled
+            })).length == domen.nodes.length && domen.nodes.length > 0
 
         if (domen.data.percent) {
             domen.data.percent = domen.data.percent / cnt

@@ -80,7 +80,12 @@ PgTasks.prototype.insertWithCondition = function (usurl_id, condition_query, sen
     _this = this;
     var date_create = new Date();
     // create a Url
-
+    if (sengine_id == 2 && !region_id){
+        throw 'Нет региона.'
+    }
+    if (sengine_id == 1){
+        region_id = null
+    }
     var db;
     var conds;
     return new PgConditions().find(condition_query, sengine_id, region_id, size_search)

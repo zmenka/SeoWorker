@@ -11,23 +11,17 @@ describe('DB TEST', function(){
                 });
 
         })
-        it('sql by list', function(){
-        //it.only('sql by list', function(){
+        //it('sql by list', function(){
+        it.only('sql by list', function(){
             
             var PgExpressions = require("../../server/db/postgres/pg_expressions");
             var express = new PgExpressions()
             var list = []
-            list.push('DROP TABLE IF EXISTS tt_lst_urls;');
-            list.push(' CREATE TEMPORARY TABLE tt_lst_urls AS    ' +
-                      'SELECT + ' + 2 + ' AS CONDITION_ID, ' +
-                                       1 + ' AS URL_ID;' );
-            list.push(' CREATE INDEX IDX_tt_lst_urls ON tt_lst_urls (URL_ID,CONDITION_ID);');
-            list = list.concat(express.GET_PERCENT_BY_URL());
-    
-            list = list.concat('SELECT * FROM tt_res_hpercents');
-            //list = list.concat('SELECT * FROM tt_res_hpercents WHERE paramtype_id = 1');
-            //list = list.concat(express.GET_PARAMTYPES_BY_SEARCH(1,1))
-            return express.execute_list(list)
+            list = list.concat(express.USERS_URL_COUNT(10));
+
+            //list = list.concat(express.GET_AVAILABLE_USERS(1, 1));
+            //list = list.concat("SELECT * FROM tt_res_users");
+            return express.execute_list(list, false, true)
                 .then(function(res){
                     console.log(res);
                 });
@@ -44,8 +38,8 @@ describe('DB TEST', function(){
                 });
 
         })
-        //it('sql test 0', function(){
-        it.only('sql test insert positions', function(){
+        it('sql test 0', function(){
+        //it.only('sql test insert positions', function(){
 
             var PgPositions = require("../../server/db/postgres/pg_positions");
             var pg_positions = new PgPositions()

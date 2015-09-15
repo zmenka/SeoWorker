@@ -83,7 +83,7 @@ function SettingsCtrl($scope, $stateParams, $alert, Api, ModalApi) {
         console.log("addTask", vm.site);
 
         if (!vm.site.data.usurl_id || !vm.site.data.condition_query || !vm.site.data.sengine_id
-            || !vm.site.data.region_id || !vm.site.data.size_search) {
+            || !vm.site.data.size_search) {
             $alert({
                 title: 'Внимание!', content: "Не заполнены все необходимые поля. ",
                 placement: 'top', type: 'danger', show: true,
@@ -187,10 +187,10 @@ function SettingsCtrl($scope, $stateParams, $alert, Api, ModalApi) {
                 if (!confirm) {
                     return
                 }
-                var promise;
+                var p;
                     if (node.type == 'task'){
                         vm.loading = true;
-                        Api.remove_task(node.data.task_id)
+                        p = Api.remove_task(node.data.task_id)
                     }else if (node.type == 'page'){
                         p = Api.remove_site(node.data.usurl_id)
                     }
@@ -204,8 +204,7 @@ function SettingsCtrl($scope, $stateParams, $alert, Api, ModalApi) {
                             console.log('load Api...._remove err ', err.data);
                             vm.loading = false;
                             $alert({
-                                title: 'Внимание!', content: "Ошибка при получении удалении."
-                                + (err.data ? ": " + err.data : "!"),
+                                title: 'Внимание!', content: "Ошибка при удалении. ",
                                 placement: 'top', type: 'danger', show: true,
                                 duration: '3',
                                 container: 'body'

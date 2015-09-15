@@ -36,6 +36,7 @@ var PgUrls = require('./pg_urls');
 var PgExpressions = require('./pg_expressions');
 var fs = require('fs');
 var path = require('path');
+var format = require('../../utils/format');
 
 function PgUsurls() {
 
@@ -183,12 +184,12 @@ PgUsurls.prototype.findByUrl = function (url_id, user_id) {
 }
 
 PgUsurls.prototype.remove = function (usurl_id) {
-    return PG.query(
-        "UPDATE usurls SET USURL_DISABLED = True WHERE usurl_id=$1;",
-        [usurl_id])
-        .catch(function (err) {
-            throw 'PgUsurls.prototype.findByUrl ' + err;
-        })
+    var ex = new PgExpressions();
+    var list = [];
+    list.push( format("UPDATE usurls SET USURL_DISABLED = True WHERE usurl_id={0};", usurl_id))
+    list.push( format("UPDATE tasks SET TASK_DISABLED = True WHERE usurl_id={0};", usurl_id))
+    return ex.execute_list(list)
+
 }
 
 PgUsurls.prototype.findByUser = function (val, callback, errback) {

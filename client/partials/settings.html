@@ -32,16 +32,19 @@
     <div class="col-xs-6">
         <div class="panel panel-info ">
             <div class="panel-heading">Настройки</div>
-            <div class="panel-body" ng-show="vm.site && (vm.IsSiteSelected() || vm.IsTaskSelected())">
-                <form>
-                    <div class="form-group">
-                        <label class="control-label ">
-                            Выбранный сайт (<span ng-show="vm.site.data.disabled">УДАЛЕН</span>):</label>
+            <div class="panel-body" ng-show="vm.site && (vm.IsSiteSelected() || vm.IsTaskSelected()) ">
+                <div class="form-group">
+                    <label class="control-label ">
+                        Выбранный сайт
+                        <span style="color:red" ng-show="vm.site.type=='task' && vm.site.data.disabled">УДАЛЕН</span>
+                        <span style="color:red" ng-show="vm.site.type=='page' && vm.site.data.disabled && !vm.site.data.usurl_disabled">Все запросы удалены</span>
+                        <span style="color:red" ng-show="vm.site.type=='page' && vm.site.data.usurl_disabled">УДАЛЕН</span>
+                        :</label>
 
-                        <div class="link">{{vm.site.data.url}}</div>
-                    </div>
-
-
+                    <div class="link">{{vm.site.data.url}}</div>
+                </div>
+                <div ng-hide="vm.site.type=='page' && vm.site.data.usurl_disabled">
+                <form >
                     <div class="form-group">
                         <label class="control-label ">Ключевая фраза: </label>
 
@@ -58,7 +61,7 @@
                     </div>
 
 
-                    <div class="form-group">
+                    <div class="form-group" ng-show="vm.site.data.sengine_id == 2">
                         <label class="control-label ">Регион: </label>
                         <select ng-model="vm.site.data.region_id" class="form-control"
                                 ng-disabled="vm.IsTaskSelected()"
@@ -81,6 +84,7 @@
                 <button type="button" class="btn btn-primary" ng-show="vm.IsSiteSelected()" ng-click="vm.addTask()">
                     Добавить выборку
                 </button>
+                </div>
             </div>
 
         </div>

@@ -40,6 +40,8 @@
             <table class="table" ng-show=" vm.users.length" >
                 <tr>
                     <th >Логин</th>
+                    <th style="text-align: center;">Группы</th>
+                    <th style="text-align: center;">Управление</th>
                     <th style="text-align: center;">Отключен</th>
                     <th>Когда заходил</th>
                     <th>Был создан</th>
@@ -50,6 +52,8 @@
                 </tr>
                 <tr ng-repeat="user in vm.users">
                     <td ng-class="{'text-danger' : user.role_id == 1}">{{user.user_login}}</td>
+                    <td style="text-align: center;">{{user.groups}}</td>
+                    <td style="text-align: center; color: green">{{user.admin_groups}}</td>
                     <td style="text-align: center;">{{user.disabled ? 'Да' : 'Нет'}}</td>
                     <td>{{user.last_visit | date : 'hh.mm dd.MM.yy'}}</td>
                     <td>{{user.date_create | date : 'hh.mm dd.MM.yy'}}</td>

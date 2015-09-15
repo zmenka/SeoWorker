@@ -87,7 +87,8 @@ seoApp.config(["$stateProvider", "$urlRouterProvider",
             .state('main.manage', {
                 url: '/manage',
                 templateUrl: 'partials/manage.html',
-                authenticate: true
+                authenticate: true,
+                isAdmin: true
             })
             .state('main.edit_user', {
                 url: '/user/:user_id',

@@ -119,6 +119,12 @@ seoServices.factory('Authenticate', ['$rootScope', '$http', '$state', '$q',
             return isAuthenticated;
         }
 
+        function checkAdmin() {
+            if (!isAuthenticated)
+                return false
+            return isAdmin || user.groups.length > 0
+        }
+
         function getIsAdmin() {
             return isAdmin;
         }
@@ -183,14 +189,14 @@ seoServices.factory('Authenticate', ['$rootScope', '$http', '$state', '$q',
         var checkAccess = function () {
             return initAuth()
                 .then(function() {
-                    console.log('checkAccess', $rootScope.toState, 'isAuthenticated ', isAuthenticated, ' isAdmin ', getIsAdmin())
+                    console.log('checkAccess', $rootScope.toState, 'isAuthenticated ', isAuthenticated, ' isAdmin ', checkAdmin())
                     if ($rootScope.toState.authenticate && !isAuthenticated) {
                         $rootScope.returnToState = $rootScope.toState;
                         $rootScope.returnToStateParams = $rootScope.toStateParams;
 
                         console.log("redirect to login");
                         $state.go('main.login');
-                    } else if ($rootScope.toState.isAdmin && !getIsAdmin()) {
+                    } else if ($rootScope.toState.isAdmin && !checkAdmin()) {
                         console.log("cant go to this page if not admin");
                         $state.go('main.accessdenied');
                     }
@@ -244,6 +250,7 @@ seoServices.factory('Authenticate', ['$rootScope', '$http', '$state', '$q',
 
             isAuthenticated: getIsAuthenticated,
             isAdmin: getIsAdmin,
+            checkAdmin: checkAdmin,
             userLogin: getUserLogin,
             userId: getUserId,
             getUser: getUser,

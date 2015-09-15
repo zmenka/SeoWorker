@@ -46,6 +46,7 @@ var fs = require('fs');
 var PgExpressions = require("./pg_expressions");
 var path = require('path');
 var bcrypt = require('bcrypt-nodejs');
+var format = require('../../utils/format');
 
 function PgUsers() {
 
@@ -172,10 +173,10 @@ PgUsers.prototype.list = function () {
         })
 }
 
-PgUsers.prototype.listWithSitesCount = function (req.user.user_id, req.user.role_id) {
+PgUsers.prototype.listWithSitesCount = function (user_id, role_id) {
     //console.log("PgUsers.prototype.listWithSitesCount")
     var ex = new PgExpressions();
-    return ex.execute_list(ex.USERS_URL_COUNT())
+    return ex.execute_list(ex.USERS_URL_COUNT(user_id, role_id))
 
 }
 
@@ -240,7 +241,20 @@ PgUsers.prototype.updateCookies = function (id, cookies) {
             //throw 'PgUsers.prototype.get' + err;
             throw err
         })
-}
+};
+PgUsers.prototype.isUserAvailableToUser = function (user_id, to_user_id) {
+    return PG.query(format(
+        "SELECT 1 FROM " +
+            "usgroups UG1 " +
+            "JOIN usgroups UG2 USING(GROUP_ID) " +
+        "WHERE UG1.USER_ID = {0} AND UG2.USER_ID = {1} AND UG2.ROLE_ID = 1;", user_id, to_user_id),[])
+        .then(function (res) {
+            return res.rows.length > 0;
+        })
+        .catch(function (err) {
+            throw err
+        })
+};
 
 PgUsers.prototype.deleteCookies = function () {
     return PG.query("UPDATE users SET cookies = '';",

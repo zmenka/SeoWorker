@@ -189,7 +189,7 @@ PgExpressions.prototype.GET_LAST_SEARCH = function () {
  * **************************************************************************************
  * **************************************************************************************
  */
-PgExpressions.prototype.USERS_URL_COUNT = function () {
+PgExpressions.prototype.USERS_URL_COUNT = function (vUSER_ID, vROLE_ID) {
     var list = []
     list.push('DROP TABLE IF EXISTS tt_lst_urls;');
     list.push(' CREATE TEMPORARY TABLE tt_lst_urls AS                           \
@@ -213,29 +213,75 @@ PgExpressions.prototype.USERS_URL_COUNT = function () {
                 GROUP BY                                                    \
                     UU.USER_ID;');
     list.push(' CREATE INDEX IDX_tt_res_uspercents ON tt_res_uspercents (USER_ID);');
+    list = list.concat(this.GET_AVAILABLE_USERS(vUSER_ID, vROLE_ID));
     list.push(" WITH subselect AS (SELECT                                                          \
                 U.*,\
+                MIN(TU.GROUPS) AS GROUPS,\
+                MIN(TU.ADMIN_GROUPS) AS ADMIN_GROUPS,\
                 CAST(SUM(T.PERCENT)/COUNT(UU.USURL_ID) AS INT) AS PERCENT,                 \
                 COUNT(UU.USURL_ID) AS SITES_COUNT                 \
             FROM                                                            \
-                users U                                                     \
+                tt_res_users TU \
+                JOIN users U ON TU.USER_ID = U.USER_ID                                                    \
                 LEFT JOIN usurls UU ON U.USER_ID = UU.USER_ID\
                 LEFT JOIN tt_res_uspercents T ON U.user_id = T.user_id      \
-            WHERE NOT UU.USURL_DISABLED    \
             GROUP BY U.USER_ID\
             ORDER BY u.date_create desc)\
             SELECT \
-              T.*, \
+                T.*, \
                 GET_COLOR(T.PERCENT,'G') AS COLOR_G,                 \
                 GET_COLOR(T.PERCENT,'R') AS COLOR_R,                 \
           GET_COLOR(T.PERCENT,'B') AS COLOR_B\
-            FROM subselect T;");
+            FROM \
+                subselect T \
+            ;");
+    return list
+}
+PgExpressions.prototype.GET_AVAILABLE_USERS = function (vUSER_ID, vROLE_ID) {
+    var list = []
+    list.push('DROP TABLE IF EXISTS tt_res_users;');
+    if (vROLE_ID == 1) {
+        list.push(" CREATE TEMPORARY TABLE tt_res_users AS                           \
+                SELECT                                                      \
+                    U.USER_ID , \
+                    string_agg(CASE  \
+                                    WHEN UG.ROLE_ID = 1 THEN G.GROUP_NAME  \
+                                    ELSE null\
+                               END, ',') AS ADMIN_GROUPS, \
+                    string_agg(G.GROUP_NAME, ',') AS GROUPS                                       \
+                FROM                                                        \
+                    users U \
+                    LEFT JOIN usgroups UG ON U.USER_ID = UG.USER_ID  \
+                    LEFT JOIN groups G ON UG.GROUP_ID = G.GROUP_ID\
+                GROUP BY U.USER_ID;");
+    }
+    else {
+        list.push(" CREATE TEMPORARY TABLE tt_res_users AS                           \
+                SELECT                                                      \
+                    U2.USER_ID  , \
+                    string_agg(CASE  \
+                                    WHEN UG2.ROLE_ID = 1 THEN G.GROUP_NAME  \
+                                    ELSE null\
+                               END, ',') AS ADMIN_GROUPS, \
+                    string_agg(G.GROUP_NAME,',') AS GROUPS                                       \
+                FROM                                                        \
+                    users U1                                                  \
+                    JOIN usgroups UG1 ON UG1.USER_ID = U1.USER_ID AND UG1.ROLE_ID = 1        \
+                    JOIN groups G ON UG1.GROUP_ID = G.GROUP_ID      \
+                    JOIN usgroups UG2 ON UG2.GROUP_ID = UG1.GROUP_ID  \
+                    JOIN users U2 ON UG2.USER_ID = U2.USER_ID        \
+                WHERE                                                      \
+                    U1.USER_ID =" + vUSER_ID + "\
+                GROUP BY U2.USER_ID;");
+
+    }
+    list.push(' CREATE INDEX IDX_tt_res_users ON tt_res_users (USER_ID);');
     return list
 }
 PgExpressions.prototype.USURLS_WITH_TASKS = function (vUSER_ID, withDisabled) {
     var list = []
     list.push('DROP TABLE IF EXISTS tt_lst_urls;');
-  list.push(' CREATE TEMPORARY TABLE tt_lst_urls AS                           \
+    list.push(' CREATE TEMPORARY TABLE tt_lst_urls AS                           \
                 SELECT                                                      \
                     DISTINCT UU.URL_ID, T.CONDITION_ID                                         \
                 FROM                                                        \
@@ -256,41 +302,42 @@ PgExpressions.prototype.USURLS_WITH_TASKS = function (vUSER_ID, withDisabled) {
                 GROUP BY                                                   \
                     URL_ID,CONDITION_ID;');
     list.push(' CREATE INDEX IDX_tt_res_upercents ON tt_res_upercents (URL_ID,CONDITION_ID);');
-    list.push(" SELECT                                                             " + 
-                "usurls.USURL_ID,                                                      " +
-                "usurls.USURL_DISABLED,                                                      " +
-                "urls.URL_ID,                                                        " +
-                "urls.URL,                                                        " +
-                "(regexp_matches(urls.url, '(?:http:\/\/|https:\/\/|)(?:www.|)([^\/]+)\/?(.*)'))[1] AS DOMEN, " +
-                "tasks.date_calc, " +
-                "tasks.task_id, " +
-                "tasks.task_disabled, " +
-                "conditions.condition_query, " +
-                "conditions.condition_id, " +
-                "conditions.size_search, " +
-                "sengines.SENGINE_NAME, " +
-                "regions.REGION_ID, " +
-                "regions.REGION_NAME, " +
-          "tt_res_upercents.PERCENT, " +
-          "GET_COLOR(tt_res_upercents.PERCENT,'G') AS COLOR_G, " +
-          "GET_COLOR(tt_res_upercents.PERCENT,'B') AS COLOR_B, " +
-          "GET_COLOR(tt_res_upercents.PERCENT,'R') AS COLOR_R " +
-            "FROM                                                               " +
-             "   usurls                                                         " +
-             "   INNER JOIN urls                                                " +
-             "       ON USURLS.URL_ID = URLS.URL_ID                             " +
-             "   LEFT JOIN tasks                                                " +
-             "       ON USURLS.USURL_ID = TASKS.USURL_ID                        " +
-             "   LEFT JOIN tt_res_upercents                                     " +
-             "       ON URLS.URL_ID = TT_RES_UPERCENTS.URL_ID                   " +
-             "       AND TASKS.CONDITION_ID = TT_RES_UPERCENTS.CONDITION_ID                   " +
-             "   LEFT JOIN conditions                                           " +
-             "       ON CONDITIONS.CONDITION_ID = TASKS.CONDITION_ID            " +
-             "   LEFT JOIN sengines on sengines.sengine_id = conditions.sengine_id " +
-            "   LEFT JOIN regions on regions.region_id = conditions.region_id " +
-            "WHERE usurls.user_id = "+vUSER_ID+"                                    " +
+    list.push(" SELECT                                                             " +
+        "usurls.USURL_ID,                                                      " +
+        "usurls.USURL_DISABLED,                                                      " +
+        "urls.URL_ID,                                                        " +
+        "urls.URL,                                                        " +
+        "(regexp_matches(urls.url, '(?:http:\/\/|https:\/\/|)(?:www.|)([^\/]+)\/?(.*)'))[1] AS DOMEN, " +
+        "tasks.date_calc, " +
+        "tasks.task_id, " +
+        "tasks.task_disabled, " +
+        "conditions.condition_query, " +
+        "conditions.condition_id, " +
+        "conditions.size_search, " +
+        "sengines.SENGINE_NAME, " +
+        "sengines.SENGINE_ID, " +
+        "regions.REGION_ID, " +
+        "regions.REGION_NAME, " +
+        "tt_res_upercents.PERCENT, " +
+        "GET_COLOR(tt_res_upercents.PERCENT,'G') AS COLOR_G, " +
+        "GET_COLOR(tt_res_upercents.PERCENT,'B') AS COLOR_B, " +
+        "GET_COLOR(tt_res_upercents.PERCENT,'R') AS COLOR_R " +
+        "FROM                                                               " +
+        "   usurls                                                         " +
+        "   INNER JOIN urls                                                " +
+        "       ON USURLS.URL_ID = URLS.URL_ID                             " +
+        "   LEFT JOIN tasks                                                " +
+        "       ON USURLS.USURL_ID = TASKS.USURL_ID                        " +
+        "   LEFT JOIN tt_res_upercents                                     " +
+        "       ON URLS.URL_ID = TT_RES_UPERCENTS.URL_ID                   " +
+        "       AND TASKS.CONDITION_ID = TT_RES_UPERCENTS.CONDITION_ID                   " +
+        "   LEFT JOIN conditions                                           " +
+        "       ON CONDITIONS.CONDITION_ID = TASKS.CONDITION_ID            " +
+        "   LEFT JOIN sengines on sengines.sengine_id = conditions.sengine_id " +
+        "   LEFT JOIN regions on regions.region_id = conditions.region_id " +
+        "WHERE usurls.user_id = "+vUSER_ID+"                                    " +
         (withDisabled ? "" : " AND  usurls.USURL_DISABLED is false AND tasks.TASK_DISABLED is false " ) +
-            " ORDER BY tasks.date_create desc;");
+        " ORDER BY tasks.date_create desc;");
     return list
 }
 
