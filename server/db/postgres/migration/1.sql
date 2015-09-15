@@ -56,7 +56,6 @@ CREATE UNIQUE INDEX UIDX_roles_role_abbr ON roles (ROLE_ABBR);
 -- Данные
 INSERT INTO roles(ROLE_ID,ROLE_ABBR,ROLE_NAME,DATE_CREATE) VALUES
   (1,'admin',     'Администратор',    NOW()),
-  (2,'manager',   'Менеджер',         NOW()),
   (3,'user',      'Пользователь',     NOW())
 ;
 

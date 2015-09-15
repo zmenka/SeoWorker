@@ -5,6 +5,7 @@ var LocalStrategy = require('passport-local').Strategy;
 
 // load up the user model
 var PgUsers = require('./db/postgres/pg_users');
+var PgGroups = require('./db/postgres/pg_groups');
 
 // expose this function to our app using module.exports
 module.exports = function (passport) {
@@ -24,8 +25,14 @@ module.exports = function (passport) {
     // used to deserialize the user
     passport.deserializeUser(function (user_id, done) {
         //console.log('deserializeUser', user_id)
+        var user;
         return new PgUsers().get(user_id)
-            .then(function (user) {
+            .then(function (user_res) {
+                user = user_res
+                return new PgGroups().listAdminGroups(user_id, user.role_id)
+            })
+            .then(function (groups) {
+                user.groups = groups
                 done(null, user);
             })
             .catch(function (err) {

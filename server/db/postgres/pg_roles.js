@@ -26,15 +26,14 @@ function PgRoles() {
 
 };
 
-PgRoles.prototype.list = function (callback, errback) {
-    PG.query("SELECT * FROM roles ORDER BY date_create desc;",
-        [],
-        function (res) {
-            callback(res.rows);
-        },
-        function (err) {
-            console.log('PgRoles.prototype.list');
-            console.log(err);
+PgRoles.prototype.list = function () {
+    return PG.query("SELECT * FROM roles;",
+        [])
+        .then( function (res) {
+            return res.rows;
+        })
+        .catch(function (err) {
+            throw  err;
         })
 }
 

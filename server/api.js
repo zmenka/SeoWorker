@@ -4,6 +4,8 @@ var PgTasks = require("./db/postgres/pg_tasks");
 var PgSearch = require("./db/postgres/pg_search");
 var PgSengines = require("./db/postgres/pg_sengines");
 var PgRegions = require("./db/postgres/pg_regions");
+var PgGroups = require("./db/postgres/pg_groups");
+var PgRoles = require("./db/postgres/pg_roles");
 var PgParams = require("./db/postgres/pg_params");
 var PgHtmls = require("./db/postgres/pg_htmls");
 var PgCorridor = require("./db/postgres/pg_corridor");
@@ -37,12 +39,7 @@ module.exports = function Api(app, passport) {
             return;
         }
 
-        if (req.user.role_id!=1){
-            errback(null, res,"Вы не админ.");
-            return;
-        }
-
-        return new PgUsers().listWithSitesCount()
+        return new PgUsers().listWithSitesCount(req.user.user_id, req.user.role_id)
             .then(function (users) {
                 callback(users, res);
             })
@@ -175,6 +172,69 @@ module.exports = function Api(app, passport) {
 
     });
 
+    app.get('/api/groups', function (req, res, next) {
+        console.log('/api/groups');
+
+        if (!req.user || !req.user.user_id) {
+            errback(null, res, "Вы не зарегистрировались.");
+            return;
+        }
+
+        return new PgGroups().listAdminGroups(req.user.user_id, req.user.role_id)
+            .then(function (sites) {
+                callback(sites, res);
+            })
+            .catch(function (err) {
+                errback(err, res);
+            })
+
+    });
+
+    app.post('/api/create_group', function (req, res, next) {
+        console.log('/api/create_group');
+
+        if (!req.user || !req.user.user_id) {
+            errback(null, res, "Вы не зарегистрировались.");
+            return;
+        }
+
+        if (req.user.role_id!=1){
+            errback(null, res, "Вы не админ.");
+            return;
+        }
+
+        if (!req.body.name ) {
+            errback(null, res,"Не найдено название группы ");
+            return;
+        }
+
+        return new PgGroups().insert(req.body.name)
+            .then(function () {
+                callback("", res);
+            })
+            .catch(function (err) {
+                errback(err, res);
+            })
+
+    });
+
+    app.get('/api/roles', function (req, res, next) {
+        console.log('/api/roles');
+
+        if (!req.user || !req.user.user_id) {
+            errback(null, res, "Вы не зарегистрировались.");
+            return;
+        }
+
+        return new PgRoles().list()
+            .then(function (sites) {
+                callback(sites, res);
+            })
+            .catch(function (err) {
+                errback(err, res);
+            })
+
+    });
 
     app.post('/api/create_site', function (req, res, next) {
         console.log('/api/create_site', req.body);
@@ -490,24 +550,26 @@ module.exports = function Api(app, passport) {
     app.post('/api/register', function (req, res, next) {
         console.log('/api/register', req.body);
 
-        if (!req.body.login || !req.body.password) {
+        if (!req.body.login || !req.body.password || !req.body.role_id) {
             errback(null, res, "Не найдены все параметры  ");
             return;
         }
 
         if (!req.user || !req.user.user_id) {
-            errback(null, res, "Нет зарегистрированного пользователя!");
-            return;
-        }
-
-        if (req.user.role_id != 1) {
-            errback(null, res, "Нет прав для добавления пользователей!");
+            errback(null, res, "Вы не зарегистрированы.");
             return;
         }
 
         new PgUsers().insert(req.body.login, req.body.password, 3)
-            .then(function (db_res) {
-                callback(db_res, res);
+            .then(function (user_id) {
+                if (req.body.group_id){
+                    return new PgGroups().addUsGroup(user_id, req.body.group_id, req.body.role_id)
+                        .then(function (dbres) {
+                            callback(dbres, res)
+                        })
+                } else{
+                    callback(user_id, res);
+                }
             })
             .catch(function (err) {
                 errback(err, res);
@@ -518,7 +580,8 @@ module.exports = function Api(app, passport) {
         // if user is authenticated in the session, carry on
         var r = {isAuth: req.isAuthenticated(), isAdmin:  req.isAuthenticated() && req.user.role_id == 1,
             userLogin: req.isAuthenticated() ? req.user.user_login : "",
-            userId: req.isAuthenticated() ? req.user.user_id : ""}
+            userId: req.isAuthenticated() ? req.user.user_id : "",
+            groups: req.user.groups}
 
         if (req.isAuthenticated() && req.user.disabled){
             console.log('user ' + req.user.user_login + ' is disabled!')

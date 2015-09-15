@@ -172,7 +172,7 @@ PgUsers.prototype.list = function () {
         })
 }
 
-PgUsers.prototype.listWithSitesCount = function () {
+PgUsers.prototype.listWithSitesCount = function (req.user.user_id, req.user.role_id) {
     //console.log("PgUsers.prototype.listWithSitesCount")
     var ex = new PgExpressions();
     return ex.execute_list(ex.USERS_URL_COUNT())

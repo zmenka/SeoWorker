@@ -30,6 +30,15 @@ seoServices.factory('Api', ['$http',
             regions: function () {
                 return $http.get('/api/regions', {});
             },
+            roles: function () {
+                return $http.get('/api/roles', {});
+            },
+            groups: function () {
+                return $http.get('/api/groups', {});
+            },
+            create_group: function (name) {
+                return $http.post('/api/create_group', {name: name});
+            },
             create_site: function (url, user_id) {
                 return $http.post('/api/create_site', {url: url, user_id: user_id});
             },
@@ -100,7 +109,7 @@ seoServices.factory('Authenticate', ['$rootScope', '$http', '$state', '$q',
 
         var isAuthenticated = undefined;
         var isAdmin = false;
-        var user = {login: null, id: null};
+        var user = {login: null, id: null, groups: []};
 
         function initDone() {
             return angular.isDefined(isAuthenticated);
@@ -122,6 +131,10 @@ seoServices.factory('Authenticate', ['$rootScope', '$http', '$state', '$q',
             return user.id;
         }
 
+        function getUser() {
+            return user;
+        }
+
         function checkAuth () {
             return $http.get("/api/check_auth", {})
                 .then(function (res ) {
@@ -132,6 +145,7 @@ seoServices.factory('Authenticate', ['$rootScope', '$http', '$state', '$q',
                         isAuthenticated = false;
                         isAdmin = false;
                     }
+                    user.groups = res.data.groups;
                     user.id =  res.data.userId;
                     user.login =  res.data.userLogin;
                     console.log('check_auth DONE', 'isAuthenticated ', isAuthenticated, ' isAdmin ', isAdmin)
@@ -141,7 +155,7 @@ seoServices.factory('Authenticate', ['$rootScope', '$http', '$state', '$q',
                     console.log("check_auth service error ", err.data)
                     isAuthenticated = null;
                     isAdmin = false;
-                    user = {login: null, id: null};
+                    user = {login: null, id: null, groups: []};
                     throw err;
                 });
         }
@@ -207,7 +221,7 @@ seoServices.factory('Authenticate', ['$rootScope', '$http', '$state', '$q',
                 .then(function (res) {
                     isAuthenticated = false;
                     isAdmin = false;
-                    user = {login: null, id: null};
+                    user = {login: null, id: null, groups: []};
                     return res
                 }).catch(function (err) {
                     console.log("logout service error ", err.data)
@@ -232,6 +246,7 @@ seoServices.factory('Authenticate', ['$rootScope', '$http', '$state', '$q',
             isAdmin: getIsAdmin,
             userLogin: getUserLogin,
             userId: getUserId,
+            getUser: getUser,
             checkAccess: checkAccess,
             initDone: initDone
         }

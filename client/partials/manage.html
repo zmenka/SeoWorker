@@ -1,11 +1,9 @@
 <div class="container" ng-controller="ManageCtrl as vm" style="margin-top: 10px">
 
     <span ng-show="vm.loading" class="spinner"></span>
-
+    <div class="alerts-container"></div>
     <accordion close-others="vm.oneAtATime" >
         <accordion-group heading="Регистрация новых пользователей" >
-            <div class="alerts-container"></div>
-
             <form ng-submit="vm.register()" style="width: 400px">
                 <div class="form-group">
                     <label>Логин</label>
@@ -15,7 +13,26 @@
                     <label>Пароль</label>
                     <input type="password" class="form-control" ng-model="vm.form.password">
                 </div>
+                <div class="form-group">
+                    <label>Роль</label>
+                    <select ng-model="vm.form.role_id" class="form-control"
+                            ng-options="role.role_id as role.role_name for role in vm.roles"></select>
+                </div>
+                <div class="form-group">
+                    <label>Группа</label>
+                    <select ng-model="vm.form.group_id" class="form-control"
+                            ng-options="group.group_id as group.group_name for group in vm.groups"></select>
+                </div>
                 <input type="submit" class="btn btn-primary  btn-lg " id="submit" value="Зарегистрировать"/>
+            </form>
+        </accordion-group>
+        <accordion-group heading="Новая группа пользователей" ng-if="vm.Authenticate.isAdmin()" >
+            <form ng-submit="vm.addGroup(vm.group)" style="width: 400px">
+                <div class="form-group">
+                    <label>Название</label>
+                    <input type="text" class="form-control" ng-model="vm.group">
+                </div>
+                <input type="submit" class="btn btn-primary  btn-lg " id="submit_group" value="Добавить"/>
             </form>
         </accordion-group>
         <accordion-group heading="Мониторинг пользователей" is-open="vm.isOpen">

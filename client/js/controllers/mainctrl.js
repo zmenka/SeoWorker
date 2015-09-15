@@ -4,8 +4,10 @@ function MainCtrl($scope, $state,  Authenticate) {
         return Authenticate.isAuthenticated();
     };
 
-    vm.checkAdmin  = function () {
-        return Authenticate.isAdmin()
+    vm.checkRole  = function () {
+        if (!Authenticate.getUser())
+            return false
+        return Authenticate.isAdmin() || Authenticate.getUser().groups.length > 0
     }
 
     vm.logout  = function () {
