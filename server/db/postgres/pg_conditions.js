@@ -92,6 +92,7 @@ PgConditions.prototype.get = function (id, callback, errback) {
 PgConditions.prototype.getWithSengines = function (id) {
     return PG.query("SELECT * FROM conditions " +
             " JOIN sengines ON sengines.sengine_id = conditions.sengine_id " +
+            " JOIN regions ON regions.region_id = conditions.region_id " +
             " WHERE condition_id = $1;",
         [id])
         .then(function (res) {
@@ -196,10 +197,10 @@ PgConditions.prototype.getLastNotSearchedRandomTask = function (range, dateOld){
                     "ON T.CONDITION_ID = T2.CONDITION_ID " +
                     "AND T2.DATE_CALC >= $2 " +
             "WHERE " +
-                "((t.FAIL_COUNT = 0 AND NOT US.DISABLED AND (t.DATE_CALC IS NULL OR t.DATE_CALC < $2)) " +
+                "((t.FAIL_COUNT = 0 AND US.DISABLED IS FALSE AND (t.DATE_CALC IS NULL OR t.DATE_CALC < $2)) " +
                     "OR (t.FAIL_COUNT = 0 AND US.DISABLED AND (t.DATE_CALC IS NULL OR t.DATE_CALC < $3)) " +
                     "OR (t.FAIL_COUNT > 0 AND t.FAIL_COUNT < 3  AND (t.DATE_CALC IS NULL OR t.DATE_CALC < $3))) " +
-                "AND NOT UU.USURL_DISABLED" +
+                "AND t.TASK_DISABLED IS FALSE " +
             "ORDER BY " +
                 "t.date_create desc " +
             "OFFSET random()*$1 " +

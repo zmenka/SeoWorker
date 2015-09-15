@@ -60,27 +60,24 @@ Core.prototype.bg = function () {
                 if (res) {
                     console.log('Core.bg START condition_id ', res.condition_id,
                         ', task_id ', res.task_id, ', is_cond_already_calc ', res.is_cond_already_calc,
-                    ', url ', res.url)
-                    return Q.fcall(function () {
-                        if (res.is_cond_already_calc) {
-                            console.log('Core.bg calcParams conds ', res.condition_id, res.task_id, res.url, res.is_cond_already_calc, ' is_cond_already_calc')
-                            return 'OK'
-                        } else {
-                            return calcParams(res["condition_id"], 1)
-                                .catch(function (err) {
-                                    console.log('Core.bg calcParams conds ', res.condition_id, res.task_id, res.url, res.is_cond_already_calc, ' , err ', err);
-                                    throw 'next try';
-                                })
-                        }
-                    })
-                        .then(function (res1) {
-                            return calcSiteParams(res.url, res.condition_id, res.task_id)
-                                .catch(function (err) {
-                                    console.log('Core.bg calcSiteParams conds ', res.condition_id, res.task_id, res.url, res.is_cond_already_calc, ' , err ', err);
-                                    throw 'next try';
-                                })
+                        ', url ', res.url)
+                    return calcSiteParams(res.url, res.condition_id, res.task_id)
+                        .catch(function (err) {
+                            console.log('Core.bg calcSiteParams conds ', res.condition_id, res.task_id, res.url, res.is_cond_already_calc, ' , err ', err);
+                            throw 'next try';
                         })
-
+                        .then(function () {
+                            if (res.is_cond_already_calc) {
+                                console.log('Core.bg calcParams conds ', res.condition_id, res.task_id, res.url, res.is_cond_already_calc, ' is_cond_already_calc')
+                                return 'OK'
+                            } else {
+                                return calcParams(res["condition_id"], 1)
+                                    .catch(function (err) {
+                                        console.log('Core.bg calcParams conds ', res.condition_id, res.task_id, res.url, res.is_cond_already_calc, ' , err ', err);
+                                        throw 'next try';
+                                    })
+                            }
+                        })
                         .then(function (res2) {
                             return new PgTasks().updateWithDateCalc(res.task_id, new Date())
                                 .catch(function (err) {
@@ -147,7 +144,7 @@ Core.prototype.calcParams = function (condition_id, user_id) {
         })
         .then(function (res) {
             console.log('Расчет параметров для выборки с condition_id ', condition_id,
-                ' и search_id ',search_id, ' пользователем ', user_id, ' DONE');
+                ' и search_id ', search_id, ' пользователем ', user_id, ' DONE');
         })
         .catch(function (res) {
             if (res.captcha) {
@@ -199,9 +196,14 @@ Core.prototype.getLinksFromSearcher = function (search_objects, search_id, user_
                     .then(function (links) {
                         //console.log("Получили ", links.length, " ссылок из ", search_object.url)
 
-                        if (links.length == 0) throw new Error ("Ссылки сайтов не получены из " + search_object.url);
+                        if (links.length == 0) throw new Error("Ссылки сайтов не получены из " + search_object.url);
 //                        console.log(links)
-                        result.push({to_downloading: search_object.to_downloading,spage_id: spage_id, links: links, page: search_object.page});
+                        result.push({
+                            to_downloading: search_object.to_downloading,
+                            spage_id: spage_id,
+                            links: links,
+                            page: search_object.page
+                        });
                     })
             })
             // add the link onto the chain
@@ -228,78 +230,79 @@ Core.prototype.getLinksFromSearcher = function (search_objects, search_id, user_
         })
 }
 /**
-*
-* @param links_obj {spage_id: <>,start<>, links: {url: <>, title: <>}[]}[]
-* @returns {*}
-*/
+ *
+ * @param links_obj {spage_id: <>,start<>, links: {url: <>, title: <>}[]}[]
+ * @returns {*}
+ */
 Core.prototype.calcLinksParams = function (links_obj, condition_id, condition_query) {
-   var promises = [];
-   for (var i = 0; i < links_obj.length; i++) {//links.length
-       for (var j = 0; j < links_obj[i].links.length; j++) {
-           (function (link, position, spage_id, to_downloading) {
+    var promises = [];
+    for (var i = 0; i < links_obj.length; i++) {//links.length
+        for (var j = 0; j < links_obj[i].links.length; j++) {
+            (function (link, position, spage_id, to_downloading) {
 //               console.log("сейчас обрабатывается ссылка ", link, position)
-               promises.push((function (link, position, spage_id,to_downloading) {
-                   var current_html_id;
-                   var current_html;
-                   if (to_downloading){
-	                    return new Searcher().getContentByUrl(link.url)
-	                        .then(function (res) {
-	                            current_html = res.html
-	                            return new PgHtmls().insertWithUrl(escape(current_html), link.url)
-	                        })
-	                        .then(function (html_id) {
-	                            current_html_id = html_id;
-	                            return new PgScontents().insert(spage_id, html_id, position, false)
-	                        })
-	                        .then(function (scontent_id) {
-	                            return new SeoParameters().init(condition_query, current_html)
-	                        })
-	                        .then(function (params) {
-	                            var allParams = params.getAllParams()
-	                            var paramPromises = [];
-	                            for (var i = 0; i < allParams.length; i++) {
-	                                if (!allParams[i].val){
-	                                    continue;
-	                                }
-	                                (function (param, condition_id, html_id) {
-	                                    //console.log("сейчас обрабатывается параметр ", param)
-	                                    var current_html_id;
-	                                    paramPromises.push(new PgParams().insert(condition_id, html_id, param.name, param.val))
-	
-	                                })(allParams[i], condition_id, current_html_id)
-	
-	                            }
-	
-	                            return Q.allSettled(paramPromises)
-	                        })
-                   }
-               })(link, position, spage_id,to_downloading))
-           })(links_obj[i].links[j], j + links_obj[i].start, links_obj[i].spage_id, links_obj[i].to_downloading)
-       }
-   }
-   return Q.allSettled(promises)
+                promises.push((function (link, position, spage_id, to_downloading) {
+                    var current_html_id;
+                    var current_html;
+                    if (to_downloading) {
+                        return new Searcher().getContentByUrl(link.url)
+                            .then(function (res) {
+                                current_html = res.html
+                                return new PgHtmls().insertWithUrl(escape(current_html), link.url)
+                            })
+                            .then(function (html_id) {
+                                current_html_id = html_id;
+                                return new PgScontents().insert(spage_id, html_id, position, false)
+                            })
+                            .then(function (scontent_id) {
+                                return new SeoParameters().init(condition_query, current_html)
+                            })
+                            .then(function (params) {
+                                var allParams = params.getAllParams()
+                                var paramPromises = [];
+                                for (var i = 0; i < allParams.length; i++) {
+                                    if (!allParams[i].val) {
+                                        continue;
+                                    }
+                                    (function (param, condition_id, html_id) {
+                                        //console.log("сейчас обрабатывается параметр ", param)
+                                        var current_html_id;
+                                        paramPromises.push(new PgParams().insert(condition_id, html_id, param.name, param.val))
+
+                                    })(allParams[i], condition_id, current_html_id)
+
+                                }
+
+                                return Q.allSettled(paramPromises)
+                            })
+                    }
+                })(link, position, spage_id, to_downloading))
+            })(links_obj[i].links[j], j + links_obj[i].start, links_obj[i].spage_id, links_obj[i].to_downloading)
+        }
+    }
+    return Q.allSettled(promises)
 }
 /**
-*
-* @param links_obj {spage_id: <>,start<>, links: {url: <>, title: <>}[]}[]
-* @returns {*}
-*/
+ *
+ * @param links_obj {spage_id: <>,start<>, links: {url: <>, title: <>}[]}[]
+ * @returns {*}
+ */
 Core.prototype.savePositions = function (links_obj, search_id) {
-   var promises = [];
-   for (var i = 0; i < links_obj.length; i++) {//links.length
-       for (var j = 0; j < links_obj[i].links.length; j++) {
-           (function (link, position) {
+    var promises = [];
+    for (var i = 0; i < links_obj.length; i++) {//links.length
+        for (var j = 0; j < links_obj[i].links.length; j++) {
+            (function (link, position) {
 //               console.log("сейчас обрабатывается ссылка ", link, position)
-               promises.push((function (link, position) {
-                    return new PgPositions().insert(link.url, position, search_id)               })(link, position))
-           })(links_obj[i].links[j], j + links_obj[i].start)
-       }
-   }
-   return Q.allSettled(promises)
+                promises.push((function (link, position) {
+                    return new PgPositions().insert(link.url, position, search_id)
+                })(link, position))
+            })(links_obj[i].links[j], j + links_obj[i].start)
+        }
+    }
+    return Q.allSettled(promises)
 }
 
-Core.prototype.calcCoridors = function (search_id){
-    if (!search_id){
+Core.prototype.calcCoridors = function (search_id) {
+    if (!search_id) {
         throw new Error('for calcCoridors no search_id')
     }
     return new PgParams().getParamtypes(search_id)
@@ -308,33 +311,33 @@ Core.prototype.calcCoridors = function (search_id){
                 throw new Errir('no paramtypes for search')
                 return;
             }
-                var paramPromises = [];
-                for (var i = 0; i < paramtypes.length; i++) {
+            var paramPromises = [];
+            for (var i = 0; i < paramtypes.length; i++) {
 
-                    (function (search_id, paramtype_id) {
+                (function (search_id, paramtype_id) {
 
-                        paramPromises.push(new PgParams().getParamDiagram(search_id, paramtype_id)
-                            .then(function (params) {
-                                if (!params){
-                                    throw new Error('no params for paramtype ' + paramtype_id + 'with search_id ' + search_id)
-                                }
-                                //получаем данные о "коридоре"
-                                var mathstat = new MathStat(params.map(function(el){
-                                    return parseFloat(el.value)
-                                }));
-                                mathstat.calc();
-                                return new PgCorridor().insert(search_id, paramtype_id, mathstat.M, mathstat.D)
-                            })
-                            .catch(function (res) {
-                                //console.error('Core.prototype.calcCoridors ', res)
-                                throw  res;
-                            }))
+                    paramPromises.push(new PgParams().getParamDiagram(search_id, paramtype_id)
+                        .then(function (params) {
+                            if (!params) {
+                                throw new Error('no params for paramtype ' + paramtype_id + 'with search_id ' + search_id)
+                            }
+                            //получаем данные о "коридоре"
+                            var mathstat = new MathStat(params.map(function (el) {
+                                return parseFloat(el.value)
+                            }));
+                            mathstat.calc();
+                            return new PgCorridor().insert(search_id, paramtype_id, mathstat.M, mathstat.D)
+                        })
+                        .catch(function (res) {
+                            //console.error('Core.prototype.calcCoridors ', res)
+                            throw  res;
+                        }))
 
-                    })(search_id, paramtypes[i].paramtype_id)
+                })(search_id, paramtypes[i].paramtype_id)
 
-                }
+            }
 
-                return Q.allSettled(paramPromises)
+            return Q.allSettled(paramPromises)
 
         })
         .catch(function (err) {
@@ -355,7 +358,7 @@ Core.prototype.calcParamsByUrl = function (url, condition_id, task_id) {
             }
             return new Searcher().getContentByUrl(url)
         })
-        .catch(function(err){
+        .catch(function (err) {
             new PgTasks().incrementFailure(task_id, new Date())
             throw 'incrementFailure! ' + err;
         })
@@ -371,7 +374,7 @@ Core.prototype.calcParamsByUrl = function (url, condition_id, task_id) {
             var allParams = params.getAllParams()
             var promises = [];
             for (var i = 0; i < allParams.length; i++) {
-                if (!allParams[i].val){
+                if (!allParams[i].val) {
                     continue;
                 }
                 (function (param, condition_id, html_id) {

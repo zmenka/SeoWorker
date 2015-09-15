@@ -43,7 +43,7 @@ SearcherType.prototype.getSearchUrls = function (condition) {
             }
             break;
         case 'Yandex':
-            if (!condition.region && condition.region != 0) {
+            if (!condition.region_id || condition.region_id == 0) {
                 throw 'SearcherType.prototype.getSearchUrls Не определен регион!'
             }
             var words = condition.condition_query
