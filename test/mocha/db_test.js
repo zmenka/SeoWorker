@@ -4,7 +4,7 @@ describe('DB TEST', function(){
 
         it('sql test 4', function(){
 
-            var PgParams = require("../../server/db/postgres/pg_params");
+            var PgParams = require(".././pg_params");
             return new PgParams().getParamtypes(1)
                 .then(function(res){
                     console.log(res);
@@ -14,7 +14,7 @@ describe('DB TEST', function(){
         //it('sql by list', function(){
         it('sql by list', function(){
             
-            var PgExpressions = require("../../server/db/postgres/pg_expressions");
+            var PgExpressions = require(".././pg_expressions");
             var express = new PgExpressions()
             var list = []
             list = list.concat(express.USERS_URL_COUNT(10));
@@ -30,7 +30,7 @@ describe('DB TEST', function(){
         it('sql test 0', function(){
         //it.only('sql test 0', function(){
 
-            var PgExpressions = require("../../server/db/postgres/pg_expressions");
+            var PgExpressions = require(".././pg_expressions");
             var express = new PgExpressions()
             return express.execute_list(express.GET_SITE_PARAM(2,1,9))
                 .then(function(res){
@@ -41,7 +41,7 @@ describe('DB TEST', function(){
         it('sql test 0', function(){
         //it.only('sql test insert positions', function(){
 
-            var PgPositions = require("../../server/db/postgres/pg_positions");
+            var PgPositions = require(".././pg_positions");
             var pg_positions = new PgPositions()
             return pg_positions.insert('test.com','7','1')
                 .then(function(res){

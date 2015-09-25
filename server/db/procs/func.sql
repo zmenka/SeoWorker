@@ -2,7 +2,7 @@
 /*
 Возвращаем цвет по проценту
 */
-CREATE OR REPLACE FUNCTION GET_COLOR(vPROCENT float, vCOLOR COLOR) RETURNS integer AS $$
+CREATE OR REPLACE FUNCTION GET_COLOR(vPROCENT float, vCOLOR char) RETURNS integer AS $$
         BEGIN
                 RETURN CASE
                             WHEN vPROCENT IS NULL THEN 255

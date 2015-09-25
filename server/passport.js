@@ -4,8 +4,8 @@
 var LocalStrategy = require('passport-local').Strategy;
 
 // load up the user model
-var PgUsers = require('./db/postgres/pg_users');
-var PgGroups = require('./db/postgres/pg_groups');
+var PgUsers = require('./db/models/pg_users');
+var PgGroups = require('./db/models/pg_groups');
 
 // expose this function to our app using module.exports
 module.exports = function (passport) {

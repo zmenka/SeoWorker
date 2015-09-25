@@ -1,4 +1,4 @@
-var PgUsers = require("../db/postgres/pg_users");
+var PgUsers = require("./pg_users");
 var Q = require("q")
 var Access = function (){
 

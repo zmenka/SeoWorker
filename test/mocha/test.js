@@ -66,8 +66,8 @@ describe('Test', function () {
 
         it('search condition without params', function () {
 
-            var PgConditions = require("../../server/db/postgres/pg_conditions")
-            var PgSearch = require("../../server/db/postgres/pg_search")
+            var PgConditions = require(".././pg_conditions")
+            var PgSearch = require(".././pg_search")
             return new PgConditions().list()
                 .then(function (res) {
                     var promises = [];
@@ -110,7 +110,7 @@ describe('Test', function () {
         })
 
         it('getLastNotSearchedRandomTask', function () {
-            var PgConditions = require("../../server/db/postgres/pg_conditions")
+            var PgConditions = require(".././pg_conditions")
             return new PgConditions().getLastNotSearchedRandomTask(50, new Date())
                 .then(function (res) {
                     console.log(res);
@@ -120,7 +120,7 @@ describe('Test', function () {
         })
 
         it('listWithParams', function () {
-            var PgSearch = require("../../server/db/postgres/pg_search")
+            var PgSearch = require(".././pg_search")
             return new PgSearch().listWithParams(50)
                 .then(function (res) {
                     console.log(res);
@@ -151,7 +151,7 @@ describe('Test', function () {
 
         it('check manager', function () {
 
-            var PgManager = require("../../server/db/postgres/pg_manager")
+            var PgManager = require(".././pg_manager")
             return new PgManager().getCookieTaskUpdateTime()
                 .then(function (date) {
                     if (date && (Math.abs(new Date("23 May 2015 10:12") - date) / 36e5) > 3) {
@@ -166,7 +166,7 @@ describe('Test', function () {
 
         it('check search', function(){
 
-            var PgParams = require("../../server/db/postgres/pg_params")
+            var PgParams = require(".././pg_params")
             return new PgParams().getParamDiagram(294, 2)
                 .then(function(res){
                     console.log(res)
@@ -178,7 +178,7 @@ describe('Test', function () {
 
         it('create pwd', function() {
 
-            var PgUsers = require("../../server/db/postgres/pg_users")
+            var PgUsers = require(".././pg_users")
             console.log(new PgUsers().generateHash('1'))
         })
         it('search LINKS', function () {
@@ -220,7 +220,7 @@ describe('Test', function () {
 
         it('check getLastNotSearchedRandomTask', function(){
 
-            var PgConditions = require("../../server/db/postgres/pg_conditions")
+            var PgConditions = require(".././pg_conditions")
             return new PgConditions().getAllNotSearchedRandomTask(new Date())
                 .then(function(res){
                     console.log(res)

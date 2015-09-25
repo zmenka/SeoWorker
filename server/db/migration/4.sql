@@ -15,7 +15,7 @@ CREATE TABLE positions
 (
   POSITION_ID       SERIAL PRIMARY KEY,
   -- Выдача
-  CONDITION_ID      INT REFERENCES condition (CONDITION_ID) NOT NULL,
+  CONDITION_ID      INT REFERENCES conditions (CONDITION_ID) NOT NULL,
   -- Выдача
   URL_ID            INT REFERENCES urls (URL_ID) NOT NULL,
   -- URL страницы сайта

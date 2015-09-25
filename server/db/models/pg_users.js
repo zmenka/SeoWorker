@@ -1,47 +1,6 @@
-/**
- * Created by bryazginnn on 22.11.14.
- *
- *
- *  var PgUsers = require("./server/db/postgres/pg_users");
- *  var users = new PgUsers();
- *
- *  //вставить строку в таблицу users
- *  users.insert (
- *      <user_login>,
- *      <user_password>,
- *      <role_id>,
- *      <user_fname>,
- *      <user_iname>,
- *      <user_oname>,
- *      <user_email>,
- *      <user_phone>,
- *      <callback>,
- *      <errback>
- *  )
- *    returns <new user_id>
- *
- *  //получить все строки из users
- *  users.list (<callback>,<errback>)
- *    returns [{user_id , user_login , ...}, ...]
- *
- *  //получить строку из users с помощью user_id
- *  users.get (<user_id>,<callback>,<errback>)
- *    returns {user_id , user_login , ...}
- *
- *  //получить строки из users с помощью user_login
- *  users.findByLogin (<url>,<callback>,<errback>)
- *    returns [{user_id , user_login , ...}, ...]
- *
- *  //получить строки из users с помощью user_email
- *  users.findByEmail (<url>,<callback>,<errback>)
- *    returns [{user_id , user_login , ...}, ...]
- *
- *  //получить строки из users с помощью user_phone
- *  users.findByPhone (<url>,<callback>,<errback>)
- *    returns [{user_id , user_login , ...}, ...]
- */
 
-var PG = require('./pg');
+var PGold = require('./pg');
+var PG = require('../../utils/pg');
 var fs = require('fs');
 var PgExpressions = require("./pg_expressions");
 var path = require('path');
@@ -75,7 +34,7 @@ PgUsers.prototype.insert = function (user_login, user_password, role_id, user_fn
                 throw("Такой пользователь уже существует!")
                 return;
             }
-            return new PG()
+            return new PGold()
         })
         .then(function (db_res) {
             db = db_res
@@ -125,7 +84,7 @@ PgUsers.prototype.disabledUser = function (user_login, disabled) {
                 throw("Нет такого пользователя!")
                 return;
             }
-            return PG.query("UPDATE users SET DISABLED = $2 " +
+            return PGold.query("UPDATE users SET DISABLED = $2 " +
                 "WHERE USER_LOGIN=$1;",
                 [user_login, disabled])
         })
@@ -146,7 +105,7 @@ PgUsers.prototype.updateLastVisit = function (user_id) {
                 throw("Нет такого пользователя!")
                 return;
             }
-            return PG.query("UPDATE users SET LAST_VISIT = $2 " +
+            return PGold.query("UPDATE users SET LAST_VISIT = $2 " +
                 "WHERE USER_ID=$1;",
                 [user_id, date_visit])
         })
@@ -161,7 +120,7 @@ PgUsers.prototype.updateLastVisit = function (user_id) {
 }
 
 PgUsers.prototype.list = function () {
-    return PG.query("SELECT * FROM users ORDER BY date_create desc;",
+    return PGold.query("SELECT * FROM users ORDER BY date_create desc;",
         [])
         .then(function (res) {
             console.log("PgUsers.prototype.list")
@@ -181,10 +140,9 @@ PgUsers.prototype.listWithSitesCount = function (user_id, role_id) {
 }
 
 PgUsers.prototype.get = function (id) {
-    return PG.query("SELECT * FROM users WHERE user_id = $1;",
-        [id])
+    return PG.one("SELECT * FROM users WHERE user_id = $1;", id)
         .then(function (res) {
-            //console.log("PgUsers.prototype.get")
+            console.log("PgUsers.prototype.get", res)
             return res.rows[0];
         })
         .catch(function (err) {
@@ -193,7 +151,7 @@ PgUsers.prototype.get = function (id) {
 }
 
 PgUsers.prototype.getByLogin = function (login) {
-    return PG.query("SELECT * FROM users WHERE user_login = $1;",
+    return PGold.query("SELECT * FROM users WHERE user_login = $1;",
         [login])
         .then(function (res) {
             //console.log("PgUsers.prototype.getByLogin")
@@ -207,7 +165,7 @@ PgUsers.prototype.getByLogin = function (login) {
 }
 
 PgUsers.prototype.findByEmail = function (val, callback, errback) {
-    PG.query("SELECT * FROM users WHERE user_email = $1;",
+    PGold.query("SELECT * FROM users WHERE user_email = $1;",
         [val],
         function (res) {
             callback(res.rows);
@@ -218,7 +176,7 @@ PgUsers.prototype.findByEmail = function (val, callback, errback) {
         })
 }
 PgUsers.prototype.findByPhone = function (val, callback, errback) {
-    PG.query("SELECT * FROM users WHERE user_phone = $1;",
+    PGold.query("SELECT * FROM users WHERE user_phone = $1;",
         [val],
         function (res) {
             callback(res.rows);
@@ -230,7 +188,7 @@ PgUsers.prototype.findByPhone = function (val, callback, errback) {
 }
 
 PgUsers.prototype.updateCookies = function (id, cookies) {
-    return PG.query("UPDATE users SET cookies = $1 WHERE user_id = $2;",
+    return PGold.query("UPDATE users SET cookies = $1 WHERE user_id = $2;",
         [cookies, id])
         .then(function (res) {
             //console.log("PgUsers.prototype.updateCookies")
@@ -243,7 +201,7 @@ PgUsers.prototype.updateCookies = function (id, cookies) {
         })
 };
 PgUsers.prototype.isUserAvailableToUser = function (user_id, to_user_id) {
-    return PG.query(format(
+    return PGold.query(format(
         "SELECT 1 FROM " +
             "usgroups UG1 " +
             "JOIN usgroups UG2 USING(GROUP_ID) " +
@@ -257,7 +215,7 @@ PgUsers.prototype.isUserAvailableToUser = function (user_id, to_user_id) {
 };
 
 PgUsers.prototype.deleteCookies = function () {
-    return PG.query("UPDATE users SET cookies = '';",
+    return PGold.query("UPDATE users SET cookies = '';",
         [])
         .then(function (res) {
             //console.log("PgUsers.prototype.deleteCookies")
@@ -295,7 +253,7 @@ PgUsers.prototype.edit = function (userId, newLogin, newPaswd, disabled, disable
 
             q += " WHERE USER_ID=$1;";
             //console.log(q, params)
-            return PG.query(q, params)
+            return PGold.query(q, params)
         })
         .then(function (res) {
             //console.log('PgUsers.prototype.edit');

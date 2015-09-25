@@ -11,19 +11,19 @@
 //    console.log(err)
 //})
 
-var PG = require("./server/db/postgres/pg");
+var PG = require("./server/db/models/pg");
 
-var PgUsurls = require("./server/db/postgres/pg_usurls");
-var PgUrls = require("./server/db/postgres/pg_urls");
-var PgUsers = require("./server/db/postgres/pg_users");
-var PgTasks = require("./server/db/postgres/pg_tasks");
-var PgSengines = require("./server/db/postgres/pg_sengines");
-var PgSearch = require("./server/db/postgres/pg_search");
-var PgScontent = require("./server/db/postgres/pg_scontents");
-var PgRoles = require("./server/db/postgres/pg_roles");
-var PgParams = require("./server/db/postgres/pg_params");
-var PgHtmls = require("./server/db/postgres/pg_htmls");
-var PgConditions = require("./server/db/postgres/pg_conditions");
+var PgUsurls = require("./server/db/models/pg_usurls");
+var PgUrls = require("./server/db/models/pg_urls");
+var PgUsers = require("./server/db/models/pg_users");
+var PgTasks = require("./server/db/models/pg_tasks");
+var PgSengines = require("./server/db/models/pg_sengines");
+var PgSearch = require("./server/db/models/pg_search");
+var PgScontent = require("./server/db/models/pg_scontents");
+var PgRoles = require("./server/db/models/pg_roles");
+var PgParams = require("./server/db/models/pg_params");
+var PgHtmls = require("./server/db/models/pg_htmls");
+var PgConditions = require("./server/db/models/pg_conditions");
 var SeoParametersFormat = require("./server/seo_parameters_format");
 
 var pgusurls = new PgUsurls();
