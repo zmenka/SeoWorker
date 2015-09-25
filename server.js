@@ -39,8 +39,6 @@ app.use(passport.initialize());
 app.use(passport.session()); // persistent login sessions
 
 
-
-app.set('port', process.env.PORT || 3000);
 app.disable("x-powered-by");
 app.disable('etag');
 
@@ -51,6 +49,6 @@ app.use('/bower_components/', express.static(__dirname + '/bower_components/'))
 
 new Api(app, passport); // load our routes and pass in our app and fully configured passport
 
-app.listen(app.get('port'), function () {
+app.listen(Config.port, Config.private_ip, function () {
     console.log('Express server listening on port ' + app.get('port'));
 });
