@@ -50,5 +50,5 @@ app.use('/bower_components/', express.static(__dirname + '/bower_components/'))
 new Api(app, passport); // load our routes and pass in our app and fully configured passport
 
 app.listen(Config.port, Config.private_ip, function () {
-    console.log('Express server listening on port ' + app.get('port'));
+    console.log('Express server listening on port ' + Config.port + ', ip ' + Config.private_ip);
 });
