@@ -110,6 +110,7 @@ Core.prototype.calcParams = function (condition_id, user_id) {
     var calcCoridors = Core.prototype.calcCoridors;
     var savePositions = Core.prototype.savePositions;
     var search_id;
+    var links_obj;
 
     return new PgConditions().getWithSengines(condition_id)
         .then(function (condition_res) {
@@ -129,11 +130,11 @@ Core.prototype.calcParams = function (condition_id, user_id) {
             return getLinksFromSearcher(search_objects, search_id, user_id, condition.sengine_name)
 
         })
-        .then(function (links_obj) {
-            savePositions(links_obj, search_id)
-            return links_obj
+        .then(function (res_links_obj) {
+            links_obj = res_links_obj
+            return savePositions(links_obj, search_id)
         })
-        .then(function (links_obj) {
+        .then(function () {
             return calcLinksParams(links_obj, condition_id, condition.condition_query)
         })
         .then(function () {
@@ -287,18 +288,16 @@ Core.prototype.calcLinksParams = function (links_obj, condition_id, condition_qu
  * @returns {*}
  */
 Core.prototype.savePositions = function (links_obj, search_id) {
-    var promises = [];
-    for (var i = 0; i < links_obj.length; i++) {//links.length
-        for (var j = 0; j < links_obj[i].links.length; j++) {
-            (function (link, position) {
+   var promises = [];
+   for (var i = 0; i < links_obj.length; i++) {//links.length
+       for (var j = 0; j < links_obj[i].links.length; j++) {
+           (function (link, position, search_id) {
 //               console.log("сейчас обрабатывается ссылка ", link, position)
-                promises.push((function (link, position) {
-                    return new PgPositions().insert(link.url, position, search_id)
-                })(link, position))
-            })(links_obj[i].links[j], j + links_obj[i].start)
-        }
-    }
-    return Q.allSettled(promises)
+               promises.push(new PgPositions().insert(link.url, position, search_id))
+           })(links_obj[i].links[j], j + links_obj[i].start, search_id)
+       }
+   }
+   return Q.allSettled(promises)
 }
 
 Core.prototype.calcCoridors = function (search_id) {
