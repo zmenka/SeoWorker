@@ -4,8 +4,8 @@
 var LocalStrategy = require('passport-local').Strategy;
 
 // load up the user model
-var PgUsers = require('./db/models/pg_users');
-var PgGroups = require('./db/models/pg_groups');
+var PgUsers = require('./models/pg_users');
+var PgGroups = require('./models/pg_groups');
 
 // expose this function to our app using module.exports
 module.exports = function (passport) {
@@ -50,14 +50,11 @@ module.exports = function (passport) {
             //console.log("passport login ", username, password)
             // check in db if a user with username exists or not
             new PgUsers().getByLogin(username)
-                .then(function (users) {
-                    // Username does not exist, log error & redirect back
-                    if (users.length != 1) {
-//                        console.log('User Not Found with username ' + username);
-                        return done(null, false,
-                            {'message': 'Пользователя с таким логином нет.'});
-                    }
-                    var user = users[0]
+                .catch(function (err) {
+                    throw new Error('Пользователя с таким логином нет.')
+                })
+                .then(function (user) {
+                    console.log('PASSPORT user', user)
                     // User exists but wrong password, log the error
                     if (!new PgUsers().validPassword(password, user.user_password)) {
                         return done(null, false, {message: 'Неправильный пароль.'});

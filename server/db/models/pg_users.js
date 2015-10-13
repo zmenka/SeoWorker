@@ -143,7 +143,7 @@ PgUsers.prototype.get = function (id) {
     return PG.one("SELECT * FROM users WHERE user_id = $1;", id)
         .then(function (res) {
             console.log("PgUsers.prototype.get", res)
-            return res.rows[0];
+            return res[0];
         })
         .catch(function (err) {
             throw err
@@ -155,7 +155,7 @@ PgUsers.prototype.getByLogin = function (login) {
         [login])
         .then(function (res) {
             //console.log("PgUsers.prototype.getByLogin")
-            return res.rows;
+            return res;
         })
         .catch(function (err) {
             //throw 'PgUsers.prototype.getByLogin' + err;

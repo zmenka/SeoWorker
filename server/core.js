@@ -17,7 +17,7 @@ var SeoParameters = require("./seo_parameters");
 
 var MathStat = require("./MathStat")
 
-var Q = require("./utils/q");
+var Q = require("q");
 
 function Core() {
     // console.log('core init');

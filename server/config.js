@@ -1,6 +1,3 @@
-/**
- * Created by zmenka on 01.11.14.
- */
 
 var Config = (function () {
     function Config() {

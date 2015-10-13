@@ -1,6 +1,6 @@
 
 var PG = require('./pg');
-var Q = require('../../utils/q');
+var Q = require('q');
 
 function PgExpressions() {
 

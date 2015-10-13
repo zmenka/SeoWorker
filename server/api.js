@@ -2,7 +2,7 @@ var PgUsers = require("./db/models/pg_users");
 var PgUsurls = require("./db/models/pg_usurls");
 var PgTasks = require("./db/models/pg_tasks");
 var PgSearch = require("./db/models/pg_search");
-var PgSengines = require("./db/models/pg_sengines");
+var PgSengines = require("./models/pg_sengines");
 var PgRegions = require("./db/models/pg_regions");
 var PgGroups = require("./db/models/pg_groups");
 var PgRoles = require("./db/models/pg_roles");
@@ -26,13 +26,32 @@ var errback = function (err, response, userMsg) {
     response.send(userMsgResult);
 };
 
+var simple_api = function (app, url, typeRequest, funcPromise, paramsArray) {
+    var f = function (req, res){
+        var data = typeRequest == 'GET' ? req.query : req.body
+        console.log('/api/users', data);
+        return funcPromise.apply(null, paramsArray)
+            .then(function (result) {
+                callback(result, res);
+            })
+            .catch(function (err) {
+                errback(err, res);
+            })
+    }
+    switch(typeRequest) {
+        case 'GET':
+            app.get(url, f)
+            break
+        case 'POST':
+            app.post(url, f)
+            break
+        default:
+            throw new Error('UNKNOWN typeRequest')
+    }
+};
+
 module.exports = function Api(app, passport) {
-
-// routes ======================================================================
-
-// api ---------------------------------------------------------------------
-
-    app.get('/api/users', function (req, res, next) {
+    app.get('/api/users', function (req, res) {
         console.log('/api/users');
 
         if (!req.user || !req.user.user_id) {
@@ -521,6 +540,7 @@ module.exports = function Api(app, passport) {
     });
 
     app.post('/api/login', function (req, res, next) {
+            console.log(res)
             passport.authenticate('login', function (err, user, info) {
                 if (err) {
                     return next(err)
@@ -544,7 +564,7 @@ module.exports = function Api(app, passport) {
 
         return callback("logout ok", res);
     });
-    -
+
         app.post('/api/register', function (req, res, next) {
             console.log('/api/register', req.body);
 
