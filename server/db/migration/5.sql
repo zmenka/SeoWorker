@@ -3,6 +3,8 @@
 
 1. Домены
 2. condurls + uscondurls
+3. percents + positions: add LAST flag
+4. conditions: date_calc, disabled
 
 */
 \c seo;
@@ -63,6 +65,8 @@ CREATE TABLE uscondurls (
   CONDURL_ID       INT REFERENCES condurls (CONDURL_ID) NOT NULL,
   -- Домен
   USER_ID          INT REFERENCES users (USER_ID) NOT NULL,
+  -- Домен
+  USCONDURL_DISABLED BOOLEAN NOT NULL DEFAULT FALSE,
   -- Время создания записи
   DATE_CREATE      TIMESTAMP WITH TIME ZONE NOT NULL
 );
@@ -124,11 +128,11 @@ CREATE UNIQUE INDEX ON positions (CONDURL_ID, DATE_CREATE);
 -- params
 DELETE FROM params;
 ALTER TABLE params ADD COLUMN URL_ID INT REFERENCES urls (URL_ID);
-UPDATE params P SET CONDITION_ID = (SELECT S.CONDITION_ID FROM search S WHERE S.SEARCH_ID = P.SEARCH_ID);
+-- UPDATE params P SET CONDITION_ID = (SELECT S.CONDITION_ID FROM search S WHERE S.SEARCH_ID = P.SEARCH_ID);
 UPDATE params P SET URL_ID = (SELECT S.URL_ID FROM htmls S WHERE S.HTML_ID = P.HTML_ID);
 ALTER TABLE params ALTER COLUMN CONDITION_ID SET NOT NULL;
 ALTER TABLE params ALTER COLUMN URL_ID SET NOT NULL;
-ALTER TABLE params DROP COLUMN SEARCH_ID;
+-- ALTER TABLE params DROP COLUMN SEARCH_ID;
 ALTER TABLE params DROP COLUMN HTML_ID;
 CREATE UNIQUE INDEX ON params (URL_ID, CONDITION_ID, PARAMTYPE_ID);
 
@@ -156,13 +160,27 @@ CREATE TABLE percents
   PERCENT_ID        SERIAL PRIMARY KEY,
   -- Выдача
   CONDURL_ID        INT REFERENCES condurls (CONDURL_ID) NOT NULL,
+  -- Выдача
+  PARAMTYPE_ID      INT REFERENCES paramtypes (PARAMTYPE_ID) NOT NULL,
   -- URL страницы сайта
   PERCENT           INT NOT NULL,
   -- Время создания записи
   DATE_CREATE       TIMESTAMP WITH TIME ZONE NOT NULL
 );
--- Уникальнай ключ
-CREATE UNIQUE INDEX ON percents (CONDURL_ID, DATE_CREATE);
 
 DROP TABLE htmls;
 DROP TABLE search;
+-- -----------------------------------------
+-- 3. percents + positions: add LAST flag
+-- -----------------------------------------
+ALTER TABLE percents  ADD COLUMN IS_LAST BOOLEAN NOT NULL DEFAULT FALSE;
+ALTER TABLE positions ADD COLUMN IS_LAST BOOLEAN NOT NULL DEFAULT FALSE;
+CREATE UNIQUE INDEX ON percents  (CONDURL_ID, PARAMTYPE_ID) WHERE IS_LAST;
+CREATE UNIQUE INDEX ON positions (CONDURL_ID) WHERE IS_LAST;
+CREATE INDEX ON percents  (CONDURL_ID, PARAMTYPE_ID, IS_LAST);
+CREATE INDEX ON positions (CONDURL_ID, IS_LAST);
+-- -----------------------------------------
+-- 4. conditions: date_calc, disabled
+-- -----------------------------------------
+ALTER TABLE conditions ADD COLUMN DATE_CALC TIMESTAMP WITH TIME ZONE;
+ALTER TABLE conditions ADD COLUMN CONDITION_DISABLED BOOLEAN NOT NULL DEFAULT FALSE;

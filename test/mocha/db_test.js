@@ -12,12 +12,12 @@ describe('DB TEST', function(){
 
         })
         //it('sql by list', function(){
-        it('sql by list', function(){
+        it.only('sql by list', function(){
             
-            var PgExpressions = require(".././pg_expressions");
+            var PgExpressions = require("../../server/db/models/pg_expressions");
             var express = new PgExpressions()
             var list = []
-            list = list.concat(express.USERS_URL_COUNT(10));
+            list = list.concat(express.USURLS_WITH_TASKS(1,'TRUE'));
 
             //list = list.concat(express.GET_AVAILABLE_USERS(1, 1));
             //list = list.concat("SELECT * FROM tt_res_users");

@@ -21,7 +21,7 @@ describe('Test', function () {
 
         })
 
-        it.only('start bg', function () {
+        it('start bg', function () {
 
             var core = require("../../server/core")
             return new core().bg()
