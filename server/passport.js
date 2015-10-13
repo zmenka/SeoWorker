@@ -1,11 +1,9 @@
-/**
- * Created by zmenka on 21.12.14.
- */
+
 var LocalStrategy = require('passport-local').Strategy;
 
 // load up the user model
-var PgUsers = require('./models/pg_users');
-var PgGroups = require('./models/pg_groups');
+var PgUsers = require('./db/models/pg_users');
+var PgGroups = require('./db/models/pg_groups');
 
 // expose this function to our app using module.exports
 module.exports = function (passport) {
@@ -26,10 +24,10 @@ module.exports = function (passport) {
     passport.deserializeUser(function (user_id, done) {
         //console.log('deserializeUser', user_id)
         var user;
-        return new PgUsers().get(user_id)
+        return PgUsers.get(user_id)
             .then(function (user_res) {
                 user = user_res
-                return new PgGroups().listAdminGroups(user_id, user.role_id)
+                return PgGroups.listAdminGroups(user_id, user.role_id)
             })
             .then(function (groups) {
                 user.groups = groups
@@ -49,14 +47,14 @@ module.exports = function (passport) {
         function (req, username, password, done) {
             //console.log("passport login ", username, password)
             // check in db if a user with username exists or not
-            new PgUsers().getByLogin(username)
+            PgUsers.getByLogin(username)
                 .catch(function (err) {
                     throw new Error('Пользователя с таким логином нет.')
                 })
                 .then(function (user) {
                     console.log('PASSPORT user', user)
                     // User exists but wrong password, log the error
-                    if (!new PgUsers().validPassword(password, user.user_password)) {
+                    if (!PgUsers.validPassword(password, user.user_password)) {
                         return done(null, false, {message: 'Неправильный пароль.'});
                     }
                     if (user.disabled) {
@@ -65,7 +63,7 @@ module.exports = function (passport) {
                     return done(null, user.user_id, {message: 'Успешный вход.'});
                 })
                 .catch(function (err) {
-                    done(err, false, {'message': 'Ошибка при входе: ' + err});
+                    done(err, false, {'message': 'Ошибка при входе: ' + err.message});
                 })
         }));
 }

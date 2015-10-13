@@ -2,7 +2,7 @@ var PgUsers = require("./db/models/pg_users");
 var PgUsurls = require("./db/models/pg_usurls");
 var PgTasks = require("./db/models/pg_tasks");
 var PgSearch = require("./db/models/pg_search");
-var PgSengines = require("./models/pg_sengines");
+var PgSengines = require("./db/models/pg_sengines");
 var PgRegions = require("./db/models/pg_regions");
 var PgGroups = require("./db/models/pg_groups");
 var PgRoles = require("./db/models/pg_roles");
@@ -12,322 +12,59 @@ var PgCorridor = require("./db/models/pg_corridor");
 var SeoFormat = require("./SeoFormat");
 var Diagram = require("./Diagram");
 var Core = require("./core");
-var Access = require("./utils/access");
+var Users = require("./models/users");
 
-var callback = function (data, response) {
-    response.json(data);
-};
-
-var errback = function (err, response, userMsg) {
-    var msg = (err && err.stack) ? err.stack : (err ? err : userMsg)
-    console.log(msg);
-    response.statusCode = 440;
-    var userMsgResult = userMsg ? userMsg : (err && !err.message ? err : '');
-    response.send(userMsgResult);
-};
-
-var simple_api = function (app, url, typeRequest, funcPromise, paramsArray) {
-    var f = function (req, res){
-        var data = typeRequest == 'GET' ? req.query : req.body
-        console.log('/api/users', data);
-        return funcPromise.apply(null, paramsArray)
-            .then(function (result) {
-                callback(result, res);
-            })
-            .catch(function (err) {
-                errback(err, res);
-            })
-    }
-    switch(typeRequest) {
-        case 'GET':
-            app.get(url, f)
-            break
-        case 'POST':
-            app.post(url, f)
-            break
-        default:
-            throw new Error('UNKNOWN typeRequest')
-    }
-};
+var ApiUtils = require("./utils/api_utils");
 
 module.exports = function Api(app, passport) {
+
     app.get('/api/users', function (req, res) {
-        console.log('/api/users');
-
-        if (!req.user || !req.user.user_id) {
-            errback(null, res, "Вы не зарегистрировались.");
-            return;
-        }
-
-        return new PgUsers().listWithSitesCount(req.user.user_id, req.user.role_id)
-            .then(function (users) {
-                callback(users, res);
-            })
-            .catch(function (err) {
-                errback(err, res);
-            })
-
+        ApiUtils.auth_api_func(req, res, PgUsers.listWithSitesCount, [req.user.user_id, req.user.role_id])
     });
 
-    app.get('/api/user', function (req, res, next) {
-        console.log('/api/user', req.query);
-
-        if (!req.user || !req.user.user_id) {
-            errback(null, res, "Вы не зарегистрировались.");
-            return;
-        }
-
-        if (req.user.role_id != 1) {
-            errback(null, res, "Вы не админ.");
-            return;
-        }
-
-        if (!req.query.user_id) {
-            errback(null, res, "Не найден ид пользователя.");
-            return;
-        }
-
-        return new PgUsers().get(req.query.user_id)
-            .then(function (user) {
-                callback(user, res);
-            })
-            .catch(function (err) {
-                errback(err, res);
-            })
-
+    app.get('/api/user', function (req, res) {
+        ApiUtils.admin_api_func(req, res, PgUsers.get, [req.query.user_id])
     });
 
     app.post('/api/edit_user', function (req, res, next) {
-        console.log('/api/edit_user', req.body);
-
-        if (!req.user || !req.user.user_id) {
-            errback(null, res, "Вы не зарегистрировались.");
-            return;
-        }
-
-        if (req.user.role_id != 1) {
-            errback(null, res, "Вы не админ.");
-            return;
-        }
-
-        if (!req.body.user_id) {
-            errback(null, res, "Не найден параметр user_id ");
-            return;
-        }
-
-        return new PgUsers().edit(req.body.user_id, req.body.new_login, req.body.new_pasw, req.body.disabled, req.body.disabled_message)
-            .then(function (user) {
-                callback(user, res);
-            })
-            .catch(function (err) {
-                errback(err, res);
-            })
+        ApiUtils.admin_api_func(req, res, PgUsers.edit, [req.body.user_id, req.body.new_login, req.body.new_pasw, req.body.disabled, req.body.disabled_message])
     });
 
-// get all sites and tasks
-    app.get('/api/user_sites_and_tasks', function (req, res, next) {
-        console.log('/api/user_sites_and_tasks');
-
-        if (!req.user || !req.user.user_id) {
-            errback(null, res, "Вы не зарегистрировались.");
-            return;
-        }
-
-        if (!req.query.user_id || !req.query.with_disabled) {
-            errback(null, res, "Не найдены все параметры ");
-            return;
-        }
-        var with_disabled = req.query.with_disabled == 'true' ? true : false;
-
-        return new Access().isUserAvailableToUser(req.query.user_id, req.user.user_id, req.user.role_id)
-            .then(function (isAvailable) {
-                if (!isAvailable) {
-                    errback("Нет доступа", res)
-                    return
-                }
-                return new PgUsurls().listWithTasks(req.query.user_id, with_disabled)
-                    .then(function (dirty_sites) {
-                        var SF = new SeoFormat();
-                        var sites = SF.createSiteTree(dirty_sites);
-                        callback(sites, res);
-                    })
-                    .catch(function (err) {
-                        errback(err, res);
-                    })
-            })
-
+    app.get('/api/user_sites_and_tasks', function (req, res) {
+        ApiUtils.auth_api_func(req, res, Users.userSitesAndTasks, [req.query.user_id, req.user.user_id, req.user.role_id, req.query.with_disabled])
     });
 
-    app.get('/api/sengines', function (req, res, next) {
-        console.log('/api/sengines');
-
-        if (!req.user || !req.user.user_id) {
-            errback(null, res, "Вы не зарегистрировались.");
-            return;
-        }
-
-        return new PgSengines().list()
-            .then(function (sites) {
-                callback(sites, res);
-            })
-            .catch(function (err) {
-                errback(err, res);
-            })
-
+    app.get('/api/sengines', function (req, res) {
+        ApiUtils.auth_api_func(req, res, PgSengines.list, [])
     });
 
-    app.get('/api/regions', function (req, res, next) {
-        console.log('/api/regions');
-
-        if (!req.user || !req.user.user_id) {
-            errback(null, res, "Вы не зарегистрировались.");
-            return;
-        }
-
-        return new PgRegions().list()
-            .then(function (sites) {
-                callback(sites, res);
-            })
-            .catch(function (err) {
-                errback(err, res);
-            })
-
+    app.get('/api/regions', function (req, res) {
+        ApiUtils.auth_api_func(req, res, PgRegions.list, [])
     });
 
-    app.get('/api/groups', function (req, res, next) {
-        console.log('/api/groups');
-
-        if (!req.user || !req.user.user_id) {
-            errback(null, res, "Вы не зарегистрировались.");
-            return;
-        }
-
-        return new PgGroups().listAdminGroups(req.user.user_id, req.user.role_id)
-            .then(function (sites) {
-                callback(sites, res);
-            })
-            .catch(function (err) {
-                errback(err, res);
-            })
-
+    app.get('/api/groups', function (req, res) {
+        ApiUtils.auth_api_func(req, res, PgGroups.listAdminGroups, [req.user.user_id, req.user.role_id])
     });
 
-    app.post('/api/create_group', function (req, res, next) {
-        console.log('/api/create_group');
-
-        if (!req.user || !req.user.user_id) {
-            errback(null, res, "Вы не зарегистрировались.");
-            return;
-        }
-
-        if (req.user.role_id != 1) {
-            errback(null, res, "Вы не админ.");
-            return;
-        }
-
-        if (!req.body.name) {
-            errback(null, res, "Не найдено название группы ");
-            return;
-        }
-
-        return new PgGroups().insert(req.body.name)
-            .then(function () {
-                callback("", res);
-            })
-            .catch(function (err) {
-                errback(err, res);
-            })
-
+    app.post('/api/create_group', function (req, res) {
+        ApiUtils.admin_api_func(req, res, PgGroups.insert, [req.body.name])
     });
 
-    app.get('/api/roles', function (req, res, next) {
-        console.log('/api/roles');
-
-        if (!req.user || !req.user.user_id) {
-            errback(null, res, "Вы не зарегистрировались.");
-            return;
-        }
-
-        return new PgRoles().list()
-            .then(function (sites) {
-                callback(sites, res);
-            })
-            .catch(function (err) {
-                errback(err, res);
-            })
-
+    app.get('/api/roles', function (req, res) {
+        ApiUtils.auth_api_func(req, res, PgRoles.list, [])
     });
 
-    app.post('/api/create_site', function (req, res, next) {
-        console.log('/api/create_site', req.body);
-
-        if (!req.user || !req.user.user_id) {
-            errback(null, res, "Вы не зарегистрировались.");
-            return;
-        }
-
-        if (!req.body.url) {
-            errback(null, res, "не найден параметр url ");
-            return;
-        }
-
-        if (!req.body.user_id) {
-            errback(null, res, "не найден параметр url ");
-            return;
-        }
-
-        return new PgUsurls().insertWithUrl(req.body.url, req.body.user_id)
-            .then(function (db_res) {
-                callback(db_res, res);
-            })
-            .catch(function (err) {
-                errback(err, res);
-            })
+    app.post('/api/create_site', function (req, res) {
+        ApiUtils.auth_api_func(req, res, PgUsurls.insertWithUrl, [req.body.url, req.body.user_id])
     });
 
-    app.post('/api/remove_site', function (req, res, next) {
-        console.log('/api/remove_site', req.body);
-
-        if (!req.user || !req.user.user_id) {
-            errback(null, res, "Вы не зарегистрировались.");
-            return;
-        }
-
-        if (!req.body.usurl_id) {
-            errback(null, res, "не найден параметр usurl_id ");
-            return;
-        }
-        return new PgUsurls().remove(req.body.usurl_id)
-            .then(function (db_res) {
-                callback(db_res, res);
-            })
-            .catch(function (err) {
-                errback(err, res);
-            })
+    app.post('/api/remove_site', function (req, res) {
+        ApiUtils.auth_api_func(req, res, PgUsurls.remove, [req.body.usurl_id])
     });
 
-    app.post('/api/create_task', function (req, res, next) {
-        console.log('/api/create_site', req.body);
-
-        if (!req.user || !req.user.user_id) {
-            errback(null, res, "Вы не зарегистрировались.");
-            return;
-        }
-
-        if (!req.body.usurl_id || !req.body.condition_query || !req.body.sengine_id
-             || !req.body.size_search) {
-            errback(null, res, "не найдены параметры! ");
-            return;
-        }
-
-        return new PgTasks().insertWithCondition(req.body.usurl_id, req.body.condition_query, req.body.sengine_id,
-            req.body.region_id, req.body.size_search)
-            .then(function (db_res) {
-                callback(db_res, res);
-            })
-            .catch(function (err) {
-                errback(err, res);
-            })
+    app.post('/api/create_task', function (req, res) {
+        ApiUtils.auth_api_func(req, res, PgTasks.insertWithCondition, [req.body.usurl_id, req.body.condition_query, req.body.sengine_id,
+            req.body.region_id, req.body.size_search])
     });
 
     app.post('/api/remove_task', function (req, res, next) {
@@ -540,7 +277,7 @@ module.exports = function Api(app, passport) {
     });
 
     app.post('/api/login', function (req, res, next) {
-            console.log(res)
+            console.log('/api/login')
             passport.authenticate('login', function (err, user, info) {
                 if (err) {
                     return next(err)
@@ -561,7 +298,6 @@ module.exports = function Api(app, passport) {
     app.get('/api/logout', function (req, res) {
         console.log('/api/logout');
         req.logout();
-
         return callback("logout ok", res);
     });
 
@@ -595,6 +331,7 @@ module.exports = function Api(app, passport) {
         });
 
     app.get('/api/check_auth', function (req, res, next) {
+        console.log('/api/check_auth');
         // if user is authenticated in the session, carry on
         var r = {
             isAuth: req.isAuthenticated(), isAdmin: req.isAuthenticated() && req.user.role_id == 1,
@@ -612,7 +349,7 @@ module.exports = function Api(app, passport) {
 
         if (req.isAuthenticated()) {
             // запомним, что пользователь заходил
-            new PgUsers().updateLastVisit(req.user.user_id);
+            PgUsers.updateLastVisit(req.user.user_id);
         }
         console.log('/api/check_auth', r)
         callback(r, res);

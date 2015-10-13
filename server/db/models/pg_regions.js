@@ -1,22 +1,12 @@
 
-var PG = require('./pg');
+var PG = require('../../utils/pg');
 var fs = require('fs');
 var path = require('path');
 
-function PgRegions() {
+var PgRegions = {};
 
-};
-
-PgRegions.prototype.list = function () {
-    return PG.query("SELECT * FROM regions;",
-        [])
-        .then( function (res) {
-            //console.log('PgRegions.prototype.list')
-            return res.rows;
-        })
-        .catch(function (err) {
-            throw  err;
-        })
+PgRegions.list = function () {
+    return PG.logQuery("SELECT * FROM regions;")
 }
 
 module.exports = PgRegions;
