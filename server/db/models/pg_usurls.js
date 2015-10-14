@@ -53,7 +53,7 @@ PgUsurls.insertWithUrl = function (url, user_id) {
     var urls
     return PgUrls.findByUrl(url)
         .then(function (url) {
-            if (url) {
+            if (!url) {
                 return PG.logQueryOne("INSERT INTO urls (url, date_create) VALUES ($1, $2) returning url_id;", [url, date_create])
                     .then(function (newUrl) {
                         return newUrl.url_id
