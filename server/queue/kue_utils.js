@@ -33,6 +33,24 @@ function addTask(kue, taskName, data) {
     })
 }
 
+function addTaskWithTime(kue, when, taskName, data) {
+    return addTaskWithDelay(kue, when, taskName, data)
+}
+
+function addTaskWithDelay(kue, delayMilliseconds, taskName, data) {
+    return new Promise(function (resolve, reject) {
+        var job = kue.create(taskName, data)
+            .delay(delayMilliseconds)
+            .save(function (err) {
+                if (err) {
+                    throw new Error(err)
+                }
+                resolve(job.id)
+            }
+        );
+    })
+}
+
 function getJobStateAndData(id, removeAfterComplete){
     return Promise.promisify(kue.Job.get)(id)
         .then(function (job) {
@@ -50,5 +68,7 @@ module.exports = {
     getQueue: getQueue,
     registerTask:  registerTask,
     addTask: addTask,
+    addTaskWithTime: addTaskWithTime,
+    addTaskWithDelay: addTaskWithDelay,
     getJobStateAndData: getJobStateAndData
 }
