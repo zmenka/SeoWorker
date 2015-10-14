@@ -1,16 +1,23 @@
-var PgUsers = require("./pg_users");
-var Q = require("q")
-var Access = function (){
+var PgUsers = require("../db/models/pg_users");
+var Promise = require("./promise")
+var Access = {}
 
-}
-
-Access.prototype.isUserAvailableToUser = function (user_id, to_user_id, role_id){
-    return Q.fcall(function () {
-        if (user_id == to_user_id || role_id == 1){
+Access.isUserAvailableToUser = function (user_id, to_user_id, to_role_id){
+    return Promise.try(function () {
+        if (user_id == to_user_id || to_role_id == 1){
             return true
         } else{
-            return new PgUsers().isUserAvailableToUser(user_id, to_user_id)
+            return PgUsers.isUserAvailableToUser(user_id, to_user_id)
         }
     });
 }
+
+Access.isAuth = function (req) {
+    return req.user && req.user.user_id
+};
+
+Access.isAdmin = function (req) {
+    return isAuth && req.user.role_id == 1
+};
+
 module.exports = Access

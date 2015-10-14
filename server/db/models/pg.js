@@ -3,7 +3,7 @@
  */
 // get a pg client from the connection pool
 var pg = require('pg');
-var Q = require('../../utils/q');
+var Q = require('q');
 var Config = require('../../config');
 var Client = require('pg').Client;
 

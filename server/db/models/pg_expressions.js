@@ -1,10 +1,14 @@
 
-var PG = require('./pg');
-var Q = require('../../utils/q');
+var PG = require('../../utils/pg');
 
-function PgExpressions() {
+var PgExpressions = {}
 
-};
+PgExpressions.execute_list = function (list) {
+    var listPG = list.map(function(element){
+        return {queryText: element}
+    })
+    return PG.logQueryListSync(listPG)
+}
 /*
  * **************************************************************************************
  * **************************************************************************************
@@ -12,36 +16,6 @@ function PgExpressions() {
  * **************************************************************************************
  * **************************************************************************************
  */
-PgExpressions.prototype.execute_list = function (list, to_continue, debug) {
-  debug = debug || false
-  to_continue = to_continue || false
-    var db;
-    return new PG()
-        .then(function (dbres) {
-            var db = dbres;
- 
-            var result = Q(function(){});
-            list.forEach(function (command) {
-              if (debug) {console.log(command)}
-                result = result.then(function(){
-                return db.transact(command);
-              });
-            });
-            if (!to_continue) {
-              if (debug) {console.log('PgExpressions.prototype.execute_list COMMIT')}
-              result = result.then(function(result){
-                return db.commit(result)
-              })
-            }
-            return result;
-        })
-        .then(function(res){
-          return res.rows
-        })
-    .catch(function (err) {
-      throw err;
-    })
-}
 /*
 Подготовка процентов приближенности к коридору по списку htmls
 
@@ -80,7 +54,7 @@ PgExpressions.prototype.GET_PERCENT_BY_CONDURL = function () {
  * **************************************************************************************
  * **************************************************************************************
  */
-PgExpressions.prototype.USERS_URL_COUNT = function (vUSER_ID, vROLE_ID) {
+PgExpressions.USERS_URL_COUNT = function (vUSER_ID, vROLE_ID) {
     var list = []
     list = list.concat(this.GET_AVAILABLE_USERS(vUSER_ID, vROLE_ID));
     list.push('DROP TABLE IF EXISTS tt_lst_condurls;');
@@ -132,7 +106,7 @@ PgExpressions.prototype.USERS_URL_COUNT = function (vUSER_ID, vROLE_ID) {
                 ;");
     return list
 }
-PgExpressions.prototype.GET_AVAILABLE_USERS = function (vUSER_ID, vROLE_ID) {
+PgExpressions.GET_AVAILABLE_USERS = function (vUSER_ID, vROLE_ID) {
     var list = []
     list.push('DROP TABLE IF EXISTS tt_res_users;');
     if (vROLE_ID == 1) {
@@ -173,7 +147,7 @@ PgExpressions.prototype.GET_AVAILABLE_USERS = function (vUSER_ID, vROLE_ID) {
     list.push('CREATE INDEX IDX_tt_res_users ON tt_res_users (USER_ID);');
     return list
 }
-PgExpressions.prototype.USURLS_WITH_TASKS = function (vUSER_ID, withDisabled) {
+PgExpressions.USURLS_WITH_TASKS = function (vUSER_ID, withDisabled) {
     var list = []
     list.push('DROP TABLE IF EXISTS tt_lst_condurls;');
     list.push(' CREATE TEMPORARY TABLE tt_lst_condurls AS                           \
@@ -229,7 +203,7 @@ PgExpressions.prototype.USURLS_WITH_TASKS = function (vUSER_ID, withDisabled) {
     return list
 }
 
-PgExpressions.prototype.GET_SITE_PARAM = function (vCONDITION_ID, vURL_ID, vPARAMTYPE_ID) {
+PgExpressions.GET_SITE_PARAM = function (vCONDITION_ID, vURL_ID, vPARAMTYPE_ID) {
   var list = []
   list.push('DROP TABLE IF EXISTS tt_lst_urls;');
   list.push(' CREATE TEMPORARY TABLE tt_lst_urls AS    ' +
@@ -250,7 +224,7 @@ PgExpressions.prototype.GET_SITE_PARAM = function (vCONDITION_ID, vURL_ID, vPARA
               ' P.PARAMTYPE_ID = ' + vPARAMTYPE_ID + ';');
   return list
 }
-PgExpressions.prototype.GET_PARAMTYPES_FOR_URL = function (vCONDITION_ID, vURL_ID) {
+PgExpressions.GET_PARAMTYPES_FOR_URL = function (vCONDITION_ID, vURL_ID) {
   var list = []
   list.push('DROP TABLE IF EXISTS tt_lst_urls;');
   list.push(' CREATE TEMPORARY TABLE tt_lst_urls AS ' +
@@ -271,7 +245,7 @@ PgExpressions.prototype.GET_PARAMTYPES_FOR_URL = function (vCONDITION_ID, vURL_I
                 'JOIN tt_res_hpercents TTS ON P.CONDITION_ID = TTS.CONDITION_ID AND P.HTML_ID = TTS.HTML_ID AND PT.PARAMTYPE_ID = TTS.PARAMTYPE_ID;');
   return list
 }
-PgExpressions.prototype.GET_PARAMTYPES = function (vSEARCH_ID) {
+PgExpressions.GET_PARAMTYPES = function (vSEARCH_ID) {
   var list = []
   list.push("SELECT " +
     "    DISTINCT PT.* " +
@@ -290,7 +264,7 @@ PgExpressions.prototype.GET_PARAMTYPES = function (vSEARCH_ID) {
     "    S.SEARCH_ID  = " + vSEARCH_ID + ";");
   return list
 }
-PgExpressions.prototype.TEST = function () {
+PgExpressions.TEST = function () {
   var list = []
   list.push('select 1;');
   list.push('select 2;');

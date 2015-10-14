@@ -18,47 +18,36 @@
  *    returns [{role_id , role_abbr , ...}, ...]
  */
 
-var PG = require('./pg');
-var fs = require('fs');
-var path = require('path');
+var PG = require('../../utils/pg');
 
-function PgRoles() {
+var PgRoles = {};
 
-};
-
-PgRoles.prototype.list = function () {
-    return PG.query("SELECT * FROM roles;",
-        [])
-        .then( function (res) {
-            return res.rows;
-        })
-        .catch(function (err) {
-            throw  err;
-        })
+PgRoles.list = function () {
+    return PG.logQuery("SELECT * FROM roles;")
 }
 
-PgRoles.prototype.get = function (id, callback, errback) {
-    PG.query("SELECT * FROM roles WHERE role_id = $1;",
-        [id],
-        function (res) {
-            callback(res.rows[0]);
-        },
-        function (err) {
-            console.log('PgRoles.prototype.get');
-            console.log(err);
-        })
-}
-
-PgRoles.prototype.find = function (role_abbr, callback, errback) {
-    PG.query("SELECT * FROM roles WHERE role_abbr = $1;",
-        [role_abbr],
-        function (res) {
-            callback(res.rows);
-        },
-        function (err) {
-            console.log('PgRoles.prototype.find');
-            console.log(err);
-        })
-}
+//PgRoles.prototype.get = function (id, callback, errback) {
+//    PG.query("SELECT * FROM roles WHERE role_id = $1;",
+//        [id],
+//        function (res) {
+//            callback(res.rows[0]);
+//        },
+//        function (err) {
+//            console.log('PgRoles.prototype.get');
+//            console.log(err);
+//        })
+//}
+//
+//PgRoles.prototype.find = function (role_abbr, callback, errback) {
+//    PG.query("SELECT * FROM roles WHERE role_abbr = $1;",
+//        [role_abbr],
+//        function (res) {
+//            callback(res.rows);
+//        },
+//        function (err) {
+//            console.log('PgRoles.prototype.find');
+//            console.log(err);
+//        })
+//}
 
 module.exports = PgRoles;
