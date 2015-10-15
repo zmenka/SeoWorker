@@ -55,12 +55,11 @@ Core.prototype.bg = function () {
             })
             .then(function (res) {
                 if (res) {
-                    console.log('Core.bg START condition_id ', res.condition_id,
-                        ', task_id ', res.task_id, ', is_cond_already_calc ', res.is_cond_already_calc,
+                    console.log('Core.bg START condition_id ', res.condition_id, ', is_cond_already_calc ', res.is_cond_already_calc,
                         ', url ', res.url)
-                    return calcSiteParams(res.url, res.condition_id, res.task_id)
+                    return calcSiteParams(res.url, res.condition_id)
                         .catch(function (err) {
-                            console.log('Core.bg calcSiteParams conds ', res.condition_id, res.task_id, res.url, res.is_cond_already_calc, ' , err ', err);
+                            console.log('Core.bg calcSiteParams conds ', res.condition_id, res.url, res.is_cond_already_calc, ' , err ', err);
                             throw 'next try';
                         })
                         .then(function () {
@@ -68,9 +67,9 @@ Core.prototype.bg = function () {
                                 console.log('Core.bg calcParams conds ', res.condition_id, res.task_id, res.url, res.is_cond_already_calc, ' is_cond_already_calc')
                                 return 'OK'
                             } else {
-                                return calcParams(res["condition_id"], 1)
+                                return calcParams(res.condition_id, 1, res.url)
                                     .catch(function (err) {
-                                        console.log('Core.bg calcParams conds ', res.condition_id, res.task_id, res.url, res.is_cond_already_calc, ' , err ', err);
+                                        console.log('Core.bg calcParams conds ', res.condition_id, res.url, res.is_cond_already_calc, ' , err ', err);
                                         throw 'next try';
                                     })
                             }
@@ -98,7 +97,7 @@ Core.prototype.bg = function () {
     return f();
 
 }
-Core.prototype.calcParams = function (condition_id, user_id) {
+Core.prototype.calcParams = function (condition_id, user_id, url) {
     _this3 = this;
     var condition;
     var search_objects;
@@ -122,7 +121,7 @@ Core.prototype.calcParams = function (condition_id, user_id) {
         })
         .then(function (res_links_obj) {
             links_obj = res_links_obj
-            return savePositions(links_obj, condition_id)
+            return savePositions(links_obj, condition_id, url)
         })
         .then(function () {
             return calcLinksParams(links_obj, condition_id, condition.condition_query)
@@ -171,10 +170,7 @@ Core.prototype.getLinksFromSearcher = function (search_objects, condition_id, us
                 return new Searcher().getContentByUrlOrCaptcha(search_object.url, null, user_id, sengine_name, true)
                     .then(function (res) {
                         raw_html = res.html;
-                        return PgUrls.insertIgnore(search_object.url)
-                    })
-                    .then(function (url) {
-                        return PgSpages.replace(condition_id, url.url_id, search_object.page)
+                        return PgSpages.replace(condition_id, search_object.page)
                     })
                     .then(function (spage) {
                         spage_id = spage.spage_id;
@@ -241,7 +237,7 @@ Core.prototype.calcLinksParams = function (links_obj, condition_id, condition_qu
                                 current_url_id = url.url_id;
                                 return PgScontents.insert(spage_id, current_url_id, position, false)
                             })
-                            .then(function (scontent_id) {
+                            .then(function () {
                                 return new SeoParameters().init(condition_query, current_html)
                             })
                             .then(function (params) {
@@ -253,7 +249,6 @@ Core.prototype.calcLinksParams = function (links_obj, condition_id, condition_qu
                                     }
                                     (function (param, condition_id, html_id) {
                                         console.log("сейчас обрабатывается параметр ", param)
-                                        var current_html_id;
                                         paramPromises.push(PgParams.replaceByPtName(condition_id, html_id, param.name, param.val))
 
                                     })(allParams[i], condition_id, current_html_id)
@@ -274,14 +269,16 @@ Core.prototype.calcLinksParams = function (links_obj, condition_id, condition_qu
  * @param links_obj {spage_id: <>,start<>, links: {url: <>, title: <>}[]}[]
  * @returns {*}
  */
-Core.prototype.savePositions = function (links_obj, condition_id) {
+Core.prototype.savePositions = function (links_obj, condition_id, url) {
    var promises = [];
    for (var i = 0; i < links_obj.length; i++) {//links.length
        for (var j = 0; j < links_obj[i].links.length; j++) {
-           (function (link, position, condition_id) {
+           if (url == link.url) {
+               (function (link, position, condition_id) {
 //               console.log("сейчас обрабатывается ссылка ", link, position)
-               promises.push(PgPositions.insertByUrlCond(link.url, position, condition_id))
-           })(links_obj[i].links[j], j + links_obj[i].start, condition_id)
+                   promises.push(PgPositions.insertByUrlCond(link.url, position, condition_id))
+               })(links_obj[i].links[j], j + links_obj[i].start, condition_id)
+           }
        }
    }
    return Q.allSettled(promises)
