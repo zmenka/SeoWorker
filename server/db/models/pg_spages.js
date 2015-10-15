@@ -1,107 +1,49 @@
 /**
  * Created by bryazginnn on 22.11.14.
- *
- *
- *  var PgSpages = require("./server/db/postgres/pg_spages");
- *  var spages = new PgSpages();
- *
- *  //вставить строку в таблицу spages
- *  spages.insert (
- *      <search_id>,
- *      <html_id>,
- *      <position>,
- *      <is_commercial>,
- *      <callback>,
- *      <errback>
- *  )
- *    returns <new spage_id>
- *
- *  //получить все строки из spages
- *  spages.list (<callback>,<errback>)
- *    returns [{spage_id , search_id , ...}, ...]
- *
- *  //получить строку из spages с помощью spage_id
- *  spages.get (<spage_id>,<callback>,<errback>)
- *    returns {spage_id , search_id , ...}
- *
- *  //получить строки из spages с помощью search_id
- *  spages.find (<search_id>,<callback>,<errback>)
- *    returns [{spage_id , search_id , ...}, ...]
  */
 
-var PG = require('./pg');
-var fs = require('fs');
-var path = require('path');
+var PG = require('../../utils/pg');
+var PgScontents = require('./pg_scontents');
 
-function PgSpages() {
+var model = {};
 
+model.find = function (condition_id, page_number) {
+    return PG.logQueryOneOrNone("SELECT * FROM spages WHERE CONDITION_ID = $1 AND PAGE_NUMBER = $2", [condition_id, page_number]);
 };
 
-PgSpages.prototype.insert = function (search_id, html_id, page_number) {
+model.insert = function (condition_id, page_number) {
+    return PG.logQueryOneOrNone("INSERT INTO spages (CONDITION_ID, PAGE_NUMBER, DATE_CREATE) " +
+        "SELECT $1, $2, $3 RETURNING SPAGE_ID", [condition_id, page_number, new Date()] )
+};
 
-    var date_create = new Date();
-    // create a Url
-    var db
-    return new PG()
-        .then(function (db_res) {
-            db = db_res
-            return  db.transact(
-                "INSERT INTO spages (search_id, html_id, page_number, date_create) VALUES ($1, $2, $3, $4);",
-                [search_id, html_id, page_number, date_create])
+model.delete = function (id) {
+    return PG.logQueryOneOrNone("DELETE FROM scontents WHERE SPAGE_ID = $1", [id] )
+        .then(function(){
+            return PG.logQueryOneOrNone("DELETE FROM spages WHERE SPAGE_ID = $1", [id] )
         })
-        .then(function (res) {
-            return db.transact(
-                "SELECT currval(pg_get_serial_sequence('spages','spage_id'))",
-                [], true)
-        })
-        .then(function (res) {
-            //console.log("PgSpages.prototype.insert");
-            return res.rows[0].currval;
-        })
-        .catch(function (err) {
-            //throw 'PgSpages.prototype.insert ' + err;
-            throw err
-        }
-    );
-}
+};
 
-PgSpages.prototype.list = function (callback, errback) {
-    PG.query("SELECT * FROM spages ORDER BY date_create desc;",
-        [],
-        function (res) {
-            callback(res.rows);
-        },
-        function (err) {
-            console.log('PgSpages.prototype.list');
-            console.log(err);
-            errback(err)
+model.clearByCondition = function (condition_id) {
+    return PgScontents.clearByCondition(condition_id)
+        .then(function(){
+            return PG.logQueryOneOrNone("DELETE FROM spages WHERE CONDITION_ID = $1", [condition_id] )
         })
-}
+};
 
-PgSpages.prototype.get = function (id, callback, errback) {
-    PG.query("SELECT * FROM spages WHERE spage_id = $1;",
-        [id],
-        function (res) {
-            callback(res.rows[0]);
-        },
-        function (err) {
-            console.log('PgSpages.prototype.get');
-            console.log(err);
-            errback(err)
+model.replace = function (condition_id, page_number) {
+    return model.find (condition_id, page_number)
+        .then(function(res){
+            if(res) {
+                return model.delete(res.spage_id);
+            }
+            return
         })
-}
-
-PgSpages.prototype.find = function (search_id, callback, errback) {
-    PG.query("SELECT * FROM spages WHERE search_id = $1;",
-        [search_id],
-        function (res) {
-            callback(res.rows);
-        },
-        function (err) {
-            console.log('PgSpages.prototype.find');
-            console.log(err);
-            errback(err)
+        .then(function() {
+            return model.insert(condition_id, page_number)
         })
-}
+        .then(function(res) {
+            return res;
+        })
+};
 
-module.exports = PgSpages;
+module.exports = model;

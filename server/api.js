@@ -1,14 +1,11 @@
 var PgUsers = require("./db/models/pg_users");
-var PgUsurls = require("./db/models/pg_usurls");
-var PgTasks = require("./db/models/pg_tasks");
-var PgSearch = require("./db/models/pg_search");
 var PgSengines = require("./db/models/pg_sengines");
 var PgRegions = require("./db/models/pg_regions");
 var PgGroups = require("./db/models/pg_groups");
 var PgRoles = require("./db/models/pg_roles");
 var PgParams = require("./db/models/pg_params");
-var PgHtmls = require("./db/models/pg_htmls");
-var PgCorridor = require("./db/models/pg_corridor");
+var PgConditions = require("./db/models/pg_conditions");
+var PgCorridor = require("./db/models/pg_corridors");
 var SeoFormat = require("./SeoFormat");
 var Diagram = require("./Diagram");
 var Core = require("./core");
@@ -71,21 +68,21 @@ module.exports = function Api(app, passport) {
         console.log('/api/remove_task', req.body);
 
         if (!req.user || !req.user.user_id) {
-            errback(null, res, "Вы не зарегистрировались.");
+            ApiUtils.errback(null, res, "Вы не зарегистрировались.");
             return;
         }
 
         if (!req.body.task_id) {
-            errback(null, res, "не найдены все параметры! ");
+            ApiUtils.errback(null, res, "не найдены все параметры! ");
             return;
         }
 
         return new PgTasks().remove(req.body.task_id)
             .then(function (db_res) {
-                callback(db_res, res);
+                ApiUtils.callback(db_res, res);
             })
             .catch(function (err) {
-                errback(err, res);
+                ApiUtils.errback(err, res);
             })
     });
 
@@ -112,32 +109,27 @@ module.exports = function Api(app, passport) {
         console.log('/api/calc_params', req.body);
 
         if (!req.user || !req.user.user_id) {
-            errback(null, res, "Вы не зарегистрировались.");
+            ApiUtils.errback(null, res, "Вы не зарегистрировались.");
             return;
         }
 
         if (req.user.role_id != 1) {
-            errback(null, res, "Вы не админ.");
+            ApiUtils.errback(null, res, "Вы не админ.");
             return;
         }
 
         if (!serverFree) {
-            errback(null, res, "Сервер занят, попробуйте позже.");
+            ApiUtils.errback(null, res, "Сервер занят, попробуйте позже.");
             return;
         }
 
         if (!req.body.url) {
-            errback(null, res, "Не найден параметр url.");
+            ApiUtils.errback(null, res, "Не найден параметр url.");
             return;
         }
 
         if (!req.body.condition_id) {
-            errback(null, res, "Не найден параметр condition_id.");
-            return;
-        }
-
-        if (!req.body.task_id) {
-            errback(null, res, "Не найден параметр task_id.");
+            ApiUtils.errback(null, res, "Не найден параметр condition_id.");
             return;
         }
 
@@ -147,15 +139,15 @@ module.exports = function Api(app, passport) {
                 return new Core().calcParamsByUrl(req.body.url, req.body.condition_id)
             })
             .then(function (res2) {
-                return new PgTasks().updateWithDateCalc(req.body.task_id, new Date())
+                PgConditions.updateDateCalc(req.body.condition_id)
             })
             .then(function () {
-                callback("ok", res);
+                ApiUtils.callback("ok", res);
                 serverFree = true
             })
             .catch(function (err) {
                 serverFree = true
-                errback(err, res);
+                ApiUtils.errback(err, res);
             })
 
     });
@@ -164,23 +156,23 @@ module.exports = function Api(app, passport) {
         console.log('/api/calc_site_params', req.body);
 
         if (!req.user || !req.user.user_id) {
-            errback(null, res, "Вы не зарегистрировались.");
+            ApiUtils.errback(null, res, "Вы не зарегистрировались.");
             return;
         }
 
         if (!req.body.condition_id) {
-            errback(null, res, "Не найден параметр condition_id.");
+            ApiUtils.errback(null, res, "Не найден параметр condition_id.");
             return;
         }
 
         return new Core().calcParamsByUrl(req.body.url, req.body.condition_id)
             .then(function () {
-                callback("ok", res);
+                ApiUtils.callback("ok", res);
             })
             .catch(function (err) {
                 //console.log(err, err.stack);
                 //errback("", res);
-                errback(err, res)
+                ApiUtils.errback(err, res)
             })
     });
 
@@ -188,32 +180,32 @@ module.exports = function Api(app, passport) {
         console.log('/api/get_paramtypes', req.body);
 
         if (!req.user || !req.user.user_id) {
-            errback(null, res, "Вы не зарегистрировались.");
+            ApiUtils.errback(null, res, "Вы не зарегистрировались.");
             return;
         }
 
         if (!req.body.condition_id) {
-            errback(null, res, "не найдены параметры condition_id");
+            ApiUtils.errback(null, res, "не найдены параметры condition_id");
             return;
         }
 
         if (!req.body.url_id) {
-            errback(null, res, "не найдены параметры url_id");
+            ApiUtils.errback(null, res, "не найдены параметры url_id");
             return;
         }
-        return new PgParams().getParamtypesForUrl(req.body.condition_id, req.body.url_id)
+        return PgParams.getParamtypesForUrl(req.body.condition_id, req.body.url_id)
             .then(function (paramtypes) {
                 if (!paramtypes || !paramtypes.length) {
-                    errback(null, res, 'Еще не посчитан ни один тип параметра')
+                    ApiUtils.errback(null, res, 'Еще не посчитан ни один тип параметра')
                     return
                 }
                 var tree = new SeoFormat().getTreeFromParamtypes(paramtypes)
-                callback(tree, res)
+                ApiUtils.callback(tree, res)
             })
             .catch(function (err) {
                 //console.log(err, err.stack);
                 //errback("", res);
-                errback(err, res)
+                ApiUtils.errback(err, res)
             })
     })
 
@@ -221,17 +213,17 @@ module.exports = function Api(app, passport) {
         console.log('/api/get_params', req.body);
 
         if (!req.body.condition_id) {
-            errback(null, res, "не найдены параметры condition_id");
+            ApiUtils.errback(null, res, "не найдены параметры condition_id");
             return;
         }
 
         if (!req.body.url_id) {
-            errback(null, res, "не найдены параметры url_id");
+            ApiUtils.errback(null, res, "не найдены параметры url_id");
             return;
         }
 
         if (!req.body.param_type) {
-            errback(null, res, "не найдены параметры param_type");
+            ApiUtils.errback(null, res, "не найдены параметры param_type");
             return;
         }
 
@@ -241,7 +233,7 @@ module.exports = function Api(app, passport) {
         return new PgSearch().getLastSearch(req.body.condition_id)
             .then(function (searchRes) {
                 if (!searchRes) {
-                    errback(null, res, 'Еще не получена поисковая выдача')
+                    ApiUtils.errback(null, res, 'Еще не получена поисковая выдача')
                     return
                 }
                 search = searchRes;
@@ -249,7 +241,7 @@ module.exports = function Api(app, passport) {
             })
             .then(function (paramsChartRes) {
                 if (!paramsChartRes || !paramsChartRes.length) {
-                    errback(null, res, 'Еще не получены данные выборки')
+                    ApiUtils.errback(null, res, 'Еще не получены данные выборки')
                     return
                 }
                 paramsChart = paramsChartRes;
@@ -261,18 +253,18 @@ module.exports = function Api(app, passport) {
             })
             .then(function (siteParams) {
                 if (!siteParams) {
-                    errback(null, res, 'Еще не получены параметры для Вашего сайта. Нажмите "Пересчитать сайт".')
+                    ApiUtils.errback(null, res, 'Еще не получены параметры для Вашего сайта. Нажмите "Пересчитать сайт".')
                     return
                 }
                 diagram = new Diagram();
                 //форматируем данные работаем с диаграммой.
                 var paramsDiagram = diagram.getParamsDiagram(paramsChart, siteParams, corridor);
-                callback(paramsDiagram, res)
+                ApiUtils.callback(paramsDiagram, res)
             })
             .catch(function (err) {
                 //console.log(err, err.stack);
                 //errback("", res);
-                errback(err, res);
+                ApiUtils.errback(err, res);
             })
     });
 
@@ -289,7 +281,7 @@ module.exports = function Api(app, passport) {
                     if (err) {
                         return next(err);
                     }
-                    return callback(info.message, res);
+                    return ApiUtils.callback(info.message, res);
                 });
             })(req, res, next);
         }
@@ -298,19 +290,19 @@ module.exports = function Api(app, passport) {
     app.get('/api/logout', function (req, res) {
         console.log('/api/logout');
         req.logout();
-        return callback("logout ok", res);
+        return ApiUtils.callback("logout ok", res);
     });
 
         app.post('/api/register', function (req, res, next) {
             console.log('/api/register', req.body);
 
             if (!req.body.login || !req.body.password || !req.body.role_id) {
-                errback(null, res, "Не найдены все параметры  ");
+                ApiUtils.errback(null, res, "Не найдены все параметры  ");
                 return;
             }
 
             if (!req.user || !req.user.user_id) {
-                errback(null, res, "Вы не зарегистрированы.");
+                ApiUtils.errback(null, res, "Вы не зарегистрированы.");
                 return;
             }
 
@@ -322,11 +314,11 @@ module.exports = function Api(app, passport) {
                                 callback(dbres, res)
                             })
                     } else {
-                        callback(user_id, res);
+                        ApiUtils.callback(user_id, res);
                     }
                 })
                 .catch(function (err) {
-                    errback(err, res);
+                    ApiUtils.errback(err, res);
                 })
         });
 
@@ -352,7 +344,7 @@ module.exports = function Api(app, passport) {
             PgUsers.updateLastVisit(req.user.user_id);
         }
         console.log('/api/check_auth', r)
-        callback(r, res);
+        ApiUtils.callback(r, res);
     });
 
 }

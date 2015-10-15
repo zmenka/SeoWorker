@@ -17,30 +17,30 @@ ApiUtils.errback = function (err, response, userMsg) {
 ApiUtils.simple_api_func = function (req, res, funcPromise, paramsArray, checkAuth, checkAdmin) {
 
     if (checkAuth && !Access.isAuth(req)) {
-        errback(null, res, "Вы не зарегистрировались.");
+        ApiUtils.errback(null, res, "Вы не зарегистрировались.");
         return;
     }
 
     if (checkAdmin && !Access.isAdmin(req)) {
-        errback(null, res, "Вы не админ.");
+        ApiUtils.errback(null, res, "Вы не админ.");
         return;
     }
     console.log(req.url, paramsArray);
     return funcPromise.apply(null, paramsArray)
         .then(function (result) {
-            callback(result, res);
+            ApiUtils.callback(result, res);
         })
         .catch(function (err) {
-            errback(err, res);
+            ApiUtils.errback(err, res);
         })
 };
 
 ApiUtils.auth_api_func = function (req, res, funcPromise, paramsArray) {
-    return simple_api_func (req, res, funcPromise, paramsArray, true)
+    return ApiUtils.simple_api_func (req, res, funcPromise, paramsArray, true)
 }
 
 ApiUtils.admin_api_func = function (req, res, funcPromise, paramsArray) {
-    return simple_api_func (req, res, funcPromise, paramsArray, true, true)
+    return ApiUtils.simple_api_func (req, res, funcPromise, paramsArray, true, true)
 }
 
 module.exports = ApiUtils

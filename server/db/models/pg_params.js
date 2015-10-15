@@ -1,165 +1,83 @@
 /**
  * Created by bryazginnn on 22.11.14.
- *
- *
- *  var PgParams = require("./server/db/postgres/pg_params");
- *  var params = new PgParams();
- *
- *  //вставить строку в таблицу params
- *  params.insert (
- *      <condition_id>,
- *      <html_id>,
- *      <paramtype_name>,
- *      <param_value>,
- *      <callback>,
- *      <errback>
- *  )
- *    returns <new param_id>
- *
- *  //получить все строки из params
- *  params.list (<callback>,<errback>)
- *    returns [{param_id , condition_id , ...}, ...]
- *
- *  //получить строку из params с помощью param_id
- *  params.get (<param_id>,<callback>,<errback>)
- *    returns {param_id , condition_id , ...}
- *
- *  //получить строки из params с помощью condition_id и html_id
- *  params.find (<condition_id>,<html_id>,<callback>,<errback>)
- *    returns [{param_id , condition_id , ...}, ...]
  */
 
-var PG = require('./pg');
-var fs = require('fs');
+var PG = require('../../utils/pg');
 var PgExpressions = require('./pg_expressions');
-var path = require('path');
 
-function PgParams() {
+var model = {};
 
+model.find = function (condition_id, url_id, paramtype_id) {
+    return PG.logQueryOneOrNone("SELECT * FROM params WHERE CONDITION_ID = $1 AND URL_ID = $2 AND PARAMTYPE_ID = $3", [condition_id, url_id, paramtype_id]);
 };
 
-PgParams.prototype.insert = function (condition_id, html_id, paramtype_name, param_value) {
-    var date_create = new Date();
-    // create a Url
-    var db;
-    return new PG()
-        .then(function (db_res) {
-            db=db_res
-            return db.transact(
-                "INSERT INTO params (condition_id, html_id, paramtype_id, param_value,  date_create) " +
-                "VALUES ($1, $2, (SELECT PARAMTYPE_ID FROM paramtypes WHERE PARAMTYPE_NAME = $3 LIMIT 1), $4, $5);",
-                [condition_id, html_id, paramtype_name, param_value,  date_create])
-        })
-        .then(function (res) {
-            return db.transact(
-                "SELECT currval(pg_get_serial_sequence('params','param_id'))",
-                [], true)
-        })
-        .then(function (res) {
-            //console.log("PgParams.prototype.insert")
-            return res.rows[0].currval;
-        })
+model.insert = function (condition_id, url_id, paramtype_id, param_value) {
+    return PG.logQueryOneOrNone("INSERT INTO params (CONDITION_ID, URL_ID, PARAMTYPE_ID, PARAM_VALUE, DATE_CREATE) " +
+        "SELECT $1, $2, $3, $4, $5 RETURNING PARAM_ID", [condition_id, url_id, paramtype_id, param_value, new Date()] )
+};
 
-        .catch(function (err) {
-            //console.log(err)
-            //throw 'PgParams.prototype.insert ' + err;
-            throw err
+model.replaceByPtName = function (condition_id, url_id, paramtype, param_value) {
+    return model.getParamtype(paramtype)
+        .then(function(paramtype){
+            model.replace(condition_id, url_id, paramtype.paramtype_id, param_value)
         })
+};
 
-}
+model.getParamtype = function (paramtype) {
+    return PG.logQueryOneOrNone("SELECT * FROM paramtypes WHERE PARAMTYPE_NAME = $1", [paramtype] )
+};
 
-PgParams.prototype.list = function () {
-    PG.query("SELECT * FROM paramtypes ORDER BY paramtype_name desc;",
-        [],
-        function (res) {
-            return res.rows;
-        },
-        function (err) {
-            console.log('PgParams.prototype.list');
-            console.log(err);
+model.delete = function (id) {
+    return PG.logQueryOneOrNone("DELETE FROM params WHERE PARAM_ID = $1", [id] )
+};
+
+model.replace = function (condition_id, url_id, paramtype_id, param_value) {
+    return model.find (condition_id, url_id, paramtype_id)
+        .then(function(res){
+            if(res) {
+                return model.delete(res.param_id);
+            }
+            return
         })
-}
-
-PgParams.prototype.get = function (id) {
-    PG.query("SELECT P.*,PT.* FROM params P JOIN paramtypes PT ON P.PARAMTYPE_ID = PT.PARAMTYPE_ID WHERE P.param_id = $1;",
-        [id],
-        function (res) {
-            return res.rows;
-        },
-        function (err) {
-            console.log('PgParams.prototype.get');
-            console.log(err);
+        .then(function() {
+            return model.insert(condition_id, url_id, paramtype_id, param_value)
         })
-}
-
-PgParams.prototype.getSiteParam = function (condition_id, url_id, paramtype_id) {
-    var ex = new PgExpressions();
-    return ex.execute_list(ex.GET_SITE_PARAM(condition_id, url_id, paramtype_id))
-        .then(function (res) {
-            //console.log('PgParams.prototype.getSiteParam');
-            return res[0];
-        })
-        .catch(function (err) {
-            //throw 'PgParams.prototype.getSiteParam' + err;
-            throw err;
-        })
-}
-
-PgParams.prototype.getParamDiagram = function (search_id, paramtype_id) {
-    return PG.query( "SELECT " +
-              "    SC.POSITION + 1 as POSITION, " +
-              "    P.PARAM_VALUE as VALUE " +
-              "FROM " +
-              "    search S " +
-              "    JOIN spages SP  " + 
-              "        ON S.SEARCH_ID = SP.SEARCH_ID " + 
-              "    JOIN scontents SC  " + 
-              "        ON SP.SPAGE_ID = SC.SPAGE_ID" + 
-              "    JOIN params P  " + 
-              "         ON SC.HTML_ID = P.HTML_ID " + 
-              "         AND S.CONDITION_ID = P.CONDITION_ID " + 
-              "    JOIN paramtypes PT  " + 
-              "         ON P.PARAMTYPE_ID = PT.PARAMTYPE_ID " + 
-              "WHERE " + 
-              "    S.SEARCH_ID  = $1  " + 
-              "    AND PT.PARAMTYPE_ID = $2 " +
-        "ORDER BY SC.POSITION;",
-        [search_id, paramtype_id])
-        .then(function (res) {
-            return res.rows;
-        })
-        .catch(function (err) {
-            //throw 'PgParams.prototype.getParamDiagram' + err;
-            throw err
-        })
-}
-
-
-PgParams.prototype.getParamtypesForUrl = function (condition_id, url_id) {
-    var ex = new PgExpressions();
-    return ex.execute_list(ex.GET_PARAMTYPES_FOR_URL(condition_id, url_id))
-        //.then(function (res) {
-        //    //console.log('PgParams.prototype.getParamtypes');
-        //    return res;
-        //})
-        //.catch(function (err) {
-        //    //console.log('PgParams.prototype.getParamtypes err', err);
-        //    //throw 'PgParams.prototype.getParamtypes err  ' + err
-        //    throw err
-        //})
-}
-
-PgParams.prototype.getParamtypes = function (search_id) {
-    var ex = new PgExpressions();
-    return ex.execute_list(ex.GET_PARAMTYPES(search_id))
-        .then(function (res) {
-            //console.log('PgParams.prototype.getParamtypes');
+        .then(function(res) {
             return res;
         })
-        .catch(function (err) {
-            //console.log('PgParams.prototype.getParamtypes err', err);
-            //throw 'PgParams.prototype.getParamtypes err  ' + err
-            throw err
-        })
-}
-module.exports = PgParams;
+};
+
+
+model.getParamDiagram = function (condition_id, paramtype_id) {
+    return PG.logQuery( "SELECT " +
+        "    SC.POSITION_N + 1 as POSITION, " +
+        "    P.PARAM_VALUE as VALUE " +
+        "FROM " +
+        "    spages SP  " +
+        "    JOIN scontents SC  " +
+        "        ON SP.SPAGE_ID = SC.SPAGE_ID" +
+        "    JOIN params P  " +
+        "         ON SC.URL_ID = P.URL_ID " +
+        "         AND SP.CONDITION_ID = P.CONDITION_ID " +
+        "    JOIN paramtypes PT  " +
+        "         ON P.PARAMTYPE_ID = PT.PARAMTYPE_ID " +
+        "WHERE " +
+        "    SP.CONDITION_ID  = $1  " +
+        "    AND PT.PARAMTYPE_ID = $2 " +
+        "ORDER BY SC.POSITION_N;",
+        [condition_id, paramtype_id])
+};
+
+model.getParamtypesForUrl = function (condition_id, url_id) {
+    var ex = PgExpressions;
+    return ex.execute_list(ex.GET_PARAMTYPES_FOR_URL(condition_id, url_id));
+};
+
+model.getParamtypes = function (search_id) {
+    var ex = PgExpressions;
+    return ex.execute_list(ex.GET_PARAMTYPES(search_id))
+};
+module.exports = model;
+
+
+

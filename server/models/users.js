@@ -1,4 +1,4 @@
-var PgUsurls = require("../db/models/pg_usurls");
+var PgUsurls = require("../db/models/old/pg_usurls");
 var Access = require("../utils/access");
 var SeoFormat = require("../SeoFormat");
 

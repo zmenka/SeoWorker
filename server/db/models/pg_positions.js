@@ -2,58 +2,30 @@
  * Created by bryazginnn on 04.08.15.
  */
 
-var PG = require('./pg');
-var fs = require('fs');
-var path = require('path');
-var PgUrls = require('./pg_urls');
-var PgExpressions = require("./pg_expressions");
+var PG = require('../../utils/pg');
+var PgUrl = require('./pg_urls');
+var PgCondurl = require('./pg_condurls');
 
-function PgPositions() {
+var model = {};
+
+model.find = function (condurl_id) {
+	return PG.logQueryOneOrNone("SELECT * FROM positions WHERE CONDURL_ID = $1 ORDER BY DATE_CREATE DESC LIMIT 1", [condurl_id]);
+};
+
+model.insert = function (condurl_id, position) {
+	return PG.logQueryOneOrNone("INSERT INTO positions (CONDURL_ID, POSITION_N, DATE_CREATE) SELECT $1, $2, $3 RETURNING POSITION_ID", [condurl_id, position, new Date()] )
+};
+
+model.insertByUrlCond = function (url, position, condition_id) {
+	return PgUrl.insertIgnore(url)
+		.then(function (res) {
+			return PgCondurl.insertIgnore(condition_id, res.url_id)
+		})
+		.then(function (res){
+			return model.insert (res.condurl_id, position)
+		})
 
 };
 
-PgPositions.prototype.insert = function (url, position, search_id) {
-  var date_create = new Date();
-  // create a Url
-  var db
-  express = new PgExpressions()
-  list = []
-  list.push("INSERT INTO urls (url, date_create) " +
-    "SELECT '" + url + "', '" + date_create.toISOString() + "' " +
-    "WHERE NOT EXISTS (SELECT 1 FROM urls WHERE url = '" + url + "');");
-  list.push("INSERT INTO positions (url_id,position_n,search_id, date_create) " +
-    "SELECT URL_ID," +
-    position + ", " +
-    search_id + ", '" +
-    date_create.toISOString() +
-    "' FROM urls WHERE url = '" + url + "' LIMIT 1");
-  return express.execute_list(list)
-}
-PgPositions.prototype.get_positions_by_url = function (url) {
+module.exports = model;
 
-	var date_create = new Date();
-	// create a Url
-	var db
-	express = new PgExpressions()
-	list = []
-	list.push("SELECT" +
-				"U.URL, " +
-				"U.URL_ID, " +
-				"C.CONDITION_QUERY, " +
-				"C.REGION, " +
-				"SE.SENGINE_NAME " +
-			"FROM " +
-				"urls U " +
-				"JOIN positions POS " +
-					"ON U.URL_ID = POS.URL_ID " +
-				"JOIN search S " +
-					"ON POS.SEARCH_ID = S.SEARCH_ID " +
-				"JOIN condition C " +
-					"ON S.CONDITION_ID = C.CONDITION_ID " +
-				"JOIN sengine SE " +
-					"ON C.SENGINE_ID = SE.SENGINE_ID " +
-			" WHERE url = '" + url + "');");
-	return express.execute_list(list)
-}
-
-module.exports = PgPositions;

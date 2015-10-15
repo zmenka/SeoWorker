@@ -169,7 +169,7 @@ function checkArrElemIsSubstr(rx, arr) {
 Searcher.prototype.getContentByUrlOrCaptcha = function (url, captcha, user_id,sengine_name, restart) {
     _this2 = this;
     var content
-    return new PgUsers().get(user_id)
+    return PgUsers.get(user_id)
         .then(function (res) {
             var cookies;
             try {

@@ -27,7 +27,7 @@
  *    returns [{search_id , condition_id , ...}, ...]
  */
 
-var PG = require('./pg');
+var PG = require('./../pg');
 var fs = require('fs');
 var path = require('path');
 

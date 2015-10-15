@@ -1,8 +1,8 @@
 
-var PG = require('../../utils/pg');
-var PgUrls = require('./pg_urls');
-var PgExpressions = require('./pg_expressions');
-var format = require('../../utils/format');
+var PG = require('../../../utils/pg');
+var PgUrls = require('./../pg_urls');
+var PgExpressions = require('./../pg_expressions');
+var format = require('../../../utils/format');
 
 var PgUsurls = {}
 
@@ -45,7 +45,7 @@ var PgUsurls = {}
 //    );
 //}
 
-PgUsurls.insertWithUrl = function (url, user_id) {
+PgUsurls.insertWithUrl = function (url, user_id, condition_id) {
     _this = this;
     var date_create = new Date();
     // create a Url
@@ -71,13 +71,17 @@ PgUsurls.insertWithUrl = function (url, user_id) {
             }
         })
         .then(function (url_id) {
-			return PG.logQueryOne("INSERT INTO usurls (user_id, url_id, date_create) VALUES ($1, $2, $3) returning url_id;",
-					[user_id, url_id, date_create])
+            return PG.logQueryOne("INSERT INTO usurls (user_id, url_id, date_create) VALUES ($1, $2, $3) returning url_id;",
+                [user_id, url_id, date_create])
+        })
+        .then(function (url_id) {
+            return PG.logQueryOne("INSERT INTO usurls (user_id, url_id, date_create) VALUES ($1, $2, $3) returning url_id;",
+                [user_id, url_id, date_create])
         })
         .then(function (newUsurl) {
             return newUsurl.usurl_id
         })
-}
+};
 
 //PgUsurls.prototype.list = function (callback, errback) {
 //    PG.query("SELECT * FROM usurls ORDER BY date_create desc;",
@@ -106,16 +110,15 @@ PgUsurls.insertWithUrl = function (url, user_id) {
 //}
 
 PgUsurls.findByUrl = function (url_id, user_id) {
-	return PG.logQueryOneOrNone("SELECT * FROM usurls WHERE url_id = $1 AND user_id = $2;", [url_id, user_id] )
-}
+	return PG.logQueryOneOrNone("SELECT * FROM usurls WHERE url_id = $1 AND user_id = $2;", [url_id, user_id] );
+};
 
-PgUsurls.remove = function (usurl_id) {
+PgUsurls.remove = function (uscondurl_id) {
     var list = [];
-    list.push( format("UPDATE usurls SET USURL_DISABLED = True WHERE usurl_id={0};", usurl_id))
-    list.push( format("UPDATE tasks SET TASK_DISABLED = True WHERE usurl_id={0};", usurl_id))
-    return PgExpressions.execute_list(list)
+    list.push( format("UPDATE uscondurls SET USCONDURL_DISABLED = True WHERE USCONDURL_ID ={0};", uscondurl_id));
+    return PgExpressions.execute_list(list);
 
-}
+};
 
 //PgUsurls.prototype.findByUser = function (val, callback, errback) {
 //    PG.query("SELECT * FROM usurls WHERE user_id = $1;",

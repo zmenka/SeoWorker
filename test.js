@@ -13,16 +13,16 @@
 
 var PG = require("./server/db/models/pg");
 
-var PgUsurls = require("./server/db/models/pg_usurls");
+var PgUsurls = require("./server/db/models/old/pg_usurls");
 var PgUrls = require("./server/db/models/pg_urls");
 var PgUsers = require("./server/db/models/pg_users");
-var PgTasks = require("./server/db/models/pg_tasks");
+var PgTasks = require("./server/db/models/old/pg_tasks");
 var PgSengines = require("./server/db/models/pg_sengines");
-var PgSearch = require("./server/db/models/pg_search");
+var PgSearch = require("./server/db/models/old/pg_search");
 var PgScontent = require("./server/db/models/pg_scontents");
 var PgRoles = require("./server/db/models/pg_roles");
 var PgParams = require("./server/db/models/pg_params");
-var PgHtmls = require("./server/db/models/pg_htmls");
+var PgHtmls = require("./server/db/models/old/pg_htmls");
 var PgConditions = require("./server/db/models/pg_conditions");
 var SeoParametersFormat = require("./server/seo_parameters_format");
 

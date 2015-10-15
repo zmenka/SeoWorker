@@ -1,6 +1,6 @@
 
-var PG = require('../../utils/pg');
-var PgConditions = require('./pg_conditions')
+var PG = require('../../../utils/pg');
+var PgConditions = require('./../pg_conditions')
 
 var PgTasks = {}
 

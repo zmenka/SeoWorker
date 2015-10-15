@@ -57,7 +57,7 @@ function ManageCtrl($scope, $state, $q, $alert, Authenticate, Api) {
         vm.loading = true;
         return Api.users()
             .then(function (res) {
-                console.log('users are reseived ', res.data);
+                console.log('users are reseived ', res);
                 vm.users = res.data;
                 vm.loading = false;
                 vm.isOpen = true;

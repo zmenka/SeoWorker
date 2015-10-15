@@ -91,6 +91,10 @@ PgUsers.validPassword = function (password, savedPassword) {
 //        })
 //}
 
+PgUsers.get = function (user_id) {
+    return PG.logQuery("SELECT * FROM users WHERE USER_ID=$1;",
+                [user_id])
+}
 PgUsers.updateLastVisit = function (user_id) {
     var date_visit = new Date();
     return PgUsers.get(user_id)

@@ -1,107 +1,42 @@
 /**
  * Created by bryazginnn on 22.11.14.
- *
- *
- *  var PgScontents = require("./server/db/postgres/pg_scontents");
- *  var scontents = new PgScontents();
- *
- *  //вставить строку в таблицу scontents
- *  scontents.insert (
- *      <spage_id>,
- *      <html_id>,
- *      <position>,
- *      <is_commercial>,
- *      <callback>,
- *      <errback>
- *  )
- *    returns <new scontent_id>
- *
- *  //получить все строки из scontents
- *  scontents.list (<callback>,<errback>)
- *    returns [{scontent_id , spage_id , ...}, ...]
- *
- *  //получить строку из scontents с помощью scontent_id
- *  scontents.get (<scontent_id>,<callback>,<errback>)
- *    returns {scontent_id , spage_id , ...}
- *
- *  //получить строки из scontents с помощью spage_id
- *  scontents.find (<spage_id>,<callback>,<errback>)
- *    returns [{scontent_id , spage_id , ...}, ...]
  */
 
-var PG = require('./pg');
-var fs = require('fs');
-var path = require('path');
+var PG = require('../../utils/pg');
 
-function PgScontents() {
+var model = {};
 
+model.find = function (spage_id, position) {
+    return PG.logQueryOneOrNone("SELECT * FROM scontents WHERE SPAGE_ID = $1 AND POSITION_N = $2", [spage_id, position]);
 };
 
-PgScontents.prototype.insert = function (spage_id, html_id, position, is_commercial) {
+model.insert = function (spage_id, url_id, position, is_commercial) {
+    return PG.logQueryOneOrNone("INSERT INTO scontents (SPAGE_ID, URL_ID, POSITION_N, IS_COMMERCIAL, DATE_CREATE) " +
+        "SELECT $1, $2, $3, $4, $5 RETURNING SCONTENT_ID", [spage_id, url_id, position, is_commercial, new Date()] )
+};
 
-    var date_create = new Date();
-    // create a Url
-    var db
-    return new PG()
-        .then(function (db_res) {
-            db = db_res
-            return  db.transact(
-                "INSERT INTO scontents (spage_id, html_id, position, is_commercial, date_create) VALUES ($1, $2, $3, $4, $5);",
-                [spage_id, html_id, position, is_commercial, date_create])
-        })
-        .then(function (res) {
-            return db.transact(
-                "SELECT currval(pg_get_serial_sequence('scontents','scontent_id'))",
-                [], true)
-        })
-        .then(function (res) {
-            //console.log("PgScontents.prototype.insert");
-            return res.rows[0].currval;
-        })
-        .catch(function (err) {
-            //throw 'PgScontents.prototype.insert 1';
-            throw err;
-        }
-    );
-}
+model.delete = function (id) {
+    return PG.logQueryOneOrNone("DELETE FROM scontents WHERE SCONTENT_ID = $1", [id] )
+};
 
-PgScontents.prototype.list = function (callback, errback) {
-    PG.query("SELECT * FROM scontents ORDER BY date_create desc;",
-        [],
-        function (res) {
-            callback(res.rows);
-        },
-        function (err) {
-            console.log('PgScontents.prototype.list');
-            console.log(err);
-            errback(err)
-        })
-}
+model.clearByCondition = function (condition_id) {
+    return PG.logQueryOneOrNone("DELETE FROM scontents AS D USING spages SP WHERE D.SPAGE_ID = SP.SPAGE_ID AND SP.CONDITION_ID = $1", [condition_id] )
+};
 
-PgScontents.prototype.get = function (id, callback, errback) {
-    PG.query("SELECT * FROM scontents WHERE scontent_id = $1;",
-        [id],
-        function (res) {
-            callback(res.rows[0]);
-        },
-        function (err) {
-            console.log('PgScontents.prototype.get');
-            console.log(err);
-            errback(err)
+model.replace = function (spage_id, url_id, position, is_commercial) {
+    return model.find (spage_id, position)
+        .then(function(res){
+            if(res) {
+                return model.delete(res.scontent_id);
+            }
+            return
         })
-}
-
-PgScontents.prototype.find = function (spage_id, callback, errback) {
-    PG.query("SELECT * FROM scontents WHERE spage_id = $1;",
-        [spage_id],
-        function (res) {
-            callback(res.rows);
-        },
-        function (err) {
-            console.log('PgScontents.prototype.find');
-            console.log(err);
-            errback(err)
+        .then(function() {
+            return model.insert(spage_id, url_id, position, is_commercial)
         })
-}
+        .then(function(res) {
+            return res;
+        })
+};
 
-module.exports = PgScontents;
+module.exports = model;

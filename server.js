@@ -52,3 +52,5 @@ new Api(app, passport); // load our routes and pass in our app and fully configu
 app.listen(Config.port, Config.private_ip, function () {
     console.log('Express server listening on port ' + Config.port + ', ip ' + Config.private_ip);
 });
+
+module.exports = app;

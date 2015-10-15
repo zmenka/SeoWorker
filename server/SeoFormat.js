@@ -7,44 +7,42 @@ SeoFormat.createSiteTree = function (sites) {
         return [];
     }
     var tree = [];
-
     for (var i = 0; i < sites.length; i++) {
         var site = sites[i];
-        //console.log("site", site);
-        var domen = site.domen;
-        //console.log("domen", domen);
+        var domain = site.domain;
+        //console.log("domain", domain);
 
-        var domens = tree.filter(function (v) {
-            return v.title === domen;
+        var domains = tree.filter(function (v) {
+            return v.title === domain;
         })
 
-        var domenNode;
-        if (domens.length > 0) {
-            domenNode = domens[0];
+        var domainNode;
+        if (domains.length > 0) {
+            domainNode = domains[0];
         } else {
-            domenNode = new TaskTreeNode();
-            domenNode.create(domen, true,
+            domainNode = new TaskTreeNode();
+            domainNode.create(domain, true,
                 {
                     title: site.url,
-                    usurl_id: site.usurl_id,
+                    //usurl_id: site.usurl_id,
                     url_id: site.url_id,
                     removable: false,
                     percent: null,
                     color_r: 0,
                     color_g: 0,
                     color_b: 0
-                }, 'domen');
-            tree.push(domenNode)
+                }, 'domain');
+            tree.push(domainNode)
         }
-        if (domenNode.data.percent) {
+        if (domainNode.data.percent) {
             if (site.percent)
-                domenNode.data.percent += site.percent;
+                domainNode.data.percent += site.percent;
         }
         else if (site.percent || site.percent == 0) {
-            domenNode.data.percent = site.percent;
+            domainNode.data.percent = site.percent;
         }
 
-        var pages = domenNode.nodes.filter(function (v) {
+        var pages = domainNode.nodes.filter(function (v) {
             return v.title === site.url;
         })
 
@@ -56,7 +54,7 @@ SeoFormat.createSiteTree = function (sites) {
             page.create(site.url, true,
                 {
                     title: site.url,
-                    usurl_id: site.usurl_id,
+                    //usurl_id: site.usurl_id,
                     url_id: site.url_id,
                     url: site.url,
                     usurl_disabled: site.usurl_disabled,
@@ -66,9 +64,8 @@ SeoFormat.createSiteTree = function (sites) {
                     color_g: 0,
                     color_b: 0
                 }, 'page');
-            domenNode.nodes.push(page);
+            domainNode.nodes.push(page);
         }
-
         if (page.data.percent) {
             if (site.percent)
                 page.data.percent += site.percent;
@@ -77,15 +74,15 @@ SeoFormat.createSiteTree = function (sites) {
             page.data.percent = site.percent;
         }
 
-        if (site.task_id) {
+        if (site.condition_id) {
             var task = new TaskTreeNode();
             task.create(site.condition_query + " (" + site.sengine_name + ", " + site.size_search + (site.region_name ? ", " + site.region_name : "") + ")",
                 true,
                 {
                     title: site.condition_query,
-                    usurl_id: site.usurl_id,
+                    //usurl_id: site.usurl_id,
                     url_id: site.url_id,
-                    task_id: site.task_id,
+                    //task_id: site.task_id,
                     disabled: site.task_disabled || site.usurl_disabled,
                     removable: !site.task_disabled,
                     date_calc: site.date_calc,
@@ -107,13 +104,12 @@ SeoFormat.createSiteTree = function (sites) {
         }
 
     }
-
     for (var i = 0; i < tree.length; i++) {
-        var domen = tree[i];
+        var domain = tree[i];
         cnt = 0;
 
-        for (var j = 0; j < domen.nodes.length; j++) {
-            var page = domen.nodes[j];
+        for (var j = 0; j < domain.nodes.length; j++) {
+            var page = domain.nodes[j];
             page.data.disabled = page.nodes.filter((function (el) {
                     return el.data.disabled
                 })).length == page.nodes.length && page.nodes.length > 0
@@ -125,23 +121,23 @@ SeoFormat.createSiteTree = function (sites) {
                 page.data.percent = page.data.percent / colorNodesCnt
                 cnt += colorNodesCnt
             }
-            page.data.color_r = this.getColorByPercent(page.data.percent, 'R')
-            page.data.color_g = this.getColorByPercent(page.data.percent, 'G')
-            page.data.color_b = this.getColorByPercent(page.data.percent, 'B')
+            page.data.color_r = SeoFormat.getColorByPercent(page.data.percent, 'R')
+            page.data.color_g = SeoFormat.getColorByPercent(page.data.percent, 'G')
+            page.data.color_b = SeoFormat.getColorByPercent(page.data.percent, 'B')
 
             //console.log(page.title, page.data.percent, page.data.color_r,page.data.color_g,page.data.color_b)
         }
 
-        domen.data.disabled = domen.nodes.filter((function (el) {
+        domain.data.disabled = domain.nodes.filter((function (el) {
                 return el.data.disabled
-            })).length == domen.nodes.length && domen.nodes.length > 0
+            })).length == domain.nodes.length && domain.nodes.length > 0
 
-        if (domen.data.percent) {
-            domen.data.percent = domen.data.percent / cnt
+        if (domain.data.percent) {
+            domain.data.percent = domain.data.percent / cnt
         }
-        domen.data.color_r = this.getColorByPercent(domen.data.percent, 'R')
-        domen.data.color_g = this.getColorByPercent(domen.data.percent, 'G')
-        domen.data.color_b = this.getColorByPercent(domen.data.percent, 'B')
+        domain.data.color_r = SeoFormat.getColorByPercent(domain.data.percent, 'R')
+        domain.data.color_g = SeoFormat.getColorByPercent(domain.data.percent, 'G')
+        domain.data.color_b = SeoFormat.getColorByPercent(domain.data.percent, 'B')
     }
 //    console.log("sites ", sites, " tree ", tree);
     return tree;
@@ -292,9 +288,9 @@ SeoFormat.createSiteTree = function (sites) {
 //            })).length
 //            group.data.percent = group.data.percent / colorNodesCnt
 //        }
-//        group.data.color_r = this.getColorByPercent(group.data.percent, 'R')
-//        group.data.color_g = this.getColorByPercent(group.data.percent, 'G')
-//        group.data.color_b = this.getColorByPercent(group.data.percent, 'B')
+//        group.data.color_r = SeoFormat.getColorByPercent(group.data.percent, 'R')
+//        group.data.color_g = SeoFormat.getColorByPercent(group.data.percent, 'G')
+//        group.data.color_b = SeoFormat.getColorByPercent(group.data.percent, 'B')
 //
 //        //console.log(group.title, group.data.percent,group.data.color_r,group.data.color_g,group.data.color_b)
 //    }
@@ -302,21 +298,20 @@ SeoFormat.createSiteTree = function (sites) {
 //
 //}
 //
-//SeoFormat.getColorByPercent = function (percent, color) {
-//    //console.log(percent,color)
-//    if (!percent && percent != 0)
-//        return 255;
-//    if (color == 'R' && percent > 50)
-//        return parseInt((100 - percent) * 255 / 50)
-//    else if (color == 'G' && percent < 50)
-//        return parseInt(percent * 255 / 50)
-//    else if (color == 'B')
-//        return 0
-//    else
-//        return 255
-//
-//
-//}
-//
+SeoFormat.getColorByPercent = function (percent, color) {
+    //console.log(percent,color)
+    if (!percent && percent != 0)
+        return 255;
+    if (color == 'R' && percent > 50)
+        return parseInt((100 - percent) * 255 / 50)
+    else if (color == 'G' && percent < 50)
+        return parseInt(percent * 255 / 50)
+    else if (color == 'B')
+        return 0
+    else
+        return 255
+
+
+}
 
 module.exports = SeoFormat;

@@ -27,8 +27,8 @@
  *    returns [{html_id , html , ...}, ...]
  */
 
-var PG = require('./pg');
-var PgUrls = require('./pg_urls')
+var PG = require('./../pg');
+var PgUrls = require('./../pg_urls')
 var fs = require('fs');
 var path = require('path');
 
