@@ -21,7 +21,8 @@ var seoApp = angular.module('seoApp', [
     'ui.tree',
     'ngAnimate',
     'ngSanitize',
-    'nvd3'
+    'nvd3',
+    'ui.select'
 ]);
 
 seoApp.config(["$stateProvider", "$urlRouterProvider",

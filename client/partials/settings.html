@@ -32,7 +32,7 @@
     <div class="col-xs-6">
         <div class="panel panel-info ">
             <div class="panel-heading">Настройки</div>
-            <div class="panel-body" ng-show="vm.site && (vm.IsSiteSelected() || vm.IsTaskSelected()) ">
+            <div class="panel-body" ng-show="vm.site && (vm.IsSiteSelected() || vm.IsTaskSelected()) && !collapsedSite">
                 <div class="form-group">
                     <label class="control-label ">
                         Выбранный сайт
@@ -63,9 +63,12 @@
 
                     <div class="form-group" ng-show="vm.site.data.sengine_id == 2">
                         <label class="control-label ">Регион: </label>
-                        <select ng-model="vm.site.data.region_id" class="form-control"
-                                ng-disabled="vm.IsTaskSelected()"
-                                ng-options="region.region_id as region.region_name for region in vm.regions"></select>
+                        <ui-select ng-model="vm.site.data.region_id" theme="bootstrap" ng-disabled="vm.IsTaskSelected()" style="min-width: 300px;">
+                            <ui-select-match placeholder="Выберете">{{$select.selected.region_name || "Екатеринбург"}}</ui-select-match>
+                            <ui-select-choices repeat="region.region_id as region in vm.regions | filter: {region_name: $select.search} | limitTo: 10">
+                                {{region.region_name}}
+                            </ui-select-choices>
+                        </ui-select>
                     </div>
 
 

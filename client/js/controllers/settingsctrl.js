@@ -9,7 +9,7 @@ function SettingsCtrl($scope, $stateParams, $alert, Api, ModalApi) {
     vm.regions = [];
     vm.selectSettings = selectSettings;
     vm.removeTask = removeTask;
-
+    console.log($scope.$emit);
     vm.initSite = function (site) {
         if (!site) {
             site = {data: {}}
@@ -20,7 +20,7 @@ function SettingsCtrl($scope, $stateParams, $alert, Api, ModalApi) {
         if (! site.data.sengine_id)
             site.data.sengine_id = 2
         if (! site.data.region_id)
-            site.data.region_id = 486
+            site.data.region_id = 181
         if (! site.data.size_search)
             site.data.size_search = 10
 
@@ -177,7 +177,7 @@ function SettingsCtrl($scope, $stateParams, $alert, Api, ModalApi) {
         vm.site = node;
         vm.initSite(vm.site)
         console.log("selectSettings", node);
-
+        $scope.collapsedSite = false;
     };
 
     function removeTask(node) {

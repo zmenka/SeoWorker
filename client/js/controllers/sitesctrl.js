@@ -35,8 +35,8 @@ function SitesCtrl($scope, $stateParams, $rootScope, $alert, $aside, $timeout, $
                 axisLabel: 'Значение параметра',
                 tickFormat: function (d) {
                     return d3.format('.02f')(d);
-                },
-                axisLabelDistance: 30
+                }
+
             }
         }
     }
