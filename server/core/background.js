@@ -1,5 +1,6 @@
 var Cookier = require("./cookier");
 var Updater = require("./updater");
+var Promise = require("../utils/promise");
 
 
 var BackGround = {};
@@ -20,6 +21,13 @@ BackGround.action = function () {
     return Cookier.update()
         .then(function(){
             return Updater.updateNext()
+        })
+        .then(function(res){
+            if (!res) {
+                //если нечего скачивать то спим минуту
+                return Promise.delay(60000);
+            }
+            return
         })
 };
 

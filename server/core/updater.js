@@ -17,20 +17,29 @@ var Updater = {};
 Updater.updateNext = function () {
     return Updater.getNext()
         .then(function (condurl_id) {
-            return Updater.update(condurl_id);
+            if (condurl_id){
+                return Updater.update(condurl_id);
+            }
+            return
+        })
+        .then(function (res) {
+            return res;
         })
 };
 
 Updater.getNext = function () {
     return PgCondurls.getNextNotSearched()
         .then(function (res) {
-            console.log("Updater.getNext GET NEXT CONDURL " + res.condurl_id);
-            return res.condurl_id;
+            if (res) {
+                console.log("Updater.getNext GET NEXT CONDURL " + res.condurl_id);
+                return res.condurl_id;
+            }
+            return
         })
 };
 
 Updater.update = function (condurl_id) {
-    console.log('Updater.update START condurl_id ', condurl_id)
+    console.log('Updater.update START condurl_id ', condurl_id);
     if (!condurl_id) {
         throw "Updater.update.  Condurl_id can't be empty";
     }
@@ -40,6 +49,9 @@ Updater.update = function (condurl_id) {
         })
         .then(function () {
             return PgCondurls.updateDateCalc(condurl_id)
+        })
+        .then(function () {
+            return condurl_id
         })
 
 };

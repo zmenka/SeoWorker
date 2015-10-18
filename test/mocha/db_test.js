@@ -37,7 +37,7 @@ describe('DB TEST', function(){
                 });
 
         })
-        it('getNextNotSearched', function(){
+        it.only('getNextNotSearched', function(){
         //it.only('sql test 0', function(){
 
             var PgModel = require("../../server/db/models/pg_condurls");
@@ -47,7 +47,7 @@ describe('DB TEST', function(){
                 });
 
         })
-        it.only('test updater', function(){
+        it('test updater', function(){
             var core = require("../../server/core/core");
             return core.bg()
                 .then(function(res){
