@@ -8,7 +8,7 @@ var PgConditions = require("./db/models/pg_conditions");
 var PgCorridor = require("./db/models/pg_corridors");
 var SeoFormat = require("./SeoFormat");
 var Diagram = require("./Diagram");
-var Core = require("./core");
+var Core = require("./core/core");
 var Users = require("./models/users");
 
 var ApiUtils = require("./utils/api_utils");
@@ -49,10 +49,6 @@ module.exports = function Api(app, passport) {
 
     app.get('/api/roles', function (req, res) {
         ApiUtils.auth_api_func(req, res, PgRoles.list, [])
-    });
-
-    app.post('/api/create_site', function (req, res) {
-        ApiUtils.auth_api_func(req, res, PgUsurls.insertWithUrl, [req.body.url, req.body.user_id])
     });
 
     app.post('/api/remove_site', function (req, res) {
@@ -199,7 +195,7 @@ module.exports = function Api(app, passport) {
                     ApiUtils.errback(null, res, 'Еще не посчитан ни один тип параметра')
                     return
                 }
-                var tree = new SeoFormat().getTreeFromParamtypes(paramtypes)
+                var tree = SeoFormat.getTreeFromParamtypes(paramtypes)
                 ApiUtils.callback(tree, res)
             })
             .catch(function (err) {
@@ -230,26 +226,19 @@ module.exports = function Api(app, passport) {
         var search;
         var paramsChart;
         var corridor;
-        return new PgSearch().getLastSearch(req.body.condition_id)
-            .then(function (searchRes) {
-                if (!searchRes) {
-                    ApiUtils.errback(null, res, 'Еще не получена поисковая выдача')
-                    return
-                }
-                search = searchRes;
-                return new PgParams().getParamDiagram(search.search_id, req.body.param_type)
-            })
+        var diagram;
+        return PgParams.getParamDiagram(req.body.condition_id, req.body.param_type)
             .then(function (paramsChartRes) {
                 if (!paramsChartRes || !paramsChartRes.length) {
                     ApiUtils.errback(null, res, 'Еще не получены данные выборки')
                     return
                 }
                 paramsChart = paramsChartRes;
-                return new PgCorridor().get(search.search_id, req.body.param_type)
+                return PgCorridor.find(req.body.condition_id, req.body.param_type)
             })
             .then(function (corridorRes) {
                 corridor = corridorRes;
-                return new PgParams().getSiteParam(req.body.condition_id, req.body.url_id, req.body.param_type)
+                return PgParams.getSiteParam(req.body.condition_id, req.body.url_id, req.body.param_type)
             })
             .then(function (siteParams) {
                 if (!siteParams) {
@@ -262,8 +251,6 @@ module.exports = function Api(app, passport) {
                 ApiUtils.callback(paramsDiagram, res)
             })
             .catch(function (err) {
-                //console.log(err, err.stack);
-                //errback("", res);
                 ApiUtils.errback(err, res);
             })
     });

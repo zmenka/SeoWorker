@@ -240,63 +240,63 @@ SeoFormat.createSiteTree = function (sites) {
 //    return table;
 //}
 //
-//SeoFormat.getTreeFromParamtypes = function (paramtypes) {
-//
-//    if (!paramtypes || paramtypes.length == 0) {
-//        return null;
-//    }
-//    var tree = [];
-//    for (var key in paramtypes) {
-//        //console.log(paramtypes[key].paramtype_tag, paramtypes[key]);
-//        var groups = tree.filter(function (v) {
-//            return v.title === paramtypes[key].paramtype_tag;
-//        });
-//
-//        var node;
-//        if (groups.length > 0) {
-//            node = groups[0];
-//        } else {
-//            node = new TaskTreeNode();
-//            node.create(paramtypes[key].paramtype_tag, true,
-//                {
-//                    percent: null,
-//                    color_r: 0,
-//                    color_g: 0,
-//                    color_b: 0
-//                }, 'group');
-//            tree.push(node)
-//        }
-//        if (node.data.percent) {
-//            if (paramtypes[key].percent)
-//                node.data.percent += paramtypes[key].percent;
-//        }
-//        else if (paramtypes[key].percent || paramtypes[key].percent == 0) {
-//            node.data.percent = paramtypes[key].percent;
-//        }
-//
-//        var keyPar = new TaskTreeNode();
-//        keyPar.create(paramtypes[key].paramtype_ru_name, true, paramtypes[key], 'key');
-//        node.nodes.push(keyPar);
-////        console.log('keyPar',keyPar);
-//    }
-//
-//    for (var i = 0; i < tree.length; i++) {
-//        var group = tree[i];
-//        if (group.data.percent) {
-//            var colorNodesCnt = group.nodes.filter((function (el) {
-//                return el.data.percent || el.data.percent == 0
-//            })).length
-//            group.data.percent = group.data.percent / colorNodesCnt
-//        }
-//        group.data.color_r = SeoFormat.getColorByPercent(group.data.percent, 'R')
-//        group.data.color_g = SeoFormat.getColorByPercent(group.data.percent, 'G')
-//        group.data.color_b = SeoFormat.getColorByPercent(group.data.percent, 'B')
-//
-//        //console.log(group.title, group.data.percent,group.data.color_r,group.data.color_g,group.data.color_b)
-//    }
-//    return tree;
-//
-//}
+SeoFormat.getTreeFromParamtypes = function (paramtypes) {
+
+    if (!paramtypes || paramtypes.length == 0) {
+        return null;
+    }
+    var tree = [];
+    for (var key in paramtypes) {
+        //console.log(paramtypes[key].paramtype_tag, paramtypes[key]);
+        var groups = tree.filter(function (v) {
+            return v.title === paramtypes[key].paramtype_tag;
+        });
+
+        var node;
+        if (groups.length > 0) {
+            node = groups[0];
+        } else {
+            node = new TaskTreeNode();
+            node.create(paramtypes[key].paramtype_tag, true,
+                {
+                    percent: null,
+                    color_r: 0,
+                    color_g: 0,
+                    color_b: 0
+                }, 'group');
+            tree.push(node)
+        }
+        if (node.data.percent) {
+            if (paramtypes[key].percent)
+                node.data.percent += paramtypes[key].percent;
+        }
+        else if (paramtypes[key].percent || paramtypes[key].percent == 0) {
+            node.data.percent = paramtypes[key].percent;
+        }
+
+        var keyPar = new TaskTreeNode();
+        keyPar.create(paramtypes[key].paramtype_ru_name, true, paramtypes[key], 'key');
+        node.nodes.push(keyPar);
+//        console.log('keyPar',keyPar);
+    }
+
+    for (var i = 0; i < tree.length; i++) {
+        var group = tree[i];
+        if (group.data.percent) {
+            var colorNodesCnt = group.nodes.filter((function (el) {
+                return el.data.percent || el.data.percent == 0
+            })).length
+            group.data.percent = group.data.percent / colorNodesCnt
+        }
+        group.data.color_r = SeoFormat.getColorByPercent(group.data.percent, 'R')
+        group.data.color_g = SeoFormat.getColorByPercent(group.data.percent, 'G')
+        group.data.color_b = SeoFormat.getColorByPercent(group.data.percent, 'B')
+
+        //console.log(group.title, group.data.percent,group.data.color_r,group.data.color_g,group.data.color_b)
+    }
+    return tree;
+
+}
 //
 SeoFormat.getColorByPercent = function (percent, color) {
     //console.log(percent,color)

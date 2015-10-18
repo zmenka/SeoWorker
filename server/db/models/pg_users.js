@@ -91,10 +91,6 @@ PgUsers.validPassword = function (password, savedPassword) {
 //        })
 //}
 
-PgUsers.get = function (user_id) {
-    return PG.logQuery("SELECT * FROM users WHERE USER_ID=$1;",
-                [user_id])
-}
 PgUsers.updateLastVisit = function (user_id) {
     var date_visit = new Date();
     return PgUsers.get(user_id)
@@ -155,19 +151,9 @@ PgUsers.getByLogin = function (login) {
 //        })
 //}
 //
-//PgUsers.updateCookies = function (id, cookies) {
-//    return PGold.query("UPDATE users SET cookies = $1 WHERE user_id = $2;",
-//        [cookies, id])
-//        .then(function (res) {
-//            //console.log("PgUsers.prototype.updateCookies")
-//            return;
-//        })
-//        .catch(function (err) {
-//            //console.log(err);
-//            //throw 'PgUsers.prototype.get' + err;
-//            throw err
-//        })
-//};
+PgUsers.updateCookies = function (id, cookies) {
+    return PG.logQuery("UPDATE users SET cookies = $1 WHERE user_id = $2;", [cookies, id])
+};
 
 PgUsers.isUserAvailableToUser = function (user_id, to_user_id) {
     return PG.logQuery( "SELECT 1 FROM " +
@@ -182,19 +168,9 @@ PgUsers.isUserAvailableToUser = function (user_id, to_user_id) {
         })
 };
 
-//PgUsers.deleteCookies = function () {
-//    return PGold.query("UPDATE users SET cookies = '';",
-//        [])
-//        .then(function (res) {
-//            //console.log("PgUsers.prototype.deleteCookies")
-//            return;
-//        })
-//        .catch(function (err) {
-//            //console.log(err);
-//            //throw 'PgUsers.prototype.deleteCookies' + err;
-//            throw err
-//        })
-//}
+PgUsers.deleteCookies = function () {
+    return PG.logQuery("UPDATE users SET cookies = '';",[])
+}
 
 PgUsers.edit = function (userId, newLogin, newPaswd, disabled, disabledMessage) {
 

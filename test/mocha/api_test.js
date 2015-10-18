@@ -33,7 +33,8 @@ describe('API TEST', function () {
     });
 
     var test_api = function (mode, api, params) {
-        it.only(api, function (done) {
+        //it.only(api, function (done) {
+        it(api, function (done) {
             var req;
             if (mode == 'post') {
                 console.log('post', params)

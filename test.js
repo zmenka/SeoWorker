@@ -183,10 +183,10 @@ var pgconditions = new PgConditions();
 //var bcrypt   = require('bcrypt-nodejs');
 //console.log(bcrypt.hashSync('seoTest', bcrypt.genSaltSync(8), null));
 
-var SeoParser = require("./server/seo_parser");
+var SeoParser = require("./server/core/seo_parser");
 var parser = new SeoParser();
-var Searcher = require('./server/searcher')
-var SeoParameters = require('./server/seo_parameters')
+var Searcher = require('./server/core/downloader')
+var SeoParameters = require('./server/core/seo_parameters')
 //'http://spasitepc.ru/iphone-bystro-razryazhaetsa'
 //new Searcher().getContentByUrlOrCaptcha('http://www.pqm-online.com/assets/files/lib/certification.pdf',
 //null, null,4)

@@ -1,9 +1,18 @@
-var Q = require("q");
+var Promise = require("../utils/promise");
 var SeoParser = require("./seo_parser");
 
-function SeoParameters() {
-    //console.log('SeoParameters init');
-};
+function SeoParameters(rawHtml) {
+    var _this = this;
+    if (!rawHtml) {
+        Promise.reject('SeoParameters.prototype.init: no rawHtml')
+    }
+
+    return new SeoParser(rawHtml)
+        .then(function (parser) {
+            _this.parser = parser;
+            return _this
+        })
+}
 
 var regexpSplit = /[\s,\-\.;:/\(\)!\?\[\]{}_\\\|~<>*\+=]+/;
 /*
@@ -44,23 +53,7 @@ SeoParameters.prototype.complianceStrings = function (text1, text2) {
     var res = this.complianceStringsVal(text1, text2);
     return res.toFixed(2);//+ '%';
 }
-SeoParameters.prototype.init = function (keyText, rawHtml) {
-    _this1 = this;
-    var date = new Date()
-    _this1.keyText = keyText;
-    _this1.parser = new SeoParser();
-    return _this1.parser.initDomQ(rawHtml)
-        .then(function () {
-            //console.log("SeoParameters.prototype.init");
-            //console.log(-date.getTime() + (new Date().getTime()))
-            return _this1
-        })
-        .catch(function (err) {
-            //throw 'SeoParameters.prototype.init err ' + err
-            throw err
-            return
-        });
-}
+
 
 SeoParameters.prototype.tryCatch = function (func, params) {
     try {
@@ -79,14 +72,16 @@ SeoParameters.prototype.parse = function () {
     return sList;
 }
 
-SeoParameters.prototype.getAllParams = function () {
-    var titleCS = this.tryCatch(this.tagCSFirst, ["title"]);
+SeoParameters.prototype.getAllParams = function (condition_query) {
+    if (!condition_query) throw new Error('SeoParameters.prototype.getAllParams: Нет condition_query');
+
+    var titleCS = this.tryCatch(this.tagCSFirst, [condition_query, "title"]);
     titleCS.group = "title";
     titleCS.name = "titleCS";
     titleCS.ru_name = "ССЗ (title)";
     titleCS.description = "Среднее совпадение ключевой фразы с тегом title.";
 
-    var h1CS = this.tryCatch(this.tagCSFirst, ["h1"]);
+    var h1CS = this.tryCatch(this.tagCSFirst, [condition_query, "h1"]);
     h1CS.group = "h1";
     h1CS.name = "h1CS";
     h1CS.ru_name = "ССЗ (h1)";
@@ -114,13 +109,13 @@ SeoParameters.prototype.getAllParams = function () {
     h3Count.ru_name = "Счет (h3)";
     h3Count.description = "Количество тегов h3.";
 
-    var h2CSAvg = this.tryCatch(this.tagCSAvg, ["h2"]);
+    var h2CSAvg = this.tryCatch(this.tagCSAvg, [condition_query, "h2"]);
     h2CSAvg.group = "h2";
     h2CSAvg.name = "h2CSAvg";
     h2CSAvg.ru_name = "Взвешенное ССЗ(h2)";
     h2CSAvg.description = "Взвешенное ССЗ(h2)= (ССЗ(h2(1))+ССЗ(h2(2))+ ...+ССЗ(h2(n)))/n, где n = счет(h2).";
 
-    var h3CSAvg = this.tryCatch(this.tagCSAvg, ["h3"]);
+    var h3CSAvg = this.tryCatch(this.tagCSAvg, [condition_query, "h3"]);
     h3CSAvg.group = "h3";
     h3CSAvg.name = "h3CSAvg";
     h3CSAvg.ru_name = "Взвешенное ССЗ(h3)";
@@ -210,13 +205,13 @@ SeoParameters.prototype.getAllParams = function () {
     pNotEmptyCount.ru_name = "Cчет непустых абзацев";
     pNotEmptyCount.description = "Количество абзацев с символами.";
 
-    var pCSAvg = this.tryCatch(this.tagCSAvg, ["p"]);
+    var pCSAvg = this.tryCatch(this.tagCSAvg, [condition_query, "p"]);
     pCSAvg.group = "абзац";
     pCSAvg.name = "pCSAvg";
     pCSAvg.ru_name = "Взвешенное ССЗ абзацев";
     pCSAvg.description = "Взвешенное ССЗ(p)= (ССЗ(p(1))+ССЗ(p(2))+ ...+ССЗ(p(n)))/n, где n = счет(p).";
 
-    var bodyCSAvg = this.tryCatch(this.tagCSAvg, ["body"]);
+    var bodyCSAvg = this.tryCatch(this.tagCSAvg, [condition_query, "body"]);
     bodyCSAvg.group = "страница";
     bodyCSAvg.name = "bodyCSAvg";
     bodyCSAvg.ru_name = "Взвешенное ССЗ страницы";
@@ -240,17 +235,17 @@ SeoParameters.prototype.getAllParams = function () {
     ];
 }
 //процент вхождения фразы в первом тэге tag
-SeoParameters.prototype.tagCSFirst = function (tag) {
+SeoParameters.prototype.tagCSFirst = function (keyText, tag) {
 
     if (this.parser.getTag(tag).length > 0) {
         //console.log("процент вхождения фразы для ", tag);
         var data = getData(this.parser.getTag(tag)[0].children);
-        return this.complianceStrings(data, this.keyText)
+        return this.complianceStrings(data, keyText)
     }
     throw new Error('Нет тега ' + tag);
 }
 // процент вхождения фразы среди всех тэгов tag
-SeoParameters.prototype.tagCS = function (tag) {
+SeoParameters.prototype.tagCS = function (keyText, tag) {
     var tags = this.parser.getTag(tag);
     var res = [];
     if (tags.length > 0) {
@@ -258,7 +253,7 @@ SeoParameters.prototype.tagCS = function (tag) {
             //console.log("процент вхождения фразы для ", tag, i);
             var data = getData(tags[i].children);
             var num = 1 + i;
-            res.push(this.complianceStrings(data, this.keyText))
+            res.push(this.complianceStrings(data, keyText))
         }
         return res;
     }
@@ -279,14 +274,14 @@ SeoParameters.prototype.getTag = function (tag) {
     return this.parser.getTag(tag);
 }
 //средний процент вхождения фразы среди всех тэгов tag
-SeoParameters.prototype.tagCSAvg = function (tag) {
+SeoParameters.prototype.tagCSAvg = function (keyText, tag) {
     var cnt = 0;
     var tags = this.parser.getTag(tag);
     if (tags.length > 0) {
         for (i in tags) {
             //console.log(this.parser.getTag(tag)[0].children);
             var data = getData(tags[i].children);
-            cnt += this.complianceStringsVal(data, this.keyText)
+            cnt += this.complianceStringsVal(data, keyText)
         }
         return (cnt / tags.length).toFixed(2);//+ '%';;
     }
@@ -372,74 +367,71 @@ function getData(obj) {
 
 //получаем поисковыую выдачу
 //TODO это реклама?
-SeoParameters.prototype.getSearchPicks = function (search_html, sengine_name) {
-    var date = new Date()
-    var parser = new SeoParser();
-    return parser.initDomQ(search_html)
-        .then(function () {
-            var res = [];
-            switch (sengine_name) {
-                case 'Google':
-                    //маска построения результата выдачи
-                    //в зависимости от посиковой системы
-                    var aMask = 'div.srg h3 a';
-                    //парсим страницу
-                    var tags = parser.getTag(aMask);
-                    //получаем URL-ы и title-ы
-                    for (var i in tags) {
-                        var tag = tags[i];
-                        //console.log(tag)
-                        //получаем URL
-                        var url = tag.attribs['href']
-                        //получаем title
-                        var title = getData(tag);
-                        //кладем в результат
-                        res.push({url: url, title: title});
-                    }
-                    break;
-                case 'Yandex':
-                    var aMask = 'h2 a';
+/**
+ * @param sengine_name
+ *
+ * @returns {url: string, title: string}
+ */
+SeoParameters.prototype.getSearchPicks = function (sengine_name) {
+    var res = [];
+    switch (sengine_name) {
+        case 'Google':
+            //маска построения результата выдачи
+            //в зависимости от посиковой системы
+            var aMask = 'div.srg h3 a';
+            //парсим страницу
+            var tags = this.parser.getTag(aMask);
+            //получаем URL-ы и title-ы
+            for (var i in tags) {
+                var tag = tags[i];
+                //console.log(tag)
+                //получаем URL
+                var url = tag.attribs['href']
+                //получаем title
+                var title = getData(tag);
+                //кладем в результат
+                res.push({url: url, title: title});
+            }
+            break;
+        case 'Yandex':
+            var aMask = 'h2 a';
 
-                    //парсим страницу
-                    var tags = parser.getTag(aMask);
-                    //получаем URL-ы и title-ы
-                    for (var i in tags) {
-                        var tag = tags[i];
-                        //если нет родителя или он не h2 (логотип), то выходим
-                        if (tag.parent == undefined || !(tag.parent.name == 'h2'))
-                            continue;
-                        //если нет атрибутов, то выходим
-                        if (!tag.hasOwnProperty('attribs'))
-                            continue;
-                        if (tag.attribs['style'] == 'display:none')
-                            continue;
-                        //если нет URL-а, то выходим
-                        if (tag.attribs['href'] == undefined)
-                            continue;
-                        //получаем URL
-                        var url = tag.attribs['href'].match(/^\/*(\w.+)/)[1]
-                        //пытаемся по топорному исключить рекламу :)
-                        if (url.indexOf('yabs.yandex') != -1)
-                            continue;
-                        //получаем title
-                        var title = getData(tag);
-                        //кладем в результат
-                        res.push({url: url, title: title});
-                    }
-
-                    break;
-                default:
-                    break;
+            //парсим страницу
+            var tags = this.parser.getTag(aMask);
+            //получаем URL-ы и title-ы
+            for (var i in tags) {
+                var tag = tags[i];
+                //если нет родителя или он не h2 (логотип), то выходим
+                if (tag.parent == undefined || !(tag.parent.name == 'h2'))
+                    continue;
+                //если нет атрибутов, то выходим
+                if (!tag.hasOwnProperty('attribs'))
+                    continue;
+                if (tag.attribs['style'] == 'display:none')
+                    continue;
+                //если нет URL-а, то выходим
+                if (tag.attribs['href'] == undefined)
+                    continue;
+                //получаем URL
+                var url = tag.attribs['href'].match(/^\/*(\w.+)/)[1]
+                //пытаемся по топорному исключить рекламу :)
+                if (url.indexOf('yabs.yandex') != -1)
+                    continue;
+                //получаем title
+                var title = getData(tag);
+                //кладем в результат
+                res.push({url: url, title: title});
             }
 
-            //console.log(-date.getTime() + (new Date().getTime()))
-            //console.log("SeoParameters.getSearchPicks");
-            return res;
-        })
-        .catch(function (err) {
-            //throw 'SeoParameters.prototype.getSearchPicks err ' + err
-            throw err
-        });
+            break;
+        default:
+            throw new Error('UNKNOWN senine name')
+            break;
+    }
+
+    //console.log(-date.getTime() + (new Date().getTime()))
+    //console.log("SeoParameters.getSearchPicks");
+    return res;
 
 }
 //получаем строку из списка выдачи + ссылка

@@ -1,5 +1,5 @@
 var asyncTask = require("grunt-promise-q");
-var Core = require('./server/core.js')
+var Core = require('./server/core/core.js')
 
 module.exports = function(grunt) {
 

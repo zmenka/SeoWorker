@@ -112,34 +112,5 @@ model.get = function (id) {
 //            throw err
 //        })
 //}
-model.getLastNotSearchedRandomTask = function (range, dateOld){
-    var dateOldOld = new Date(dateOld.getTime());
-    dateOldOld.setDate(dateOldOld.getDate() - 3);
-    return PG.logQueryOneOrNone(
-            "SELECT " +
-                "C.CONDITION_ID, " +
-                "C.CONDURL_ID, " +
-                "C.DATE_CALC > $2 AS IS_COND_ALREADY_CALC, " +
-                "U.URL " +
-            "FROM " +
-                "conditons C " +
-                "INNER JOIN condurls CU " +
-                    "ON C.CONDITION_ID = CU.CONDITION_ID " +
-                "INNER JOIN urls U " +
-                    "ON CU.URL_ID = U.URL_ID " +
-                "INNER JOIN uscondurls UCU " +
-                    "ON UCU.CONDURL_ID = CU.CONDURL_ID " +
-            "WHERE " +
-                "C.DATE_CALC < $2  AND NOT UCU.USCONDURL_DISABLED" +
-            //    "((C.FAIL_COUNT = 0 AND US.DISABLED IS FALSE AND (t.DATE_CALC IS NULL OR t.DATE_CALC < $2)) " +
-            //        "OR (C.FAIL_COUNT = 0 AND US.DISABLED AND (t.DATE_CALC IS NULL OR t.DATE_CALC < $3)) " +
-            //        "OR (C.FAIL_COUNT > 0 AND t.FAIL_COUNT < 3  AND (t.DATE_CALC IS NULL OR t.DATE_CALC < $3))) " +
-            "ORDER BY " +
-                "C.FAIL_COUNT, C.DATE_CALC IS NULL DESC, C.DATE_CALC DESC " +
-           // "OFFSET random()*$1 " +
-            "LIMIT 1;",
-        [range,dateOld.toISOString().substr(0,10),dateOldOld.toISOString().substr(0,10)]
-    )
-}
 
 module.exports = model;

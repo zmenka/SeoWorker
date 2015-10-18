@@ -37,6 +37,7 @@ Diagram.prototype.getParamsDiagram = function (params, siteParam, corridor) {
     if (!params || params.length == 0) {
         return null;
     }
+    console.log("siteParam", siteParam);
     var corridor_m = corridor ? parseFloat(corridor.corridor_m) : 0;
     var corridor_d = corridor ? parseFloat(corridor.corridor_d) : 0;
     var site_value = siteParam ? parseFloat(siteParam.param_value) : 0

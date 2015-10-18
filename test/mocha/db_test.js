@@ -37,27 +37,22 @@ describe('DB TEST', function(){
                 });
 
         })
-        it('sql test 0', function(){
+        it('getNextNotSearched', function(){
         //it.only('sql test 0', function(){
 
-            var PgExpressions = require(".././pg_expressions");
-            var express = new PgExpressions()
-            return express.execute_list(express.GET_SITE_PARAM(2,1,9))
+            var PgModel = require("../../server/db/models/pg_condurls");
+            return PgModel.getNextNotSearched()
                 .then(function(res){
                     console.log(res);
                 });
 
         })
-        it('sql test 0', function(){
-        //it.only('sql test insert positions', function(){
-
-            var PgPositions = require(".././pg_positions");
-            var pg_positions = new PgPositions()
-            return pg_positions.insert('test.com','7','1')
+        it.only('test updater', function(){
+            var updater = require("../../server/core/updater");
+            return updater.updateNext()
                 .then(function(res){
                     console.log(res);
                 });
-
         })
     })
 })
