@@ -4,7 +4,7 @@ var PgRegions = require("./db/models/pg_regions");
 var PgGroups = require("./db/models/pg_groups");
 var PgRoles = require("./db/models/pg_roles");
 var PgParams = require("./db/models/pg_params");
-var PgConditions = require("./db/models/pg_conditions");
+var Updater = require("./core/updater");
 var PgCorridor = require("./db/models/pg_corridors");
 var SeoFormat = require("./SeoFormat");
 var Diagram = require("./Diagram");
@@ -119,24 +119,13 @@ module.exports = function Api(app, passport) {
             return;
         }
 
-        if (!req.body.url) {
-            ApiUtils.errback(null, res, "Не найден параметр url.");
-            return;
-        }
-
-        if (!req.body.condition_id) {
-            ApiUtils.errback(null, res, "Не найден параметр condition_id.");
+        if (!req.body.condurl_id) {
+            ApiUtils.errback(null, res, "Не найден параметр condurl_id.");
             return;
         }
 
         serverFree = false;
-        return new Core().calcParams(req.body.condition_id, req.user.user_id)
-            .then(function () {
-                return new Core().calcParamsByUrl(req.body.url, req.body.condition_id)
-            })
-            .then(function (res2) {
-                PgConditions.updateDateCalc(req.body.condition_id)
-            })
+        return Updater.update(req.body.condurl_id)
             .then(function () {
                 ApiUtils.callback("ok", res);
                 serverFree = true
@@ -156,19 +145,19 @@ module.exports = function Api(app, passport) {
             return;
         }
 
-        if (!req.body.condition_id) {
-            ApiUtils.errback(null, res, "Не найден параметр condition_id.");
+        if (!req.body.condurl_id) {
+            ApiUtils.errback(null, res, "Не найден параметр condurl_id.");
             return;
         }
 
-        return new Core().calcParamsByUrl(req.body.url, req.body.condition_id)
+        return Updater.updateUserUrl(req.body.condurl_id)
             .then(function () {
                 ApiUtils.callback("ok", res);
+                serverFree = true
             })
             .catch(function (err) {
-                //console.log(err, err.stack);
-                //errback("", res);
-                ApiUtils.errback(err, res)
+                serverFree = true
+                ApiUtils.errback(err, res);
             })
     });
 

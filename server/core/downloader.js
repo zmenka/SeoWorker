@@ -30,7 +30,7 @@ Downloader.getOptions = function (url, cookies) {
 
     var options = {
         followAllRedirects: true,
-        timeout: 15000,
+        timeout: 25000,
         encoding: null,
         headers: Downloader._headers
     };
@@ -61,13 +61,15 @@ Downloader.getContentByUrl = function (url, cookies) {
         var options = Downloader.getOptions(url, cookies);
         request(options, function (error, response, body) {
             if (error) {
-                reject('Downloader.getContentByUrl Ошибка при получении html ' + (error ? error.toString() : ""));
+                return reject('Downloader.getContentByUrl Ошибка при получении html ' + (error ? error.toString() : ""));
             }
             var j = options.jar;
             var cookies = j.getCookies(options.url);
-
+            if (!response) {
+                return reject('response empty ',url);
+            }
             if (response.headers['content-type'] && checkArrElemIsSubstr(response.headers['content-type'], Downloader._contentTypes) == -1) {
-                reject('Downloader.getContentByUrl Мы не знаем такой content type: ' + response.headers['content-type']);
+                return reject('Downloader.getContentByUrl Мы не знаем такой content type: ' + response.headers['content-type']);
             }
 
             var encoding = response.headers['content-encoding'];

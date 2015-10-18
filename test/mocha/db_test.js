@@ -48,8 +48,8 @@ describe('DB TEST', function(){
 
         })
         it.only('test updater', function(){
-            var updater = require("../../server/core/updater");
-            return updater.updateNext()
+            var core = require("../../server/core/core");
+            return core.bg()
                 .then(function(res){
                     console.log(res);
                 });

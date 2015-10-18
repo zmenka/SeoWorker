@@ -38,6 +38,9 @@ Updater.update = function (condurl_id) {
         .then(function (condurl_object) {
             return Updater.subUpdate(condurl_object.condition_id, condurl_object.url_id, condurl_id)
         })
+        .then(function () {
+            return PgCondurls.updateDateCalc(condurl_id)
+        })
 
 };
 
@@ -57,10 +60,10 @@ Updater.subUpdate = function (condition_id, url_id, condurl_id) {
     }
 
     return Updater.updateCondition(condition_id)
-        .then(function(searchObjects){
+        .then(function (searchObjects) {
             return Updater.updatePositions(condition_id, searchObjects)
         })
-        .then(function(){
+        .then(function () {
             return Updater.updateUrl(url_id, condition_id, condurl_id)
         })
 };
@@ -100,17 +103,17 @@ Updater.updateCondition = function (condition_id) {
 Updater.updatePositions = function (condition_id, searchObjects) {
     var positions = {};
     return PgCondurls.getUrlsByConditionId(condition_id)
-        .then(function(urls){
+        .then(function (urls) {
             var promises = []
             for (var i = 0; i < searchObjects.length; i++) {
                 for (var j = 0; j < searchObjects[i].links.length; j++) {
                     var link = searchObjects[i].links[j];
-                    var url= urls.filter(function(item){
+                    var url = urls.filter(function (item) {
                         return item.url == link.url
                     })[0];
-                    if (url ) {
+                    if (url) {
                         var position = j + searchObjects[i].start;
-                        if(!(url.condurl_id in positions)){
+                        if (!(url.condurl_id in positions)) {
                             positions[url.condurl_id] = position;
                             promises.push(PgPositions.insert(url.condurl_id, position));
                         }
@@ -119,8 +122,14 @@ Updater.updatePositions = function (condition_id, searchObjects) {
             }
             return Promise.all(promises)
         })
-}
+};
 
+Updater.updateUserUrl = function (condurl_id) {
+    return PgCondurls.get(condurl_id)
+        .then(function (condurl_object) {
+            return Updater.updateUrl(condurl_object.url_id, condurl_object.condition_id, condurl_id);
+        })
+};
 Updater.updateUrl = function (url_id, condition_id, condurl_id) {
     var isUserUrl = condurl_id ? true : false;
     if (!url_id) {
@@ -133,17 +142,17 @@ Updater.updateUrl = function (url_id, condition_id, condurl_id) {
     console.log('Updater.updateUrl START url_id ', url_id, ' condition_id ', condition_id, ' isUserUrl ', isUserUrl);
 
     return Updater.downloadByUrlId(url_id)
-        .then(function(html_object){
+        .then(function (html_object) {
             return Updater.calcUrlParamsByCondId(url_id, html_object.html, condition_id)
         })
-        .then(function(){
-            if (isUserUrl){
+        .then(function () {
+            if (isUserUrl) {
                 return Params.calcCoridors(condition_id)
             }
             return
         })
-        .then(function(){
-            if (isUserUrl){
+        .then(function () {
+            if (isUserUrl) {
                 return Params.calcPercents(condurl_id)
             }
             return
@@ -151,15 +160,15 @@ Updater.updateUrl = function (url_id, condition_id, condurl_id) {
 
 };
 
-Updater.downloadByUrlId = function(url_id) {
+Updater.downloadByUrlId = function (url_id) {
     return PgUrls.get(url_id)
-        .then(function(url_object){
+        .then(function (url_object) {
             return Downloader.getContentByUrl(url_object.url);
         })
 };
-Updater.calcUrlParamsByCondId = function(url_id, html, condition_id) {
+Updater.calcUrlParamsByCondId = function (url_id, html, condition_id) {
     return PgConditions.get(condition_id)
-        .then(function(condition_object){
+        .then(function (condition_object) {
             return Params.processUrl(url_id, html, condition_id, condition_object.condition_query);
         })
 };

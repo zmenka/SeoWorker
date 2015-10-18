@@ -31,6 +31,14 @@ PgCondurls.insertIgnore = function (condition_id, url_id) {
             return res;
         })
 };
+PgCondurls.updateDateCalc = function (condurl_id) {
+    var now = new Date();
+    return PG.logQuery("UPDATE condurls SET DATE_CALC = $2 WHERE CONDURL_ID = $1", [condurl_id, now])
+        .then(function(res) {
+            PG.logQuery("UPDATE conditions SET DATE_CALC = $2 " +
+                "WHERE CONDITION_ID = (SELECT CONDITION_ID FROM condurls WHERE CONDURL_ID = $1)", [condurl_id, now])
+        })
+};
 
 PgCondurls.insertByUrlCond = function (condition_id, url_id) {
     return PgCondurls.find (condition_id, url_id)
@@ -64,7 +72,31 @@ PgCondurls.getNextNotSearched = function (){
         "WHERE " +
             "C.DATE_CALC < $1  AND NOT UCU.USCONDURL_DISABLED " +
         "ORDER BY " +
-            "C.FAIL_COUNT, C.DATE_CALC IS NULL DESC, C.DATE_CALC DESC " +
+            "C.FAIL_COUNT, CU.DATE_CALC < C.DATE_CALC DESC, C.DATE_CALC IS NULL DESC, C.DATE_CALC DESC " +
+        "LIMIT 1;",
+        [dateOld.toISOString().substr(0,10),dateOldOld.toISOString().substr(0,10)]
+    )
+};
+
+PgCondurls.getNextNotSearched = function (){
+    var dateOld = new Date();
+    var dateOldOld = new Date(dateOld.getTime());
+    dateOldOld.setDate(dateOldOld.getDate() - 3);
+    return PG.logQueryOneOrNone(
+        "SELECT " +
+        "CU.CONDURL_ID " +
+        "FROM " +
+        "conditions C " +
+        "INNER JOIN condurls CU " +
+        "ON C.CONDITION_ID = CU.CONDITION_ID " +
+        "INNER JOIN urls U " +
+        "ON CU.URL_ID = U.URL_ID " +
+        "INNER JOIN uscondurls UCU " +
+        "ON UCU.CONDURL_ID = CU.CONDURL_ID " +
+        "WHERE " +
+        "C.DATE_CALC < $1  AND NOT UCU.USCONDURL_DISABLED " +
+        "ORDER BY " +
+        "C.FAIL_COUNT, C.DATE_CALC IS NULL DESC, C.DATE_CALC DESC " +
         "LIMIT 1;",
         [dateOld.toISOString().substr(0,10),dateOldOld.toISOString().substr(0,10)]
     )

@@ -88,6 +88,7 @@ SeoFormat.createSiteTree = function (sites) {
                     date_calc: site.date_calc,
                     url: site.url,
                     condition_id: site.condition_id,
+                    condurl_id: site.condurl_id,
                     condition_query: site.condition_query,
                     sengine_name: site.sengine_name,
                     sengine_id: site.sengine_id,

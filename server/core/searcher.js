@@ -123,12 +123,12 @@ Searcher.calcLinksParams = function (links_obj, condition_id, condition_query) {
                                 if (!allParams[i].val) {
                                     continue;
                                 }
-                                var f = function (param, condition_id, html_id) {
+                                var f2 = function (param, condition_id, html_id) {
                                     console.log("сейчас обрабатывается параметр ", param);
                                     return PgParams.replaceByPtName(condition_id, html_id, param.name, param.val)
 
                                 };
-                                promises.push(f(allParams[i], condition_id, current_url_id))
+                                promises.push(f2(allParams[i], condition_id, current_url_id))
                             }
                             return Promise.all(promises)
                         })
@@ -137,7 +137,7 @@ Searcher.calcLinksParams = function (links_obj, condition_id, condition_query) {
             promises.push(f(links_obj[i].links[j], j + links_obj[i].start, links_obj[i].spage_id, links_obj[i].isNeedDownloading))
         }
     }
-    return Promise.all(promises)
+    return Promise.settle(promises)
 };
 
 

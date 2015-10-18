@@ -168,6 +168,7 @@ PgExpressions.USCONDURLS_LST = function (vUSER_ID, withDisabled) {
     list.push(' CREATE INDEX IDX_tt_res_cupercents ON tt_res_cupercents (CONDURL_ID);');
     list.push(" SELECT                                                             " +
                     "UCU.USCONDURL_ID,                                                      " +
+                    "UCU.CONDURL_ID,                                                      " +
                     "UCU.USCONDURL_DISABLED,                                                      " +
                     "U.URL_ID,                                                        " +
                     "U.URL,                                                        " +
