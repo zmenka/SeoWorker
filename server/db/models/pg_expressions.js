@@ -24,22 +24,32 @@ PgExpressions.execute_list = function (list) {
 
 ВХОД:  tt_lst_condurls (CONDURL_ID...) + INDEX (CONDURL_ID)
 ВЫХОД: tt_res_cupercents (tt_lst_condurls.*, PARAMTYPE_ID, PERCENT)
-*/
-PgExpressions.GET_PERCENT_BY_CONDURL = function () {
-    var list = [];
 
+ byType:
+    undefined - not group
+    1         - group by condurl
+*/
+PgExpressions.GET_PERCENT_BY_CONDURL = function (byType) {
+
+    var list = [];
+    var group_by = '';
+    var select = " P.PARAMTYPE_ID, P.PERCENT ";
+    if (byType == 1) {
+        group_by = ' GROUP BY LST.CONDURL_ID ';
+        select = ' SUM(P.PERCENT)/COUNT(*) AS PERCENT ';
+    }
     list.push('DROP TABLE IF EXISTS tt_res_cupercents;');
     list.push("CREATE TEMPORARY TABLE tt_res_cupercents AS                               \
               WITH with_table AS (SELECT                                                 \
-                  LST.*,                                                                 \
-                  P.PARAMTYPE_ID,                                                        \
-                  P.PERCENT                                                              \
+                  LST.CONDURL_ID,                                                                 \
+                  " + select + "                                                        \
               FROM                                                                       \
                   tt_lst_condurls LST                                                    \
                   INNER JOIN percents P                                                  \
                       ON LST.CONDURL_ID = P.CONDURL_ID      \
               WHERE                                         \
-                  P.IS_LAST)                                \
+                  P.IS_LAST                                \
+              " + group_by + ")                                \
         SELECT                                              \
           T.*,                                              \
           CAST(PERCENT AS INT) AS PERCENT_INT,              \
@@ -164,7 +174,7 @@ PgExpressions.USCONDURLS_LST = function (vUSER_ID, withDisabled) {
                 UU.USER_ID =' + vUSER_ID +
         (withDisabled ? "" : " AND  UU.USCONDURL_DISABLED IS FALSE" ) + ';');
     list.push(' CREATE INDEX IDX_tt_lst_condurls ON tt_lst_condurls (CONDURL_ID);');
-    list = list.concat(this.GET_PERCENT_BY_CONDURL());
+    list = list.concat(this.GET_PERCENT_BY_CONDURL(1));
     list.push(' CREATE INDEX IDX_tt_res_cupercents ON tt_res_cupercents (CONDURL_ID);');
     list.push(" SELECT                                                             " +
                     "UCU.USCONDURL_ID,                                                      " +
@@ -226,7 +236,7 @@ PgExpressions.GET_SITE_PARAM = function (vCONDITION_ID, vURL_ID, vPARAMTYPE_ID) 
             'FROM ' +
                 'params P ' +
                 'JOIN paramtypes PT ON P.PARAMTYPE_ID = PT.PARAMTYPE_ID ' +
-                'JOIN uscondurls UC ON P.URL_ID = UC.URL_ID AND P.CONDITION_ID = UC.CONDITION_ID ' +
+                'JOIN condurls UC ON P.URL_ID = UC.URL_ID AND P.CONDITION_ID = UC.CONDITION_ID ' +
                 'JOIN tt_res_cupercents TTS ON UC.CONDURL_ID = TTS.CONDURL_ID AND PT.PARAMTYPE_ID = TTS.PARAMTYPE_ID ' +
           'WHERE ' +
               ' P.PARAMTYPE_ID = ' + vPARAMTYPE_ID + ';');

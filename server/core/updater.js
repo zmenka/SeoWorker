@@ -17,7 +17,7 @@ var Updater = {};
 Updater.updateNext = function () {
     return Updater.getNext()
         .then(function (condurl_id) {
-            if (condurl_id){
+            if (condurl_id) {
                 return Updater.update(condurl_id);
             }
             return
@@ -43,12 +43,14 @@ Updater.update = function (condurl_id) {
     if (!condurl_id) {
         throw "Updater.update.  Condurl_id can't be empty";
     }
-    return PgCondurls.get(condurl_id)
-        .then(function (condurl_object) {
-            return Updater.subUpdate(condurl_object.condition_id, condurl_object.url_id, condurl_id)
-        })
+    var condurl_object;
+    return PgCondurls.updateDateCalc(condurl_id)
         .then(function () {
-            return PgCondurls.updateDateCalc(condurl_id)
+            return PgCondurls.get(condurl_id)
+        })
+        .then(function (_condurl_object) {
+            condurl_object = _condurl_object;
+            return Updater.subUpdate(condurl_object.condition_id, condurl_object.url_id, condurl_id)
         })
         .then(function () {
             return condurl_id
@@ -74,6 +76,9 @@ Updater.subUpdate = function (condition_id, url_id, condurl_id) {
     return Updater.updateCondition(condition_id)
         .then(function (searchObjects) {
             return Updater.updatePositions(condition_id, searchObjects)
+        })
+        .catch(function () {
+            return PgConditions.incrementFailure(condition_id);
         })
         .then(function () {
             return Updater.updateUrl(url_id, condition_id, condurl_id)
@@ -103,9 +108,6 @@ Updater.updateCondition = function (condition_id) {
         .then(function (searchUrls_res) {
             searchUrls = searchUrls_res;
             return Searcher.calcLinksParams(searchUrls, condition_id, condition.condition_query)
-        })
-        .then(function () {
-            return Params.calcCoridors
         })
         .then(function () {
             return searchUrls

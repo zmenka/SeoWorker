@@ -13,35 +13,40 @@ PgSpages.find = function (condition_id, page_number) {
 
 PgSpages.insert = function (condition_id, page_number) {
     return PG.logQueryOne("INSERT INTO spages (CONDITION_ID, PAGE_NUMBER, DATE_CREATE) " +
-        "SELECT $1, $2, $3 RETURNING SPAGE_ID", [condition_id, page_number, new Date()] )
-        .then(function(res) {
+        "SELECT $1, $2, $3 RETURNING SPAGE_ID", [condition_id, page_number, new Date()])
+        .then(function (res) {
             return res.spage_id;
         })
 };
 
 PgSpages.delete = function (id) {
-    return PG.logQueryOneOrNone("DELETE FROM scontents WHERE SPAGE_ID = $1", [id] )
-        .then(function(){
-            return PG.logQueryOneOrNone("DELETE FROM spages WHERE SPAGE_ID = $1", [id] )
+    return PG.logQueryOneOrNone("DELETE FROM scontents WHERE SPAGE_ID = $1", [id])
+        .then(function () {
+            return PG.logQueryOneOrNone("DELETE FROM spages WHERE SPAGE_ID = $1", [id])
         })
 };
 
 PgSpages.clearByCondition = function (condition_id) {
     return PgScontents.clearByCondition(condition_id)
-        .then(function(){
-            return PG.logQueryOneOrNone("DELETE FROM spages WHERE CONDITION_ID = $1", [condition_id] )
+        .then(function () {
+            return PG.logQueryOneOrNone("DELETE FROM spages WHERE CONDITION_ID = $1", [condition_id])
         })
 };
 
 PgSpages.replace = function (condition_id, page_number) {
-    return PgSpages.find (condition_id, page_number)
-        .then(function(res){
-            if(res) {
-                return PgSpages.delete(res.spage_id);
-            }
-        })
-        .then(function() {
-            return PgSpages.insert(condition_id, page_number)
+    var list = [];
+    list.push({
+        queryText: "DELETE FROM spages WHERE CONDITION_ID = $1 AND PAGE_NUMBER = $2",
+        valuesArray: [condition_id, page_number]
+    });
+    list.push({
+        queryText: "INSERT INTO spages (CONDITION_ID, PAGE_NUMBER, DATE_CREATE) " +
+        "SELECT $1, $2, $3 RETURNING SPAGE_ID",
+        valuesArray: [condition_id, page_number, new Date()]
+    });
+    return PG.transactionSync(list)
+        .then(function (res) {
+            return res[res.length - 1][0].spage_id
         })
 };
 

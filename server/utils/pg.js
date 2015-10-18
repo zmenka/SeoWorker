@@ -88,7 +88,7 @@ function logQueryListSync (queryList) {
         return this.query(queryList[index].queryText, queryList[index].valuesArray)
     }
     return db.task(function (t) {
-        return this.sequence(source, undefined, 0 , true);
+        return this.sequence(source);
     })
 }
 
@@ -108,10 +108,12 @@ function transactionAsync(queryList) {
 // queryList : {queryText: string, valuesArray: any[]} []
 function transactionSync(queryList) {
     function source(index, data, delay) {
+        if (!queryList[index])
+            return
         return this.query(queryList[index].queryText, queryList[index].valuesArray)
     }
     return db.tx(function (t) {
-        return this.sequence(source, undefined, 0 , true);
+        return this.sequence(source);
     })
 }
 

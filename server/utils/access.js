@@ -17,7 +17,7 @@ Access.isAuth = function (req) {
 };
 
 Access.isAdmin = function (req) {
-    return isAuth && req.user.role_id == 1
+    return Access.isAuth && req.user.role_id == 1
 };
 
 module.exports = Access
