@@ -34,4 +34,22 @@ PgUrls.insertIgnore = function (url) {
         })
 };
 
+PgUrls.getOldUrls = function (condition_id) {
+    return PG.logQuery("SELECT U.url_id, U.url FROM urls U JOIN condurls C USING(url_id) WHERE C.condition_id = $1;", [condition_id] )
+};
+
+PgUrls.blockByCondition = function (condition_id) {
+    return PG.logQuery("SELECT 1;",
+        [])
+};
+
+PgUrls.unBlockByCondition = function (condition_id) {
+    return PG.logQuery("SELECT 1;",
+        [])
+};
+
+PgUrls.incrementFailure = function (url_id) {
+    return PG.logQuery("select 1;", [] );
+};
+
 module.exports = PgUrls;

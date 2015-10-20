@@ -4,7 +4,7 @@ var SeoParser = require("./seo_parser");
 function SeoParameters(rawHtml) {
     var _this = this;
     if (!rawHtml) {
-        Promise.reject('SeoParameters.prototype.init: no rawHtml')
+        return Promise.reject(new Error('SeoParameters.prototype.init: no rawHtml'))
     }
 
     return new SeoParser(rawHtml)
@@ -21,10 +21,10 @@ var regexpSplit = /[\s,\-\.;:/\(\)!\?\[\]{}_\\\|~<>*\+=]+/;
 SeoParameters.prototype.complianceStringsVal = function (text1, text2) {
     var matchWords = 0;
     // - плохо cчитывается!!!
-    var words1 = text1.toLowerCase().split(regexpSplit).filter(function (e) {
+    var words1 = text1.toString().toLowerCase().split(regexpSplit).filter(function (e) {
         return e
     });
-    var words2 = text2.toLowerCase().split(regexpSplit).filter(function (e) {
+    var words2 = text2.toString().toLowerCase().split(regexpSplit).filter(function (e) {
         return e
     });
     for (var key in words1) {
@@ -370,7 +370,7 @@ function getData(obj) {
 /**
  * @param sengine_name
  *
- * @returns {url: string, title: string}
+ * @returns {url: string, title: string, id: number}
  */
 SeoParameters.prototype.getSearchPicks = function (sengine_name) {
     var res = [];
@@ -420,12 +420,12 @@ SeoParameters.prototype.getSearchPicks = function (sengine_name) {
                 //получаем title
                 var title = getData(tag);
                 //кладем в результат
-                res.push({url: url, title: title});
+                res.push({url: url, title: title, id: i + 1});
             }
 
             break;
         default:
-            throw new Error('UNKNOWN senine name')
+            throw new Error('UNKNOWN senine name ' + sengine_name)
             break;
     }
 

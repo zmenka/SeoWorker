@@ -153,6 +153,9 @@ PgUsers.getByLogin = function (login) {
 //
 PgUsers.updateCookies = function (id, cookies) {
     return PG.logQuery("UPDATE users SET cookies = $1 WHERE user_id = $2;", [cookies, id])
+        .catch(function (err) {
+            console.log('PgUsers.updateCookies', err)
+        })
 };
 
 PgUsers.isUserAvailableToUser = function (user_id, to_user_id) {

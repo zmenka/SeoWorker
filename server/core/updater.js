@@ -14,85 +14,71 @@ var Updater = {};
 /**************************
  *  Наружные функции
  **************************/
-Updater.updateNext = function () {
-    return Updater.getNext()
-        .then(function (condurl_id) {
-            if (condurl_id) {
-                return Updater.update(condurl_id);
-            }
-            return
-        })
-        .then(function (res) {
-            return res;
-        })
-};
 
 Updater.getNext = function () {
-    return PgCondurls.getNextNotSearched()
-        .then(function (res) {
-            if (res) {
-                console.log("Updater.getNext GET NEXT CONDURL " + res.condurl_id);
-                return res.condurl_id;
+    var condition
+    return PgConditions.getNextAndBlock()
+        .then(function (condition_res) {
+            condition = condition_res
+            if (!condition){
+                throw new Error('no next condition')
             }
-            return
+            return PgUrls.blockByCondition(condition.condition_id)
+        })
+        .then(function () {
+            console.log("Updater.getNext GET NEXT Condition_id " + condition.condition_id);
+            return condition.condition_id
         })
 };
 
-Updater.update = function (condurl_id) {
-    console.log('Updater.update START condurl_id ', condurl_id);
-    if (!condurl_id) {
-        throw "Updater.update.  Condurl_id can't be empty";
+Updater.update = function (condition_id) {
+    console.log('Updater.update START condition_id ', condition_id);
+    if (!condition_id) {
+        return Promise.reject(new Error("condition_id can't be empty"));
     }
-    var condurl_object;
-    return PgCondurls.updateDateCalc(condurl_id)
-        .then(function () {
-            return PgCondurls.get(condurl_id)
-        })
-        .then(function (_condurl_object) {
-            condurl_object = _condurl_object;
-            return Updater.subUpdate(condurl_object.condition_id, condurl_object.url_id, condurl_id)
-        })
-        .then(function () {
-            return condurl_id
-        })
+    var searchUrlsWithLinksAndParams
+    var corridors
+    var urlsWithParamsAndPositions
+    return Updater.updateSearch(condition_id)
+        .then(function (searchUrlsWithLinksAndParamsRes) {
+            searchUrlsWithLinksAndParams = searchUrlsWithLinksAndParamsRes
+            console.log('searchUrlsWithLinksAndParams', JSON.stringify(searchUrlsWithLinksAndParams, null, 2))
 
+            return Params.calcCorridors(searchUrlsWithLinksAndParams)
+        })
+        .then(function (corridorsRes) {
+            corridors = corridorsRes
+
+            return Updater.updateOldUrls(condition_id)
+        })
+        .then(function (urlsWithParams) {
+            console.log('urlsWithParams', JSON.stringify(urlsWithParams, null, 2))
+
+            return SearchParser.getUrlsPositions(searchUrlsWithLinksAndParams, urlsWithParams)
+        })
+        .then(function (urlsWithParamsPos) {
+            urlsWithParamsAndPositions = urlsWithParamsPos
+
+        })
+        .then(function () {
+            // засунуть это все в базу, посчитать проценты и снять блокировки
+        })
 };
 
 
 /**************************
  *  Внутренние функции
  **************************/
-Updater.subUpdate = function (condition_id, url_id, condurl_id) {
-    /**
-     *  Обновление выдачи, корридора, параметров сайтов выдачи и параметров сайта пользователя
-     **/
-    if (!url_id) {
-        throw "Updater.update.  url_id can't be empty";
-    }
-    if (!condition_id) {
-        throw "Updater.getSearchUrls.  condition_id can't be empty";
-    }
 
-    return Updater.updateCondition(condition_id)
-        .then(function (searchObjects) {
-            return Updater.updatePositions(condition_id, searchObjects)
-        })
-        .catch(function () {
-            return PgConditions.incrementFailure(condition_id);
-        })
-        .then(function () {
-            return Updater.updateUrl(url_id, condition_id, condurl_id)
-        })
-};
-
-Updater.updateCondition = function (condition_id) {
+Updater.updateSearch = function (condition_id) {
     if (!condition_id) {
-        throw "Updater.updateCondition.  condition_id can't be empty";
+        return Promise.reject(new Error("condition_id can't be empty"));
     }
-    var searchUrls;
+    var condition;
     return PgConditions.get(condition_id)
         .then(function (condition_res) {
-            condition = condition_res
+            condition = condition_res;
+            console.log('START doSearch for ', JSON.stringify(condition, null, 2))
             return Searcher.generateSearchUrls(
                 condition.sengine_name,
                 condition.condition_query,
@@ -103,88 +89,35 @@ Updater.updateCondition = function (condition_id) {
             );
         })
         .then(function (searchUrls) {
-            return SearchParser.getLinksFromSearcher(searchUrls, condition_id, 1, condition.sengine_name)
+            console.log('searchUrls', JSON.stringify(searchUrls, null, 2))
+            return Searcher.getLinksFromSearcher(searchUrls)
         })
-        .then(function (searchUrls_res) {
-            searchUrls = searchUrls_res;
-            return Searcher.calcLinksParams(searchUrls, condition_id, condition.condition_query)
+        .catch(function (err) {
+            return PgConditions.incrementFailure(condition_id);
+            throw err
         })
-        .then(function () {
-            return searchUrls
-        })
+
 };
 
-Updater.updatePositions = function (condition_id, searchObjects) {
-    var positions = {};
-    return PgCondurls.getUrlsByConditionId(condition_id)
-        .then(function (urls) {
-            var promises = []
-            for (var i = 0; i < searchObjects.length; i++) {
-                for (var j = 0; j < searchObjects[i].links.length; j++) {
-                    var link = searchObjects[i].links[j];
-                    var url = urls.filter(function (item) {
-                        return item.url == link.url
-                    })[0];
-                    if (url) {
-                        var position = j + searchObjects[i].start;
-                        if (!(url.condurl_id in positions)) {
-                            positions[url.condurl_id] = position;
-                            promises.push(PgPositions.insert(url.condurl_id, position));
-                        }
-                    }
-                }
-            }
-            return Promise.all(promises)
-        })
-};
-
-Updater.updateUserUrl = function (condurl_id) {
-    return PgCondurls.get(condurl_id)
-        .then(function (condurl_object) {
-            return Updater.updateUrl(condurl_object.url_id, condurl_object.condition_id, condurl_id);
-        })
-};
-Updater.updateUrl = function (url_id, condition_id, condurl_id) {
-    var isUserUrl = condurl_id ? true : false;
-    if (!url_id) {
-        throw "Updater.updateUrl.  url_id can't be empty";
-    }
+Updater.updateOldUrls = function (condition_id) {
     if (!condition_id) {
-        throw "Updater.updateUrl.  condition_id can't be empty";
+        return Promise.reject(new Error("condition_id can't be empty"));
     }
-
-    console.log('Updater.updateUrl START url_id ', url_id, ' condition_id ', condition_id, ' isUserUrl ', isUserUrl);
-
-    return Updater.downloadByUrlId(url_id)
-        .then(function (html_object) {
-            return Updater.calcUrlParamsByCondId(url_id, html_object.html, condition_id)
-        })
-        .then(function () {
-            if (isUserUrl) {
-                return Params.calcCoridors(condition_id)
-            }
-            return
-        })
-        .then(function () {
-            if (isUserUrl) {
-                return Params.calcPercents(condurl_id)
-            }
-            return
-        })
-
-};
-
-Updater.downloadByUrlId = function (url_id) {
-    return PgUrls.get(url_id)
-        .then(function (url_object) {
-            return Downloader.getContentByUrl(url_object.url);
-        })
-};
-Updater.calcUrlParamsByCondId = function (url_id, html, condition_id) {
+    var condition;
     return PgConditions.get(condition_id)
-        .then(function (condition_object) {
-            return Params.processUrl(url_id, html, condition_id, condition_object.condition_query);
+        .then(function (condition_res) {
+            condition = condition_res;
+            return PgUrls.getOldUrls(condition_id)
         })
-};
+        .then(function (urls) {
+            console.log('urls', JSON.stringify(urls, null, 2))
+            return Searcher.calcUrlParams(urls, condition.condition_query)
+        })
+        .then(function (urlsWithParams) {
+            console.log('urlsWithParams', JSON.stringify(urlsWithParams, null, 2))
+            return urlsWithParams
+        })
+}
+
 
 module.exports = Updater;

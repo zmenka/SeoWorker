@@ -11,7 +11,7 @@ describe('DB TEST', function(){
                 });
 
         })
-        it.only('sql by list', function(){
+        it('sql by list', function(){
         //it.only('sql by list', function(){
 
             var PgExpressions = require("../../server/db/models/pg_expressions");

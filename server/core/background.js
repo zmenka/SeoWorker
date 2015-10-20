@@ -18,16 +18,17 @@ BackGround.run = function () {
 
 BackGround.action = function () {
     console.log("BackGround.run NEXT ITERATION !!!!");
-    return Cookier.update()
-        .then(function(){
-            return Updater.updateNext()
+    return Updater.getNext()
+        .catch(function(res) {
+            //либо нечего обновлять, лтбо что-то заблокировано, подождем
+            return Promise.delay(60000);
+            throw new Error('WAIT NEXT')
         })
-        .then(function(res){
-            if (!res) {
-                //если нечего скачивать то спим минуту
-                return Promise.delay(60000);
-            }
-            return
+        .then(function(condition_id){
+            return Updater.update(condition_id)
+        })
+        .catch(function(err) {
+            console.log(err.stack)
         })
 };
 

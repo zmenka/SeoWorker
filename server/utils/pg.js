@@ -10,7 +10,7 @@ var pgp = require('pg-promise')(options)
 var db = pgp(Config.postgres);
 
 var monitor = require("pg-monitor");
-monitor.log = function(msg, info){
+monitor.log = function (msg, info) {
     //save logs
     //console.log( new Date(),  msg, info)
 };
@@ -18,58 +18,53 @@ monitor.log = function(msg, info){
 var color = require("cli-color"); // must use this color library;
 
 var myTheme = {
-        time: color.bgWhite.black,
-        value: color.white,
-        cn: color.yellow,
-        tx: color.cyan,
-        paramTitle: color.magenta,
-        errorTitle: color.redBright,
-        query: color.magenta,
-        special: color.green,
-        error: color.red
-    }
+    time: color.bgWhite.black,
+    value: color.white,
+    cn: color.yellow,
+    tx: color.cyan,
+    paramTitle: color.magenta,
+    errorTitle: color.redBright,
+    query: color.magenta,
+    special: color.green,
+    error: color.red
+}
 monitor.setTheme(myTheme);
 monitor.attach(options);
 
-//возвращает промис с массивом данных
-function query (queryText, valuesArray) {
-    return db.query(queryText, valuesArray)
-}
-
-//возвращает промис с объектом. Если не находится объекта или больше 1, то throw err
-function queryOne (queryText, valuesArray) {
-    return db.one(queryText, valuesArray)
-}
-
-//вызывает функцию/процедуру, возвращает промис с массивом данных
-function func (queryText, valuesArray) {
-    return db.func(queryText, valuesArray)
-}
-
 // логируется время выполнения, возвращает промис с массивом данных
-function logQuery (queryText, valuesArray) {
+function logQuery(queryText, valuesArray) {
     return db.task(function (t) {
         return t.query(queryText, valuesArray)
     })
+        .catch(function (err) {
+            throw new Error(err)
+        })
 }
 
 //логируется время выполнения, возвращает промис с объектом
-function logQueryOne (queryText, valuesArray) {
+function logQueryOne(queryText, valuesArray) {
     return db.task(function (t) {
         return t.one(queryText, valuesArray)
     })
+        .catch(function (err) {
+            throw new Error(err)
+        })
 }
 
 //логируется время выполнения, возвращает промис с объектом, expects 1 or 0 rows
-function logQueryOneOrNone (queryText, valuesArray) {
+function logQueryOneOrNone(queryText, valuesArray) {
     return db.task(function (t) {
         return t.oneOrNone(queryText, valuesArray)
     })
+        .catch(function (err) {
+            throw new Error(err)
+        })
 }
+
 
 // логируется время выполнения, все запросы ПАРАЛЛЕЛЬНО, не последовательно
 // queryList : {queryText: string, valuesArray: any[]} []
-function logQueryListAsync (queryList) {
+function logQueryListAsync(queryList) {
     return db.task(function (t) {
         var queries = []
         for (var key in queryList) {
@@ -77,19 +72,26 @@ function logQueryListAsync (queryList) {
         }
         return this.batch(queries);
     })
+        .catch(function (err) {
+            throw new Error(err)
+        })
 }
 
 // логируется время выполнения, все запросы последовательно
 // queryList : {queryText: string, valuesArray: any[]} []
-function logQueryListSync (queryList) {
+function logQueryListSync(queryList) {
     function source(index, data, delay) {
         if (!queryList[index])
             return
         return this.query(queryList[index].queryText, queryList[index].valuesArray)
     }
+
     return db.task(function (t) {
         return this.sequence(source);
     })
+        .catch(function (err) {
+            throw new Error(err)
+        })
 }
 
 // выполняет транзакцию, все запросы ПАРАЛЛЕЛЬНО, не последовательно
@@ -102,6 +104,9 @@ function transactionAsync(queryList) {
         }
         return this.batch(queries);
     })
+        .catch(function (err) {
+            throw new Error(err)
+        })
 }
 
 // выполняет транзакцию, все запросы ПОСЛЕДОВАТЕЛЬНО
@@ -112,9 +117,13 @@ function transactionSync(queryList) {
             return
         return this.query(queryList[index].queryText, queryList[index].valuesArray)
     }
+
     return db.tx(function (t) {
         return this.sequence(source);
     })
+        .catch(function (err) {
+            throw new Error(err)
+        })
 }
 
 module.exports = {
@@ -126,7 +135,4 @@ module.exports = {
     transactionAsync: transactionAsync,
     transactionSync: transactionSync,
 
-    query : query,
-    queryOne : queryOne,
-    func : func,
 };

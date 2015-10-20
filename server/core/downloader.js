@@ -1,15 +1,18 @@
-var request = require('request');
 var iconv = require('iconv-lite');
 var path = require('path');
 var SeoParser = require('./seo_parser');
 var PgUsers = require('./../db/models/pg_users');
-var zlib = require('zlib');
+
 var Promise = require('../utils/promise');
+var request = Promise.promisify(require("request"));
+var zlib_gunzip = Promise.promisify(require('zlib').gunzip);
+var zlib_inflate = Promise.promisify(require('zlib').inflate);
 var he = require('he');
 var Antigate = require('antigate');
 var config = require('./../config');
 var ag = new Antigate(config.antigate_key);
-
+var charset = require('charset');
+var jschardet = require('jschardet');
 
 var Downloader = {};
 
@@ -25,7 +28,7 @@ Downloader._headers = {
 
 Downloader.getOptions = function (url, cookies) {
     if (!url) {
-        throw new Error("Downloader.getContentByUrl Url and captcha is empty");
+        throw new Error("Url is empty");
     }
 
     var options = {
@@ -57,62 +60,71 @@ Downloader.getOptions = function (url, cookies) {
  * @returns {html: string, cookies: Object[]}
  */
 Downloader.getContentByUrl = function (url, cookies) {
-    return new Promise(function (resolve, reject) {
+    return Promise.try(function () {
         var options = Downloader.getOptions(url, cookies);
-        request(options, function (error, response, body) {
-            if (error) {
-                return reject('Downloader.getContentByUrl Ошибка при получении html ' + (error ? error.toString() : ""));
-            }
-            var j = options.jar;
-            var cookies = j.getCookies(options.url);
-            if (!response) {
-                return reject('response empty ',url);
-            }
-            if (response.headers['content-type'] && checkArrElemIsSubstr(response.headers['content-type'], Downloader._contentTypes) == -1) {
-                return reject('Downloader.getContentByUrl Мы не знаем такой content type: ' + response.headers['content-type']);
-            }
+        return request(options)
+            .then(function (res) {
+                var response = res[0]
+                var body = res[1]
+                if (!response) {
+                    throw new Error('response empty for ' + url);
+                }
+                if (!body) {
+                    throw new Error('body empty for ' + url);
+                }
+                if (response.headers['content-type'] && checkArrElemIsSubstr(response.headers['content-type'], Downloader._contentTypes) == -1) {
+                    throw new Error('Мы не знаем такой content type: ' + response.headers['content-type']);
+                }
+                var j = options.jar;
+                var cookies = j.getCookies(options.url);
 
-            var encoding = response.headers['content-encoding'];
+                return Downloader.responseDecompress(response.headers['content-encoding'], body)
+                    .then(function (decompressed) {
+                        return Downloader.responseDecode(response, decompressed)
+                    })
+                    .then(function (decoded) {
+                        if (!decoded) {
+                            throw new Error('decoded empty for ' + url);
+                        }
+                        return {html: decoded, cookies: cookies}
+                    })
+            })
 
-            if (encoding == 'gzip') {
-                zlib.gunzip(body, function (err, decoded) {
-                    if (error) {
-                        reject('Downloader.getContentByUrl Ошибка при получении zlib ' + (error ? error.toString() : ""));
-                    }
-
-                    resolve({html: Downloader.responseDecode(response, decoded), cookies: cookies});
-                });
-            } else if (encoding == 'deflate') {
-                zlib.inflate(body, function (err, decoded) {
-                    if (error) {
-                        reject('Downloader.getContentByUrl Ошибка при получении zlib ' + (error ? error.toString() : ""));
-                    }
-
-                    resolve( {html: Downloader.responseDecode(response, decoded), cookies: cookies});
-                })
-            } else {
-                resolve( {html: Downloader.responseDecode(response, body), cookies: cookies});
-            }
-
-        })
     })
 };
 
+Downloader.responseDecompress = function (encoding, body) {
+    return Promise.try(function () {
+        if (!body) {
+            throw new Error('Пустой body. ');
+        }
+        switch (encoding) {
+            case 'gzip':
+                return zlib_gunzip(body)
+            case 'deflate':
+                return zlib_inflate(body)
+            default :
+                return body
+        }
+    })
+}
+
+
 Downloader.responseDecode = function (response, body) {
-    if (!body) {
-        throw new Error('Downloader.responseDecode. Пустой body. ');
+    if (!response) {
+        throw new Error('Пустой response. ');
     }
-    var charset = require('charset');
-    var jschardet = require('jschardet');
+    if (!body) {
+        throw new Error('Пустой body. ');
+    }
     var enc = charset(response.headers, body);
     enc = enc || jschardet.detect(body).encoding;
     if (enc) {
         enc = enc.toLowerCase();
-        if (enc != 'utf-8' && enc != 'utf8') {
-            body = iconv.decode(body, enc);
-        }
+        return iconv.decode(body, enc);
+    } else {
+        throw new Error('Unknown encoding ');
     }
-    return he.decode(body.toString());
 }
 
 //возвращает номер элемента из массива  строк arr, для которого rx является подстрокой. Или -1.
@@ -127,30 +139,39 @@ function checkArrElemIsSubstr(rx, arr) {
     return -1;
 };
 
-Downloader.getContentByUrlOrCaptcha = function (url, user_id, sengine_name, restartIfCaptcha) {
+Downloader.getContentByUrlOrCaptcha = function (url, cookies, sengine_name, restartIfCaptcha) {
     var content;
-    return PgUsers.get(user_id)
-        .then(function (res) {
-            var cookies;
-            try {
-                cookies = JSON.parse(res.cookies)
-            }
-            catch (err) {
-                cookies = null
-            }
-            return Downloader.getContentByUrl(url, cookies)
+    return Promise.try(function(){
+        //if (cookies){
+        //    return cookies
+        //} else {
+        //    return PgUsers.get(1)
+        //        .then(function (res) {
+        //            var cookies;
+        //            try {
+        //                cookies = JSON.parse(res.cookies)
+        //            }
+        //            catch (err) {
+        //            }
+        //            return cookies
+        //        })
+        //}
+        return cookies
+    })
+        .then(function (cookie_res) {
+            return Downloader.getContentByUrl(url, cookie_res)
         })
         .then(function (res) {
             content = res;
-            return PgUsers.updateCookies(user_id, JSON.stringify(res.cookies))
+            return PgUsers.updateCookies(1, JSON.stringify(content.cookies))
         })
-        .then(function (res) {
+        .then(function () {
             return Downloader.getCaptcha(content.html, sengine_name)
         })
         .then(function (rescaptcha) {
             if (rescaptcha) {
                 if (restartIfCaptcha) {
-                    return Downloader.getContentByUrlOrCaptcha( rescaptcha, user_id, sengine_name, false);
+                    return Downloader.getContentByUrlOrCaptcha(rescaptcha, content.cookies, sengine_name, false);
                 } else {
                     throw new Error('получили капчу опять!')
                 }
@@ -172,7 +193,7 @@ Downloader.getContentByUrlOrCaptcha = function (url, user_id, sengine_name, rest
 Downloader.getCaptcha = function (raw_html, sengine_name) {
     var _this = this;
     if (!raw_html) {
-        throw new Error(' Не получено содержимой страницы!');
+        return Promise.reject(new Error(' Не получено содержимой страницы!'));
     }
 
     return new SeoParser(raw_html)
@@ -188,12 +209,14 @@ Downloader.getCaptcha = function (raw_html, sengine_name) {
                         var key = parser.getTag('form[action=/checkcaptcha] input[name=key]')[0].attribs.value;
                         var retpath = parser.getTag('form[action=/checkcaptcha] input[name=retpath]')[0].attribs.value;
 
+                        console.error("CAPTCHA", img)
                         return Downloader.antigate(img)
                             .then(function (res) {
                                 var kaptcha = 'http://yandex.ru/checkcaptcha?key='
                                     + encodeURIComponent(key) +
                                     '&retpath=' + encodeURIComponent(retpath) +
                                     '&rep=' + encodeURIComponent(res);
+
                                 return kaptcha;
                             })
 
@@ -211,6 +234,8 @@ Downloader.getCaptcha = function (raw_html, sengine_name) {
                         var img = img[0].attribs.src;
                         var continue1 = parser.getTag('form[action=CaptchaRedirect] input[name=continue]')[0].attribs.value;
                         var id = parser.getTag('form[action=CaptchaRedirect] input[name=id]')[0].attribs.value;
+
+                        console.error("CAPTCHA", img)
                         return Downloader.antigate(img)
                             .then(function (res) {
                                 var kaptcha = 'http://ipv4.google.com/sorry/CaptchaRedirect?"' +
@@ -220,11 +245,11 @@ Downloader.getCaptcha = function (raw_html, sengine_name) {
                                 return kaptcha;
                             })
                     }
-                    throw "Downloader.getCaptcha problems with captcha" + tags;
+                    throw new Error("Downloader.getCaptcha problems with captcha" + tags);
                 }
                 return;
             } else {
-                throw 'Downloader.getCaptcha Не известный поисковик для получения капчи'
+                throw new Error('Downloader.getCaptcha Не известный поисковик для получения капчи')
             }
         })
 }
@@ -242,13 +267,13 @@ Downloader.antigate = function (url) {
     })
 }
 
-Downloader.antigateBalance = function (url) {
+Downloader.antigateBalance = function () {
     return new Promise(function (resolve, reject) {
-        ag.getBalance(function (error, balance) {
+        ag.getBalance( function (error, text) {
             if (error) {
                 reject(error);
             } else {
-                resolve(balance);
+                resolve(text);
             }
         });
     })

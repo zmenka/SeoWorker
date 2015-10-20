@@ -8,7 +8,7 @@ var Updater = require("./core/updater");
 var PgCorridor = require("./db/models/pg_corridors");
 var SeoFormat = require("./SeoFormat");
 var Diagram = require("./Diagram");
-var Core = require("./core/core");
+//var Core = require("./core/core");
 var Users = require("./models/users");
 
 var ApiUtils = require("./utils/api_utils");
