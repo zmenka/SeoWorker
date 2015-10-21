@@ -38,7 +38,8 @@ Updater.update = function (condition_id) {
     }
     var searchUrlsWithLinksAndParams
     var corridors
-    var urlsWithParamsAndPositions
+    var urlsWithParams
+    var positions
     return Updater.updateSearch(condition_id)
         .then(function (searchUrlsWithLinksAndParamsRes) {
             searchUrlsWithLinksAndParams = searchUrlsWithLinksAndParamsRes
@@ -51,17 +52,17 @@ Updater.update = function (condition_id) {
 
             return Updater.updateOldUrls(condition_id)
         })
-        .then(function (urlsWithParams) {
+        .then(function (urlsWithParamsRes) {
             console.log('urlsWithParams', JSON.stringify(urlsWithParams, null, 2))
-
-            return SearchParser.getUrlsPositions(searchUrlsWithLinksAndParams, urlsWithParams)
+            urlsWithParams = urlsWithParamsRes
+            return SearchParser.getUrlsPositions(searchUrlsWithLinksAndParams, condition_id)
         })
-        .then(function (urlsWithParamsPos) {
-            urlsWithParamsAndPositions = urlsWithParamsPos
+        .then(function (positionsRes) {
+            positions = positionsRes
 
         })
         .then(function () {
-            // засунуть это все в базу, посчитать проценты и снять блокировки
+            // засунуть это все в базу, посчитать проценты и СНЯТЬ блокировки
         })
 };
 
@@ -92,6 +93,10 @@ Updater.updateSearch = function (condition_id) {
             console.log('searchUrls', JSON.stringify(searchUrls, null, 2))
             return Searcher.getLinksFromSearcher(searchUrls)
         })
+        .then(function (SearchUrlWithLinks) {
+            console.log('SearchUrlWithLinks', JSON.stringify(SearchUrlWithLinks, null, 2))
+            return Searcher.calcLinksParams(searchUrls, condition.condition_query)
+        })
         .catch(function (err) {
             return PgConditions.incrementFailure(condition_id);
             throw err
@@ -118,6 +123,59 @@ Updater.updateOldUrls = function (condition_id) {
             return urlsWithParams
         })
 }
+
+Updater.updateOneUrl = function (condition_id, url_id) {
+    if (!condition_id) {
+        return Promise.reject(new Error("condition_id can't be empty"));
+    }
+    if (!url_id) {
+        return Promise.reject(new Error("url_id can't be empty"));
+    }
+    var condition;
+    return PgConditions.checkActual(condition_id)
+        .then(function (isActual) {
+            if (isActual){
+                return
+            } else {
+                return Updater.update(condition_id)
+            }
+        })
+        .then(function (isActual) {
+            return Updater.updateOneUrlWithoutCondition(condition_id, url_id)
+        })
+}
+
+Updater.updateOneUrlWithoutCondition = function (condition_id, url_id) {
+    if (!condition_id) {
+        return Promise.reject(new Error("condition_id can't be empty"));
+    }
+    if (!url_id) {
+        return Promise.reject(new Error("url_id can't be empty"));
+    }
+    var condition;
+    return PgConditions.get(condition_id)
+        .then(function (condition_res) {
+            condition = condition_res;
+            return PgUrls.getAndBlock(url_id)
+        })
+        .then(function (url) {
+            console.log('url', JSON.stringify(url, null, 2))
+            return Searcher.calcUrlParams([url], condition.condition_query)
+        })
+        .then(function (urlsWithParams) {
+            if (!urlsWithParams || urlsWithParams.length !=1) {
+                throw new Error("url " + url_id + " not calc! " + urlsWithParams);
+            }
+            console.log('urlsWithParams', JSON.stringify(urlsWithParams, null, 2))
+            return urlsWithParams
+        })
+        .then(function (urlsWithParams) {
+            // засунуть это все в базу и СНЯТЬ блокировку
+        })
+}
+
+
+
 
 
 module.exports = Updater;

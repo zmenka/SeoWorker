@@ -52,4 +52,12 @@ PgConditions.unBlock = function (condition_id) {
         [])
 };
 
+PgConditions.checkActual = function (condition_id) {
+    return PG.logQuery("SELECT  1;",
+        [])
+        .then(function(res) {
+            return true;
+        })
+};
+
 module.exports = PgConditions;

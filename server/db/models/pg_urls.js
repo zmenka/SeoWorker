@@ -16,6 +16,10 @@ PgUrls.get = function (url_id) {
     return PG.logQueryOne("SELECT * FROM urls U JOIN domains D USING(DOMAIN_ID) WHERE U.URL_ID = $1;", [url_id] )
 };
 
+PgUrls.getAndBlock = function (url_id) {
+    return PG.logQueryOne("SELECT * FROM urls U JOIN domains D USING(DOMAIN_ID) WHERE U.URL_ID = $1;", [url_id] )
+};
+
 PgUrls.insert = function (url) {
     return PgDomain.insertIgnoreByUrl(url)
         .then(function(domain) {
@@ -35,6 +39,10 @@ PgUrls.insertIgnore = function (url) {
 };
 
 PgUrls.getOldUrls = function (condition_id) {
+    return PG.logQuery("SELECT U.url_id, U.url FROM urls U JOIN condurls C USING(url_id) WHERE C.condition_id = $1;", [condition_id] )
+};
+
+PgUrls.getLstByCondition = function (condition_id) {
     return PG.logQuery("SELECT U.url_id, U.url FROM urls U JOIN condurls C USING(url_id) WHERE C.condition_id = $1;", [condition_id] )
 };
 

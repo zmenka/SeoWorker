@@ -147,7 +147,6 @@ Searcher.getLinksFromSearcher = function (search_objects) {
 
 /** считает параметры
  * @links_obj searchUrlWithLinks[]
- * @param condition_id
  * @param condition_query
  *
  * @returns searchUrlWithLinks[]
