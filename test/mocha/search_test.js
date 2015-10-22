@@ -24,7 +24,7 @@ describe('Search', function () {
                 console.log(err.stack)
             })
     })
-    it.only('получаем поисковую выдачу', function () {
+    it('получаем поисковую выдачу', function () {
         var cond_id = 642;
         var Searcher = require("../../server/core/searcher");
         return Searcher.doSearch(cond_id)

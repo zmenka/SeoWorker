@@ -321,6 +321,10 @@ SeoParameters.prototype.tagLengthAll = function (tag) {
 
     var data = getData(tags);
 
+    //console.log('-----------------------', tag)
+    //console.log(data)
+    //console.log('-----------------------', tag)
+
     return data.length;
 }
 //считаем суммарную длину в символах data первого тэга tag
@@ -347,6 +351,9 @@ function getData(obj) {
         return "";
     var out = '';
     //воспринимаем это как НЕ массив
+    if (obj['type']=='comment' || obj['type']=='script'){
+        return out
+    }
     if (obj.hasOwnProperty('children')) {
         out += getData(obj.children);
     }
@@ -355,6 +362,9 @@ function getData(obj) {
     }
     //воспринимаем это как массив
     for (var j = 0; j < obj.length; j++) {
+        if (obj[j]['type']=='comment' || obj[j]['type']=='script'){
+            continue;
+        }
         if (obj[j].hasOwnProperty('children')) {
             out += getData(obj[j].children);
         }

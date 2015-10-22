@@ -51,7 +51,7 @@ PgUsurls.insertWithUrl = function (url, user_id, condition_id) {
     // create a Url
     var db;
     var urls
-    return PgUrls.findByUrl(url)
+    return PgUrls.find(url)
         .then(function (url) {
             if (!url) {
                 return PG.logQueryOne("INSERT INTO urls (url, date_create) VALUES ($1, $2) returning url_id;", [url, date_create])
@@ -69,10 +69,6 @@ PgUsurls.insertWithUrl = function (url, user_id, condition_id) {
                         return url.url_id
                     })
             }
-        })
-        .then(function (url_id) {
-            return PG.logQueryOne("INSERT INTO usurls (user_id, url_id, date_create) VALUES ($1, $2, $3) returning url_id;",
-                [user_id, url_id, date_create])
         })
         .then(function (url_id) {
             return PG.logQueryOne("INSERT INTO usurls (user_id, url_id, date_create) VALUES ($1, $2, $3) returning url_id;",

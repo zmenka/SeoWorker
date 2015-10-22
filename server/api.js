@@ -55,6 +55,10 @@ module.exports = function Api(app, passport) {
         ApiUtils.auth_api_func(req, res, PgUsurls.remove, [req.body.usurl_id])
     });
 
+    app.post('/api/create_site', function (req, res) {
+        ApiUtils.auth_api_func(req, res, PgUsurls.insertWithUrl, [req.body.url, req.body.user_id])
+    });
+
     app.post('/api/create_task', function (req, res) {
         ApiUtils.auth_api_func(req, res, PgTasks.insertWithCondition, [req.body.usurl_id, req.body.condition_query, req.body.sengine_id,
             req.body.region_id, req.body.size_search])

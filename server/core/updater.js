@@ -167,9 +167,9 @@ Updater.updateOneUrlWithoutCondition = function (condition_id, url_id) {
                 throw new Error("url " + url_id + " not calc! " + urlsWithParams);
             }
             console.log('urlsWithParams', JSON.stringify(urlsWithParams, null, 2))
-            return urlsWithParams
+            return urlsWithParams[0]
         })
-        .then(function (urlsWithParams) {
+        .then(function (paramsOfUrl) {
             // засунуть это все в базу и СНЯТЬ блокировку
         })
 }
