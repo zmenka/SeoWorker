@@ -87,7 +87,7 @@ function SitesCtrl($scope, $stateParams, $rootScope, $alert, $aside, $timeout, $
         }
         $timeout(function () {
             showAside(reInit);
-        });
+        }, 100);
     }
 
     function showAside(reInit) {
