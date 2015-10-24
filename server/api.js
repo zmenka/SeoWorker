@@ -123,13 +123,13 @@ module.exports = function Api(app, passport) {
             return;
         }
 
-        if (!req.body.condurl_id) {
-            ApiUtils.errback(null, res, "Не найден параметр condurl_id.");
+        if (!req.body.condition_id) {
+            ApiUtils.errback(null, res, "Не найден параметр condition_id.");
             return;
         }
 
         serverFree = false;
-        return Updater.update(req.body.condurl_id)
+        return Updater.update(req.body.condition_id)
             .then(function () {
                 ApiUtils.callback("ok", res);
                 serverFree = true
@@ -149,12 +149,12 @@ module.exports = function Api(app, passport) {
             return;
         }
 
-        if (!req.body.condurl_id) {
-            ApiUtils.errback(null, res, "Не найден параметр condurl_id.");
+        if (!req.body.condition_id) {
+            ApiUtils.errback(null, res, "Не найден параметр condition_id.");
             return;
         }
 
-        return Updater.updateUserUrl(req.body.condurl_id)
+        return Updater.updateUserUrl(req.body.condition_id)
             .then(function () {
                 ApiUtils.callback("ok", res);
                 serverFree = true

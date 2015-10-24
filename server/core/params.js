@@ -1,9 +1,8 @@
-
 var PgParams = require("./../db/models/pg_params");
 var PgCorridors = require("./../db/models/pg_corridors");
 var PgPercents = require("./../db/models/pg_percents");
 
-var MathStat  = require("./../MathStat");
+var MathStat = require("./../MathStat");
 var Promise = require('../utils/promise');
 var SeoParameters = require('./seo_parameters');
 var Corridor = require('../models/Corridor');
@@ -24,19 +23,22 @@ params.calcCorridors = function (searchUrlsWithLinksAndParams) {
         var obj = searchUrlsWithLinksAndParams[i]
         for (var j = 0; j < obj.links.length; j++) {
             var link = obj.links[j]
-            for (var k = 0; k< link.params.length; k++) {
-                var param = link.params[k]
-                if (param.success) {
-                    if (!params[param.name]) {
-                        params[param.name] = [parseFloat(params.val)]
-                    } else {
-                        params[param.name].push(parseFloat(params.val))
+            if (link.params) {
+                for (var k = 0; k < link.params.length; k++) {
+                    var param = link.params[k]
+                    if (param.success) {
+                        if (!params[param.name]) {
+                            params[param.name] = [parseFloat(param.val)]
+                        } else {
+                            params[param.name].push(parseFloat(param.val))
+                        }
                     }
                 }
             }
         }
     }
     var corridors = []
+    console.log('params',params)
     for (var key in params) {
         //получаем данные о "коридоре"
         var mathstat = new MathStat(params[key]);
@@ -44,6 +46,7 @@ params.calcCorridors = function (searchUrlsWithLinksAndParams) {
         var c = new Corridor(key, mathstat.M, mathstat.D)
         corridors.push(c)
     }
+    console.log('corridors', corridors)
     if (!corridors || !corridors.length) {
         throw new Error('corridors empty! ')
     }

@@ -115,7 +115,6 @@ Searcher.getLinksFromSearcher = function (search_objects) {
 
             return Downloader.getContentByUrlOrCaptcha(search_object.url, null, search_object.sengineName, true)
                 .then(function (html) {
-                    //получим масси {url: <>, title: <>}
                     return new SeoParameters(html)
                 })
                 .then(function (seoParameters) {

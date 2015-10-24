@@ -1,13 +1,13 @@
 
 var PG = require('../../utils/pg');
+var QueryList = require('../../models/QueryList');
+var PgCorridor = require('./pg_corridors');
+var PgPositions = require('./pg_positions');
 
 var PgExpressions = {};
 
-PgExpressions.execute_list = function (list) {
-    var listPG = list.map(function(element){
-        return {queryText: element}
-    });
-    return PG.logQueryListSync(listPG)
+PgExpressions.execute_list = function (queryList) {
+    return PG.transactionSync(queryList.list)
         .then(function(res){
             return res[res.length - 1]
         })
@@ -31,7 +31,7 @@ PgExpressions.execute_list = function (list) {
 */
 PgExpressions.GET_PERCENT_BY_CONDURL = function (byType) {
 
-    var list = [];
+    var list = new QueryList();
     var group_by = '';
     var select = " P.PARAMTYPE_ID, P.PERCENT ";
     if (byType == 1) {
@@ -67,8 +67,8 @@ PgExpressions.GET_PERCENT_BY_CONDURL = function (byType) {
  * **************************************************************************************
  */
 PgExpressions.USERS_URL_COUNT = function (vUSER_ID, vROLE_ID) {
-    var list = [];
-    list = list.concat(this.GET_AVAILABLE_USERS(vUSER_ID, vROLE_ID));
+    var list = new QueryList();
+    list.add(this.GET_AVAILABLE_USERS(vUSER_ID, vROLE_ID));
     list.push('DROP TABLE IF EXISTS tt_lst_condurls;');
     list.push('CREATE TEMPORARY TABLE tt_lst_condurls AS                   \
                SELECT                                                      \
@@ -78,7 +78,7 @@ PgExpressions.USERS_URL_COUNT = function (vUSER_ID, vROLE_ID) {
                    JOIN tt_res_users TT                                    \
                         ON UU.USER_ID = TT.USER_ID;');
     list.push('CREATE INDEX IDX_tt_lst_condurls ON tt_lst_condurls (CONDURL_ID);');
-    list = list.concat(this.GET_PERCENT_BY_CONDURL());
+    list.add(this.GET_PERCENT_BY_CONDURL());
     list.push('CREATE INDEX IDX_tt_res_cupercents ON tt_res_cupercents (CONDURL_ID);');
     list.push('DROP TABLE IF EXISTS tt_res_uspercents;');
     list.push('CREATE TEMPORARY TABLE tt_res_uspercents AS                     \
@@ -119,7 +119,7 @@ PgExpressions.USERS_URL_COUNT = function (vUSER_ID, vROLE_ID) {
     return list
 };
 PgExpressions.GET_AVAILABLE_USERS = function (vUSER_ID, vROLE_ID) {
-    var list = [];
+    var list = new QueryList();
     list.push('DROP TABLE IF EXISTS tt_res_users;');
     if (vROLE_ID == 1) {
         list.push("CREATE TEMPORARY TABLE tt_res_users AS                           \
@@ -152,8 +152,8 @@ PgExpressions.GET_AVAILABLE_USERS = function (vUSER_ID, vROLE_ID) {
                     JOIN usgroups UG2 ON UG2.GROUP_ID = UG1.GROUP_ID  \
                     JOIN users U2 ON UG2.USER_ID = U2.USER_ID        \
                 WHERE                                                      \
-                    U1.USER_ID =" + vUSER_ID + "\
-                GROUP BY U2.USER_ID;");
+                    U1.USER_ID = $1 \
+                GROUP BY U2.USER_ID;", [vUSER_ID]);
 
     }
     list.push('CREATE INDEX IDX_tt_res_users ON tt_res_users (USER_ID);');
@@ -163,7 +163,7 @@ PgExpressions.USURLS_WITH_TASKS = function (vUSER_ID, withDisabled) {
     return this.USCONDURLS_LST(vUSER_ID, withDisabled);
 };
 PgExpressions.USCONDURLS_LST = function (vUSER_ID, withDisabled) {
-    var list = [];
+    var list = new QueryList();
     list.push('DROP TABLE IF EXISTS tt_lst_condurls;');
     list.push(' CREATE TEMPORARY TABLE tt_lst_condurls AS                           \
             SELECT                                                      \
@@ -171,10 +171,10 @@ PgExpressions.USCONDURLS_LST = function (vUSER_ID, withDisabled) {
             FROM                                                        \
                 uscondurls UU                                                  \
             WHERE                                                      \
-                UU.USER_ID =' + vUSER_ID +
-        (withDisabled ? "" : " AND  UU.USCONDURL_DISABLED IS FALSE" ) + ';');
+                UU.USER_ID = $1 ' +
+        (withDisabled ? "" : " AND  UU.USCONDURL_DISABLED IS FALSE" ) + ';', [vUSER_ID]);
     list.push(' CREATE INDEX IDX_tt_lst_condurls ON tt_lst_condurls (CONDURL_ID);');
-    list = list.concat(this.GET_PERCENT_BY_CONDURL(1));
+    list.add(this.GET_PERCENT_BY_CONDURL(1));
     list.push(' CREATE INDEX IDX_tt_res_cupercents ON tt_res_cupercents (CONDURL_ID);');
     list.push(" SELECT                                                             " +
                     "UCU.USCONDURL_ID,                                                      " +
@@ -213,20 +213,20 @@ PgExpressions.USCONDURLS_LST = function (vUSER_ID, withDisabled) {
                 "   LEFT JOIN regions R                                            " +
                 "       ON C.REGION_ID = R.REGION_ID                               " +
                 " WHERE                                                            " +
-                "   UCU.USER_ID = "+vUSER_ID+"                                     " +
+                "   UCU.USER_ID = $1                                               " +
                 (withDisabled ? "" : " AND  UCU.USCONDURL_DISABLED IS FALSE AND C.CONDITION_DISABLED IS FALSE " ) +
-                " ORDER BY UCU.DATE_CREATE DESC;");
+                " ORDER BY UCU.DATE_CREATE DESC;",[vUSER_ID]);
     return list
 };
 
 
 PgExpressions.GET_SITE_PARAM = function (vCONDITION_ID, vURL_ID, vPARAMTYPE_ID) {
-    var list = [];
+    var list = new QueryList()
     list.push('DROP TABLE IF EXISTS tt_lst_condurls;');
     list.push(' CREATE TEMPORARY TABLE tt_lst_condurls AS    ' +
-            'SELECT CONDURL_ID FROM condurls WHERE CONDITION_ID = ' + vCONDITION_ID + ' AND URL_ID = ' +vURL_ID + ' ;' );
+            'SELECT CONDURL_ID FROM condurls WHERE CONDITION_ID = $1 AND URL_ID = $2 ;' ,[vCONDITION_ID, vURL_ID]);
     list.push(' CREATE INDEX IDX_tt_lst_condurls ON tt_lst_condurls (CONDURL_ID);');
-    list = list.concat(this.GET_PERCENT_BY_CONDURL());
+    list.add(this.GET_PERCENT_BY_CONDURL());
     list.push('SELECT ' +
                 'P.*, PT.*, ' +
                 'TTS.PERCENT_INT AS PERCENT,  ' +
@@ -239,16 +239,16 @@ PgExpressions.GET_SITE_PARAM = function (vCONDITION_ID, vURL_ID, vPARAMTYPE_ID) 
                 'JOIN condurls UC ON P.URL_ID = UC.URL_ID AND P.CONDITION_ID = UC.CONDITION_ID ' +
                 'JOIN tt_res_cupercents TTS ON UC.CONDURL_ID = TTS.CONDURL_ID AND PT.PARAMTYPE_ID = TTS.PARAMTYPE_ID ' +
           'WHERE ' +
-              ' P.PARAMTYPE_ID = ' + vPARAMTYPE_ID + ';');
+              ' P.PARAMTYPE_ID = $1;',[vPARAMTYPE_ID]);
     return list
 };
 PgExpressions.GET_PARAMTYPES_FOR_URL = function (vCONDITION_ID, vURL_ID) {
-    var list = [];
+    var list = new QueryList();
     list.push('DROP TABLE IF EXISTS tt_lst_condurls;');
     list.push(' CREATE TEMPORARY TABLE tt_lst_condurls AS    ' +
-        'SELECT CONDURL_ID FROM condurls WHERE CONDITION_ID = ' + vCONDITION_ID + ' AND URL_ID = ' +vURL_ID + ' ;' );
+        'SELECT CONDURL_ID FROM condurls WHERE CONDITION_ID = $1 AND URL_ID = $2 ;',[vCONDITION_ID, vURL_ID] );
     list.push(' CREATE INDEX IDX_tt_lst_condurls ON tt_lst_condurls (CONDURL_ID);');
-    list = list.concat(this.GET_PERCENT_BY_CONDURL());
+    list.add(this.GET_PERCENT_BY_CONDURL());
     list.push('SELECT ' +
         'P.*, PT.*, ' +
         'TTS.PERCENT_INT AS PERCENT,  ' +
@@ -264,7 +264,7 @@ PgExpressions.GET_PARAMTYPES_FOR_URL = function (vCONDITION_ID, vURL_ID) {
     return list
 };
 PgExpressions.GET_PARAMTYPES = function (vCONDITION_ID) {
-  var list = [];
+  var list = new QueryList();
   list.push("SELECT " +
     "    DISTINCT PT.* " +
     "FROM " +
@@ -272,15 +272,73 @@ PgExpressions.GET_PARAMTYPES = function (vCONDITION_ID) {
     "    JOIN paramtypes PT  " +
     "         ON P.PARAMTYPE_ID = PT.PARAMTYPE_ID " +
     "WHERE " +
-    "    P.CONDITION_ID  = " + vCONDITION_ID + ";");
+    "    P.CONDITION_ID  = $1 ;",[vCONDITION_ID]);
   return list
-}
+};
+
+PgExpressions.UPDATE_SEARCH = function (vCONDITION_ID, search_result) {
+    var list = new QueryList();
+    list.push("SELECT CONDITION_REPLACE($1, $2);", [vCONDITION_ID, search_result]);
+    return list
+};
+
+PgExpressions.CONDITION_CLEAR = function (vCONDITION_ID) {
+    var list = new QueryList();
+    list.push("SELECT CONDITION_CLEAR($1);", [vCONDITION_ID]);
+    return list
+};
+
+PgExpressions.CONDITION_LOCK = function (vCONDITION_ID) {
+    var list = new QueryList();
+    list.push("SELECT CONDITION_LOCK($1);", [vCONDITION_ID]);
+    return list
+};
+
+PgExpressions.CONDITION_UNLOCK = function (vCONDITION_ID) {
+    var list = new QueryList();
+    list.push("SELECT CONDITION_UNLOCK($1);", [vCONDITION_ID]);
+    return list
+};
+
+PgExpressions.UPDATE_CORRIDOR = function (vCONDITION_ID, corridor) {
+    var vM = corridor.m;
+    var vD = corridor.d;
+    var vPARAMTYPE_NAME = corridor.paramtype_name;
+
+    return PgCorridor.REPLACE_BY_PNAME_EXPRESSION(vCONDITION_ID, vPARAMTYPE_NAME, vM, vD);
+};
+
+PgExpressions.UPDATE_POSITIONS = function (vCONDITION_ID) {
+    return PgPositions.UPDATE_EXPRESSION(vCONDITION_ID);
+};
+
+PgExpressions.UPDATE_CONDITION_ALL = function (vCONDITION_ID, search_results, corridors) {
+    var list = new QueryList();
+    list.add(this.CONDITION_CLEAR(vCONDITION_ID));
+    for ( var i in search_results ){
+        var search_result = search_results[i];
+        console.log('search_result',search_result)
+        list.add(this.UPDATE_SEARCH(vCONDITION_ID, search_result));
+    }
+    for ( var i in corridors ){
+        list.add(this.UPDATE_CORRIDOR(vCONDITION_ID, corridors[i]));
+    }
+    list.add(this.UPDATE_POSITIONS(vCONDITION_ID));
+    return list
+};
+
+
 PgExpressions.TEST = function () {
-  var list = []
-  list.push('select 1;');
-  list.push('select 2;');
-  return list
-}
+    return PG.db.tx(function (t) {
+        return t.query('')
+            .then(function (data) {
+                return t.any("select 2;");
+            })
+            .then(function (data) {
+                return t.any("select 3;");
+            });
+    })
+};
 
 
 

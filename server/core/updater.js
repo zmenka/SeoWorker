@@ -1,12 +1,12 @@
-var PgCondurls = require("./../db/models/pg_condurls");
-var PgPositions = require("./../db/models/pg_positions");
+
 var PgConditions = require("./../db/models/pg_conditions");
 var PgUrls = require("./../db/models/pg_urls");
+
+var ex = require("./../db/models/pg_expressions");
 
 var Searcher = require("./searcher");
 var Downloader = require("./downloader");
 var Params = require("./params");
-var SearchParser = require("./search_parser");
 var Promise = require('../utils/promise');
 
 
@@ -36,34 +36,35 @@ Updater.update = function (condition_id) {
     if (!condition_id) {
         return Promise.reject(new Error("condition_id can't be empty"));
     }
-    var searchUrlsWithLinksAndParams
-    var corridors
-    var urlsWithParams
-    var positions
-    return Updater.updateSearch(condition_id)
+    var searchUrlsWithLinksAndParams;
+    var corridors;
+    var urlsWithParams;
+    return PgConditions.lock(condition_id)
+        .then(function(){
+            return Updater.updateSearch(condition_id)
+        })
         .then(function (searchUrlsWithLinksAndParamsRes) {
-            searchUrlsWithLinksAndParams = searchUrlsWithLinksAndParamsRes
-            console.log('searchUrlsWithLinksAndParams', JSON.stringify(searchUrlsWithLinksAndParams, null, 2))
+            searchUrlsWithLinksAndParams = searchUrlsWithLinksAndParamsRes;
+            console.log('searchUrlsWithLinksAndParams', JSON.stringify(searchUrlsWithLinksAndParams, null, 2));
 
             return Params.calcCorridors(searchUrlsWithLinksAndParams)
         })
         .then(function (corridorsRes) {
-            corridors = corridorsRes
+            corridors = corridorsRes;
 
             return Updater.updateOldUrls(condition_id)
         })
         .then(function (urlsWithParamsRes) {
-            console.log('urlsWithParams', JSON.stringify(urlsWithParams, null, 2))
+            console.log('urlsWithParams', JSON.stringify(urlsWithParams, null, 2));
             urlsWithParams = urlsWithParamsRes
-            return SearchParser.getUrlsPositions(searchUrlsWithLinksAndParams, condition_id)
-        })
-        .then(function (positionsRes) {
-            positions = positionsRes
 
         })
         .then(function () {
-            // засунуть это все в базу, посчитать проценты и СНЯТЬ блокировки
+            return ex.execute_list(ex.UPDATE_CONDITION_ALL(condition_id, searchUrlsWithLinksAndParams, corridors))
         })
+        .finally(function(){
+            return PgConditions.unlock(condition_id)
+        });
 };
 
 
@@ -76,6 +77,7 @@ Updater.updateSearch = function (condition_id) {
         return Promise.reject(new Error("condition_id can't be empty"));
     }
     var condition;
+    var error;
     return PgConditions.get(condition_id)
         .then(function (condition_res) {
             condition = condition_res;
@@ -95,11 +97,16 @@ Updater.updateSearch = function (condition_id) {
         })
         .then(function (SearchUrlWithLinks) {
             console.log('SearchUrlWithLinks', JSON.stringify(SearchUrlWithLinks, null, 2))
-            return Searcher.calcLinksParams(searchUrls, condition.condition_query)
+            return Searcher.calcLinksParams(SearchUrlWithLinks, condition.condition_query)
         })
         .catch(function (err) {
+            error = err;
             return PgConditions.incrementFailure(condition_id);
-            throw err
+        })
+        .then(function(){
+            if (error){
+                throw error;
+            }
         })
 
 };
@@ -131,7 +138,6 @@ Updater.updateOneUrl = function (condition_id, url_id) {
     if (!url_id) {
         return Promise.reject(new Error("url_id can't be empty"));
     }
-    var condition;
     return PgConditions.checkActual(condition_id)
         .then(function (isActual) {
             if (isActual){
@@ -140,7 +146,7 @@ Updater.updateOneUrl = function (condition_id, url_id) {
                 return Updater.update(condition_id)
             }
         })
-        .then(function (isActual) {
+        .then(function () {
             return Updater.updateOneUrlWithoutCondition(condition_id, url_id)
         })
 }

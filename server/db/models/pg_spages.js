@@ -4,6 +4,8 @@
 
 var PG = require('../../utils/pg');
 var PgScontents = require('./pg_scontents');
+var QueryList = require('../../models/QueryList');
+var ex = require('./pg_expressions');
 
 var PgSpages = {};
 
@@ -34,17 +36,17 @@ PgSpages.clearByCondition = function (condition_id) {
 };
 
 PgSpages.replace = function (condition_id, page_number) {
-    var list = [];
-    list.push({
-        queryText: "DELETE FROM spages WHERE CONDITION_ID = $1 AND PAGE_NUMBER = $2",
-        valuesArray: [condition_id, page_number]
-    });
-    list.push({
-        queryText: "INSERT INTO spages (CONDITION_ID, PAGE_NUMBER, DATE_CREATE) " +
+    var list = new QueryList();
+    list.push(
+        "DELETE FROM spages WHERE CONDITION_ID = $1 AND PAGE_NUMBER = $2",
+        [condition_id, page_number]
+    );
+    list.push(
+        "INSERT INTO spages (CONDITION_ID, PAGE_NUMBER, DATE_CREATE) " +
         "SELECT $1, $2, $3 RETURNING SPAGE_ID",
-        valuesArray: [condition_id, page_number, new Date()]
-    });
-    return PG.transactionSync(list)
+        [condition_id, page_number, new Date()]
+    );
+    return ex.execute_list(list)
         .then(function (res) {
             return res[res.length - 1][0].spage_id
         })

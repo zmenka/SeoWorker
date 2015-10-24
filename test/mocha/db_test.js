@@ -11,21 +11,91 @@ describe('DB TEST', function(){
                 });
 
         })
-        it('sql by list', function(){
-        //it.only('sql by list', function(){
-
+        //it('sql by list', function(){
+        it('test UPDATE SEARCH RESULTS', function(){
             var PgExpressions = require("../../server/db/models/pg_expressions");
-            var express = PgExpressions;
-            var list = [];
-            list = list.concat(express.USCONDURLS_LST(120,false));
-
-            //list = list.concat(express.GET_AVAILABLE_USERS(1, 1));
-            //list = list.concat("SELECT * FROM tt_res_users");
-            return express.execute_list(list, false, true)
+            var list = PgExpressions.UPDATE_POSITIONS(1508);
+            return PgExpressions.execute_list(list)
                 .then(function(res){
                     console.log(res);
                 });
 
+        })
+        it('test UPDATE POSITIONS', function(){
+            var PgExpressions = require("../../server/db/models/pg_expressions");
+            var list = PgExpressions.UPDATE_SEARCH_RESULT();
+            return PgExpressions.execute_list(list)
+                .then(function(res){
+                    console.log(res);
+                });
+
+        })
+
+        it('test trans', function(){
+            var PgExpressions = require("../../server/db/models/pg_expressions");
+            return PgExpressions.TEST()
+                .then(function(res){
+                    console.log(res);
+                });
+
+        })
+        it('test UPDATE CORRIDOR', function(){
+            var corridor = {
+                paramtype_name : "titleCS",
+                m : 3,
+                d : 2.5
+            };
+            var condition_id = 1111;
+            var PgExpressions = require("../../server/db/models/pg_expressions");
+            var list = PgExpressions.UPDATE_CORRIDOR(condition_id, corridor);
+            return PgExpressions.execute_list(list)
+                .then(function(res){
+                    console.log(res);
+                });
+
+        })
+        it('test UPDATE SEARCH RESULT', function(){
+            var search_result = {
+                pageNumber : 1,
+                startLinksNumber : 0,
+                links: [{url : 'test.ru/1', id: 1, params: [{name: "titleCS", val : 11}]},{ url : 'test.ru/2', id: 2, params: [{name: "titleCS", val : 13}]}]
+            };
+            var condition_id = 1111;
+            var PgExpressions = require("../../server/db/models/pg_expressions");
+            var list = PgExpressions.UPDATE_SEARCH_RESULT(condition_id, search_result);
+            return PgExpressions.execute_list(list)
+                .then(function(res){
+                    console.log(res);
+                });
+
+        })
+        it('test UPDATE CONDITION', function(){
+            var search_result = {
+                pageNumber : 1,
+                startLinksNumber : 0,
+                links: [{url : 'test.ru/1', id: 5, params: [{name: "titleCS", val : 999}]},{ url : 'test.ru/2', id: 7, params: [{name: "titleCS", val : 777}]}]
+            };
+            var corridor = {
+                paramtype_name : "titleCS",
+                m : 44,
+                d : 21
+            };
+            var condition_id = 1111;
+            var PgExpressions = require("../../server/db/models/pg_expressions");
+            var list = PgExpressions.UPDATE_CONDITION(condition_id, [search_result],[corridor]);
+            console.log(list)
+            return PgExpressions.execute_list(list)
+                .then(function(res){
+                    console.log(res);
+                });
+
+        })
+        it.only('test updater 0', function(){
+            var updater = require("../../server/core/updater");
+            return updater.update(1111)
+                .then(function(res){
+                    console.log(res);
+                });
         })
         //it('sql by list', function(){
         it('sql by list2', function(){

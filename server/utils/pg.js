@@ -2,7 +2,7 @@ var Config = require('../../server/config');
 var promise = require('./promise');
 
 var options = {
-    promiseLib: promise,
+    promiseLib: promise
 };
 
 var pgp = require('pg-promise')(options)
@@ -110,11 +110,13 @@ function transactionAsync(queryList) {
 }
 
 // выполняет транзакцию, все запросы ПОСЛЕДОВАТЕЛЬНО
-// queryList : {queryText: string, valuesArray: any[]} []
+// queryList : {queryText: string, valuesArray: any[], preFunc: function(preData){}} []
 function transactionSync(queryList) {
     function source(index, data, delay) {
         if (!queryList[index])
             return
+        if (queryList[index-1])
+            queryList[index-1].preResultContainer.data = data;
         return this.query(queryList[index].queryText, queryList[index].valuesArray)
     }
 
@@ -126,6 +128,8 @@ function transactionSync(queryList) {
         })
 }
 
+
+
 module.exports = {
     logQuery: logQuery,
     logQueryOne: logQueryOne,
@@ -134,5 +138,6 @@ module.exports = {
     logQueryListSync: logQueryListSync,
     transactionAsync: transactionAsync,
     transactionSync: transactionSync,
+    db: db
 
 };

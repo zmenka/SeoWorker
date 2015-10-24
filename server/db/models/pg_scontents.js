@@ -3,6 +3,8 @@
  */
 
 var PG = require('../../utils/pg');
+var QueryList = require('../../models/QueryList');
+var ex = require('./pg_expressions');
 
 var PgScontents = {};
 
@@ -24,17 +26,17 @@ PgScontents.clearByCondition = function (condition_id) {
 };
 
 PgScontents.replace = function (spage_id, url_id, position, is_commercial) {
-    var list = [];
-    list.push({
-        queryText: "DELETE FROM scontents WHERE SPAGE_ID = $1 AND POSITION_N = $2",
-        valuesArray: [spage_id, position]
-    });
-    list.push({
-        queryText:"INSERT INTO scontents (SPAGE_ID, URL_ID, POSITION_N, IS_COMMERCIAL, DATE_CREATE) " +
+    var list = new QueryList();
+    list.push(
+        "DELETE FROM scontents WHERE SPAGE_ID = $1 AND POSITION_N = $2",
+        [spage_id, position]
+    );
+    list.push(
+        "INSERT INTO scontents (SPAGE_ID, URL_ID, POSITION_N, IS_COMMERCIAL, DATE_CREATE) " +
         "SELECT $1, $2, $3, $4, $5 RETURNING SCONTENT_ID",
-        valuesArray:  [spage_id, url_id, position, is_commercial, new Date()]
-    });
-    return PG.transactionSync(list)
+        [spage_id, url_id, position, is_commercial, new Date()]
+    );
+    return ex.execute_list(list)
         .then(function (res) {
             return res[res.length - 1][0].scontent_id
         })

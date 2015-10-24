@@ -4,6 +4,8 @@
 
 var PG = require('../../utils/pg');
 var PgDomain = require('./pg_domains');
+var QueryList = require('../../models/QueryList');
+var ex = require('./pg_expressions');
 
 var PgUrls = {};
 
@@ -28,14 +30,9 @@ PgUrls.insert = function (url) {
 };
 
 PgUrls.insertIgnore = function (url) {
-    return PgUrls.find (url)
-        .then(function(res){
-            if(res) {
-                return res;
-            } else {
-                return PgUrls.insert(url)
-            }
-        })
+    var list = new QueryList();
+    list.push('SELECT URL_INSERT_IGNORE($1) AS URL_ID',[url])
+    return
 };
 
 PgUrls.getOldUrls = function (condition_id) {

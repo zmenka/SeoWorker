@@ -5,16 +5,20 @@
 var PG = require('../../utils/pg');
 
 var model = {};
+var QueryList = require('../../models/QueryList');
 
 
 model.setNotActual = function (condurl_id) {
     return PG.logQuery("UPDATE percents SET IS_LAST = FALSE WHERE CONDURL_ID = $1", [condurl_id])
 };
 
-model.calc = function (condurl_id) {
-    return model.setNotActual(condurl_id)
-        .then(function () {
-            return PG.logQuery("INSERT INTO percents (CONDURL_ID, PARAMTYPE_ID, PERCENT, DATE_CREATE, IS_LAST) " +
+////////////////////////////////////////
+/////////// EXPRESSIONS ////////////////
+////////////////////////////////////////
+
+model.CALC_EXPRESSION = function (vCONDITION_ID) {
+    var list = new QueryList();
+    list.push(["INSERT INTO percents (CONDURL_ID, PARAMTYPE_ID, PERCENT, DATE_CREATE, IS_LAST) " +
                 "SELECT " +
                 "	CU.CONDURL_ID, " +
                 "	P.PARAMTYPE_ID, " +
@@ -37,9 +41,9 @@ model.calc = function (condurl_id) {
                 "		ON CU.CONDITION_ID = C.CONDITION_ID " +
                 "		AND P.PARAMTYPE_ID = C.PARAMTYPE_ID " +
                 "WHERE " +
-                "	CU.CONDURL_ID = $1", [condurl_id, new Date()]
-            )
-        })
+                "	CU.CONDURL_ID = " + vCONDITION_ID + ";"
+        ]);
+    return list;
 };
 
 module.exports = model;

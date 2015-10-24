@@ -1,5 +1,7 @@
 
 var PG = require('../../utils/pg');
+var QueryList = require('../../models/QueryList');
+var ex = require('./pg_expressions');
 
 var PgConditions = {};
 
@@ -16,7 +18,7 @@ PgConditions.updateDateCalc = function (condition_id) {
 };
 
 PgConditions.incrementFailure = function (condition_id) {
-    return PG.logQueryOneOrNone("UPDATE conditions SET FAIL_COUNT = FAIL_COUNT + 1 WHERE CONDITION_ID = $1", [condition_id] );
+    return PG.logQueryOneOrNone("UPDATE conditions SET FAIL_COUNT = FAIL_COUNT + 1 WHERE CONDITION_ID = $1", [condition_id])
 };
 
 PgConditions.insertIgnore = function (condition_query, sengine_id, region_id, size_search) {
@@ -47,9 +49,17 @@ PgConditions.getNextAndBlock = function () {
         [])
 };
 
-PgConditions.unBlock = function (condition_id) {
-    return PG.logQuery("SELECT  1;",
-        [])
+PgConditions.lock = function (condition_id) {
+    return ex.execute_list(ex.CONDITION_LOCK(condition_id))
+        .then(function(res){
+            if (!res){
+                throw new Error ('Condition locked! Condition_id = ' + condition_id + ' at ' + new Date())
+            }
+        })
+};
+
+PgConditions.unlock = function (condition_id) {
+    return ex.execute_list(ex.CONDITION_UNLOCK(condition_id))
 };
 
 PgConditions.checkActual = function (condition_id) {
