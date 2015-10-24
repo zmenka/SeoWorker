@@ -92,7 +92,7 @@ describe('DB TEST', function(){
         })
         it.only('test updater 0', function(){
             var updater = require("../../server/core/updater");
-            return updater.update(1111)
+            return updater.update(664)
                 .then(function(res){
                     console.log(res);
                 });

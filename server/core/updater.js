@@ -60,7 +60,7 @@ Updater.update = function (condition_id) {
 
         })
         .then(function () {
-            return ex.execute_list(ex.UPDATE_CONDITION_ALL(condition_id, searchUrlsWithLinksAndParams, corridors))
+            return ex.execute_list(ex.UPDATE_CONDITION_ALL(condition_id, searchUrlsWithLinksAndParams, corridors, urlsWithParams))
         })
         .finally(function(){
             return PgConditions.unlock(condition_id)
@@ -103,10 +103,11 @@ Updater.updateSearch = function (condition_id) {
             error = err;
             return PgConditions.incrementFailure(condition_id);
         })
-        .then(function(){
+        .then(function(res){
             if (error){
                 throw error;
             }
+            return res
         })
 
 };

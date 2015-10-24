@@ -142,20 +142,20 @@ function checkArrElemIsSubstr(rx, arr) {
 Downloader.getContentByUrlOrCaptcha = function (url, cookies, sengine_name, restartIfCaptcha) {
     var content;
     return Promise.try(function(){
-        //if (cookies){
-        //    return cookies
-        //} else {
-        //    return PgUsers.get(1)
-        //        .then(function (res) {
-        //            var cookies;
-        //            try {
-        //                cookies = JSON.parse(res.cookies)
-        //            }
-        //            catch (err) {
-        //            }
-        //            return cookies
-        //        })
-        //}
+        if (cookies){
+            return cookies
+        } else {
+            return PgUsers.get(1)
+                .then(function (res) {
+                    var cookies;
+                    try {
+                        cookies = JSON.parse(res.cookies)
+                    }
+                    catch (err) {
+                    }
+                    return cookies
+                })
+        }
         return cookies
     })
         .then(function (cookie_res) {

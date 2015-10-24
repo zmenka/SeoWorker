@@ -115,8 +115,6 @@ function transactionSync(queryList) {
     function source(index, data, delay) {
         if (!queryList[index])
             return
-        if (queryList[index-1])
-            queryList[index-1].preResultContainer.data = data;
         return this.query(queryList[index].queryText, queryList[index].valuesArray)
     }
 

@@ -223,8 +223,7 @@ module.exports = function Api(app, passport) {
         return PgParams.getParamDiagram(req.body.condition_id, req.body.param_type)
             .then(function (paramsChartRes) {
                 if (!paramsChartRes || !paramsChartRes.length) {
-                    ApiUtils.errback(null, res, 'Еще не получены данные выборки')
-                    return
+                    throw new Error ('Еще не получены данные выборки')
                 }
                 paramsChart = paramsChartRes;
                 return PgCorridor.find(req.body.condition_id, req.body.param_type)
@@ -235,16 +234,15 @@ module.exports = function Api(app, passport) {
             })
             .then(function (siteParams) {
                 if (!siteParams) {
-                    ApiUtils.errback(null, res, 'Еще не получены параметры для Вашего сайта. Нажмите "Пересчитать сайт".')
-                    return
+                    throw new Error ('Еще не получены параметры для Вашего сайта. Нажмите "Пересчитать сайт".')
                 }
                 diagram = new Diagram();
                 //форматируем данные работаем с диаграммой.
                 var paramsDiagram = diagram.getParamsDiagram(paramsChart, siteParams, corridor);
-                ApiUtils.callback(paramsDiagram, res)
+                return ApiUtils.callback(paramsDiagram, res)
             })
             .catch(function (err) {
-                ApiUtils.errback(err, res);
+                return ApiUtils.errback(err, res);
             })
     });
 
@@ -255,7 +253,7 @@ module.exports = function Api(app, passport) {
                     return next(err)
                 }
                 if (!user) {
-                    return errback(null, res, info.message);
+                    return ApiUtils.errback(null, res, info.message);
                 }
                 req.logIn(user, function (err) {
                     if (err) {

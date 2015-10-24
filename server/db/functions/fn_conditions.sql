@@ -57,8 +57,6 @@ CREATE OR REPLACE FUNCTION CONDITION_REPLACE(
     DECLARE vURL_ID INTEGER;
     BEGIN
 
-        PERFORM CONDITION_CLEAR(vCONDITION_ID);
-
         -- SELECT (jSEARCH_RESULT->>'startLinksNumber')::integer INTO vSTART_FROM;
         SELECT MAX(POSITION_N) INTO vSTART_FROM FROM scontents SC JOIN spages SP USING(SPAGE_ID) WHERE SP.CONDITION_ID = vCONDITION_ID;
 
@@ -67,13 +65,12 @@ CREATE OR REPLACE FUNCTION CONDITION_REPLACE(
 
         FOR jLINK IN SELECT * FROM json_array_elements(jSEARCH_RESULT->'links')
         LOOP
-
+            RAISE NOTICE '%',jLINK;
             SELECT URL_INSERT_IGNORE((jLINK->>'url')::text) INTO vURL_ID;
-            RAISE NOTICE 'row = %, %', (jLINK->>'url')::text, (jLINK->>'id')::integer;
             INSERT INTO scontents (URL_ID, SPAGE_ID, POSITION_N, DATE_CREATE)
-                SELECT vURL_ID, vSPAGE_ID, vSTART_FROM + (jLINK->>'id')::integer, NOW();
+                SELECT vURL_ID, vSPAGE_ID, COALESCE(vSTART_FROM,0) + (jLINK->>'id')::integer, NOW();
 
-            IF jLINK->'params' THEN
+            IF (jLINK->'params'::text) is not null THEN
                 PERFORM PARAMS_REPLACE(vURL_ID, vCONDITION_ID, jLINK->'params');
             END IF;
 

@@ -312,7 +312,44 @@ PgExpressions.UPDATE_POSITIONS = function (vCONDITION_ID) {
     return PgPositions.UPDATE_EXPRESSION(vCONDITION_ID);
 };
 
-PgExpressions.UPDATE_CONDITION_ALL = function (vCONDITION_ID, search_results, corridors) {
+PgExpressions.UPDATE_URL = function (vCONDITION_ID, url_result) {
+    var list = new QueryList();
+    list.push("SELECT PARAMS_REPLACE((SELECT URL_ID FROM urls WHERE URL = $1), $2, $3::JSON[])", [url_result.url, vCONDITION_ID, url_result.params]);
+    return list
+};
+
+PgExpressions.UPDATE_PERCENTS = function (vCONDITION_ID) {
+    var list = new QueryList();
+    list.push("UPDATE percents SET IS_LAST = FALSE WHERE CONDURL_ID IN (SELECT CONDURL_ID FROM condurls WHERE CONDITION_ID = $1)", [vCONDITION_ID]);
+    list.push("INSERT INTO percents (CONDURL_ID, PARAMTYPE_ID, PERCENT, DATE_CREATE, IS_LAST) " +
+    "SELECT " +
+    "	CU.CONDURL_ID, " +
+    "	P.PARAMTYPE_ID, " +
+    "   CASE " +
+    "      	WHEN COALESCE(C.CORRIDOR_D,0) <= 0 THEN 0 " +
+    "      	WHEN @ (COALESCE(C.CORRIDOR_M,0) - COALESCE(CAST(P.PARAM_VALUE AS numeric),0)) < 2 * C.CORRIDOR_D " +
+    "			THEN (1 - @ (COALESCE(C.CORRIDOR_M,0) - COALESCE(CAST(P.PARAM_VALUE AS numeric),0)) / (2 * C.CORRIDOR_D)) * 100 " +
+    "      	ELSE 0  " +
+    "   END AS PERCENT, " +
+    "	NOW(), " +
+    "	TRUE " +
+    "FROM " +
+    "	condurls CU " +
+    "	JOIN urls U " +
+    "		ON CU.URL_ID = U.URL_ID " +
+    "	JOIN params P " +
+    "		ON CU.CONDITION_ID = P.CONDITION_ID " +
+    "		AND U.URL_ID = P.URL_ID " +
+    "	JOIN corridors C " +
+    "		ON CU.CONDITION_ID = C.CONDITION_ID " +
+    "		AND P.PARAMTYPE_ID = C.PARAMTYPE_ID " +
+    "WHERE " +
+    "	CU.CONDITION_ID = $1;",
+    [vCONDITION_ID]);
+    return list;
+};
+
+PgExpressions.UPDATE_CONDITION_ALL = function (vCONDITION_ID, search_results, corridors, url_results) {
     var list = new QueryList();
     list.add(this.CONDITION_CLEAR(vCONDITION_ID));
     for ( var i in search_results ){
@@ -323,7 +360,11 @@ PgExpressions.UPDATE_CONDITION_ALL = function (vCONDITION_ID, search_results, co
     for ( var i in corridors ){
         list.add(this.UPDATE_CORRIDOR(vCONDITION_ID, corridors[i]));
     }
+    for ( var i in url_results ){
+        list.add(this.UPDATE_URL(vCONDITION_ID, url_results[i]));
+    }
     list.add(this.UPDATE_POSITIONS(vCONDITION_ID));
+    list.add(this.UPDATE_PERCENTS(vCONDITION_ID));
     return list
 };
 

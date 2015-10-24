@@ -1,6 +1,5 @@
 var PgParams = require("./../db/models/pg_params");
 var PgCorridors = require("./../db/models/pg_corridors");
-var PgPercents = require("./../db/models/pg_percents");
 
 var MathStat = require("./../MathStat");
 var Promise = require('../utils/promise');

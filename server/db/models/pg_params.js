@@ -124,12 +124,10 @@ PgParams.getSiteParam = function (condition_id, url_id, paramtype_id) {
 };
 
 PgParams.getParamtypesForUrl = function (condition_id, url_id) {
-    var ex = ex;
     return ex.execute_list(ex.GET_PARAMTYPES_FOR_URL(condition_id, url_id));
 };
 
 PgParams.getParamtypes = function (condition_id) {
-    var ex = ex;
     return ex.execute_list(ex.GET_PARAMTYPES(condition_id))
 };
 module.exports = PgParams;
