@@ -90,9 +90,23 @@ describe('DB TEST', function(){
                 });
 
         })
-        it.only('test updater 0', function(){
+        it('test updater 0', function(){
             var updater = require("../../server/core/updater");
             return updater.update(664)
+                .then(function(res){
+                    console.log(res);
+                });
+        })
+        it('test updater updateOneUrl', function(){
+            var updater = require("../../server/core/updater");
+            return updater.updateOneUrl(664, 22356)
+                .then(function(res){
+                    console.log(res);
+                });
+        })
+        it('test updater updateOneUrlWithoutCondition', function(){
+            var updater = require("../../server/core/updater");
+            return updater.updateOneUrlWithoutCondition(664, 22356)
                 .then(function(res){
                     console.log(res);
                 });
@@ -117,16 +131,9 @@ describe('DB TEST', function(){
                 });
 
         })
-        it('test core', function(){
-            var core = require("../../server/core/core");
-            return core.bg()
-                .then(function(res){
-                    console.log(res);
-                });
-        })
-        it('test updater', function(){
-            var updater = require("../../server/core/updater");
-            return updater.updateNext()
+        it.only('test core', function(){
+            var background = require("../../server/core/background");
+            return background.run()
                 .then(function(res){
                     console.log(res);
                 });

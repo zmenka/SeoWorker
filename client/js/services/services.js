@@ -58,11 +58,11 @@ seoServices.factory('Api', ['$http',
 //                    condition_query: condition_query, sengine_id:sengine_id,
 //                    region: region, size_search: size_search});
 //            },
-            calc_params: function ( condurl_id) {
-                return $http.post('/api/calc_params', {condurl_id: condurl_id});
+            calc_params: function ( condition_id) {
+                return $http.post('/api/calc_params', {condition_id: condition_id});
             },
-            calc_site_params: function ( condurl_id ) {
-                return $http.post('/api/calc_site_params', {condurl_id: condurl_id});
+            calc_site_params: function ( condition_id , url_id ) {
+                return $http.post('/api/calc_site_params', {url_id : url_id, condition_id: condition_id});
             },
             get_paramtypes: function (condition_id, url_id) {
                 return $http.post('/api/get_paramtypes', { condition_id: condition_id, url_id: url_id});

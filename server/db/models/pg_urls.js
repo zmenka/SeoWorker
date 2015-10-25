@@ -54,7 +54,7 @@ PgUrls.unBlockByCondition = function (condition_id) {
 };
 
 PgUrls.incrementFailure = function (url_id) {
-    return PG.logQuery("select 1;", [] );
+    return PG.logQueryOneOrNone("UPDATE urls SET FAIL_COUNT = FAIL_COUNT + 1 WHERE URL_ID = $1", [url_id])
 };
 
 module.exports = PgUrls;

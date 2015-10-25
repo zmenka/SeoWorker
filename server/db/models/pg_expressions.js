@@ -353,9 +353,7 @@ PgExpressions.UPDATE_CONDITION_ALL = function (vCONDITION_ID, search_results, co
     var list = new QueryList();
     list.add(this.CONDITION_CLEAR(vCONDITION_ID));
     for ( var i in search_results ){
-        var search_result = search_results[i];
-        console.log('search_result',search_result)
-        list.add(this.UPDATE_SEARCH(vCONDITION_ID, search_result));
+        list.add(this.UPDATE_SEARCH(vCONDITION_ID, search_results[i]));
     }
     for ( var i in corridors ){
         list.add(this.UPDATE_CORRIDOR(vCONDITION_ID, corridors[i]));
@@ -367,18 +365,18 @@ PgExpressions.UPDATE_CONDITION_ALL = function (vCONDITION_ID, search_results, co
     list.add(this.UPDATE_PERCENTS(vCONDITION_ID));
     return list
 };
+PgExpressions.UPDATE_URL_ALL = function (vCONDITION_ID, url_result) {
+    var list = new QueryList();
+    list.add(this.UPDATE_URL(vCONDITION_ID, url_result));
+    list.add(this.UPDATE_PERCENTS(vCONDITION_ID));
+    return list
+};
 
 
 PgExpressions.TEST = function () {
-    return PG.db.tx(function (t) {
-        return t.query('')
-            .then(function (data) {
-                return t.any("select 2;");
-            })
-            .then(function (data) {
-                return t.any("select 3;");
-            });
-    })
+    var list = new QueryList();
+    list.push("SELECT $1;",[new Date()]);
+    return list
 };
 
 

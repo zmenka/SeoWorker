@@ -9,6 +9,7 @@ SeoFormat.createSiteTree = function (sites) {
     var tree = [];
     for (var i = 0; i < sites.length; i++) {
         var site = sites[i];
+        site.percent = parseInt(site.percent);
         var domain = site.domain;
         //console.log("domain", domain);
 

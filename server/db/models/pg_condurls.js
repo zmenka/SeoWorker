@@ -54,31 +54,6 @@ PgCondurls.insertByUrlCond = function (condition_id, url_id) {
         })
 };
 
-PgCondurls.getNextNotSearched = function () {
-    var dateOld = new Date();
-    var dateOldOld = new Date(dateOld.getTime());
-    dateOldOld.setDate(dateOldOld.getDate() - 3);
-    return PG.logQueryOneOrNone(
-        "SELECT " +
-        "   CU.CONDURL_ID " +
-        "FROM " +
-        "   conditions C " +
-        "   INNER JOIN condurls CU " +
-        "       ON C.CONDITION_ID = CU.CONDITION_ID " +
-        "   INNER JOIN urls U " +
-        "       ON CU.URL_ID = U.URL_ID " +
-        "   INNER JOIN uscondurls UCU " +
-        "       ON UCU.CONDURL_ID = CU.CONDURL_ID " +
-        "WHERE " +
-        "   (C.DATE_CALC < $1 OR C.DATE_CALC IS NULL OR CU.DATE_CALC < $1 OR CU.DATE_CALC IS NULL)  " +
-        "   AND NOT UCU.USCONDURL_DISABLED " +
-        "ORDER BY " +
-        "   C.FAIL_COUNT, CU.DATE_CALC < C.DATE_CALC DESC, C.DATE_CALC IS NULL DESC, C.DATE_CALC DESC " +
-        "LIMIT 1;",
-        [dateOld.toISOString().substr(0, 10), dateOldOld.toISOString().substr(0, 10)]
-    )
-};
-
 
 PgCondurls.getUrlsByConditionId = function (condition_id) {
     return PG.logQuery(

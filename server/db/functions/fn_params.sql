@@ -23,7 +23,17 @@ CREATE OR REPLACE FUNCTION PARAMS_REPLACE(
 
         FOR jPARAM IN SELECT * FROM unnest(arrPARAMS)
         LOOP
-            RAISE NOTICE 'jPARAM = %',jPARAM;
+
+            IF JSON_IS_EMPTY(jPARAM) THEN
+                RAISE EXCEPTION 'PARAMS_REPLACE: jPARAM is empty!';
+            END IF;
+            IF (jPARAM->>'val') IS NULL THEN
+                RAISE EXCEPTION 'PARAMS_REPLACE: jPARAM->>val field is empty!';
+            END IF;
+            IF (jPARAM->>'name') IS NULL THEN
+                RAISE EXCEPTION 'PARAMS_REPLACE: jPARAM->>name field is empty!';
+            END IF;
+
             SELECT PARAMTYPE_ID INTO vPARAMTYPE_ID FROM paramtypes WHERE PARAMTYPE_NAME = jPARAM->>'name'::VARCHAR;
             SELECT jPARAM->>'val'::VARCHAR INTO vPARAM_VALUE;
 

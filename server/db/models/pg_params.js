@@ -78,7 +78,7 @@ PgParams.replace = function (condition_id, url_id, paramtype_id, param_value) {
 PgParams.getParamDiagram = function (condition_id, paramtype_id) {
     return PG.logQuery(
         "SELECT " +
-        "    SC.POSITION_N + 1 as POSITION, " +
+        "    SC.POSITION_N as POSITION, " +
         "    P.PARAM_VALUE as VALUE " +
         "FROM " +
         "    spages SP  " +

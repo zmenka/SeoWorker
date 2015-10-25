@@ -400,7 +400,7 @@ SeoParameters.prototype.getSearchPicks = function (sengine_name) {
                 //получаем title
                 var title = getData(tag);
                 //кладем в результат
-                res.push({url: url, title: title});
+                res.push({url: url, title: title, id: parseInt(i) + 1});
             }
             break;
         case 'Yandex':

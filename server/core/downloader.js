@@ -140,6 +140,7 @@ function checkArrElemIsSubstr(rx, arr) {
 };
 
 Downloader.getContentByUrlOrCaptcha = function (url, cookies, sengine_name, restartIfCaptcha) {
+    console.log('getContentByUrlOrCaptcha',url);
     var content;
     return Promise.try(function(){
         if (cookies){

@@ -16,16 +16,8 @@ var Updater = {};
  **************************/
 
 Updater.getNext = function () {
-    var condition
-    return PgConditions.getNextAndBlock()
-        .then(function (condition_res) {
-            condition = condition_res
-            if (!condition){
-                throw new Error('no next condition')
-            }
-            return PgUrls.blockByCondition(condition.condition_id)
-        })
-        .then(function () {
+    return PgConditions.getNext()
+        .then(function (condition) {
             console.log("Updater.getNext GET NEXT Condition_id " + condition.condition_id);
             return condition.condition_id
         })
@@ -133,6 +125,7 @@ Updater.updateOldUrls = function (condition_id) {
 }
 
 Updater.updateOneUrl = function (condition_id, url_id) {
+    console.log('updateOneUrl')
     if (!condition_id) {
         return Promise.reject(new Error("condition_id can't be empty"));
     }
@@ -159,15 +152,15 @@ Updater.updateOneUrlWithoutCondition = function (condition_id, url_id) {
     if (!url_id) {
         return Promise.reject(new Error("url_id can't be empty"));
     }
-    var condition;
+    var _condition;
     return PgConditions.get(condition_id)
         .then(function (condition_res) {
-            condition = condition_res;
-            return PgUrls.getAndBlock(url_id)
+            _condition = condition_res;
+            return PgUrls.get(url_id)
         })
         .then(function (url) {
             console.log('url', JSON.stringify(url, null, 2))
-            return Searcher.calcUrlParams([url], condition.condition_query)
+            return Searcher.calcUrlParams([url], _condition.condition_query)
         })
         .then(function (urlsWithParams) {
             if (!urlsWithParams || urlsWithParams.length !=1) {
@@ -177,7 +170,7 @@ Updater.updateOneUrlWithoutCondition = function (condition_id, url_id) {
             return urlsWithParams[0]
         })
         .then(function (paramsOfUrl) {
-            // засунуть это все в базу и СНЯТЬ блокировку
+            return ex.execute_list(ex.UPDATE_URL_ALL(condition_id, paramsOfUrl))
         })
 }
 

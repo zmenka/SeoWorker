@@ -245,7 +245,7 @@ function SitesCtrl($scope, $stateParams, $rootScope, $alert, $aside, $timeout, $
         vm.loading = true;
 
         vm.data = {};
-        return Api.calc_params(vm.site.data.condurl_id)
+        return Api.calc_params(vm.site.data.condition_id)
             .then(function () {
                 vm.reloadSitesAndAside();
                 return vm.getParamtypes()
@@ -273,7 +273,7 @@ function SitesCtrl($scope, $stateParams, $rootScope, $alert, $aside, $timeout, $
         }
         vm.loading = true;
 
-        return Api.calc_site_params(vm.site.data.condurl_id)
+        return Api.calc_site_params(vm.site.data.condition_id, vm.site.data.url_id )
             .then(function (res) {
                 console.log("calcSiteParams Api.calc_site_params err", res);
                 vm.loading = false;

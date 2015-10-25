@@ -4,28 +4,21 @@
 
 var PG = require('../../utils/pg');
 
-var model = {};
+var PgUscondurls = {};
 
-model.find = function (condurl_id, user_id) {
+PgUscondurls.find = function (condurl_id, user_id) {
     return PG.logQueryOneOrNone("SELECT * FROM uscondurls WHERE CONDURL_ID = $1 AND USER_ID = $2", [condurl_id, user_id]);
 };
 
-model.insert = function (condurl_id, user_id) {
-    return PG.logQueryOneOrNone("INSERT INTO uscondurls (CONDURL_ID, USER_ID, DATE_CREATE) SELECT $1, $2, $3 RETURNING USCONDURL_ID", [condurl_id, user_id, new Date()] );
+PgUscondurls.insert = function (condurl_id, user_id) {
+    return PG.logQueryOne("INSERT INTO uscondurls (CONDURL_ID, USER_ID, DATE_CREATE) SELECT $1, $2, $3 RETURNING USCONDURL_ID", [condurl_id, user_id, new Date()] );
 };
 
-model.insertIgnore = function (condurl_id, user_id) {
-    return model.find (condurl_id, user_id)
-        .then(function(res){
-            if(res) {
-                return res;
-            } else {
-                return model.insert(condurl_id, user_id)
-            }
-        })
-        .then(function(res) {
-            return res;
-        })
+PgUscondurls.new = function (user_id, url, query, size, region_id, sengine_id ) {
+    return PG.logQueryOne(
+        "SELECT USCONDURL_NEW ($1, $2, $3, $4, $5, $6);",
+        [user_id, url, query, size, region_id, sengine_id]
+    );
 };
 
-module.exports = model;
+module.exports = PgUscondurls;

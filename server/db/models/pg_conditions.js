@@ -44,9 +44,27 @@ PgConditions.get = function (id) {
         [id])
 };
 
-PgConditions.getNextAndBlock = function () {
-    return PG.logQueryOne("SELECT * FROM conditions C limit 1;",
-        [])
+
+PgConditions.getNext = function () {
+    var now = (new Date()).toISOString().substr(0, 10);
+    return PG.logQueryOneOrNone(
+        "SELECT " +
+        "   C.CONDITION_ID " +
+        "FROM " +
+        "   conditions C " +
+        "   INNER JOIN condurls CU " +
+        "       ON C.CONDITION_ID = CU.CONDITION_ID " +
+        "   INNER JOIN uscondurls UCU " +
+        "       ON UCU.CONDURL_ID = CU.CONDURL_ID " +
+        "WHERE " +
+        "   (C.DATE_CALC < $1 OR C.DATE_CALC IS NULL OR CU.DATE_CALC < $1 OR CU.DATE_CALC IS NULL)  " +
+        "   AND NOT UCU.USCONDURL_DISABLED " +
+        "   AND NOT C.CONDITION_LOCKED " +
+        "ORDER BY " +
+        "   C.FAIL_COUNT, CU.DATE_CALC < C.DATE_CALC DESC, C.DATE_CALC IS NULL DESC, C.DATE_CALC DESC " +
+        "LIMIT 1;",
+        [now]
+    )
 };
 
 PgConditions.lock = function (condition_id) {
@@ -63,10 +81,12 @@ PgConditions.unlock = function (condition_id) {
 };
 
 PgConditions.checkActual = function (condition_id) {
-    return PG.logQuery("SELECT  1;",
-        [])
+    var dateOld = new Date(new Date().getTime());
+    dateOld.setDate(dateOld.getDate() - 1);
+    return PG.logQueryOneOrNone("SELECT COALESCE($1 < DATE_CALC,FALSE) AS IS_ACTUAL FROM conditions WHERE CONDITION_ID = $2;",
+        [dateOld,condition_id])
         .then(function(res) {
-            return true;
+            return res.is_actual;
         })
 };
 
