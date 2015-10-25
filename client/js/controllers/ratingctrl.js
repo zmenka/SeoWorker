@@ -1,15 +1,16 @@
 function RatingCtrl($scope) {
     var data = [
-        { domen: "google.com", page: "google.com/search"},
-        { domen: "yandex.ru", page: "yandex.ru/search"}
+        { domen: "google.com", page: "google.com/search"}
     ];
 
     $scope.gridOptions = {
-        rowHeight: 100
+        rowHeight: 300,
+        enableHorizontalScrollbar: 0,
+        enableVerticalScrollbar: 0
     };
     $scope.gridOptions.columnDefs = [
-        {   field:'domen'   },
-        {   field:'page'    },
+        {   field:'domen', displayName: 'Домен', width:  150},
+        {   field:'page', displayName: 'Страница', width:  150 },
         {
             field: 'spark',
             displayName: 'График',
@@ -18,53 +19,104 @@ function RatingCtrl($scope) {
                             '</div>'
         }
     ];
-    data.forEach(function (d) {
+    data.forEach(function (d, num) {
         d.spark = {
             options: {
                 chart: {
-                    type: 'lineChart',
-                    height:100,
-                    showLegend: false,
-                    lines: {interactive : false},
-                    yAxis: {
-                        tickFormat: function(d){
-                            return d3.format('.02f')(d);
-                        },
+                    type: 'multiChart',
+                    margin: {
+                        top: 30,
+                        right: 80,
+                        bottom: 50,
+                        left: 70,
                     },
+                    tooltip: {
+                        /*headerFormatter: function (d) {
+                            return d3.time.format('%d/%m/%Y')(d);
+                        },
+                        valueFormatter: function(d) {
+                            console.log(d);
+                            return Math.round(d);
+                        },
+                        keyFormatter: function(d) {
+                            return d;
+                        },*/
+                        contentGenerator: function(data){
+                            var key = data.series[0].key,
+                                x =  d3.time.format('%d/%m/%Y')(data.point.x),
+                                y = key === 'Продвинутость' ? data.point.y + ' %'
+                                                            : data.point.y + ' место';
+                            return '<h3>' + x + '</h3>' +
+                                    '<p>' + key + ': ' + y + '</p>';
+                        }
+                    },
+                    xAxis: {
+                        tickFormat: function(d){
+                            return  d3.time.format('%d/%m/%Y')(new Date(d));
+                        }
+                    },
+                    yAxis1: {
+                        rotateYLabel: true,
+                        axisLabelDistance: -10,
+                        axisLabel: 'Продвинутость(%)',
+                        tickFormat: function(d){
+                            return Math.round(d);
+                        }
+                    },
+                    yAxis2: {
+                        tickFormat: function(d){
+                            return Math.round(d);
+                        },
+                        axisLabel: 'Место в выдаче',
+                        rotateYLabel: true
+                    },
+                    yDomain2: [50, 1],
+                    yDomain1: [0, 100],
                     x: function (xd) {
                         return xd.x;
                     },
                     y: function (xd) {
-                        return xd.y;
+                        return Math.round(xd.y);
+                    }
+                },
+                styles: {
+                    classes: {
+                        rating: true
                     }
                 }
             },
-            data: sinAndCos()
+            data: dataEx(num)
         };
     });
-
     $scope.gridOptions.data = data;
 
-    function sinAndCos() {
-        var sin = [],sin2 = [];
+    function dataEx() {
+        var d1 = [],d2 = [], date = [], i = 1;
 
-        //Data is represented as an array of {x,y} pairs.
-        for (var i = 0; i < 100; i++) {
-            sin.push({x: i, y: Math.sin(i/10)});
-            sin2.push({x: i, y: i % 10 == 5 ? null : Math.sin(i/10) *0.25 + 0.5});
+        for(i; i < 32; i += 1){
+            date.push(new Date('2015-09-'+i));
         }
+        date.forEach(function (date) {
+            d1.push({x: date, y: 100*Math.random()});
+            d2.push({x: date, y: 20*Math.random()});
+        });
+
 
         //Line chart data should be sent as an array of series objects.
         return [
             {
-                values: sin,      //values - represents the array of {x,y} data points
-                key: 'Sine Wave', //key  - the name of the series.
-                color: '#ff7f0e'  //color - optional: choose your own line color.
+                values: d1,      //values - represents the array of {x,y} data points
+                key: 'Продвинутость', //key  - the name of the series.
+                color: '#ff7f0e',  //color - optional: choose your own line color.
+                type: 'line',
+                yAxis: 1
             },
             {
-                values: sin2,
-                key: 'Another sine wave',
-                color: '#7777ff'
+                values: d2,
+                key: 'Место в выдаче',
+                color: '#7777ff',
+                type: 'line',
+                yAxis: 2
             }
         ];
     };
