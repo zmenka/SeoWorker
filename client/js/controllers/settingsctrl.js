@@ -82,8 +82,8 @@ function SettingsCtrl($scope, $stateParams, $alert, Api, ModalApi) {
     vm.addTask = function () {
         console.log("addTask", vm.site);
 
-        if (!vm.site.data.usurl_id || !vm.site.data.condition_query || !vm.site.data.sengine_id
-            || !vm.site.data.size_search) {
+        if (!vm.url|| !vm.site.data.condition_query || !vm.site.data.sengine_id
+            || !vm.site.data.region_id) {
             $alert({
                 title: 'Внимание!', content: "Не заполнены все необходимые поля. ",
                 placement: 'top', type: 'danger', show: true,
@@ -93,20 +93,9 @@ function SettingsCtrl($scope, $stateParams, $alert, Api, ModalApi) {
             return;
         }
 
-        if (vm.site.data.size_search > 20 || vm.site.data.size_search < 5) {
-            $alert({
-                title: 'Внимание!', content: "Неправильно заполнен размер выборки. " +
-                "Он должен быть в диапазоне от 5 до 20.",
-                placement: 'top', type: 'danger', show: true,
-                duration: '3',
-                container: 'body'
-            });
-            return;
-        }
-
         vm.loading = true;
-        return Api.create_task(vm.site.data.usurl_id, vm.site.data.condition_query, vm.site.data.sengine_id,
-            vm.site.data.region_id, vm.site.data.size_search)
+        return Api.create_task(vm.url, vm.site.data.condition_query, vm.site.data.sengine_id,
+            vm.site.data.region_id)
             .then(function () {
                 console.log('task is saved');
 

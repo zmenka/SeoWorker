@@ -1,5 +1,32 @@
 <div class="container" ng-controller="SettingsCtrl as vm" style="margin-top: 10px">
     <span ng-show="vm.loading" class="spinner"></span>
+    <form >
+        <div class="form-group">
+            <label class="control-label ">Адрес страницы: </label>
+            <input type="text" class="form-control" style="width:100%;" ng-model="vm.url">
+        </div>
+        <div class="form-group">
+            <label class="control-label ">Поисковый запрос: </label>
+            <input type="text" class="form-control " ng-model="vm.site.data.condition_query">
+        </div>
+        <div class="form-group">
+            <label class="control-label ">Поисковая система: </label>
+            <select ng-model="vm.site.data.sengine_id" class="form-control"
+                    ng-options="search.sengine_id as search.sengine_name for search in vm.sengines"></select>
+        </div>
+        <div class="form-group">
+            <label class="control-label ">Регион: </label>
+            <ui-select ng-model="vm.site.data.region_id" theme="bootstrap" style="min-width: 300px;">
+                <ui-select-match>{{$select.selected.region_name || "Екатеринбург"}}</ui-select-match>
+                <ui-select-choices repeat="region.region_id as region in vm.regions | filter: {region_name: $select.search} | limitTo: 10">
+                    {{region.region_name}}
+                </ui-select-choices>
+            </ui-select>
+        </div>
+    </form>
+    <button type="button" class="btn btn-primary" ng-click="vm.addTask()">
+        Добавить
+    </button>
     <div class="col-xs-6" >
 
 
@@ -11,28 +38,16 @@
                 </a>
             </div>
             <div class="panel-body">
-                <div ng-show="collapsedSite" style="margin: 10px; height: 70px">
-                    <form class="">
-                        <input type="text" class="form-control" style="width:100%;" ng-model="vm.url"
-                               placeholder="Введите url сайта">
-                        <button type="submit" class="btn btn-primary pull-right" style="margin-top: 5px; "
-                                ng-click="collapsedSite=!collapsedSite; vm.newSite();">OK
-                        </button>
-                    </form>
-                </div>
-
                 <sites-tree ng-show="vm.sites && vm.sites.length>0" sites="vm.sites"
                             nodeselect="vm.selectSettings"
                             noderemove="vm.removeTask"></sites-tree>
-
-
             </div>
         </div>
     </div>
     <div class="col-xs-6">
         <div class="panel panel-info ">
             <div class="panel-heading">Настройки</div>
-            <div class="panel-body" ng-show="vm.site && (vm.IsSiteSelected() || vm.IsTaskSelected()) ">
+            <div class="panel-body" ng-show="vm.site && (vm.IsSiteSelected() || vm.IsTaskSelected()) && !collapsedSite">
                 <div class="form-group">
                     <label class="control-label ">
                         Выбранный сайт
@@ -44,46 +59,41 @@
                     <div class="link">{{vm.site.data.url}}</div>
                 </div>
                 <div ng-hide="vm.site.type=='page' && vm.site.data.usurl_disabled">
-                <form >
-                    <div class="form-group">
-                        <label class="control-label ">Ключевая фраза: </label>
+                    <form >
+                        <div class="form-group">
+                            <label class="control-label ">Ключевая фраза: </label>
 
-                        <input type="text" class="form-control "
-                               ng-disabled="vm.IsTaskSelected()"
-                               ng-model="vm.site.data.condition_query">
-                    </div>
+                            <input type="text" class="form-control "
+                                   ng-disabled="vm.IsTaskSelected()"
+                                   ng-model="vm.site.data.condition_query">
+                        </div>
 
-                    <div class="form-group">
-                        <label class="control-label ">Поисковая система: </label>
-                        <select ng-model="vm.site.data.sengine_id" class="form-control"
-                                ng-disabled="vm.IsTaskSelected()"
-                                ng-options="search.sengine_id as search.sengine_name for search in vm.sengines"></select>
-                    </div>
-
-
-                    <div class="form-group" ng-show="vm.site.data.sengine_id == 2">
-                        <label class="control-label ">Регион: </label>
-                        <select ng-model="vm.site.data.region_id" class="form-control"
-                                ng-disabled="vm.IsTaskSelected()"
-                                ng-options="region.region_id as region.region_name for region in vm.regions"></select>
-                    </div>
+                        <div class="form-group">
+                            <label class="control-label ">Поисковая система: </label>
+                            <select ng-model="vm.site.data.sengine_id" class="form-control"
+                                    ng-disabled="vm.IsTaskSelected()"
+                                    ng-options="search.sengine_id as search.sengine_name for search in vm.sengines"></select>
+                        </div>
 
 
-                    <div class="form-group">
-                        <label class="control-label ">Размер выборки: </label>
-                        <input type="text" class="form-control "
-                               ng-disabled="vm.IsTaskSelected()"
-                               ng-model="vm.site.data.size_search" placeholder="10">
-                    </div>
+                        <div class="form-group" ng-show="vm.site.data.sengine_id == 2">
+                            <label class="control-label ">Регион: </label>
+                            <ui-select ng-model="vm.site.data.region_id" theme="bootstrap" ng-disabled="vm.IsTaskSelected()" style="min-width: 300px;">
+                                <ui-select-match placeholder="Выберете">{{$select.selected.region_name || "Екатеринбург"}}</ui-select-match>
+                                <ui-select-choices repeat="region.region_id as region in vm.regions | filter: {region_name: $select.search} | limitTo: 10">
+                                    {{region.region_name}}
+                                </ui-select-choices>
+                            </ui-select>
+                        </div>
 
-                </form>
-                <!--
-                                <button ng-show="!siteOrTask" type="button" class="btn btn-primary" ng-click="saveTask(site)">
-                                    Cохранить изменения
-                                </button>-->
-                <button type="button" class="btn btn-primary" ng-show="vm.IsSiteSelected()" ng-click="vm.addTask()">
-                    Добавить выборку
-                </button>
+
+                        <div class="form-group">
+                            <label class="control-label ">Размер выборки: </label>
+                            <input type="text" class="form-control "
+                                   ng-disabled="vm.IsTaskSelected()"
+                                   ng-model="vm.site.data.size_search" placeholder="10">
+                        </div>
+                    </form>
                 </div>
             </div>
 
