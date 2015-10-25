@@ -4,7 +4,7 @@ var PgRegions = require("./db/models/pg_regions");
 var PgGroups = require("./db/models/pg_groups");
 var PgRoles = require("./db/models/pg_roles");
 var PgParams = require("./db/models/pg_params");
-var PgUscondurl = require("./db/models/pg_uscondurls");
+var PgUscondurls = require("./db/models/pg_uscondurls");
 var Updater = require("./core/updater");
 var PgCorridor = require("./db/models/pg_corridors");
 var SeoFormat = require("./SeoFormat");
@@ -54,12 +54,12 @@ module.exports = function Api(app, passport) {
     });
 
     app.post('/api/remove_site', function (req, res) {
-        ApiUtils.auth_api_func(req, res, PgUsurls.remove, [req.body.usurl_id])
+        ApiUtils.auth_api_func(req, res, PgUscondurls.remove, [req.body.usurl_id])
     });
 
     app.post('/api/create_task', function (req, res) {
         ApiUtils.auth_api_func(req, res,
-            PgUscondurl.new,
+            PgUscondurls.new,
             [req.body.user_id, req.body.url, req.body.condition_query, 10,  req.body.region_id, req.body.sengine_id]
         )
     });
