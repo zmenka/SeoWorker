@@ -5,20 +5,20 @@
             <form >
                 <div class="form-group">
                     <label class="control-label ">Адрес страницы: </label>
-                    <input type="text" class="form-control" style="width:100%;" ng-model="vm.url">
+                    <input type="text" class="form-control" style="width:100%;" ng-model="vm.new_url">
                 </div>
                 <div class="form-group">
                     <label class="control-label ">Поисковый запрос: </label>
-                    <input type="text" class="form-control " ng-model="vm.site.data.condition_query">
+                    <input type="text" class="form-control " ng-model="vm.new_condition_query">
                 </div>
                 <div class="form-group">
                     <label class="control-label ">Поисковая система: </label>
-                    <select ng-model="vm.site.data.sengine_id" class="form-control"
+                    <select ng-model="vm.new_sengine_id" class="form-control"
                             ng-options="search.sengine_id as search.sengine_name for search in vm.sengines"></select>
                 </div>
                 <div class="form-group">
                     <label class="control-label ">Регион: </label>
-                    <ui-select ng-model="vm.site.data.region_id" theme="bootstrap" style="min-width: 300px;">
+                    <ui-select ng-model="vm.new_region_id" theme="bootstrap" style="min-width: 300px;">
                         <ui-select-match>{{$select.selected.region_name || "Екатеринбург"}}</ui-select-match>
                         <ui-select-choices repeat="region.region_id as region in vm.regions | filter: {region_name: $select.search} | limitTo: 10">
                             {{region.region_name}}
@@ -61,23 +61,23 @@
                 </div>
                 <div ng-hide="vm.site.type=='page' && vm.site.data.usurl_disabled">
                     <form >
-                        <div class="form-group">
+                        <div class="form-group" ng-show="vm.IsTaskSelected()">
                             <label class="control-label ">Ключевая фраза: </label>
 
                             <input type="text" class="form-control "
-                                   ng-disabled="vm.IsTaskSelected()"
+                                   ng-disabled="true"
                                    ng-model="vm.site.data.condition_query">
                         </div>
 
                         <div class="form-group">
                             <label class="control-label ">Поисковая система: </label>
                             <select ng-model="vm.site.data.sengine_id" class="form-control"
-                                    ng-disabled="vm.IsTaskSelected()"
+                                    ng-disabled="true"
                                     ng-options="search.sengine_id as search.sengine_name for search in vm.sengines"></select>
                         </div>
                         <div class="form-group" ng-show="vm.site.data.sengine_id == 2">
                             <label class="control-label ">Регион: </label>
-                            <ui-select ng-model="vm.site.data.region_id" theme="bootstrap" ng-disabled="vm.IsTaskSelected()" style="min-width: 300px;">
+                            <ui-select ng-model="vm.site.data.region_id" theme="bootstrap" ng-disabled="true" style="min-width: 300px;">
                                 <ui-select-match placeholder="Выберете">{{$select.selected.region_name || "Екатеринбург"}}</ui-select-match>
                                 <ui-select-choices repeat="region.region_id as region in vm.regions | filter: {region_name: $select.search} | limitTo: 10">
                                     {{region.region_name}}
@@ -89,7 +89,7 @@
                         <div class="form-group">
                             <label class="control-label ">Размер выборки: </label>
                             <input type="text" class="form-control "
-                                   ng-disabled="vm.IsTaskSelected()"
+                                   ng-disabled="true"
                                    ng-model="vm.site.data.size_search" placeholder="10">
                         </div>
                     </form>

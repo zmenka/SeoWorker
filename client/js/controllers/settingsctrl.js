@@ -25,7 +25,10 @@ function SettingsCtrl($scope, $stateParams, $alert, Api, ModalApi) {
             site.data.size_search = 10
 
     }
-
+    vm.new_url = null;
+    vm.new_new_condition_query = '';
+    vm.new_sengine_id = null;
+    vm.new_region_id = 181;
 
     var load = function () {
         vm.loading = true;
@@ -82,8 +85,8 @@ function SettingsCtrl($scope, $stateParams, $alert, Api, ModalApi) {
     vm.addTask = function () {
         console.log("addTask", vm.site);
 
-        if (!vm.url|| !vm.site.data.condition_query || !vm.site.data.sengine_id
-            || !vm.site.data.region_id) {
+        if (!vm.new_url|| !vm.new_condition_query || !vm.new_sengine_id
+            || !vm.new_region_id) {
             $alert({
                 title: 'Внимание!', content: "Не заполнены все необходимые поля. ",
                 placement: 'top', type: 'danger', show: true,
@@ -94,8 +97,8 @@ function SettingsCtrl($scope, $stateParams, $alert, Api, ModalApi) {
         }
 
         vm.loading = true;
-        return Api.create_task($stateParams.user_id, vm.site.data.condition_query, vm.site.data.sengine_id,
-            vm.site.data.region_id, vm.url)
+        return Api.create_task($stateParams.user_id, vm.new_condition_query, vm.new_sengine_id,
+            vm.new_region_id, vm.new_url)
             .then(function () {
                 console.log('task is saved');
 
