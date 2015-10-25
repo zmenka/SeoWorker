@@ -20,7 +20,7 @@ function SettingsCtrl($scope, $stateParams, $alert, Api, ModalApi) {
         if (! site.data.sengine_id)
             site.data.sengine_id = 2
         if (! site.data.region_id)
-            site.data.region_id = 486
+            site.data.region_id = 181
         if (! site.data.size_search)
             site.data.size_search = 10
 
@@ -94,8 +94,8 @@ function SettingsCtrl($scope, $stateParams, $alert, Api, ModalApi) {
         }
 
         vm.loading = true;
-        return Api.create_task(vm.url, vm.site.data.condition_query, vm.site.data.sengine_id,
-            vm.site.data.region_id)
+        return Api.create_task($stateParams.user_id, vm.site.data.condition_query, vm.site.data.sengine_id,
+            vm.site.data.region_id, vm.url)
             .then(function () {
                 console.log('task is saved');
 
@@ -166,7 +166,7 @@ function SettingsCtrl($scope, $stateParams, $alert, Api, ModalApi) {
         vm.site = node;
         vm.initSite(vm.site)
         console.log("selectSettings", node);
-
+        $scope.collapsedSite = false;
     };
 
     function removeTask(node) {

@@ -1,41 +1,42 @@
 <div class="container" ng-controller="SettingsCtrl as vm" style="margin-top: 10px">
     <span ng-show="vm.loading" class="spinner"></span>
-    <form >
-        <div class="form-group">
-            <label class="control-label ">Адрес страницы: </label>
-            <input type="text" class="form-control" style="width:100%;" ng-model="vm.url">
+    <div class="container" style="margin-bottom: 20px;">
+        <div class="col-xs-4">
+            <form >
+                <div class="form-group">
+                    <label class="control-label ">Адрес страницы: </label>
+                    <input type="text" class="form-control" style="width:100%;" ng-model="vm.url">
+                </div>
+                <div class="form-group">
+                    <label class="control-label ">Поисковый запрос: </label>
+                    <input type="text" class="form-control " ng-model="vm.site.data.condition_query">
+                </div>
+                <div class="form-group">
+                    <label class="control-label ">Поисковая система: </label>
+                    <select ng-model="vm.site.data.sengine_id" class="form-control"
+                            ng-options="search.sengine_id as search.sengine_name for search in vm.sengines"></select>
+                </div>
+                <div class="form-group">
+                    <label class="control-label ">Регион: </label>
+                    <ui-select ng-model="vm.site.data.region_id" theme="bootstrap" style="min-width: 300px;">
+                        <ui-select-match>{{$select.selected.region_name || "Екатеринбург"}}</ui-select-match>
+                        <ui-select-choices repeat="region.region_id as region in vm.regions | filter: {region_name: $select.search} | limitTo: 10">
+                            {{region.region_name}}
+                        </ui-select-choices>
+                    </ui-select>
+                </div>
+            </form>
+            <button type="button" class="btn btn-primary" ng-click="vm.addTask()">
+                Добавить
+            </button>
         </div>
-        <div class="form-group">
-            <label class="control-label ">Поисковый запрос: </label>
-            <input type="text" class="form-control " ng-model="vm.site.data.condition_query">
-        </div>
-        <div class="form-group">
-            <label class="control-label ">Поисковая система: </label>
-            <select ng-model="vm.site.data.sengine_id" class="form-control"
-                    ng-options="search.sengine_id as search.sengine_name for search in vm.sengines"></select>
-        </div>
-        <div class="form-group">
-            <label class="control-label ">Регион: </label>
-            <ui-select ng-model="vm.site.data.region_id" theme="bootstrap" style="min-width: 300px;">
-                <ui-select-match>{{$select.selected.region_name || "Екатеринбург"}}</ui-select-match>
-                <ui-select-choices repeat="region.region_id as region in vm.regions | filter: {region_name: $select.search} | limitTo: 10">
-                    {{region.region_name}}
-                </ui-select-choices>
-            </ui-select>
-        </div>
-    </form>
-    <button type="button" class="btn btn-primary" ng-click="vm.addTask()">
-        Добавить
-    </button>
+    </div>
     <div class="col-xs-6" >
 
 
         <div class="panel panel-info">
-            <div class="panel-heading">Список сайтов
-                <a class="pull-right btn btn-primary btn-xs tree-addbutton" nodrag ng-click="collapsedSite=!collapsedSite"
-                   ng-model="collapsedSite">
-                    <span class="glyphicon glyphicon-plus"></span>
-                </a>
+            <div class="panel-heading">
+                Список сайтов
             </div>
             <div class="panel-body">
                 <sites-tree ng-show="vm.sites && vm.sites.length>0" sites="vm.sites"
@@ -74,8 +75,6 @@
                                     ng-disabled="vm.IsTaskSelected()"
                                     ng-options="search.sengine_id as search.sengine_name for search in vm.sengines"></select>
                         </div>
-
-
                         <div class="form-group" ng-show="vm.site.data.sengine_id == 2">
                             <label class="control-label ">Регион: </label>
                             <ui-select ng-model="vm.site.data.region_id" theme="bootstrap" ng-disabled="vm.IsTaskSelected()" style="min-width: 300px;">

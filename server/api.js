@@ -29,6 +29,7 @@ module.exports = function Api(app, passport) {
     });
 
     app.get('/api/user_sites_and_tasks', function (req, res) {
+        console.log(req.query, req.user);
         ApiUtils.auth_api_func(req, res, Users.userSitesAndTasks, [req.query.user_id, req.user.user_id, req.user.role_id, req.query.with_disabled])
     });
 

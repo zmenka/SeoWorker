@@ -45,10 +45,10 @@ seoServices.factory('Api', ['$http',
             remove_site: function (usurl_id) {
                 return $http.post('/api/remove_site', {usurl_id: usurl_id});
             },
-            create_task: function (usurl_id, condition_query, sengine_id, region_id, size_search) {
-                return $http.post('/api/create_task', {usurl_id: usurl_id,
+            create_task: function (user_id, condition_query, sengine_id, region_id, url) {
+                return $http.post('/api/create_task', {user_id: user_id,
                     condition_query: condition_query, sengine_id:sengine_id,
-                    region_id: region_id, size_search: size_search});
+                    region_id: region_id, url: url});
             },
             remove_task: function (task_id) {
                 return $http.post('/api/remove_task', {task_id: task_id});

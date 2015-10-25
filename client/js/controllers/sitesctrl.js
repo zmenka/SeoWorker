@@ -36,7 +36,28 @@ function SitesCtrl($scope, $stateParams, $rootScope, $alert, $aside, $timeout, $
                 tickFormat: function (d) {
                     return d3.format('.02f')(d);
                 },
-                axisLabelDistance: 30
+                showMax: true,
+                tickValues: function(charts){
+                    var ticks = [],
+                        middleArr = []; // Вспомогательный массив
+                                       // для нахождения середины коридора
+
+                    charts.forEach(function(chart){
+                        if(chart.key && chart.key === 'Граница коридора'){
+                            chart.values.forEach(function(xy){
+                                if(!parseInt(xy[0], 10)) {
+                                    ticks.push(xy[1]);
+                                    middleArr.push(parseFloat(xy[1]));
+                                }
+                            });
+                            ticks.push((middleArr[0]+middleArr[1])/2);
+                        } else if(chart.key === 'Ваш сайт') {
+                            ticks.push(chart.values[0][1]);
+                        }
+                    });
+                    return ticks;
+                }
+
             }
         }
     }
@@ -66,7 +87,7 @@ function SitesCtrl($scope, $stateParams, $rootScope, $alert, $aside, $timeout, $
         }
         $timeout(function () {
             showAside(reInit);
-        });
+        }, 100);
     }
 
     function showAside(reInit) {

@@ -1,7 +1,8 @@
 <div class="container" ng-controller="SitesCtrl as vm">
     <div class="left_bar "
-         ng-mouseover="vm.showAside();" ng-click="vm.showAside();"
-           ng-mouseleave="vm.asideLoading = false;">
+         ng-click="vm.showAside();"
+           ng-mouseleave="vm.asideLoading = false;"
+        style="cursor: pointer">
         <span ng-hide="vm.asideLoading" class="glyphicon glyphicon-share-alt left_bar_icon" style="font-size: 25px;"></span>
         <div ng-show="vm.asideLoading" class="spinner-small left_bar_icon" ></div>
     </div>
