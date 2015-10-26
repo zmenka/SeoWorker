@@ -314,7 +314,7 @@ PgExpressions.UPDATE_POSITIONS = function (vCONDITION_ID) {
 
 PgExpressions.UPDATE_URL = function (vCONDITION_ID, url_result) {
     var list = new QueryList();
-    list.push("SELECT PARAMS_REPLACE((SELECT URL_ID FROM urls WHERE URL = $1), $2, $3::JSON[])", [url_result.url, vCONDITION_ID, url_result.params]);
+    list.push("SELECT PARAMS_REPLACE((SELECT URL_ID FROM urls WHERE URL = $1), $2, $3::JSON)", [url_result.url, vCONDITION_ID, JSON.stringify(url_result.params)]);
     return list
 };
 

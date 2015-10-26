@@ -7,7 +7,7 @@
 CREATE OR REPLACE FUNCTION PARAMS_REPLACE(
     vURL_ID integer,
     vCONDITION_ID integer,
-    arrPARAMS JSON[]
+    arrPARAMS JSON
 ) RETURNS VOID AS $$
     DECLARE vPARAMTYPE_ID INTEGER;
     DECLARE vPARAM_VALUE VARCHAR;
@@ -21,12 +21,17 @@ CREATE OR REPLACE FUNCTION PARAMS_REPLACE(
                 CONDITION_ID = vCONDITION_ID
                 AND URL_ID = vURL_ID;
 
-        FOR jPARAM IN SELECT * FROM unnest(arrPARAMS)
+        -- FOR jPARAM IN SELECT * FROM unnest(arrPARAMS)
+        FOR jPARAM IN SELECT * FROM json_array_elements(arrPARAMS)
         LOOP
+                RAISE NOTICE 'jPARAMS %', jPARAM;
 
             IF JSON_IS_EMPTY(jPARAM) THEN
                 RAISE EXCEPTION 'PARAMS_REPLACE: jPARAM is empty!';
             END IF;
+
+            CONTINUE WHEN UPPER(jPARAM->>'success') = 'FALSE';
+
             IF (jPARAM->>'val') IS NULL THEN
                 RAISE EXCEPTION 'PARAMS_REPLACE: jPARAM->>val field is empty!';
             END IF;
@@ -34,8 +39,8 @@ CREATE OR REPLACE FUNCTION PARAMS_REPLACE(
                 RAISE EXCEPTION 'PARAMS_REPLACE: jPARAM->>name field is empty!';
             END IF;
 
-            SELECT PARAMTYPE_ID INTO vPARAMTYPE_ID FROM paramtypes WHERE PARAMTYPE_NAME = jPARAM->>'name'::VARCHAR;
-            SELECT jPARAM->>'val'::VARCHAR INTO vPARAM_VALUE;
+            SELECT PARAMTYPE_ID INTO vPARAMTYPE_ID FROM paramtypes WHERE PARAMTYPE_NAME = (jPARAM->>'name')::VARCHAR;
+            SELECT (jPARAM->>'val')::VARCHAR INTO vPARAM_VALUE;
 
             IF vPARAM_VALUE is not null THEN
                 INSERT INTO params (URL_ID, CONDITION_ID, PARAMTYPE_ID, PARAM_VALUE, DATE_CREATE) VALUES

@@ -89,6 +89,7 @@ CREATE OR REPLACE FUNCTION CONDITION_REPLACE(
             INSERT INTO scontents (URL_ID, SPAGE_ID, POSITION_N, DATE_CREATE)
                 SELECT vURL_ID, vSPAGE_ID, COALESCE(vSTART_FROM,0) + (jLINK->>'id')::integer, NOW();
 
+                RAISE NOTICE  '%!', jLINK->>'params';
             IF NOT JSON_IS_EMPTY(jLINK->'params') THEN
                 PERFORM PARAMS_REPLACE(vURL_ID, vCONDITION_ID, jLINK->'params');
             END IF;
