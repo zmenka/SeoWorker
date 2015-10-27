@@ -131,7 +131,7 @@ describe('DB TEST', function(){
                 });
 
         })
-        it.only('test core', function(){
+        it('test core', function(){
             var background = require("../../server/core/background");
             return background.run()
                 .then(function(res){

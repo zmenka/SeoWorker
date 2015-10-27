@@ -143,20 +143,20 @@ Downloader.getContentByUrlOrCaptcha = function (url, cookies, sengine_name, rest
     console.log('getContentByUrlOrCaptcha',url);
     var content;
     return Promise.try(function(){
-        if (cookies){
-            return cookies
-        } else {
-            return PgUsers.get(1)
-                .then(function (res) {
-                    var cookies;
-                    try {
-                        cookies = JSON.parse(res.cookies)
-                    }
-                    catch (err) {
-                    }
-                    return cookies
-                })
-        }
+        //if (cookies){
+        //    return cookies
+        //} else {
+        //    return PgUsers.get(1)
+        //        .then(function (res) {
+        //            var cookies;
+        //            try {
+        //                cookies = JSON.parse(res.cookies)
+        //            }
+        //            catch (err) {
+        //            }
+        //            return cookies
+        //        })
+        //}
         return cookies
     })
         .then(function (cookie_res) {
@@ -164,6 +164,9 @@ Downloader.getContentByUrlOrCaptcha = function (url, cookies, sengine_name, rest
         })
         .then(function (res) {
             content = res;
+            console.log("---------------")
+            console.log(res.html)
+            console.log("++++++++++++")
             return PgUsers.updateCookies(1, JSON.stringify(content.cookies))
         })
         .then(function () {
