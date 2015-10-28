@@ -81,7 +81,7 @@ PgConditions.unlock = function (condition_id) {
 };
 
 PgConditions.checkActual = function (condition_id) {
-    var dateOld = new Date(new Date().getTime());
+    var dateOld = new Date();
     dateOld.setDate(dateOld.getDate() - 1);
     return PG.logQueryOneOrNone("SELECT COALESCE($1 < DATE_CALC,FALSE) AS IS_ACTUAL FROM conditions WHERE CONDITION_ID = $2;",
         [dateOld,condition_id])

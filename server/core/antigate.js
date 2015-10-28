@@ -3,8 +3,9 @@ var Promise = require('../utils/promise');
 var Antigate = {}
 
 Antigate.getByUrl = function (url, key) {
-    console.log(key)
-    console.log(url)
+    if (!key){
+        return Promise.reject(new Error('no antigate key'))
+    }
     return Antigate.loadByUrl(url)
         .then(function (data) {
             return Antigate.upload(data, key)
@@ -22,11 +23,11 @@ Antigate.loadByUrl = function (url) {
 
     return rp(options)
         .then(function (img) {
-            console.log('img', img)
+            //console.log('img', img)
             return img.toString('base64')
         })
         .catch(function (err) {
-            console.log('load jpg err', err)
+            //console.log('load jpg err', err)
             throw err
         })
 }
@@ -51,7 +52,7 @@ Antigate.upload = function (body, key) {
             }
         })
         .catch(function (err) {
-            console.log('upload err', err)
+            //console.log('upload err', err)
             throw err
         })
 }
@@ -62,11 +63,11 @@ Antigate.check = function (id, key, delayTimes) {
         + '&action=get&id='
         + id;
     delayTimes = delayTimes || 0
-    console.log('check', delayTimes)
+    //console.log('check', delayTimes)
     return rp(url)
         .then(function (body) {
             if (body.indexOf('OK') === 0) {
-                console.log('check', body)
+                console.log('ANTIGATE DONE', body)
                 return body.split('|')[1];
             } else if (body === 'CAPCHA_NOT_READY') {
                 return Promise.delay(500)
@@ -78,7 +79,7 @@ Antigate.check = function (id, key, delayTimes) {
             }
         })
         .catch(function (err) {
-            console.log('check err', err)
+            //console.log('check err', err)
             throw err
         })
 

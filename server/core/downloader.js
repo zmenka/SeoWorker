@@ -28,7 +28,7 @@ Downloader._headers = {
     'accept-charset': "ISO-8859-1,utf-8;q=0.7,*;q=0.3"
 };
 
-Downloader.getOptions = function (url, cookies, headers) {
+Downloader.getOptions = function (url, cookies) {
     if (!url) {
         throw new Error("Url is empty");
     }
@@ -55,12 +55,6 @@ Downloader.getOptions = function (url, cookies, headers) {
     }
     options.jar = j;
 
-    //if (headers) {
-    //    options.headers = headers
-    //} else {
-    //    //options.headers = Downloader._headers
-    //}
-
     return options;
 };
 /**
@@ -68,10 +62,9 @@ Downloader.getOptions = function (url, cookies, headers) {
  * @param cookies
  * @returns {html: string, cookies: Object[]}
  */
-Downloader.getContentByUrl = function (url, cookies, headers) {
+Downloader.getContentByUrl = function (url, cookies) {
     return Promise.try(function () {
-        var options = Downloader.getOptions(url, cookies, headers);
-        console.log('options', JSON.stringify(options, null,2))
+        var options = Downloader.getOptions(url, cookies);
         return request(options)
             .then(function (res) {
                 var response = res[0]
@@ -87,8 +80,6 @@ Downloader.getContentByUrl = function (url, cookies, headers) {
                 }
                 var j = options.jar;
                 var cookies = j.getCookies(options.url);
-                var headers = response.request.headers
-
                 return Downloader.responseDecompress(response.headers['content-encoding'], body)
                     .then(function (decompressed) {
                         return Downloader.responseDecode(response, decompressed)
@@ -97,7 +88,7 @@ Downloader.getContentByUrl = function (url, cookies, headers) {
                         if (!decoded) {
                             throw new Error('decoded empty for ' + url);
                         }
-                        return {html: decoded, cookies: cookies, headers: headers}
+                        return {html: decoded, cookies: cookies}
                     })
             })
 
@@ -132,7 +123,7 @@ Downloader.responseDecode = function (response, body) {
     enc = enc || jschardet.detect(body).encoding;
     if (enc) {
         enc = enc.toLowerCase();
-        return iconv.decode(body, enc);
+        return he.decode(iconv.decode(body, enc));
     } else {
         throw new Error('Unknown encoding ');
     }
@@ -151,35 +142,31 @@ function checkArrElemIsSubstr(rx, arr) {
 };
 
 Downloader.getContentByUrlOrCaptcha = function (url, cookies, sengine_name, restartIfCaptcha, headers) {
-    console.log('getContentByUrlOrCaptcha',url);
-    console.log('getContentByUrlOrCaptcha cookies',cookies);
+    //console.log('getContentByUrlOrCaptcha',url);
+    //console.log('getContentByUrlOrCaptcha cookies',cookies);
     var content;
     return Promise.try(function(){
-        //if (cookies){
-        //    return cookies
-        //} else {
-        //    return PgUsers.get(1)
-        //        .then(function (res) {
-        //            var cookies;
-        //            try {
-        //                cookies = JSON.parse(res.cookies)
-        //            }
-        //            catch (err) {
-        //            }
-        //            return cookies
-        //        })
-        //}
-        return cookies
+        if (cookies){
+            return cookies
+        } else {
+            return PgUsers.get(1)
+                .then(function (res) {
+                    var cookies;
+                    try {
+                        cookies = JSON.parse(res.cookies)
+                    }
+                    catch (err) {
+                    }
+                    return cookies
+                })
+        }
     })
         .then(function (cookie_res) {
             return Downloader.getContentByUrl(url, cookie_res, headers)
         })
         .then(function (res) {
             content = res;
-            console.log("---------------")
-            console.log(res.html)
-            console.log("++++++++++++")
-            return //PgUsers.updateCookies(1, JSON.stringify(content.cookies))
+            return PgUsers.updateCookies(1, JSON.stringify(content.cookies))
         })
         .then(function () {
             return Downloader.getCaptcha(content.html, sengine_name)
