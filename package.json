@@ -40,6 +40,7 @@
     "htmlparser2": "^3.7.3",
     "iconv-lite": "^0.4.5",
     "jschardet": "^1.1.0",
+    "kue": "~0.9.6",
     "morgan": "^1.3.1",
     "passport": "^0.2.1",
     "passport-local": "^1.0.0",
@@ -47,11 +48,11 @@
     "pg-monitor": "~0.3.2",
     "pg-promise": "^1.10.7",
     "request": "^2.45.0",
+    "request-promise": "^1.0.2",
     "soupselect": "~0.2.0",
-    "tough-cookie": "^0.12.1",
     "superagent": "~1.4.0",
     "supertest": "~1.1.0",
-    "kue": "~0.9.6"
+    "tough-cookie": "^0.12.1"
   },
   "scripts": {
     "postinstall": "node ./node_modules/bower/bin/bower install",

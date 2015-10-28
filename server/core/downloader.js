@@ -4,11 +4,13 @@ var SeoParser = require('./seo_parser');
 var PgUsers = require('./../db/models/pg_users');
 
 var Promise = require('../utils/promise');
+var rp = require('request-promise');
 var request = Promise.promisify(require("request"));
 var zlib_gunzip = Promise.promisify(require('zlib').gunzip);
 var zlib_inflate = Promise.promisify(require('zlib').inflate);
 var he = require('he');
 var Antigate = require('antigate');
+var MyAntigate = require('./antigate');
 var config = require('./../config');
 var ag = new Antigate(config.antigate_key);
 var charset = require('charset');
@@ -141,6 +143,7 @@ function checkArrElemIsSubstr(rx, arr) {
 
 Downloader.getContentByUrlOrCaptcha = function (url, cookies, sengine_name, restartIfCaptcha) {
     console.log('getContentByUrlOrCaptcha',url);
+    console.log('getContentByUrlOrCaptcha cookies',cookies);
     var content;
     return Promise.try(function(){
         //if (cookies){
@@ -214,7 +217,7 @@ Downloader.getCaptcha = function (raw_html, sengine_name) {
                         var retpath = parser.getTag('form[action=/checkcaptcha] input[name=retpath]')[0].attribs.value;
 
                         console.error("CAPTCHA", img)
-                        return Downloader.antigate(img)
+                        return MyAntigate(img, config.antigate_key)
                             .then(function (res) {
                                 var kaptcha = 'http://yandex.ru/checkcaptcha?key='
                                     + encodeURIComponent(key) +
@@ -240,7 +243,7 @@ Downloader.getCaptcha = function (raw_html, sengine_name) {
                         var id = parser.getTag('form[action=CaptchaRedirect] input[name=id]')[0].attribs.value;
 
                         console.error("CAPTCHA", img)
-                        return Downloader.antigate(img)
+                        return MyAntigate(img, config.antigate_key)
                             .then(function (res) {
                                 var kaptcha = 'http://ipv4.google.com/sorry/CaptchaRedirect?"' +
                                     'continue=' + encodeURIComponent(continue1) +
@@ -258,7 +261,9 @@ Downloader.getCaptcha = function (raw_html, sengine_name) {
         })
 }
 
+
 Downloader.antigate = function (url) {
+    console.log(config.antigate_key)
     return new Promise(function (resolve, reject) {
         ag.processFromURL(url, function (error, text, id) {
             if (error) {
