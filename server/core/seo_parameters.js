@@ -409,6 +409,7 @@ SeoParameters.prototype.getSearchPicks = function (sengine_name) {
             //парсим страницу
             var tags = this.parser.getTag(aMask);
             //получаем URL-ы и title-ы
+            var position = 1
             for (var i in tags) {
                 var tag = tags[i];
                 //если нет родителя или он не h2 (логотип), то выходим
@@ -425,12 +426,13 @@ SeoParameters.prototype.getSearchPicks = function (sengine_name) {
                 //получаем URL
                 var url = tag.attribs['href'].match(/^\/*(\w.+)/)[1]
                 //пытаемся по топорному исключить рекламу :)
-                if (url.indexOf('yabs.yandex') != -1)
+                if (url.indexOf('yabs.yandex') != -1 || url.indexOf('yandex') != -1)
                     continue;
                 //получаем title
                 var title = getData(tag);
                 //кладем в результат
-                res.push({url: url, title: title, id: parseInt(i) + 1});
+                res.push({url: url, title: title, id: position});
+                position++;
             }
 
             break;

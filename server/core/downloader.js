@@ -18,7 +18,7 @@ var jschardet = require('jschardet');
 
 var Downloader = {};
 
-Downloader._contentTypes = ["text/html", "text/plain", "text/xml", "application/json", "application/xhtml+xml"]
+Downloader._contentTypes = ["text/html", "text/plain", "text/xml", "application/json", "application/xml", "application/xhtml+xml"]
 Downloader._headers = {
     'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.153 Safari/537.36',
     'accept': Downloader._contentTypes.join(',') + ';*/*;q=0.8',
@@ -28,7 +28,7 @@ Downloader._headers = {
     'accept-charset': "ISO-8859-1,utf-8;q=0.7,*;q=0.3"
 };
 
-Downloader.getOptions = function (url, cookies) {
+Downloader.getOptions = function (url, cookies, headers) {
     if (!url) {
         throw new Error("Url is empty");
     }
@@ -50,10 +50,17 @@ Downloader.getOptions = function (url, cookies) {
     //используем куки
     if (cookies) {
         for (var i in cookies) {
-            j.setCookie(cookies[i].key + "=" + cookies[i].value, options.url);
+            j.setCookie(request.cookie(cookies[i].key + "=" + cookies[i].value), options.url);
         }
     }
     options.jar = j;
+
+    //if (headers) {
+    //    options.headers = headers
+    //} else {
+    //    //options.headers = Downloader._headers
+    //}
+
     return options;
 };
 /**
@@ -61,9 +68,10 @@ Downloader.getOptions = function (url, cookies) {
  * @param cookies
  * @returns {html: string, cookies: Object[]}
  */
-Downloader.getContentByUrl = function (url, cookies) {
+Downloader.getContentByUrl = function (url, cookies, headers) {
     return Promise.try(function () {
-        var options = Downloader.getOptions(url, cookies);
+        var options = Downloader.getOptions(url, cookies, headers);
+        console.log('options', JSON.stringify(options, null,2))
         return request(options)
             .then(function (res) {
                 var response = res[0]
@@ -79,6 +87,7 @@ Downloader.getContentByUrl = function (url, cookies) {
                 }
                 var j = options.jar;
                 var cookies = j.getCookies(options.url);
+                var headers = response.request.headers
 
                 return Downloader.responseDecompress(response.headers['content-encoding'], body)
                     .then(function (decompressed) {
@@ -88,7 +97,7 @@ Downloader.getContentByUrl = function (url, cookies) {
                         if (!decoded) {
                             throw new Error('decoded empty for ' + url);
                         }
-                        return {html: decoded, cookies: cookies}
+                        return {html: decoded, cookies: cookies, headers: headers}
                     })
             })
 
@@ -141,7 +150,7 @@ function checkArrElemIsSubstr(rx, arr) {
     return -1;
 };
 
-Downloader.getContentByUrlOrCaptcha = function (url, cookies, sengine_name, restartIfCaptcha) {
+Downloader.getContentByUrlOrCaptcha = function (url, cookies, sengine_name, restartIfCaptcha, headers) {
     console.log('getContentByUrlOrCaptcha',url);
     console.log('getContentByUrlOrCaptcha cookies',cookies);
     var content;
@@ -163,14 +172,14 @@ Downloader.getContentByUrlOrCaptcha = function (url, cookies, sengine_name, rest
         return cookies
     })
         .then(function (cookie_res) {
-            return Downloader.getContentByUrl(url, cookie_res)
+            return Downloader.getContentByUrl(url, cookie_res, headers)
         })
         .then(function (res) {
             content = res;
             console.log("---------------")
             console.log(res.html)
             console.log("++++++++++++")
-            return PgUsers.updateCookies(1, JSON.stringify(content.cookies))
+            return //PgUsers.updateCookies(1, JSON.stringify(content.cookies))
         })
         .then(function () {
             return Downloader.getCaptcha(content.html, sengine_name)
@@ -178,7 +187,7 @@ Downloader.getContentByUrlOrCaptcha = function (url, cookies, sengine_name, rest
         .then(function (rescaptcha) {
             if (rescaptcha) {
                 if (restartIfCaptcha) {
-                    return Downloader.getContentByUrlOrCaptcha(rescaptcha, content.cookies, sengine_name, false);
+                    return Downloader.getContentByUrlOrCaptcha(rescaptcha, content.cookies, sengine_name, false, content.headers);
                 } else {
                     throw new Error('получили капчу опять!')
                 }
