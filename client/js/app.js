@@ -22,7 +22,8 @@ var seoApp = angular.module('seoApp', [
     'ngAnimate',
     'ngSanitize',
     'nvd3',
-    'ui.select'
+    'ui.select',
+    'ui.grid'
 ]);
 
 seoApp.config(["$stateProvider", "$urlRouterProvider",
@@ -104,6 +105,11 @@ seoApp.config(["$stateProvider", "$urlRouterProvider",
             .state('main.error', {
                 url: '/error',
                 templateUrl: 'partials/error.html'
+            })
+            .state('main.rating', {
+                url: '/rating/:user_id',
+                templateUrl: 'partials/rating.html',
+                authenticate: true
             })
 //            .state('main.captcha_test', {
 //                templateUrl: 'partials/captchatest.html',
