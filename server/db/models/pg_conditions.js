@@ -61,7 +61,7 @@ PgConditions.getNext = function () {
         "   AND NOT UCU.USCONDURL_DISABLED " +
         "   AND NOT C.CONDITION_LOCKED " +
         "ORDER BY " +
-        "   C.FAIL_COUNT, CU.DATE_CALC < C.DATE_CALC DESC, C.DATE_CALC IS NULL DESC, C.DATE_CALC DESC " +
+        "   C.FAIL_COUNT, C.DATE_CALC IS NULL DESC, C.DATE_CALC DESC " +
         "LIMIT 1;",
         [now]
     )

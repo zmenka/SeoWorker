@@ -18,11 +18,11 @@ function SettingsCtrl($scope, $stateParams, $alert, Api, ModalApi) {
             site.data = {}
         }
         if (! site.data.sengine_id)
-            site.data.sengine_id = 2
+            site.data.sengine_id = 2;
         if (! site.data.region_id)
-            site.data.region_id = 181
+            site.data.region_id = 428;
         if (! site.data.size_search)
-            site.data.size_search = 10
+            site.data.size_search = 10;
 
     }
     vm.new_url = null;
