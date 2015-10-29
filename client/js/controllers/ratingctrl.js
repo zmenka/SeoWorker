@@ -1,4 +1,4 @@
-function RatingCtrl($scope, $UserApi) {
+function RatingCtrl($scope, UserApi) {
     /*
      UserApi.get_all_positions()
 
