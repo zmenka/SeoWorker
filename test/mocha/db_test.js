@@ -121,11 +121,19 @@ describe('DB TEST', function(){
                 });
 
         })
-        it('getNextNotSearched', function(){
-        //it.only('sql test 0', function(){
+        it('pg_positions list_all_by_condurl', function(){
 
-            var PgModel = require("../../server/db/models/pg_condurls");
-            return PgModel.getNextNotSearched()
+            var PgModel = require("../../server/db/models/pg_positions");
+            return PgModel.list_all_by_condurl(1698)
+                .then(function(res){
+                    console.log(res);
+                });
+
+        })
+        it.only('pg_positions list_all_by_user', function(){
+
+            var PgModel = require("../../server/db/models/pg_positions");
+            return PgModel.list_all_by_user(106)
                 .then(function(res){
                     console.log(res);
                 });

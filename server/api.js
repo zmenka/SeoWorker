@@ -5,6 +5,8 @@ var PgGroups = require("./db/models/pg_groups");
 var PgRoles = require("./db/models/pg_roles");
 var PgParams = require("./db/models/pg_params");
 var PgUscondurls = require("./db/models/pg_uscondurls");
+var PgPositions = require("./db/models/pg_positions");
+var PgPercents = require("./db/models/pg_percents");
 var Updater = require("./core/updater");
 var PgCorridor = require("./db/models/pg_corridors");
 var SeoFormat = require("./SeoFormat");
@@ -18,6 +20,22 @@ module.exports = function Api(app, passport) {
 
     app.get('/api/users', function (req, res) {
         ApiUtils.auth_api_func(req, res, PgUsers.listWithSitesCount, [req.user.user_id, req.user.role_id])
+    });
+
+    app.get('/api/condurl/positions/all', function (req, res) {
+        ApiUtils.auth_api_func(req, res, PgPositions.list_all_by_condurl, [req.query.condurl_id])
+    });
+
+    app.get('/api/condurl/percents/all', function (req, res) {
+        ApiUtils.auth_api_func(req, res, PgPercents.list_all_by_condurl, [req.query.condurl_id])
+    });
+
+    app.get('/api/user/positions/all', function (req, res) {
+        ApiUtils.auth_api_func(req, res, PgPositions.list_all_by_user, [req.user.user_id])
+    });
+
+    app.get('/api/user/percents/all', function (req, res) {
+        ApiUtils.auth_api_func(req, res, PgPercents.list_all_by_user, [req.user.user_id])
     });
 
     app.get('/api/user', function (req, res) {

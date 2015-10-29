@@ -73,6 +73,34 @@ seoServices.factory('Api', ['$http',
         };
     }]);
 
+seoServices.factory('CondurlApi', ['$http',
+    function ($http) {
+        return {
+            get_all_positions: function (condurl_id) {
+                return $http.post('/api/condurl/positions/all', {condurl_id : condurl_id});
+
+            },
+            get_all_percents: function (condurl_id) {
+                return $http.post('/api/condurl/percents/all', {condurl_id : condurl_id});
+
+            }
+        };
+    }]);
+
+seoServices.factory('UserApi', ['$http',
+    function ($http) {
+        return {
+            get_all_positions: function () {
+                return $http.post('/api/user/positions/all', {});
+
+            },
+            get_all_percents: function () {
+                return $http.post('/api/user/percents/all', {});
+
+            }
+        };
+    }]);
+
 seoServices.factory('Captcha', ['$http',
     function ($http) {
         return {

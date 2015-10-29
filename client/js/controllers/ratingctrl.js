@@ -1,4 +1,61 @@
-function RatingCtrl($scope) {
+function RatingCtrl($scope, $UserApi) {
+    /*
+     UserApi.get_all_positions()
+
+     [ { position: 1,
+     date_create: Sat Oct 24 2015 00:00:00 GMT+0500 (YEKT),
+     condurl_id: 1698,
+     condition_query: 'прокат велосипедов вторчермет',
+     region_name: 'Екатеринбург',
+     sengine_name: 'Yandex',
+     url: 'http://www.velokat.su/arenda/o_nas',
+     domain: 'velokat.su' },
+     { position: 1,
+     date_create: Fri Oct 23 2015 00:00:00 GMT+0500 (YEKT),
+     condurl_id: 1698,
+     condition_query: 'прокат велосипедов вторчермет',
+     region_name: 'Екатеринбург',
+     sengine_name: 'Yandex',
+     url: 'http://www.velokat.su/arenda/o_nas',
+     domain: 'velokat.su' } ]
+     */
+
+     /*
+     UserApi.get_all_percents()
+
+     [ { percent: 64,
+     date_create: Sun Oct 18 2015 00:00:00 GMT+0500 (YEKT),
+     condurl_id: 1812,
+     condition_query: 'аренда велосипедов эльмаш',
+     region_name: 'Екатеринбург',
+     sengine_name: 'Yandex',
+     url: 'http://www.velokat.su/about',
+     domain: 'velokat.su' },
+     { percent: 49,
+     date_create: Sun Oct 18 2015 00:00:00 GMT+0500 (YEKT),
+     condurl_id: 1698,
+     condition_query: 'прокат велосипедов вторчермет',
+     region_name: 'Екатеринбург',
+     sengine_name: 'Yandex',
+     url: 'http://www.velokat.su/arenda/o_nas',
+     domain: 'velokat.su' },
+     { percent: 61,
+     date_create: Sun Oct 18 2015 00:00:00 GMT+0500 (YEKT),
+     condurl_id: 912,
+     condition_query: 'прокат велосипедов ботаника',
+     region_name: 'Екатеринбург',
+     sengine_name: 'Yandex',
+     url: 'http://www.velokat.su/',
+     domain: 'velokat.su' },
+     { percent: 59,
+     date_create: Sun Oct 18 2015 00:00:00 GMT+0500 (YEKT),
+     condurl_id: 1784,
+     condition_query: 'аренда велосипедов',
+     region_name: 'Екатеринбург',
+     sengine_name: 'Yandex',
+     url: 'http://www.velokat.su/arenda/tseny',
+     domain: 'velokat.su' } ]
+     */
     var data = [
         { domen: "google.com", page: "google.com/search"}
     ];

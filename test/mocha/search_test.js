@@ -88,7 +88,7 @@ describe('Search', function () {
             })
     })
 
-    it.only('Downloader.getContentByUrlOrCAPTCHA AND LINKS', function () {
+    it('Downloader.getContentByUrlOrCAPTCHA AND LINKS', function () {
         var Downloader = require("../../server/core/downloader");
         var SeoParameters = require("../../server/core/seo_parameters");
         var SearchUrlWithLinks = require("../../server/models/SearchUrlWithLinks");

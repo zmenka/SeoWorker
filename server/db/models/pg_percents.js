@@ -2,49 +2,31 @@
  * Created by bryazginnn on 04.08.15.
  */
 
-var PG = require('../../utils/pg');
-var PgCondurls = require('./pg_condurls');
-var PgUrls = require('./pg_urls');
 var QueryList = require('../../models/QueryList');
 var ex = require('./pg_expressions');
+var PG = require('../../utils/pg');
 
-var PgPositions = {};
+var PgPercents = {};
 
-PgPositions.find = function (condurl_id) {
-    return PG.logQueryOneOrNone("SELECT * FROM positions WHERE CONDURL_ID = $1 WHERE IS_LAST IS TRUE", [condurl_id]);
-};
-
-PgPositions.insert = function (condurl_id, position) {
-    return PgPositions.setNotActual(condurl_id)
-        .then(function () {
-            return PG.logQuery("INSERT INTO positions (CONDURL_ID, POSITION_N, DATE_CREATE, IS_LAST) " +
-                "SELECT $1, $2, $3, TRUE RETURNING POSITION_ID", [condurl_id, position, new Date()])
-        })
-};
-
-PgPositions.setNotActual = function (condurl_id) {
-    return PG.logQuery("UPDATE positions SET IS_LAST = FALSE WHERE CONDURL_ID = $1", [condurl_id])
-};
-
-PgPositions.list_all_by_condurl = function (condurl_id) {
+PgPercents.list_all_by_condurl = function (condurl_id) {
     return PG.logQuery("" +
         "SELECT " +
-        "   MAX(POSITION_N) AS POSITION_N, " +
-        "   DATE_CREATE::DATE " +
+        "   (SUM(P.PERCENT)/COUNT(*))::INT AS PERCENT, " +
+        "   DATE_CREATE::DATE AS DATE_CREATE " +
         "FROM " +
-        "   positions " +
+        "   percents P " +
         "WHERE " +
         "   CONDURL_ID = $1 " +
         "GROUP BY " +
-        "   DATE_CREATE::DATE",
+        "   DATE_CREATE::DATE ",
         [condurl_id]
     )
 };
 
-PgPositions.list_all_by_user = function (user_id) {
+PgPercents.list_all_by_user = function (user_id) {
     return PG.logQuery("" +
         "SELECT " +
-        "   MAX(P.POSITION_N)::INT AS POSITION, " +
+        "   (SUM(P.PERCENT)/COUNT(*))::INT AS PERCENT, " +
         "   P.DATE_CREATE::DATE AS DATE_CREATE, " +
         "   CU.CONDURL_ID, " +
         "   MAX(C.CONDITION_QUERY) AS CONDITION_QUERY, " +
@@ -53,7 +35,7 @@ PgPositions.list_all_by_user = function (user_id) {
         "   MAX(U.URL) AS URL, " +
         "   MAX(D.DOMAIN) AS DOMAIN " +
         "FROM " +
-        "   positions P " +
+        "   percents P " +
         "   JOIN condurls CU " +
         "       ON P.CONDURL_ID = CU.CONDURL_ID " +
         "   JOIN uscondurls UCU " +
@@ -75,7 +57,8 @@ PgPositions.list_all_by_user = function (user_id) {
         [user_id]
     )
 };
-PgPositions.insertByUrl = function (url, position, condition_id) {
+
+PgPercents.insertByUrl = function (url, position, condition_id) {
 
     return PgUrls.find(url)
         .then(function (url_object) {
@@ -83,7 +66,7 @@ PgPositions.insertByUrl = function (url, position, condition_id) {
         })
         .then(function (condurl_object) {
             if (condurl_object) {
-                return PgPositions.insert(condurl_object.condurl_id, position)
+                return PgPercents.insert(condurl_object.condurl_id, position)
             }
         })
 };
@@ -91,7 +74,7 @@ PgPositions.insertByUrl = function (url, position, condition_id) {
 ////////////////////////////////////////
 /////////// EXPRESSIONS ////////////////
 ////////////////////////////////////////
-PgPositions.UPDATE_EXPRESSION = function (vCONDITION_ID) {
+PgPercents.UPDATE_EXPRESSION = function (vCONDITION_ID) {
     var list = new QueryList();
     list.push(
         "UPDATE " +
@@ -129,5 +112,5 @@ PgPositions.UPDATE_EXPRESSION = function (vCONDITION_ID) {
     );
     return list
 };
-module.exports = PgPositions;
+module.exports = PgPercents;
 
