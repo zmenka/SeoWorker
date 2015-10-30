@@ -1,8 +1,4 @@
-/**
- * Created by zmenka on 28.02.15.
- */
 
-var Q = require("q");
 
 describe('Test', function () {
     describe('All', function () {
@@ -21,10 +17,10 @@ describe('Test', function () {
 
         })
 
-        it('start bg', function () {
+        it.only('start bg', function () {
 
-            var core = require("../../server/core/core")
-            return new core().bg()
+            var background = require("../../server/core/background")
+            return new background.run()
                 .then(function (res) {
                     console.log(res);
 

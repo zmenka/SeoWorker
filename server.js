@@ -49,8 +49,15 @@ app.use('/bower_components/', express.static(__dirname + '/bower_components/'))
 
 new Api(app, passport); // load our routes and pass in our app and fully configured passport
 
-app.listen(Config.port, Config.private_ip, function () {
-    console.log('Express server listening on port ' + Config.port + ', ip ' + Config.private_ip);
-});
+if (Config.isHeroku){
+    app.listen(Config.port, function () {
+        console.log('Express server listening on port ' + Config.port + ', ip ' + Config.private_ip);
+    });
+} else {
+    app.listen(Config.port, Config.private_ip, function () {
+        console.log('Express server listening on port ' + Config.port + ', ip ' + Config.private_ip);
+    });
+}
+
 
 module.exports = app;
