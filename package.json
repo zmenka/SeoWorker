@@ -52,7 +52,8 @@
     "soupselect": "~0.2.0",
     "superagent": "~1.4.0",
     "supertest": "~1.1.0",
-    "tough-cookie": "^0.12.1"
+    "tough-cookie": "^0.12.1",
+    "q": "~1.4.1"
   },
   "scripts": {
     "postinstall": "node ./node_modules/bower/bin/bower install",
