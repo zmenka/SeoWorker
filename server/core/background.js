@@ -19,10 +19,14 @@ BackGround.run = function () {
 BackGround.action = function () {
     console.log("BackGround.run NEXT ITERATION !!!!");
     return Updater.getNext()
-        .catch(function(res) {
+        .catch(function(err) {
+            console.log('getNext', err.stack)
             //либо нечего обновлять, лтбо что-то заблокировано, подождем
-            return Promise.delay(60000);
-            throw new Error('WAIT NEXT')
+            return Promise.delay(60000)
+            .then(function(condition_id){
+                throw new Error('WAIT NEXT')
+            })
+
         })
         .then(function(condition_id){
             return Updater.update(condition_id)
