@@ -30,6 +30,8 @@ npm install
 node server
 
 
-
 -- запуск тестов
 node ./node_modules/mocha/bin/mocha --timeout 150000 /home/abryazgin/www/fun/seo-worker/test/mocha/test.js
+
+heroku ps:scale web=1 bg=0 --app=seoworker
+heroku ps:scale web=0 bg=1 --app=seoworker-bg
