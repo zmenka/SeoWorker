@@ -172,7 +172,7 @@ Searcher.calcLinksParams = function (links_obj, condition_query) {
                                 return link
                             })
                     } else {
-                        return link
+                        return Promise.resolve(link)
                     }
                 };
                 promises2.push(f2(searchUrlWithLinks.links[j], searchUrlWithLinks.isNeedDownloading))

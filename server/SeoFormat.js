@@ -55,11 +55,10 @@ SeoFormat.createSiteTree = function (sites) {
             page.create(site.url, true,
                 {
                     title: site.url,
-                    //usurl_id: site.usurl_id,
                     url_id: site.url_id,
                     url: site.url,
                     usurl_disabled: site.usurl_disabled,
-                    removable: !site.usurl_disabled,
+                    removable: false,
                     percent: null,
                     color_r: 0,
                     color_g: 0,
@@ -81,7 +80,7 @@ SeoFormat.createSiteTree = function (sites) {
                 true,
                 {
                     title: site.condition_query,
-                    //usurl_id: site.usurl_id,
+                    uscondurl_id: site.uscondurl_id,
                     url_id: site.url_id,
                     //task_id: site.task_id,
                     disabled: site.task_disabled || site.usurl_disabled,
