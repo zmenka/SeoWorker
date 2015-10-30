@@ -27,8 +27,13 @@ function MathStat(array) {
 MathStat.prototype.calc = function () {
     //var date = new Date();
     //обработка ошибок
-    if(this.array == null || this.array.length == 0){
+    if(this.array == null){
         throw new Error('MathStat. Пустой массив данных');
+    }
+    if(this.array.length == 0){
+        this.D = 0;
+        this.M = 0;
+        return
     }
     //степень "сжатия"
     var powM = 0.25;
