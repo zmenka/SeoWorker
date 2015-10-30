@@ -1,3 +1,4 @@
+var Promise = require("../../server/utils/promise");
 
 
 describe('Test', function () {
@@ -17,86 +18,10 @@ describe('Test', function () {
 
         })
 
-        it.only('start bg', function () {
+        it('start bg', function () {
 
             var background = require("../../server/core/background")
             return new background.run()
-                .then(function (res) {
-                    console.log(res);
-
-                })
-
-
-        })
-
-        it('calc params for condition_id', function () {
-            var cond_id = 369;
-            var url = "http://plitca.ru"
-            var core = require("../../server/core/core")
-            return new core().calcParams(cond_id, 1)
-                .catch(function (err) {
-                    console.log('Core.bg calcParams conds ', cond_id, ' , err ', err);
-                    throw err;
-                })
-                .then(function (res1) {
-                    return new core().calcParamsByUrl(url, cond_id)
-
-                })
-                .catch(function (err) {
-                    console.log('Core.bg calcSiteParams conds ', url, cond_id, ' , err ', err);
-                    throw err;
-                })
-        })
-        
-        it('calc site param failure increment', function () {
-            var cond_id = 1;
-            var task_id = 1;
-            var url = "http://qweqweqwe.ru"
-            var core = require("../../server/core/core")
-            return new core().calcParamsByUrl(url, cond_id, task_id)
-                .catch(function (err) {
-                    console.log('Core.bg calcSiteParams conds ', url, cond_id, ' , err ', err);
-                    throw err;
-                })
-        })
-
-        it('search condition without params', function () {
-
-            var PgConditions = require(".././pg_conditions")
-            var PgSearch = require(".././pg_search")
-            return new PgConditions().list()
-                .then(function (res) {
-                    var promises = [];
-                    for (var i = 0; i < res.length; i++) {
-                        promises.push((function (cond_id) {
-                            return new PgSearch().listWithParams(cond_id)
-                                .then(function (params_res) {
-                                    console.log("condition ", cond_id, params_res.length)
-                                    if (!params_res || params_res.length == 0) {
-                                        throw 'Параметры выборки еще не расчитаны. ' + cond_id;
-
-                                    }
-                                })
-                        })(res[i]["condition_id"]))
-                    }
-                    return Q.allSettled(promises)
-                })
-                .then(function (res) {
-                    var r = res.filter(function (element) {
-                        return element.state == 'rejected';
-                    });
-                    if (r.lenght > 0) {
-                        throw r;
-                    }
-                })
-
-
-        })
-
-        it('bg', function () {
-
-            var core = require("../../server/core/core")
-            return new core().bg()
                 .then(function (res) {
                     console.log(res);
 
@@ -115,19 +40,6 @@ describe('Test', function () {
 
         })
 
-        it('listWithParams', function () {
-            var PgSearch = require(".././pg_search")
-            return new PgSearch().listWithParams(50)
-                .then(function (res) {
-                    console.log(res);
-
-                })
-                .catch(function (err) {
-                    console.log(err.stack);
-                    console.log(err);
-                })
-
-        })
 
         it('get search links', function () {
 

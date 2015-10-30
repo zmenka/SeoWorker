@@ -63,6 +63,7 @@ Downloader.getOptions = function (url, cookies) {
  * @returns {html: string, cookies: Object[]}
  */
 Downloader.getContentByUrl = function (url, cookies) {
+    console.log('getContentByUrl',url);
     return Promise.try(function () {
         var options = Downloader.getOptions(url, cookies);
         return request(options)
