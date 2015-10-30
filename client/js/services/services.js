@@ -271,7 +271,8 @@ seoServices.factory('Authenticate', ['$rootScope', '$http', '$state', '$q',
             userId: getUserId,
             getUser: getUser,
             checkAccess: checkAccess,
-            initDone: initDone
+            initDone: initDone,
+            initAuth: initAuth
         }
     }]);
 

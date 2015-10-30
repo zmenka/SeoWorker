@@ -120,14 +120,13 @@ seoApp.config(["$stateProvider", "$urlRouterProvider",
 
 seoApp.run(['$rootScope', '$state',  'Authenticate',
     function ($rootScope, $state, Authenticate) {
+        Authenticate.initAuth();
         $rootScope.$on('$stateChangeStart',
             function (event, toState, toParams, fromState, fromParams) {
                 $rootScope.toState = toState;
                 $rootScope.toStateParams = toParams;
                 console.log('$stateChangeStart go? ', Authenticate.initDone())
-                if (Authenticate.initDone()) {
-                    Authenticate.checkAccess();
-                }
+                Authenticate.checkAccess();
 
             }
         );
