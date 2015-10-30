@@ -56,11 +56,11 @@ SearcherType.prototype.getSearchUrls = function (condition) {
             while (search_count < all_positions_count) {
               if (search_count < condition.size_search){
                 search_links.push({to_downloading: true, page: page, sengine: condition.sengine_name, url: condition.sengine_qmask +
-                  'lr=' + condition.region + '&text=' + words + "&p=" + page})
+                  'lr=' + condition.region_id + '&text=' + words + "&p=" + page})
               }
               else{
                 search_links.push({to_downloading: false, page: page, sengine: condition.sengine_name, url: condition.sengine_qmask +
-                  'lr=' + condition.region + '&text=' + words + "&p=" + page})
+                  'lr=' + condition.region_id + '&text=' + words + "&p=" + page})
               }
                 search_count += size_page;
                 page++;
