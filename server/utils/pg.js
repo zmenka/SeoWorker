@@ -122,6 +122,7 @@ function transactionSync(queryList) {
         return this.sequence(source);
     })
         .catch(function (err) {
+            console.log(err)
             throw new Error(err)
         })
 }

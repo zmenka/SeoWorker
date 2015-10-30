@@ -87,8 +87,8 @@ SeoParameters.prototype.getAllParams = function (condition_query) {
     //h1CS.ru_name = "ССЗ (h1)";
     //h1CS.description = "Среднее совпадение ключевой фразы с тегом h1.";
 
-//  var h2CS = this.tryCatch(this.prettyTagCS, ["h2"]);
-  h2CS.name = "h2CS";
+    //var h2CS = this.tryCatch(this.prettyTagCS, ["h2"]);
+    //h2CS.name = "h2CS";
 //  h2CS.ru_name = "СССЗ(h2)";
 //  h2CS.description = "Среднее совпадение ключевой фразы с тегами h2.";
 //
@@ -305,7 +305,7 @@ SeoParameters.prototype.tagNoEmptyCount = function (tag) {
     var count = 0;
     for (var j = 0; j < tags.length; j++) {
         var data = getData(tags[j]);
-        if (data && data.length> 0){
+        if (data && data.length > 0) {
             count++;
         }
     }
@@ -351,7 +351,7 @@ function getData(obj) {
         return "";
     var out = '';
     //воспринимаем это как НЕ массив
-    if (obj['type']=='comment' || obj['type']=='script'){
+    if (obj['type'] == 'comment' || obj['type'] == 'script') {
         return out
     }
     if (obj.hasOwnProperty('children')) {
@@ -362,7 +362,7 @@ function getData(obj) {
     }
     //воспринимаем это как массив
     for (var j = 0; j < obj.length; j++) {
-        if (obj[j]['type']=='comment' || obj[j]['type']=='script'){
+        if (obj[j]['type'] == 'comment' || obj[j]['type'] == 'script') {
             continue;
         }
         if (obj[j].hasOwnProperty('children')) {

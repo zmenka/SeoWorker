@@ -166,7 +166,7 @@ Updater.updateOneUrlWithoutCondition = function (condition_id, url_id) {
             if (!urlsWithParams || urlsWithParams.length !=1) {
                 throw new Error("url " + url_id + " not calc! " + urlsWithParams);
             }
-            console.log('urlsWithParams', JSON.stringify(urlsWithParams, null, 2))
+            console.log('urlsWithParams', JSON.stringify(urlsWithParams))
             return urlsWithParams[0]
         })
         .then(function (paramsOfUrl) {
