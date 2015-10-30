@@ -15,7 +15,7 @@ PgUscondurls.insert = function (condurl_id, user_id) {
 };
 
 PgUscondurls.remove = function (uscondurl_id) {
-    return PG.logQueryOne("UPDATE uscondurls SET USCONDURL_DISABLED = TRUE WHERE USCONDURL_ID = $1", [uscondurl_id] );
+    return PG.logQuery("UPDATE uscondurls SET USCONDURL_DISABLED = TRUE WHERE USCONDURL_ID = $1", [uscondurl_id] );
 };
 
 PgUscondurls.new = function (user_id, url, query, size, region_id, sengine_id ) {

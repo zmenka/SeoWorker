@@ -91,7 +91,7 @@ module.exports = function Api(app, passport) {
             return;
         }
 
-        return new PgUscondurls().remove(req.body.uscondurl_id)
+        return PgUscondurls.remove(req.body.uscondurl_id)
             .then(function (db_res) {
                 ApiUtils.callback(db_res, res);
             })
