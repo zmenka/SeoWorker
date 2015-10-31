@@ -22,11 +22,11 @@ module.exports = function Api(app, passport) {
         ApiUtils.auth_api_func(req, res, PgUsers.listWithSitesCount, [req.user.user_id, req.user.role_id])
     });
 
-    app.get('/api/condurl/positions/all', function (req, res) {
+    app.post('/api/condurl/positions/all', function (req, res) {
         ApiUtils.auth_api_func(req, res, PgPositions.list_all_by_condurl, [req.query.condurl_id])
     });
 
-    app.get('/api/condurl/percents/all', function (req, res) {
+    app.post('/api/condurl/percents/all', function (req, res) {
         ApiUtils.auth_api_func(req, res, PgPercents.list_all_by_condurl, [req.query.condurl_id])
     });
 

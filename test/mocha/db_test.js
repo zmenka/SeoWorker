@@ -133,7 +133,7 @@ describe('DB TEST', function(){
         it.only('pg_positions list_all_by_user', function(){
 
             var PgModel = require("../../server/db/models/pg_positions");
-            return PgModel.list_all_by_user(106)
+            return PgModel.list_all_by_condurl(3)
                 .then(function(res){
                     console.log(res);
                 });

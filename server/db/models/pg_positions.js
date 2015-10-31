@@ -69,7 +69,7 @@ PgPositions.list_all_by_user = function (user_id) {
         "   LEFT JOIN regions R " +
         "       ON C.REGION_ID = R.REGION_ID " +
         "WHERE " +
-        "   UCU.USER_ID = $1" +
+        "   UCU.USER_ID = $1 " +
         "GROUP BY " +
         "   CU.CONDURL_ID, P.DATE_CREATE::DATE",
         [user_id]
