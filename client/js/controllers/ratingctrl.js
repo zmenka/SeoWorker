@@ -61,7 +61,7 @@ function RatingCtrl($scope, $stateParams, $alert, CondurlApi, Api) {
         getPosition = function(condurl_id){
             return CondurlApi.get_all_positions(condurl_id)
                 .then(function(res){
-                    console.log('load CondurlApi.get_all_positions res', res);
+                    console.log('load CondurlApi.get_all_positions res', condurl_id, res);
                     return res;
                 })
                 .catch(function (err) {
@@ -78,7 +78,7 @@ function RatingCtrl($scope, $stateParams, $alert, CondurlApi, Api) {
         getPercent = function(condurl_id){
             return CondurlApi.get_all_percents(condurl_id)
                 .then(function(res){
-                    console.log('load CondurlApi.get_all_percents res', res);
+                    console.log('load CondurlApi.get_all_percents res', condurl_id, res);
                     return res;
                 })
                 .catch(function (err) {
@@ -113,7 +113,7 @@ function RatingCtrl($scope, $stateParams, $alert, CondurlApi, Api) {
             '<nvd3 options="row.entity.spark.options" data="row.entity.spark.data"></nvd3>' +
             '<button type="button" class="btn btn-primary" ng-show="!row.entity.spark.data.lenght" ' +
                         'ng-click="grid.appScope.getSpark(row.entity.curl_id)">'+
-                'Добавить'+
+                'Показать график'+
                 '</button>'+
             '</div>'
         }

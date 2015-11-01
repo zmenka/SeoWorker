@@ -34,7 +34,7 @@ describe('API TEST', function () {
 
     var test_api = function (mode, api, params) {
         //it.only(api, function (done) {
-        it(api, function (done) {
+        it.only(api, function (done) {
             var req;
             if (mode == 'post') {
                 console.log('post', params)
@@ -55,10 +55,8 @@ describe('API TEST', function () {
                 agent.attachCookies(req);
                 req.expect(200)
                     .end(function(err, res){
-                        console.log("res.body")
-                        console.log(res.body)
-                        console.log("err")
-                        console.log(err)
+                        console.log("res.body", res.body);
+                        console.log("err", err);
                         done(err)
                     });
             }
@@ -73,5 +71,6 @@ describe('API TEST', function () {
     //test_api('get' ,'/api/user_sites_and_tasks?user_id=106&with_disabled=true');
     //test_api('get' ,'/api/user_sites_and_tasks?user_id=84&with_disabled=false');
     //test_api('post','/api/get_paramtypes', { condition_id: 1508, url_id: 166660 });
-    test_api('post','/api/calc_params', { url: 'http://www.velokat.su/arenda/o_nas', condition_id: 1508 });
+    //test_api('get','/api/condurl/percents/all?condurl_id=1698');
+    test_api('get','/api/condurl/positions/all?condurl_id=1698');
 });

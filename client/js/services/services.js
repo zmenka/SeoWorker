@@ -66,11 +66,14 @@ seoServices.factory('CondurlApi', ['$http',
     function ($http) {
         return {
             get_all_positions: function (condurl_id) {
-                return $http.post('/api/condurl/positions/all', {condurl_id : condurl_id});
-
+                return $http.get('/api/condurl/positions/all', {
+                    params: {condurl_id: condurl_id}
+                });
             },
             get_all_percents: function (condurl_id) {
-                return $http.post('/api/condurl/percents/all', {condurl_id : condurl_id});
+                return $http.get('/api/condurl/percents/all', {
+                    params: {condurl_id: condurl_id}
+                });
 
             }
         };
@@ -80,11 +83,15 @@ seoServices.factory('UserApi', ['$http',
     function ($http) {
         return {
             get_all_positions: function () {
-                return $http.post('/api/user/positions/all', {});
+                return $http.get('/api/user/positions/all', {
+                    params: {}
+                });
 
             },
             get_all_percents: function () {
-                return $http.post('/api/user/percents/all', {});
+                return $http.get('/api/user/percents/all', {
+                    params: {}
+                });
 
             }
         };

@@ -2,7 +2,7 @@ var Promise = require("../../server/utils/promise");
 
 describe('Params', function () {
 
-    it.only('считаем параметры', function () {
+    it('считаем параметры', function () {
         var cond_id = 3;
         var url_id = 1;
         var cond_id = 1369;
