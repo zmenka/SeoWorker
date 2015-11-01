@@ -8,6 +8,8 @@ var Config = (function () {
     Config.antigate_key = process.env.ANTIGATE_KEY || '';
     Config.private_ip = process.env.PRIVATE_IP || '127.0.0.1';
     Config.port = process.env.PORT || 3000;
+    Config.isHeroku = process.env.IS_HEROKU || false;
+
     return Config;
 })();
 

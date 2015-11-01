@@ -37,7 +37,8 @@ Downloader.getOptions = function (url, cookies) {
         followAllRedirects: true,
         timeout: 25000,
         encoding: null,
-        headers: Downloader._headers
+        headers: Downloader._headers,
+        resolveWithFullResponse: true
     };
 
     if (url.indexOf("http") < 0) {
@@ -45,12 +46,12 @@ Downloader.getOptions = function (url, cookies) {
     }
     options.url = url;
 
-    var j = request.jar();
+    var j = rp.jar();
 
     //используем куки
     if (cookies) {
         for (var i in cookies) {
-            j.setCookie(request.cookie(cookies[i].key + "=" + cookies[i].value), options.url);
+            j.setCookie(rp.cookie(cookies[i].key + "=" + cookies[i].value), options.url);
         }
     }
     options.jar = j;
@@ -63,12 +64,12 @@ Downloader.getOptions = function (url, cookies) {
  * @returns {html: string, cookies: Object[]}
  */
 Downloader.getContentByUrl = function (url, cookies) {
+    console.log('getContentByUrl',url);
     return Promise.try(function () {
         var options = Downloader.getOptions(url, cookies);
-        return request(options)
-            .then(function (res) {
-                var response = res[0]
-                var body = res[1]
+        return rp(options)
+            .then(function (response) {
+                var body = response.body
                 if (!response) {
                     throw new Error('response empty for ' + url);
                 }

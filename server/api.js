@@ -71,10 +71,6 @@ module.exports = function Api(app, passport) {
         ApiUtils.auth_api_func(req, res, PgRoles.list, [])
     });
 
-    app.post('/api/remove_site', function (req, res) {
-        ApiUtils.auth_api_func(req, res, PgUscondurls.remove, [req.body.usurl_id])
-    });
-
     app.post('/api/create_task', function (req, res) {
         ApiUtils.auth_api_func(req, res,
             PgUscondurls.new,
@@ -90,12 +86,12 @@ module.exports = function Api(app, passport) {
             return;
         }
 
-        if (!req.body.task_id) {
+        if (!req.body.uscondurl_id) {
             ApiUtils.errback(null, res, "не найдены все параметры! ");
             return;
         }
 
-        return new PgTasks().remove(req.body.task_id)
+        return PgUscondurls.remove(req.body.uscondurl_id)
             .then(function (db_res) {
                 ApiUtils.callback(db_res, res);
             })

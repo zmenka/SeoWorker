@@ -39,25 +39,14 @@ seoServices.factory('Api', ['$http',
             create_group: function (name) {
                 return $http.post('/api/create_group', {name: name});
             },
-            create_site: function (url, user_id) {
-                return $http.post('/api/create_site', {url: url, user_id: user_id});
-            },
-            remove_site: function (usurl_id) {
-                return $http.post('/api/remove_site', {usurl_id: usurl_id});
+            remove_task: function (uscondurl_id) {
+                return $http.post('/api/remove_task', {uscondurl_id: uscondurl_id});
             },
             create_task: function (user_id, condition_query, sengine_id, region_id, url) {
                 return $http.post('/api/create_task', {user_id: user_id,
                     condition_query: condition_query, sengine_id:sengine_id,
                     region_id: region_id, url: url});
             },
-            remove_task: function (task_id) {
-                return $http.post('/api/remove_task', {task_id: task_id});
-            },
-//            save_task: function (task_id, condition_query, sengine_id, region, size_search) {
-//                return $http.post('/api/save_task', {task_id: task_id,
-//                    condition_query: condition_query, sengine_id:sengine_id,
-//                    region: region, size_search: size_search});
-//            },
             calc_params: function ( condition_id) {
                 return $http.post('/api/calc_params', {condition_id: condition_id});
             },
@@ -282,7 +271,8 @@ seoServices.factory('Authenticate', ['$rootScope', '$http', '$state', '$q',
             userId: getUserId,
             getUser: getUser,
             checkAccess: checkAccess,
-            initDone: initDone
+            initDone: initDone,
+            initAuth: initAuth
         }
     }]);
 

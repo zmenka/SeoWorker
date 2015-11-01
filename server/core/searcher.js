@@ -151,7 +151,7 @@ Searcher.getLinksFromSearcher = function (search_objects) {
  * @returns searchUrlWithLinks[]
  */
 Searcher.calcLinksParams = function (links_obj, condition_query) {
-    if (!condition_query ) {
+    if (!condition_query) {
         return Promise.reject(new Error("condition_query can't be empty"));
     }
     var promises1 = [];
@@ -161,7 +161,7 @@ Searcher.calcLinksParams = function (links_obj, condition_query) {
 
             var promises2 = [];
             for (var j = 0; j < searchUrlWithLinks.links.length; j++) {
-                var f2 = function (link,  to_downloading) {
+                var f2 = function (link, to_downloading) {
                     if (to_downloading) {
                         return Downloader.getContentByUrl(link.url)
                             .then(function (res) {
@@ -172,13 +172,15 @@ Searcher.calcLinksParams = function (links_obj, condition_query) {
                                 return link
                             })
                     } else {
-                        return link
+                        return Promise.resolve(link)
                     }
                 };
                 promises2.push(f2(searchUrlWithLinks.links[j], searchUrlWithLinks.isNeedDownloading))
             }
 
-            return Promise.settle(promises2)
+            return Promise.all(promises2.map(function (promise) {
+                return promise.reflect();
+            }))
                 .then(function (promiseResults2) {
                     if (!promiseResults2 || !promiseResults2.length) {
                         throw new Error('no params was calc for ' + searchUrlWithLinks)
@@ -188,7 +190,7 @@ Searcher.calcLinksParams = function (links_obj, condition_query) {
                         var r = promiseResults2[j]
                         if (r.isFulfilled()) {  // check if was successful
                             searchUrlWithLinks.links.push(r.value())
-                        } else if (r.isRejected()) { // check if the read failed
+                        } else { // check if the read failed
                             console.log('Не посчитались параметры', r.reason(), r); //reason
                         }
                     }
@@ -198,7 +200,9 @@ Searcher.calcLinksParams = function (links_obj, condition_query) {
 
         promises1.push(f1(links_obj[i]))
     }
-    return Promise.settle(promises1)
+    return Promise.all(promises1.map(function (promise) {
+        return promise.reflect();
+    }))
         .then(function (promiseResults) {
             if (!promiseResults || !promiseResults.length) {
                 throw new Error('no promiseResults with params')
@@ -208,7 +212,7 @@ Searcher.calcLinksParams = function (links_obj, condition_query) {
                 var r = promiseResults[j]
                 if (r.isFulfilled()) {  // check if was successful
                     res.push(r.value())
-                } else if (r.isRejected()) { // check if the read failed
+                } else { // check if the read failed
                     console.log('Не посчитались параметры', r.reason(), r); //reason
                 }
             }
@@ -227,7 +231,7 @@ Searcher.calcUrlParams = function (urls, condition_query) {
     if (!urls || !urls.length) {
         return Promise.reject(new Error("urls can't be empty"));
     }
-    if (!condition_query ) {
+    if (!condition_query) {
         return Promise.reject(new Error("condition_query can't be empty"));
     }
 
@@ -246,25 +250,29 @@ Searcher.calcUrlParams = function (urls, condition_query) {
                     return url
                 })
                 .catch(function (err) {
-                    return PgUrls.incrementFailure(url.url_id);
-                    throw err
+                    console.log('Не посчитались параметры для ', url.url, err); //reason
+                    return PgUrls.incrementFailure(url.url_id)
+                        .then(function () {
+                            throw err
+                        })
                 })
-
 
         })(urls[i])
 
         promises.push(promise)
 
     }
-    return Promise.settle(promises)
+    return Promise.all(promises.map(function (promise) {
+        return promise.reflect();
+    }))
         .then(function (promiseResults) {
             var res = []
             for (var j = 0; j < promiseResults.length; j++) {
                 var r = promiseResults[j]
                 if (r.isFulfilled()) {  // check if was successful
                     res.push(r.value())
-                } else if (r.isRejected()) { // check if the read failed
-                    console.log('Не посчитались параметры', r.reason(), r); //reason
+                } else { // check if the read failed
+
                 }
             }
             return res
