@@ -1,4 +1,4 @@
-function RatingCtrl($scope, $stateParams, $alert, CondurlApi, Api) {
+function RatingCtrl($scope, $stateParams, $alert, CondurlApi, Api, $interval) {
     /*
     * -----------------------------------------
     * Настройка графика с позициями и процентами
@@ -7,11 +7,18 @@ function RatingCtrl($scope, $stateParams, $alert, CondurlApi, Api) {
     var sparkConfig = {
             chart: {
                 type: 'multiChart',
+                noData: 'Данные не получены',
                 margin: {
                     top: 30,
                     right: 80,
                     bottom: 50,
                     left: 70
+                },
+                x: function (xd) {
+                    return new Date(xd.x);
+                },
+                y: function (xd) {
+                    return Math.round(xd.y);
                 },
                 tooltip: {
                     contentGenerator: function(data){
@@ -25,6 +32,7 @@ function RatingCtrl($scope, $stateParams, $alert, CondurlApi, Api) {
                 },
                 xAxis: {
                     tickFormat: function(d){
+                        console.log(d);
                         return  d3.time.format('%d/%m/%Y')(new Date(d));
                     }
                 },
@@ -44,13 +52,7 @@ function RatingCtrl($scope, $stateParams, $alert, CondurlApi, Api) {
                     rotateYLabel: true
                 },
                 yDomain2: [50, 1],
-                yDomain1: [0, 100],
-                x: function (xd) {
-                    return xd.x;
-                },
-                y: function (xd) {
-                    return Math.round(xd.y);
-                }
+                yDomain1: [0, 100]
             },
             styles: {
                 classes: {
@@ -61,6 +63,9 @@ function RatingCtrl($scope, $stateParams, $alert, CondurlApi, Api) {
         getPosition = function(condurl_id){
             return CondurlApi.get_all_positions(condurl_id)
                 .then(function(res){
+
+                    // Вызываем событие 'loadSpark' при успешной загрузке
+                    $scope.$broadcast('loadSpark', {data: res.data, flag: 'position', id: condurl_id});
                     console.log('load CondurlApi.get_all_positions res', condurl_id, res);
                     return res;
                 })
@@ -78,6 +83,9 @@ function RatingCtrl($scope, $stateParams, $alert, CondurlApi, Api) {
         getPercent = function(condurl_id){
             return CondurlApi.get_all_percents(condurl_id)
                 .then(function(res){
+
+                    // Вызываем событие 'loadSpark' при успешной загрузке
+                    $scope.$broadcast('loadSpark', {data: res.data, flag: 'percent', id: condurl_id});
                     console.log('load CondurlApi.get_all_percents res', condurl_id, res);
                     return res;
                 })
@@ -99,7 +107,7 @@ function RatingCtrl($scope, $stateParams, $alert, CondurlApi, Api) {
     *-----------------------------------------
     */
     $scope.gridOptions = {
-        rowHeight: 50,
+        rowHeight: 200,
         enableHorizontalScrollbar: 0,
         enableVerticalScrollbar: 0
     };
@@ -110,9 +118,14 @@ function RatingCtrl($scope, $stateParams, $alert, CondurlApi, Api) {
             field: 'spark',
             displayName: 'График',
             cellTemplate: '<div class="ui-grid-cell-contents">' +
-            '<nvd3 options="row.entity.spark.options" data="row.entity.spark.data"></nvd3>' +
-            '<button type="button" class="btn btn-primary" ng-show="!row.entity.spark.data.lenght" ' +
-                        'ng-click="grid.appScope.getSpark(row.entity.curl_id)">'+
+            '<nvd3 options="row.entity.spark.options" data="row.entity.spark.data" api="grid.appScope.api"></nvd3>'
+        },
+        {
+            field: 'btnControl',
+            displayName: '',
+            cellTemplate: '<div class="ui-grid-cell-contents">' +
+                '<button type="button" class="btn btn-primary" ng-disabled="row.entity.spark.data.length" ' +
+                'ng-click="grid.appScope.getSpark(row.entity.curl_id)">'+
                 'Показать график'+
                 '</button>'+
             '</div>'
@@ -153,6 +166,16 @@ function RatingCtrl($scope, $stateParams, $alert, CondurlApi, Api) {
         $scope.gridOptions.data = buildTable(event, data);
     });
 
+    //Прослушиваем событие 'loadSpark' (данные с процентами/позициями получены)
+    $scope.$on('loadSpark', function(event, data){
+        $scope.gridOptions.data.forEach(function(el, num, arr){
+            if(el.curl_id == data.id) {
+                buildSpark(event, data) ? arr[num].spark.data.push(buildSpark(event, data)) : null;
+            }
+        });
+        $scope.api.update();
+    });
+
     function buildTable(e, data) {
         var res = [];
         data.forEach(function(domen){
@@ -164,24 +187,41 @@ function RatingCtrl($scope, $stateParams, $alert, CondurlApi, Api) {
                         query: req.data.condition_query,
                         curl_id: req.data.condurl_id,
                         spark: {
-                            option: sparkConfig,
+                            options: sparkConfig,
                             data: []
                         }
                     });
                 })
             })
         });
-        //Line chart data should be sent as an array of series objects
-        /*
-        * {
-             values: d1,      //values - represents the array of {x,y} data points
-             key: 'Продвинутость', //key  - the name of the series.
-             color: '#ff7f0e',  //color - optional: choose your own line color.
-             type: 'line',
-             yAxis: 1
-        }
-        * */
         return res;
+    }
+
+    function buildSpark(e, values){
+        var res = {
+            values: [],
+            key: '',
+            color: '#ff7f0e',
+            type: 'line',
+            yAxis: undefined
+        };
+        if(values.flag == 'position' && values.data.length) {
+            res.key = 'Место в выдаче';
+            res.yAxis = 2;
+            res.color = '#000000';
+            res.values = values.data.map(function(obj) {
+                return {x: obj.date_create, y: obj.position_n};
+            });
+            return res;
+        }
+        if(values.flag == 'percent' && values.data.length) {
+            res.key = 'Позиция';
+            res.yAxis = 1;
+            res.values = values.data.map(function(obj) {
+                return {x: obj.date_create, y: obj.percent};
+            });
+            return res;
+        }
     }
 
     $scope.getSpark = function (condurl_id) {
