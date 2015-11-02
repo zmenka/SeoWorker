@@ -27,13 +27,10 @@ PgGroups.insert = function (name) {
     return PG.logQuery("INSERT INTO groups (group_name, date_create) VALUES ($1, $2);", [name, date_create])
 }
 
-//PgGroups.addUsGroup = function (user_id, group_id, role_id) {
-//    var date_create = new Date();
-//    return PG.query("INSERT INTO usgroups (user_id, group_id, role_id, date_create) VALUES ($1, $2, $3, $4);",
-//        [user_id, group_id, role_id, date_create])
-//        .catch(function (err) {
-//            throw  err;
-//        })
-//}
+PgGroups.addUsGroup = function (user_id, group_id, role_id) {
+    var date_create = new Date();
+    return PG.logQuery("INSERT INTO usgroups (user_id, group_id, role_id, date_create) VALUES ($1, $2, $3, $4);",
+        [user_id, group_id, role_id, date_create])
+}
 
 module.exports = PgGroups;

@@ -44,7 +44,9 @@ PgUsers.insert = function (user_login, user_password, role_id, user_fname, user_
                 user_phone,
                 date_create] );
         })
-
+        .then(function (user) {
+            return user.user_id
+        })
 }
 //
 //PgUsers.disabledUser = function (user_login, disabled) {
