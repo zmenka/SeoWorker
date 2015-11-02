@@ -63,7 +63,7 @@ module.exports = function (passport) {
                     return done(null, user.user_id, {message: 'Успешный вход.'});
                 })
                 .catch(function (err) {
-                    done(err, false, {'message': 'Ошибка при входе: ' + err.message});
+                    done(null, false, {'message': 'Ошибка при входе: ' + err.message});
                 })
         }));
 }
