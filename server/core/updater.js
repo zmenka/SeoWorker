@@ -93,13 +93,10 @@ Updater.updateSearch = function (condition_id) {
         })
         .catch(function (err) {
             error = err;
-            return PgConditions.incrementFailure(condition_id);
-        })
-        .then(function(res){
-            if (error){
-                throw error;
-            }
-            return res
+            return PgConditions.incrementFailure(condition_id)
+                .then(function(){
+                    throw error;
+                })
         })
 
 };
