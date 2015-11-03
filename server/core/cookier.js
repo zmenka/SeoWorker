@@ -6,16 +6,14 @@ var Cookier = {};
 
 Cookier.update = function () {
     return PgManager.getCookieTaskUpdateTime()
-        .then(function (date) {
-            return Cookier.updateByDate(date);
+        .then(function (date_update) {
+            return Cookier.updateByDate(date_update);
         })
-        .catch(function (err) {
-            console.log('Cookier.update  err: ', err, err.stack);
-        })
+
 };
 Cookier.updateByDate = function (date) {
     //если куки удалялись больше чем 3 часа - чистим
-    if (date && (Math.abs(new Date() - date) / 36e5) > 3) {
+    if (date && (Math.abs(new Date() - date) / 36e5) > 2) {
         console.log('Cookier.clean clean cookie!');
         return PgUsers.deleteCookies()
             .then(function () {
