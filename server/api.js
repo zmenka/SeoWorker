@@ -303,12 +303,12 @@ module.exports = function Api(app, passport) {
                 return;
             }
 
-            new PgUsers().insert(req.body.login, req.body.password, 3)
+            return PgUsers.insert(req.body.login, req.body.password, 3)
                 .then(function (user_id) {
                     if (req.body.group_id) {
-                        return new PgGroups().addUsGroup(user_id, req.body.group_id, req.body.role_id)
+                        return PgGroups.addUsGroup(user_id, req.body.group_id, req.body.role_id)
                             .then(function (dbres) {
-                                callback(dbres, res)
+                                ApiUtils.callback(dbres, res)
                             })
                     } else {
                         ApiUtils.callback(user_id, res);

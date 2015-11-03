@@ -283,9 +283,6 @@ function SitesCtrl($scope, $stateParams, $rootScope, $alert, $aside, $timeout, $
                 });
             })
 
-            .finally(function () {
-                vm.loading = false;
-            })
     }
 
     function calcSiteParams() {
@@ -303,6 +300,7 @@ function SitesCtrl($scope, $stateParams, $rootScope, $alert, $aside, $timeout, $
             })
             .catch(function (err) {
                 console.log("calcSiteParams Api.calc_site_params ", err)
+                vm.loading = false;
                 $alert({
                     title: 'Внимание!', content: "Параметры страницы не получены "
                     + (err.data ? ": " + err.data : "!"),

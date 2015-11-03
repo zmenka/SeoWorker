@@ -36,7 +36,7 @@
                     <div style="margin-right: 5px; margin-left: 5px;">
                         <button class="btn btn-primary " ng-disabled="vm.loading"
                                 ng-click="vm.getParamtypes()"
-                                data-type="info" data-placement="top" bs-tooltip data-title="Получить выборку">
+                                >
                             {{vm.site.data.date_calc | date:'HH.mm dd.MM.yy'}}
                             <span class="glyphicon glyphicon-download-alt"></span>
                         </button>
@@ -48,10 +48,10 @@
                             <span class="glyphicon glyphicon-warning-sign"></span>
                         </button>
                     </div>-->
-                    <div>
+                    <div  >
                         <button class="btn btn-success "
                                 ng-disabled="vm.loading"  ng-click="vm.calcSiteParams()"
-                                data-type="info" data-placement="top"  bs-tooltip data-title="Пересчитать сайт">
+                                >
                             <span class="glyphicon glyphicon-refresh"></span>
                         </button>
                     </div>

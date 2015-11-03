@@ -15,60 +15,39 @@ PgUsers.validPassword = function (password, savedPassword) {
     return bcrypt.compareSync(password, savedPassword);
 };
 
-//PgUsers.insert = function (user_login, user_password, role_id, user_fname, user_iname, user_oname, user_email, user_phone) {
-//
-//    var date_create = new Date();
-//    var password = this.generateHash(user_password);
-//
-//    var db;
-//
-//    return this.getByLogin(user_login)
-//        .then(function (users) {
-//            if (users.length > 0) {
-//                throw("Такой пользователь уже существует!")
-//                return;
-//            }
-//            return new PGold()
-//        })
-//        .then(function (db_res) {
-//            db = db_res
-//            return db.transact(
-//                "INSERT INTO users (user_login, \
-//                      user_password, \
-//                      role_id,\
-//                      user_fname,\
-//                      user_iname,\
-//                      user_oname,\
-//                      user_email,\
-//                      user_phone,\
-//                      date_create) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9);",
-//                [user_login,
-//                    password,
-//                    role_id,
-//                    user_fname,
-//                    user_iname,
-//                    user_oname,
-//                    user_email,
-//                    user_phone,
-//                    date_create]
-//            )
-//        })
-//        .then(function (res) {
-//            return db.transact(
-//                "SELECT currval(pg_get_serial_sequence('users','user_id'))",
-//                [], true
-//            )
-//
-//        })
-//        .then(function (res) {
-//            //console.log('PgUsers.prototype.insert');
-//            return res.rows[0].currval;
-//        })
-//        .catch(function (err) {
-//            //throw 'PgUsers.prototype.insert ' + err
-//            throw err
-//        })
-//}
+PgUsers.insert = function (user_login, user_password, role_id, user_fname, user_iname, user_oname, user_email, user_phone) {
+
+    var date_create = new Date();
+    var password = this.generateHash(user_password);
+
+    return PgUsers.isExistsByLogin(user_login)
+        .then(function (user) {
+            if (user) {
+                throw("Такой пользователь уже существует!")
+                return;
+            }
+            return  PG.logQueryOne("INSERT INTO users (user_login, \
+                      user_password, \
+                      role_id,\
+                      user_fname,\
+                      user_iname,\
+                      user_oname,\
+                      user_email,\
+                      user_phone,\
+                      date_create) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING USER_ID;", [user_login,
+                password,
+                role_id,
+                user_fname,
+                user_iname,
+                user_oname,
+                user_email,
+                user_phone,
+                date_create] );
+        })
+        .then(function (user) {
+            return user.user_id
+        })
+}
 //
 //PgUsers.disabledUser = function (user_login, disabled) {
 //
@@ -125,6 +104,11 @@ PgUsers.get = function (id) {
 
 PgUsers.getByLogin = function (login) {
     return PG.logQueryOne("SELECT * FROM users WHERE user_login = $1;",
+        [login])
+}
+
+PgUsers.isExistsByLogin = function (login) {
+    return PG.logQueryOneOrNone("SELECT * FROM users WHERE user_login = $1;",
         [login])
 }
 

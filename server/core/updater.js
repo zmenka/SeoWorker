@@ -5,6 +5,7 @@ var PgUrls = require("./../db/models/pg_urls");
 var ex = require("./../db/models/pg_expressions");
 
 var Searcher = require("./searcher");
+var Cookier = require("./cookier");
 var Downloader = require("./downloader");
 var Params = require("./params");
 var Promise = require('../utils/promise');
@@ -31,7 +32,10 @@ Updater.update = function (condition_id) {
     var searchUrlsWithLinksAndParams;
     var corridors;
     var urlsWithParams;
-    return PgConditions.lock(condition_id)
+    return Cookier.update()
+        .then(function(){
+            return PgConditions.lock(condition_id)
+        })
         .then(function(){
             return Updater.updateSearch(condition_id)
         })
@@ -93,13 +97,10 @@ Updater.updateSearch = function (condition_id) {
         })
         .catch(function (err) {
             error = err;
-            return PgConditions.incrementFailure(condition_id);
-        })
-        .then(function(res){
-            if (error){
-                throw error;
-            }
-            return res
+            return PgConditions.incrementFailure(condition_id)
+                .then(function(){
+                    throw error;
+                })
         })
 
 };

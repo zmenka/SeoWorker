@@ -161,6 +161,7 @@ Downloader.getContentByUrlOrCaptcha = function (url, cookies, sengine_name, rest
                     return cookies
                 })
         }
+        //return cookies
     })
         .then(function (cookie_res) {
             return Downloader.getContentByUrl(url, cookie_res, headers)
