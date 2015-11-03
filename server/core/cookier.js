@@ -13,7 +13,7 @@ Cookier.update = function () {
 };
 Cookier.updateByDate = function (date) {
     //если куки удалялись больше чем 3 часа - чистим
-    if (date && (Math.abs(new Date() - date) / 36e5) > 2) {
+    if (date && (Math.abs(new Date() - date) / 36e5) > 5) {
         console.log('Cookier.clean clean cookie!');
         return PgUsers.deleteCookies()
             .then(function () {
