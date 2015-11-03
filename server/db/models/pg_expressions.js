@@ -288,6 +288,12 @@ PgExpressions.CONDITION_CLEAR = function (vCONDITION_ID) {
     return list
 };
 
+PgExpressions.CONDITION_INIT_CALC = function (vCONDITION_ID) {
+    var list = new QueryList();
+    list.push("SELECT CONDITION_INIT_CALC($1);", [vCONDITION_ID]);
+    return list
+};
+
 PgExpressions.CONDITION_LOCK = function (vCONDITION_ID) {
     var list = new QueryList();
     list.push("SELECT CONDITION_LOCK($1);", [vCONDITION_ID]);
@@ -352,6 +358,7 @@ PgExpressions.UPDATE_PERCENTS = function (vCONDITION_ID) {
 PgExpressions.UPDATE_CONDITION_ALL = function (vCONDITION_ID, search_results, corridors, url_results) {
     var list = new QueryList();
     list.add(this.CONDITION_CLEAR(vCONDITION_ID));
+    list.add(this.CONDITION_INIT_CALC(vCONDITION_ID));
     for ( var i in search_results ){
         list.add(this.UPDATE_SEARCH(vCONDITION_ID, search_results[i]));
     }
