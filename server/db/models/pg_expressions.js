@@ -101,7 +101,7 @@ PgExpressions.USERS_URL_COUNT = function (vUSER_ID, vROLE_ID) {
                     COUNT(UC.CONDURL_ID) AS SITES_COUNT                 \
                 FROM                                                            \
                     tt_res_users TU \
-                    JOIN uscondurls UC \
+                    LEFT JOIN uscondurls UC \
                         ON TU.USER_ID = UC.USER_ID                                                    \
                     JOIN users U \
                         ON TU.USER_ID = U.USER_ID                                                    \
