@@ -5,6 +5,7 @@ var PgGroups = require("./db/models/pg_groups");
 var PgRoles = require("./db/models/pg_roles");
 var PgParams = require("./db/models/pg_params");
 var PgUscondurls = require("./db/models/pg_uscondurls");
+var PgConditions = require("./db/models/pg_conditions");
 var PgPositions = require("./db/models/pg_positions");
 var PgPercents = require("./db/models/pg_percents");
 var Updater = require("./core/updater");
@@ -65,6 +66,10 @@ module.exports = function Api(app, passport) {
 
     app.post('/api/create_group', function (req, res) {
         ApiUtils.admin_api_func(req, res, PgGroups.insert, [req.body.name])
+    });
+
+    app.post('/api/conditions/reset', function (req, res) {
+        ApiUtils.admin_api_func(req, res, PgConditions.resetAll, [])
     });
 
     app.get('/api/roles', function (req, res) {

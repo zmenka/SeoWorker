@@ -2,6 +2,10 @@
 
     <span ng-show="vm.loading" class="spinner"></span>
     <div class="alerts-container"></div>
+    <p>
+        <button type="button" class="btn btn-danger btn-lg"
+                ng-click="vm.resetAll()">Обновить все запросы</button>
+    </p>
     <accordion close-others="vm.oneAtATime" >
         <accordion-group heading="Регистрация новых пользователей" >
             <form ng-submit="vm.register()" style="width: 400px">

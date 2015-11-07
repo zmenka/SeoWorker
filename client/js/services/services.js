@@ -76,6 +76,16 @@ seoServices.factory('CondurlApi', ['$http',
         };
     }]);
 
+seoServices.factory('ConditionApi', ['$http',
+    function ($http) {
+        return {
+            resetAll: function () {
+                return $http.post('/api/conditions/reset', {});
+
+            }
+        };
+    }]);
+
 seoServices.factory('UserApi', ['$http',
     function ($http) {
         return {

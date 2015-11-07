@@ -5,6 +5,7 @@ Export.getNext = function () {
     return PgModel.getNext()
         .then(function (res) {
             console.log(res);
+            return res
         });
 
 };

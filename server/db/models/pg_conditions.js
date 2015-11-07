@@ -46,7 +46,6 @@ PgConditions.get = function (id) {
 
 
 PgConditions.getNext = function () {
-    var now = (new Date()).toISOString().substr(0, 10);
     return PG.logQueryOneOrNone(
         "SELECT " +
         "   C.CONDITION_ID " +
@@ -57,13 +56,26 @@ PgConditions.getNext = function () {
         "   INNER JOIN uscondurls UCU " +
         "       ON UCU.CONDURL_ID = CU.CONDURL_ID " +
         "WHERE " +
-        "   (C.DATE_CALC < $1 OR C.DATE_CALC IS NULL OR CU.DATE_CALC < $1 OR CU.DATE_CALC IS NULL)  " +
+        "   C.DATE_CALC IS NULL " +
         "   AND NOT UCU.USCONDURL_DISABLED " +
         "   AND NOT C.CONDITION_LOCKED " +
         "ORDER BY " +
-        "   C.FAIL_COUNT, C.DATE_CALC IS NULL DESC, C.DATE_CALC DESC " +
+        "   C.FAIL_COUNT " +
         "LIMIT 1;",
-        [now]
+        []
+    )
+};
+
+PgConditions.reset = function (condition_id) {
+    return PG.logQuery(
+        "UPDATE conditions SET DATE_CALC = NULL WHERE CONDITION_ID = $1;",
+        [condition_id]
+    )
+};
+
+PgConditions.resetAll = function () {
+    return PG.logQuery(
+        "UPDATE conditions SET DATE_CALC = NULL;"
     )
 };
 

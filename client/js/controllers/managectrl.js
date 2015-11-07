@@ -1,12 +1,13 @@
 'use strict';
 
-function ManageCtrl($scope, $state, $q, $alert, Authenticate, Api) {
+function ManageCtrl($scope, $state, $q, $alert, Authenticate, ConditionApi, Api) {
     var vm = this;
     vm.Authenticate = Authenticate;
     vm.register = register;
     vm.oneAtATime = true;
     vm.loading = false;
     vm.loadUser = loadUsers;
+    vm.resetAll = ConditionApi.resetAll;
     vm.users = [];
     vm.roles = [];
     vm.groups = [];
