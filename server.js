@@ -9,6 +9,7 @@ var pg = require('pg')
 var pgSession = require('connect-pg-simple')(session);
 
 var Config = require('./server/config');
+var Logger = require('./server/utils/logger');
 var Api = require("./server/api");
 var app = express();
 
@@ -51,11 +52,11 @@ new Api(app, passport); // load our routes and pass in our app and fully configu
 
 if (Config.isHeroku){
     app.listen(Config.port, function () {
-        console.log('Express server listening on port ' + Config.port + ', ip ' + Config.private_ip);
+        Logger.INFO('Express server listening on port ' + Config.port + ', ip ' + Config.private_ip);
     });
 } else {
     app.listen(Config.port, Config.private_ip, function () {
-        console.log('Express server listening on port ' + Config.port + ', ip ' + Config.private_ip);
+        Logger.INFO('Express server listening on port ' + Config.port + ', ip ' + Config.private_ip);
     });
 }
 

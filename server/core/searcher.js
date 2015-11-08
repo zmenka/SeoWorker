@@ -191,7 +191,7 @@ Searcher.calcLinksParams = function (links_obj, condition_query) {
                         if (r.isFulfilled()) {  // check if was successful
                             searchUrlWithLinks.links.push(r.value())
                         } else { // check if the read failed
-                            console.log('Не посчитались параметры', r.reason(), r); //reason
+                            Logger.TRACE('Не посчитались параметры', r.reason(), r); //reason
                         }
                     }
                     return searchUrlWithLinks
@@ -213,7 +213,7 @@ Searcher.calcLinksParams = function (links_obj, condition_query) {
                 if (r.isFulfilled()) {  // check if was successful
                     res.push(r.value())
                 } else { // check if the read failed
-                    console.log('Не посчитались параметры', r.reason(), r); //reason
+                    Logger.TRACE('Не посчитались параметры', r.reason(), r); //reason
                 }
             }
             return res
@@ -250,7 +250,7 @@ Searcher.calcUrlParams = function (urls, condition_query) {
                     return url
                 })
                 .catch(function (err) {
-                    console.log('Не посчитались параметры для ', url.url, err); //reason
+                    Logger.TRACE('Не посчитались параметры для ', url.url, err); //reason
                     return PgUrls.incrementFailure(url.url_id)
                         .then(function () {
                             throw err

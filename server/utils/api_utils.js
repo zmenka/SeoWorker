@@ -1,4 +1,5 @@
 var Access = require("./access");
+var Logger = require('../utils/logger');
 
 var ApiUtils = {}
 
@@ -8,7 +9,7 @@ ApiUtils.callback = function (data, response) {
 
 ApiUtils.errback = function (err, response, userMsg) {
     var msg = (err && err.stack) ? err.stack : (err ? err : userMsg)
-    console.log(msg);
+    Logger.ERROR(msg);
     response.statusCode = 440;
     var userMsgResult = userMsg ? userMsg : (err && !err.message ? err : '');
     response.send(userMsgResult);
@@ -25,7 +26,7 @@ ApiUtils.simple_api_func = function (req, res, funcPromise, paramsArray, checkAu
         ApiUtils.errback(null, res, "Вы не админ.");
         return;
     }
-    console.log(req.url, paramsArray);
+    Logger.INFO(req.url, paramsArray);
     return funcPromise.apply(null, paramsArray)
         .then(function (result) {
             ApiUtils.callback(result, res);

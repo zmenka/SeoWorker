@@ -52,7 +52,6 @@ module.exports = function (passport) {
                     throw new Error('Пользователя с таким логином нет.')
                 })
                 .then(function (user) {
-                    console.log('PASSPORT user', user)
                     // User exists but wrong password, log the error
                     if (!PgUsers.validPassword(password, user.user_password)) {
                         return done(null, false, {message: 'Неправильный пароль.'});

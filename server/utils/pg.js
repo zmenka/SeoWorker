@@ -1,35 +1,21 @@
 var Config = require('../../server/config');
 var promise = require('./promise');
+var Logger = require('./logger');
 
 var options = {
-    promiseLib: promise
+    //promiseLib: promise,
+    query: function (e) {
+        Logger.INFO(e.query);
+    },
+    error: function (err, e) {
+        /* do some of your own processing, if needed */
+    }
 };
 
 var pgp = require('pg-promise')(options)
 
 var db = pgp(Config.postgres);
 
-var monitor = require("pg-monitor");
-monitor.log = function (msg, info) {
-    //save logs
-    //console.log( new Date(),  msg, info)
-};
-
-var color = require("cli-color"); // must use this color library;
-
-var myTheme = {
-    time: color.bgWhite.black,
-    value: color.white,
-    cn: color.yellow,
-    tx: color.cyan,
-    paramTitle: color.magenta,
-    errorTitle: color.redBright,
-    query: color.magenta,
-    special: color.green,
-    error: color.red
-}
-monitor.setTheme(myTheme);
-monitor.attach(options);
 
 // логируется время выполнения, возвращает промис с массивом данных
 function logQuery(queryText, valuesArray) {

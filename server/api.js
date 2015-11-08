@@ -48,7 +48,6 @@ module.exports = function Api(app, passport) {
     });
 
     app.get('/api/user_sites_and_tasks', function (req, res) {
-        console.log(req.query, req.user);
         ApiUtils.auth_api_func(req, res, Users.userSitesAndTasks, [req.query.user_id, req.user.user_id, req.user.role_id, req.query.with_disabled])
     });
 
@@ -84,7 +83,6 @@ module.exports = function Api(app, passport) {
     });
 
     app.post('/api/remove_task', function (req, res, next) {
-        console.log('/api/remove_task', req.body);
 
         if (!req.user || !req.user.user_id) {
             ApiUtils.errback(null, res, "Вы не зарегистрировались.");
@@ -104,25 +102,6 @@ module.exports = function Api(app, passport) {
                 ApiUtils.errback(err, res);
             })
     });
-
-//    app.post('/api/save_task', function (req, res, next) {
-//        console.log('/api/save_task', req.body);
-//        res.statusCode = 200;
-//
-//        if (!req.body.task_id || !req.body.condition_query || !req.body.sengine_id || !req.body.region || !req.body.size_search) {
-//            errback("не найдены параметры task_id или condition_query or sengine_id", res);
-//            return;
-//        }
-//
-//        new PgTasks().updateWithCondition(req.body.task_id, req.body.condition_query, req.body.sengine_id,
-//                req.body.region, req.body.size_search)
-//            .then(function (db_res) {
-//                callback(db_res, res);
-//            })
-//            .catch(function (err) {
-//                errback(err, res);
-//            })
-//    });
     var serverFree = true;
     app.post('/api/calc_params', function (req, res, next) {
         console.log('/api/calc_params', req.body);
@@ -240,7 +219,6 @@ module.exports = function Api(app, passport) {
             return;
         }
 
-        var search;
         var paramsChart;
         var corridor;
         var diagram;
@@ -271,7 +249,6 @@ module.exports = function Api(app, passport) {
     });
 
     app.post('/api/login', function (req, res, next) {
-            console.log('/api/login')
             passport.authenticate('login', function (err, user, info) {
                 if (err) {
                     return next(err)
@@ -290,13 +267,11 @@ module.exports = function Api(app, passport) {
     );
 
     app.get('/api/logout', function (req, res) {
-        console.log('/api/logout');
         req.logout();
         return ApiUtils.callback("logout ok", res);
     });
 
         app.post('/api/register', function (req, res, next) {
-            console.log('/api/register', req.body);
 
             if (!req.body.login || !req.body.password || !req.body.role_id) {
                 ApiUtils.errback(null, res, "Не найдены все параметры  ");
@@ -325,7 +300,6 @@ module.exports = function Api(app, passport) {
         });
 
     app.get('/api/check_auth', function (req, res, next) {
-        console.log('/api/check_auth');
         // if user is authenticated in the session, carry on
         var r = {
             isAuth: req.isAuthenticated(), isAdmin: req.isAuthenticated() && req.user.role_id == 1,
@@ -335,7 +309,7 @@ module.exports = function Api(app, passport) {
         }
 
         if (req.isAuthenticated() && req.user.disabled) {
-            console.log('user ' + req.user.user_login + ' is disabled!')
+            Logger.TRACE('user ' + req.user.user_login + ' is disabled!')
             req.logout();
             r.isAuth = false;
             r.isAdmin = false;
@@ -345,7 +319,6 @@ module.exports = function Api(app, passport) {
             // запомним, что пользователь заходил
             PgUsers.updateLastVisit(req.user.user_id);
         }
-        console.log('/api/check_auth', r)
         ApiUtils.callback(r, res);
     });
 

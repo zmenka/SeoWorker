@@ -26,28 +26,18 @@ var test_api = function (mode, api, params) {
     return function (done) {
         var req;
         if (mode == 'post') {
-            console.log('post', params);
             req = request.post(api);
             agent.attachCookies(req);
             req.send(params).expect(200)
                 .end(function (err, res) {
-                    console.log("res.body");
-                    console.log(res.body);
-                    console.log("err");
-                    console.log(err);
                     done(err)
                 });
         }
         else {
-            console.log('get', api);
             req = request.get(api);
             agent.attachCookies(req);
             req.expect(200)
                 .end(function (err, res) {
-                    console.log("res.body");
-                    console.log(res.body);
-                    console.log("err");
-                    console.log(err);
                     done(err)
                 });
         }

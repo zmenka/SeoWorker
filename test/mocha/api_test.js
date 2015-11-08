@@ -37,7 +37,6 @@ describe('API TEST', function () {
         it(api, function (done) {
             var req;
             if (mode == 'post') {
-                console.log('post', params)
                 req = request.post(api);
                 agent.attachCookies(req);
                 req.send(params).expect(200)
@@ -50,7 +49,6 @@ describe('API TEST', function () {
                     });
             }
             else {
-                console.log('get', api)
                 req = request.get(api);
                 agent.attachCookies(req);
                 req.expect(200)
