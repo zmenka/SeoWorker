@@ -1,7 +1,159 @@
-function SitesCtrl($scope, $stateParams, $rootScope, $alert, $aside, $timeout, $q, Api, Authenticate) {
+function SitesCtrl($scope, $stateParams, $rootScope, $alert, $aside, $timeout, $q, Api, Authenticate, CondurlApi) {
 
 
-    var vm = this;
+    var vm = this,
+        sparkConfig = {
+            chart: {
+                type: 'multiChart',
+                noData: 'Подождите, идет загрузка графика',
+                margin: {
+                    top: 30,
+                    right: 80,
+                    bottom: 50,
+                    left: 70
+                },
+                x: function (xd) {
+                    var date = new Date(xd.x);
+                    return date.getTime();
+                },
+                y: function (xd) {
+                    return Math.round(xd.y);
+                },
+                tooltip: {
+                    contentGenerator: function(data){
+                        var key = data.series[0].key,
+                            x =  d3.time.format('%d/%m/%Y')(new Date(data.point.x)),
+                            y = key === 'Продвинутость' ? data.point.y + ' %'
+                                : data.point.y + ' место';
+                        return '<h3>' + x + '</h3>' +
+                            '<p>' + key + ': ' + y + '</p>';
+                    }
+                },
+                xAxis: {
+                    tickValues: function(charts){
+                        var ticks = [];
+                        charts.forEach(function(chart){
+                            chart.values.forEach(function(value){
+                                ticks.push((new Date(value.x)).getTime());
+                            });
+                        });
+                        return ticks;
+                    },
+                    tickFormat: function(x){
+                        return  d3.time.format('%d/%m/%Y')(new Date(x));
+                    }
+                },
+                yAxis1: {
+                    tickValues: function(charts) {
+                        var ticks = [];
+                        ticks.push(100,80,60,40,20,0);
+                        return ticks;
+                    },
+                    rotateYLabel: true,
+                    axisLabelDistance: -10,
+                    axisLabel: 'Продвинутость(%)'
+                },
+                yAxis2: {
+                    tickValues: function(charts) {
+                        var ticks = [];
+                        ticks.push(1,10,20,30,40,50);
+                        return ticks;
+                    },
+                    tickFormat: function(d){
+                        return Math.round(d);
+                    },
+                    axisLabel: 'Место в выдаче',
+                    rotateYLabel: true
+                },
+                yDomain2: [50, 1],
+                yDomain1: [0, 100]
+            }
+        },
+        standartChartConfig = {
+            chart: {
+                type: 'lineChart',
+                noData: 'Данные не получены',
+                x: function (d) {
+                    return d[0];
+                },
+                y: function (d) {
+                    return d[1];
+                },
+                xAxis: {
+                    axisLabel: 'Место в выдаче'
+                },
+                yAxis: {
+                    axisLabel: 'Значение параметра',
+                    tickFormat: function (d) {
+                        return d3.format('.02f')(d);
+                    },
+                    showMax: true,
+                    tickValues: function(charts){
+                        var ticks = [],
+                            middleArr = []; // Вспомогательный массив
+                        // для нахождения середины коридора
+
+                        charts.forEach(function(chart){
+                            if(chart.key && chart.key === 'Граница коридора'){
+                                chart.values.forEach(function(xy){
+                                    if(!parseInt(xy[0], 10)) {
+                                        ticks.push(xy[1]);
+                                        middleArr.push(parseFloat(xy[1]));
+                                    }
+                                });
+                                ticks.push((middleArr[0]+middleArr[1])/2);
+                            } else if(chart.key === 'Ваш сайт') {
+                                ticks.push(chart.values[0][1]);
+                            }
+                        });
+                        return ticks;
+                    }
+
+                }
+            }
+        },
+        getPosition = function(condurl_id){
+            return CondurlApi.get_all_positions(condurl_id)
+                .then(function(res){
+
+                    // Вызываем событие 'loadSpark' при успешной загрузке
+                    $scope.$broadcast('loadSpark', {data: res.data, flag: 'position', id: condurl_id});
+                    console.log('load CondurlApi.get_all_positions res', condurl_id, res);
+                    return res;
+                })
+                .catch(function (err) {
+                    console.log('load CondurlApi.get_all_positions err ', err);
+                    $alert({
+                        title: 'Внимание!', content: "Ошибка при получении позиций сайтов"
+                        + (err.data ? ": " + err.data : "!"),
+                        placement: 'top', type: 'danger', show: true,
+                        duration: '3',
+                        container: 'body'
+                    });
+                });
+        },
+        getPercent = function(condurl_id){
+            return CondurlApi.get_all_percents(condurl_id)
+                .then(function(res){
+
+                    // Вызываем событие 'loadSpark' при успешной загрузке
+                    $scope.$broadcast('loadSpark', {data: res.data, flag: 'percent', id: condurl_id});
+                    console.log('load CondurlApi.get_all_percents res', condurl_id, res);
+                    return res;
+                })
+                .catch(function (err) {
+                    console.log('load CondurlApi.get_all_percents err ', err);
+                    $alert({
+                        title: 'Внимание!', content: "Ошибка при получении продвинутости сайтов"
+                        + (err.data ? ": " + err.data : "!"),
+                        placement: 'top', type: 'danger', show: true,
+                        duration: '3',
+                        container: 'body'
+                    });
+                });
+        };
+
+
     vm.myAside = null;
     vm.showAside = showAside1;
     vm.asideLoading = false;
@@ -18,49 +170,7 @@ function SitesCtrl($scope, $stateParams, $rootScope, $alert, $aside, $timeout, $
     vm.reloadSitesAndAside = reloadSitesAndAside;
     vm.startLoadDone = false;
 
-    vm.options = {
-        chart: {
-            type: 'lineChart',
-//            height: '350',
-            x: function (d) {
-                return d[0];
-            },
-            y: function (d) {
-                return d[1];
-            },
-            xAxis: {
-                axisLabel: 'Место в выдаче'
-            },
-            yAxis: {
-                axisLabel: 'Значение параметра',
-                tickFormat: function (d) {
-                    return d3.format('.02f')(d);
-                },
-                showMax: true,
-                tickValues: function(charts){
-                    var ticks = [],
-                        middleArr = []; // Вспомогательный массив
-                                       // для нахождения середины коридора
-
-                    charts.forEach(function(chart){
-                        if(chart.key && chart.key === 'Граница коридора'){
-                            chart.values.forEach(function(xy){
-                                if(!parseInt(xy[0], 10)) {
-                                    ticks.push(xy[1]);
-                                    middleArr.push(parseFloat(xy[1]));
-                                }
-                            });
-                            ticks.push((middleArr[0]+middleArr[1])/2);
-                        } else if(chart.key === 'Ваш сайт') {
-                            ticks.push(chart.values[0][1]);
-                        }
-                    });
-                    return ticks;
-                }
-
-            }
-        }
-    }
+    vm.options = standartChartConfig;
 
     startLoad()
 
@@ -160,6 +270,7 @@ function SitesCtrl($scope, $stateParams, $rootScope, $alert, $aside, $timeout, $
         if (node.type == 'key') {
             vm.data.chartParamType = node.data.paramtype_id;
             if (node.data.chart) {
+                vm.options = standartChartConfig;
                 vm.data.chartValue = node.data.chart
             } else if (vm.site ){
                 vm.getParams(vm.site.data.url_id, vm.site.data.condition_id, vm.data.chartParamType)
@@ -243,6 +354,7 @@ function SitesCtrl($scope, $stateParams, $rootScope, $alert, $aside, $timeout, $
 
                 vm.loading = false;
                 //return res.data;
+                vm.options = standartChartConfig;
                 vm.data.chartValue = res.data;
             })
             .catch(function (err) {
@@ -313,6 +425,46 @@ function SitesCtrl($scope, $stateParams, $rootScope, $alert, $aside, $timeout, $
             })
 
     }
+
+    function buildSpark(e, values){
+        var res = {
+            values: [],
+            key: '',
+            color: '#ff7f0e',
+            type: 'line',
+            yAxis: undefined
+        };
+        if(values.flag == 'position' && values.data.length) {
+            res.key = 'Место в выдаче';
+            res.yAxis = 2;
+            res.color = '#1F77B4';
+            res.values = values.data.map(function(obj) {
+                return {x: (new Date(obj.date_create)).getTime(), y: obj.position_n+0};
+            });
+            return res;
+        }
+        if(values.flag == 'percent' && values.data.length) {
+            res.key = 'Продвинутость';
+            res.yAxis = 1;
+            res.values = values.data.map(function(obj) {
+                return {x: (new Date(obj.date_create)).getTime(), y: obj.percent+0};
+            });
+            return res;
+        }
+    }
+
+    $scope.getSpark = function () {
+        vm.options = sparkConfig;
+        vm.data.chartValue =[];
+        getPosition(vm.site.data.condurl_id);
+        getPercent(vm.site.data.condurl_id);
+    };
+
+    $scope.$on('loadSpark', function(event, data){
+        vm.options = sparkConfig;
+        vm.data.chartValue.push(buildSpark(event, data));
+        vm.chartApi.update();
+    });
 }
 
 angular.module('seoControllers').controller('SitesCtrl', SitesCtrl);

@@ -106,11 +106,6 @@ seoApp.config(["$stateProvider", "$urlRouterProvider",
                 url: '/error',
                 templateUrl: 'partials/error.html'
             })
-            .state('main.rating', {
-                url: '/rating/:user_id',
-                templateUrl: 'partials/rating.html',
-                authenticate: true
-            })
 //            .state('main.captcha_test', {
 //                templateUrl: 'partials/captchatest.html',
 //                authenticate: false
