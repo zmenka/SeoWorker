@@ -72,7 +72,7 @@ function SitesCtrl($scope, $stateParams, $rootScope, $alert, $aside, $timeout, $
         standartChartConfig = {
             chart: {
                 type: 'lineChart',
-                noData: 'Данные не получены',
+                noData: '',
                 x: function (d) {
                     return d[0];
                 },
@@ -347,7 +347,6 @@ function SitesCtrl($scope, $stateParams, $rootScope, $alert, $aside, $timeout, $
     function getParams(url_id, condition_id, type_param) {
 
         vm.loading = true;
-
         return Api.get_params(url_id, condition_id, type_param)
             .then(function (res) {
                 console.log("getParams Api.get_params", res);
@@ -433,6 +432,9 @@ function SitesCtrl($scope, $stateParams, $rootScope, $alert, $aside, $timeout, $
             color: '#ff7f0e',
             type: 'line',
             yAxis: undefined
+        },
+        numberorder = function (a, b) {
+            return a.x - b.x;
         };
         if(values.flag == 'position' && values.data.length) {
             res.key = 'Место в выдаче';
@@ -441,6 +443,7 @@ function SitesCtrl($scope, $stateParams, $rootScope, $alert, $aside, $timeout, $
             res.values = values.data.map(function(obj) {
                 return {x: (new Date(obj.date_create)).getTime(), y: obj.position_n+0};
             });
+            res.values.sort(numberorder);
             return res;
         }
         if(values.flag == 'percent' && values.data.length) {
@@ -449,6 +452,7 @@ function SitesCtrl($scope, $stateParams, $rootScope, $alert, $aside, $timeout, $
             res.values = values.data.map(function(obj) {
                 return {x: (new Date(obj.date_create)).getTime(), y: obj.percent+0};
             });
+            res.values.sort(numberorder);
             return res;
         }
     }
@@ -461,8 +465,8 @@ function SitesCtrl($scope, $stateParams, $rootScope, $alert, $aside, $timeout, $
     };
 
     $scope.$on('loadSpark', function(event, data){
-        vm.options = sparkConfig;
-        vm.data.chartValue.push(buildSpark(event, data));
+        var newChart = buildSpark(event, data);
+        newChart ? vm.data.chartValue.push(newChart): null;
         vm.chartApi.update();
     });
 }
