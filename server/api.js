@@ -104,7 +104,6 @@ module.exports = function Api(app, passport) {
     });
     var serverFree = true;
     app.post('/api/calc_params', function (req, res, next) {
-        console.log('/api/calc_params', req.body);
 
         if (!req.user || !req.user.user_id) {
             ApiUtils.errback(null, res, "Вы не зарегистрировались.");
@@ -140,7 +139,6 @@ module.exports = function Api(app, passport) {
     });
 
     app.post('/api/calc_site_params', function (req, res, next) {
-        console.log('/api/calc_site_params', req.body);
 
         if (!req.user || !req.user.user_id) {
             ApiUtils.errback(null, res, "Вы не зарегистрировались.");
@@ -169,7 +167,6 @@ module.exports = function Api(app, passport) {
     });
 
     app.post('/api/get_paramtypes', function (req, res, next) {
-        console.log('/api/get_paramtypes', req.body);
 
         if (!req.user || !req.user.user_id) {
             ApiUtils.errback(null, res, "Вы не зарегистрировались.");
@@ -195,14 +192,11 @@ module.exports = function Api(app, passport) {
                 ApiUtils.callback(tree, res)
             })
             .catch(function (err) {
-                //console.log(err, err.stack);
-                //errback("", res);
                 ApiUtils.errback(err, res)
             })
     })
 
     app.post('/api/get_params', function (req, res, next) {
-        console.log('/api/get_params', req.body);
 
         if (!req.body.condition_id) {
             ApiUtils.errback(null, res, "не найдены параметры condition_id");

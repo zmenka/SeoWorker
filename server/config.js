@@ -9,6 +9,7 @@ var Config = (function () {
     Config.private_ip = process.env.PRIVATE_IP || '127.0.0.1';
     Config.port = process.env.PORT || 3000;
     Config.isHeroku = process.env.IS_HEROKU || false;
+    Config.logLevel = process.env.LOG_LEVEL || 'INFO';
 
     return Config;
 })();

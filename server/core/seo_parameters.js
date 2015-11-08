@@ -36,12 +36,6 @@ SeoParameters.prototype.complianceStringsVal = function (text1, text2) {
     if (words2.length > maxLength) {
         maxLength = words2.length;
     }
-    /*
-     console.log('параметр по среднему, 1 фраза', text1, '2 фраза ', text2);
-     console.log(words1.toString());
-     console.log(words2.toString());
-     console.log("макс длина", maxLength, "совпадающие слова", matchWords)
-     */
     if (maxLength > 0) {
         return (matchWords * 100 / maxLength);
     } else {
@@ -238,7 +232,6 @@ SeoParameters.prototype.getAllParams = function (condition_query) {
 SeoParameters.prototype.tagCSFirst = function (keyText, tag) {
 
     if (this.parser.getTag(tag).length > 0) {
-        //console.log("процент вхождения фразы для ", tag);
         var data = getData(this.parser.getTag(tag)[0].children);
         return this.complianceStrings(data, keyText)
     }
@@ -250,7 +243,6 @@ SeoParameters.prototype.tagCS = function (keyText, tag) {
     var res = [];
     if (tags.length > 0) {
         for (var i = 0; i < tags.length; i++) {
-            //console.log("процент вхождения фразы для ", tag, i);
             var data = getData(tags[i].children);
             var num = 1 + i;
             res.push(this.complianceStrings(data, keyText))
@@ -279,7 +271,6 @@ SeoParameters.prototype.tagCSAvg = function (keyText, tag) {
     var tags = this.parser.getTag(tag);
     if (tags.length > 0) {
         for (i in tags) {
-            //console.log(this.parser.getTag(tag)[0].children);
             var data = getData(tags[i].children);
             cnt += this.complianceStringsVal(data, keyText)
         }
@@ -320,10 +311,6 @@ SeoParameters.prototype.tagLengthAll = function (tag) {
         throw new Error('Нет тега ' + tag);
 
     var data = getData(tags);
-
-    //console.log('-----------------------', tag)
-    //console.log(data)
-    //console.log('-----------------------', tag)
 
     return data.length;
 }
@@ -394,7 +381,6 @@ SeoParameters.prototype.getSearchPicks = function (sengine_name) {
             //получаем URL-ы и title-ы
             for (var i in tags) {
                 var tag = tags[i];
-                //console.log(tag)
                 //получаем URL
                 var url = tag.attribs['href']
                 //получаем title
@@ -441,8 +427,6 @@ SeoParameters.prototype.getSearchPicks = function (sengine_name) {
             break;
     }
 
-    //console.log(-date.getTime() + (new Date().getTime()))
-    //console.log("SeoParameters.getSearchPicks");
     return res;
 
 }

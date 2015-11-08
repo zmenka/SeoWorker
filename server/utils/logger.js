@@ -1,20 +1,37 @@
+var config = require('./../config');
+
 /*
-var Rufus = require('rufus');
+ var Rufus = require('rufus');
 
-Rufus.config(
+ Rufus.config(
 
-);
+ );
 
-var Logger = Rufus;
-*/
-var Logger = {};
+ var Logger = Rufus;
+ */
 
-Logger.DEBUG   = function() { console.log(' - DEBUG:   ',Array.prototype.slice.call(arguments)); };
-Logger.TRACE   = function() { console.log(' - TRACE:   ',Array.prototype.slice.call(arguments)); };
-Logger.DB      = function() { console.log(' - DB:      ',Array.prototype.slice.call(arguments)); };
-Logger.INFO    = function() { console.log(' - INFO:    ',Array.prototype.slice.call(arguments)); };
-Logger.WARNING = function() { console.log(' - WARNING: ',Array.prototype.slice.call(arguments)); };
-Logger.ERROR   = function() { console.log(' - ERROR:   ',Array.prototype.slice.call(arguments)); };
-Logger.FATAL   = function() { console.log(' - FATAL:   ',Array.prototype.slice.call(arguments)); };
+var LogLevels = {
+    TRACE: 6,
+    DB: 5,
+    DEBUG: 4,
+    INFO: 3,
+    WARNING: 2,
+    ERROR: 1,
+    FATAL: 0
+};
+var Logger = (function (logLevel) {
+    var maxLevel = LogLevels[logLevel] || 5;
+    var logger = {}
+    for (var errLevel in LogLevels){
+        if (LogLevels[errLevel] > maxLevel){
+            logger[errLevel] = function (){};
+        }else{
+            logger[errLevel] = (function(errLevel){return function () {
+                console.log(' - ' + errLevel + '          '.substring(0,10 - errLevel.length), Array.prototype.slice.call(arguments));
+            }})(errLevel);
+        }
+    }
+    return logger;
+})(config.logLevel);
 
 module.exports = Logger;

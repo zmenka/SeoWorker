@@ -4,6 +4,7 @@ var SeoParser = require('./seo_parser');
 var PgUsers = require('./../db/models/pg_users');
 
 var Promise = require('../utils/promise');
+var Logger = require('../utils/logger');
 var rp = require('request-promise');
 var request = Promise.promisify(require("request"));
 var zlib_gunzip = Promise.promisify(require('zlib').gunzip);
@@ -64,7 +65,7 @@ Downloader.getOptions = function (url, cookies) {
  * @returns {html: string, cookies: Object[]}
  */
 Downloader.getContentByUrl = function (url, cookies) {
-    console.log('getContentByUrl',url);
+    Logger.DEBUG('getContentByUrl ' + url);
     return Promise.try(function () {
         var options = Downloader.getOptions(url, cookies);
         return rp(options)
@@ -214,7 +215,7 @@ Downloader.getCaptcha = function (raw_html, sengine_name) {
                         var key = parser.getTag('form[action=/checkcaptcha] input[name=key]')[0].attribs.value;
                         var retpath = parser.getTag('form[action=/checkcaptcha] input[name=retpath]')[0].attribs.value;
 
-                        console.error("CAPTCHA", img)
+                        Logger.WARNING("CAPTCHA ", img);
                         return MyAntigate(img, config.antigate_key)
                             .then(function (res) {
                                 var kaptcha = 'http://yandex.ru/checkcaptcha?key='
@@ -240,7 +241,7 @@ Downloader.getCaptcha = function (raw_html, sengine_name) {
                         var continue1 = parser.getTag('form[action=CaptchaRedirect] input[name=continue]')[0].attribs.value;
                         var id = parser.getTag('form[action=CaptchaRedirect] input[name=id]')[0].attribs.value;
 
-                        console.error("CAPTCHA", img)
+                        Logger.WARNING("CAPTCHA ", img);
                         return MyAntigate(img, config.antigate_key)
                             .then(function (res) {
                                 var kaptcha = 'http://ipv4.google.com/sorry/CaptchaRedirect?"' +
@@ -261,13 +262,12 @@ Downloader.getCaptcha = function (raw_html, sengine_name) {
 
 
 Downloader.antigate = function (url) {
-    console.log(config.antigate_key)
     return new Promise(function (resolve, reject) {
         ag.processFromURL(url, function (error, text, id) {
             if (error) {
                 reject(error);
             } else {
-                console.log('Antigate DONE', url, text);
+                Logger.INFO('Antigate DONE', url, text);
                 resolve(text);
             }
         });

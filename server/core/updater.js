@@ -9,6 +9,7 @@ var Cookier = require("./cookier");
 var Downloader = require("./downloader");
 var Params = require("./params");
 var Promise = require('../utils/promise');
+var Logger = require('../utils/logger');
 
 
 var Updater = {};
@@ -19,13 +20,13 @@ var Updater = {};
 Updater.getNext = function () {
     return PgConditions.getNext()
         .then(function (condition) {
-            console.log("Updater.getNext GET NEXT Condition_id " + condition.condition_id);
+            Logger.DEBUG("Updater.getNext GET NEXT Condition_id " + condition.condition_id);
             return condition.condition_id
         })
 };
 
 Updater.update = function (condition_id) {
-    console.log('Updater.update START condition_id ', condition_id);
+    Logger.DEBUG('Updater.update START condition_id ', condition_id);
     if (!condition_id) {
         return Promise.reject(new Error("condition_id can't be empty"));
     }
@@ -41,7 +42,7 @@ Updater.update = function (condition_id) {
         })
         .then(function (searchUrlsWithLinksAndParamsRes) {
             searchUrlsWithLinksAndParams = searchUrlsWithLinksAndParamsRes;
-            console.log('searchUrlsWithLinksAndParams', JSON.stringify(searchUrlsWithLinksAndParams, null, 2));
+            Logger.DEBUG('searchUrlsWithLinksAndParams', JSON.stringify(searchUrlsWithLinksAndParams, null, 2));
 
             return Params.calcCorridors(searchUrlsWithLinksAndParams)
         })
@@ -51,12 +52,19 @@ Updater.update = function (condition_id) {
             return Updater.updateOldUrls(condition_id)
         })
         .then(function (urlsWithParamsRes) {
-            console.log('urlsWithParams', JSON.stringify(urlsWithParams, null, 2));
+            Logger.DEBUG('urlsWithParams', JSON.stringify(urlsWithParams, null, 2));
             urlsWithParams = urlsWithParamsRes
 
         })
         .then(function () {
             return ex.execute_list(ex.UPDATE_CONDITION_ALL(condition_id, searchUrlsWithLinksAndParams, corridors, urlsWithParams))
+        })
+        .catch(function (err) {
+            error = err;
+            return PgConditions.incrementFailure(condition_id)
+                .then(function(){
+                    throw error;
+                })
         })
         .finally(function(){
             return PgConditions.unlock(condition_id)
@@ -77,7 +85,7 @@ Updater.updateSearch = function (condition_id) {
     return PgConditions.get(condition_id)
         .then(function (condition_res) {
             condition = condition_res;
-            console.log('START doSearch for ', JSON.stringify(condition, null, 2))
+            Logger.DEBUG('START doSearch for ', JSON.stringify(condition, null, 2))
             return Searcher.generateSearchUrls(
                 condition.sengine_name,
                 condition.condition_query,
@@ -88,19 +96,12 @@ Updater.updateSearch = function (condition_id) {
             );
         })
         .then(function (searchUrls) {
-            console.log('searchUrls', JSON.stringify(searchUrls, null, 2))
+            Logger.DEBUG('searchUrls', JSON.stringify(searchUrls, null, 2))
             return Searcher.getLinksFromSearcher(searchUrls)
         })
         .then(function (SearchUrlWithLinks) {
-            console.log('SearchUrlWithLinks', JSON.stringify(SearchUrlWithLinks, null, 2))
+            Logger.DEBUG('SearchUrlWithLinks', JSON.stringify(SearchUrlWithLinks, null, 2))
             return Searcher.calcLinksParams(SearchUrlWithLinks, condition.condition_query)
-        })
-        .catch(function (err) {
-            error = err;
-            return PgConditions.incrementFailure(condition_id)
-                .then(function(){
-                    throw error;
-                })
         })
 
 };
@@ -116,17 +117,17 @@ Updater.updateOldUrls = function (condition_id) {
             return PgUrls.getOldUrls(condition_id)
         })
         .then(function (urls) {
-            console.log('urls', JSON.stringify(urls, null, 2))
+            Logger.DEBUG('urls', JSON.stringify(urls, null, 2))
             return Searcher.calcUrlParams(urls, condition.condition_query)
         })
         .then(function (urlsWithParams) {
-            console.log('urlsWithParams', JSON.stringify(urlsWithParams, null, 2))
+            Logger.DEBUG('urlsWithParams', JSON.stringify(urlsWithParams, null, 2))
             return urlsWithParams
         })
 }
 
 Updater.updateOneUrl = function (condition_id, url_id) {
-    console.log('updateOneUrl')
+    Logger.INFO('updateOneUrl: condition_id ' + condition_id + ' url_id ' + url_id);
     if (!condition_id) {
         return Promise.reject(new Error("condition_id can't be empty"));
     }
@@ -160,14 +161,14 @@ Updater.updateOneUrlWithoutCondition = function (condition_id, url_id) {
             return PgUrls.get(url_id)
         })
         .then(function (url) {
-            console.log('url', JSON.stringify(url, null, 2))
+            Logger.DEBUG('url', JSON.stringify(url, null, 2))
             return Searcher.calcUrlParams([url], _condition.condition_query)
         })
         .then(function (urlsWithParams) {
             if (!urlsWithParams || urlsWithParams.length !=1) {
                 throw new Error("url " + url_id + " not calc! " + urlsWithParams);
             }
-            console.log('urlsWithParams', JSON.stringify(urlsWithParams))
+            Logger.DEBUG('urlsWithParams', JSON.stringify(urlsWithParams))
             return urlsWithParams[0]
         })
         .then(function (paramsOfUrl) {

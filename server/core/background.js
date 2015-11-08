@@ -1,12 +1,13 @@
 var Cookier = require("./cookier");
 var Updater = require("./updater");
 var Promise = require("../utils/promise");
+var Logger = require("../utils/logger");
 
 
 var BackGround = {};
 
 BackGround.run = function () {
-    console.log("BackGround.run START");
+    Logger.INFO("BackGround.run START");
     function f() {
         return BackGround.action()
         .then(function () {
@@ -17,14 +18,15 @@ BackGround.run = function () {
 };
 
 BackGround.action = function () {
-    console.log("BackGround.run NEXT ITERATION !!!!");
+    var wait_next_message = 'WAIT NEXT';
+    Logger.INFO("BackGround.run NEXT ITERATION !!!!");
     return Updater.getNext()
         .catch(function(err) {
             console.log('getNext', err.stack)
             //либо нечего обновлять, лтбо что-то заблокировано, подождем
             return Promise.delay(60000)
-            .then(function(condition_id){
-                throw new Error('WAIT NEXT')
+            .then(function(){
+                throw new Error(wait_next_message)
             })
 
         })
@@ -32,7 +34,11 @@ BackGround.action = function () {
             return Updater.update(condition_id)
         })
         .catch(function(err) {
-            console.log(err.stack)
+            if (err.message == wait_next_message){
+                Logger.INFO(wait_next_message)
+            }else{
+                Logger.ERROR(err.stack)
+            }
         })
 };
 

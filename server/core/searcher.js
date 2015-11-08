@@ -111,7 +111,6 @@ Searcher.getLinksFromSearcher = function (search_objects) {
 
         var promise = (function (search_object) {
 
-            //console.log("сейчас обрабатывается поисковая ссылка ", search_object)
 
             return Downloader.getContentByUrlOrCaptcha(search_object.url, null, search_object.sengineName, true)
                 .then(function (html) {
@@ -240,7 +239,6 @@ Searcher.calcUrlParams = function (urls, condition_query) {
 
         var promise = (function (url) {
 
-            //console.log,("сейчас обрабатывается урл ", url)
             return Downloader.getContentByUrl(url.url)
                 .then(function (res) {
                     return new SeoParameters(res.html)
