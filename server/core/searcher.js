@@ -7,6 +7,7 @@ var SearchUrlWithLinks = require('../models/SearchUrlWithLinks');
 var Downloader = require('./downloader');
 var SeoParameters = require('./seo_parameters');
 var Promise = require('../utils/promise');
+var Logger = require('../utils/logger');
 
 var PgConditions = require("./../db/models/pg_conditions");
 
