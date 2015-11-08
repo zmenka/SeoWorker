@@ -55,12 +55,14 @@ PgConditions.getNext = function () {
         "       ON C.CONDITION_ID = CU.CONDITION_ID " +
         "   INNER JOIN uscondurls UCU " +
         "       ON UCU.CONDURL_ID = CU.CONDURL_ID " +
+        "   LEFT JOIN spages SP " +
+        "       ON C.CONDITION_ID = SP.CONDITION_ID " +
         "WHERE " +
         "   C.DATE_CALC IS NULL " +
         "   AND NOT UCU.USCONDURL_DISABLED " +
         "   AND NOT C.CONDITION_LOCKED " +
         "ORDER BY " +
-        "   C.FAIL_COUNT " +
+        "   SP.SPAGE_ID IS NOT NULL, C.FAIL_COUNT " +
         "LIMIT 1;",
         []
     )
