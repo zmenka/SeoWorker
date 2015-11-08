@@ -6,9 +6,9 @@
 */
 \c seo;
 -- -----------------------------------------
--- 1. Домены
+-- 1. Ошибки
 -- -----------------------------------------
-/* Домены */
+/* Ошибки */
 DROP TABLE IF EXISTS conderrs CASCADE;
 CREATE TABLE conderrs (
   CONDERR_ID       SERIAL PRIMARY KEY,
@@ -24,4 +24,5 @@ CREATE TABLE conderrs (
   DATE_CREATE      TIMESTAMP WITH TIME ZONE NOT NULL
 );
 CREATE INDEX ON conderrs (CONDITION_ID);
+CREATE INDEX ON conderrs (DATE_CREATE);
 UPDATE conditions SET FAIL_COUNT = 0;

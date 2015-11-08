@@ -1,5 +1,6 @@
 
 var PgConditions = require("./../db/models/pg_conditions");
+var PgConderrs = require("./../db/models/pg_conderrs");
 var PgUrls = require("./../db/models/pg_urls");
 
 var ex = require("./../db/models/pg_expressions");
@@ -58,6 +59,12 @@ Updater.update = function (condition_id) {
         })
         .then(function () {
             return ex.execute_list(ex.UPDATE_CONDITION_ALL(condition_id, searchUrlsWithLinksAndParams, corridors, urlsWithParams))
+        })
+        .catch(function (err) {
+            return PgConderrs.insert(condition_id, err.name, err.message, err.stack)
+                .then(function(){
+                    throw err;
+                })
         })
         .catch(function (err) {
             error = err;
