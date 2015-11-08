@@ -7,7 +7,7 @@ function ManageCtrl($scope, $state, $q, $alert, Authenticate, ConditionApi, Api)
     vm.oneAtATime = true;
     vm.loading = false;
     vm.loadUser = loadUsers;
-    vm.resetAll = ConditionApi.resetAll;
+    vm.resetAll = resetAll;
     vm.users = [];
     vm.roles = [];
     vm.groups = [];
@@ -18,6 +18,31 @@ function ManageCtrl($scope, $state, $q, $alert, Authenticate, ConditionApi, Api)
     vm.form = null
 
     vm.startLoad();
+
+
+    function resetAll (){
+        vm.loading = true;
+        console.log('ConditionApi resetAll()');
+        return ConditionApi.resetAll()
+            .then(function (res1) {
+                console.log('done!', res1.data);
+                vm.loading = false;
+                $alert({title: 'Внимание!', content: "Все запросы поставлены на обновление!",
+                    placement: 'top', type: 'warning', show: true,
+                    duration: '3',
+                    container: 'body'
+                });
+            })
+            .catch(function (err) {
+                console.log('ERROR!', err.data);
+                vm.loading = false;
+                $alert({title: 'Внимание!', content: "Ошибка при постановке на обновление.",
+                    placement: 'top', type: 'danger', show: true,
+                    duration: '3',
+                    container: 'body'
+                });
+            })
+    }
 
     function register () {
         vm.loading = true;
