@@ -5,10 +5,10 @@ var Logger = require('./logger');
 var options = {
     //promiseLib: promise,
     query: function (e) {
-        Logger.INFO(e.query);
+        Logger.DB(e.query);
     },
     error: function (err, e) {
-        /* do some of your own processing, if needed */
+        Logger.ERROR(err.toString());
     }
 };
 
