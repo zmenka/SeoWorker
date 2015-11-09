@@ -16,6 +16,11 @@
             <div class="panel-body" >
                 <button type="button" class="btn btn-primary btn-lg btn-block"
                     ng-click="getSpark()">Продвинутость & позиции</button>
+                <div ng-show="dateSingle">
+                    <p>Дата: {{dateSingle}}</p>
+                    <p>Продвинутость: {{procentSingle}}%</p>
+                    <p>Место в выдаче: {{positionSingle}}</p>
+                </div>
             </div>
         </div>
     </div>
@@ -32,7 +37,6 @@
                     api="vm.chartApi"
                 >
                 </nvd3>
-
             </div>
 
 

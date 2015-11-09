@@ -5,13 +5,14 @@ function SitesCtrl($scope, $stateParams, $rootScope, $alert, $aside, $timeout, $
         sparkConfig = {
             chart: {
                 type: 'multiChart',
-                noData: 'Подождите, идет загрузка графика',
+                noData: '',
                 margin: {
                     top: 30,
                     right: 80,
                     bottom: 50,
                     left: 70
                 },
+                interpolate: "cardinal-open",
                 x: function (xd) {
                     var date = new Date(xd.x);
                     return date.getTime();
@@ -30,6 +31,8 @@ function SitesCtrl($scope, $stateParams, $rootScope, $alert, $aside, $timeout, $
                     }
                 },
                 xAxis: {
+                    showMaxMin: false,
+                    staggerLabels: true,
                     tickValues: function(charts){
                         var ticks = [];
                         charts.forEach(function(chart){
@@ -46,7 +49,7 @@ function SitesCtrl($scope, $stateParams, $rootScope, $alert, $aside, $timeout, $
                 yAxis1: {
                     tickValues: function(charts) {
                         var ticks = [];
-                        ticks.push(100,80,60,40,20,0);
+                        ticks.push(100,90,70,50,30,10, 0);
                         return ticks;
                     },
                     rotateYLabel: true,
@@ -171,6 +174,10 @@ function SitesCtrl($scope, $stateParams, $rootScope, $alert, $aside, $timeout, $
     vm.startLoadDone = false;
 
     vm.options = standartChartConfig;
+
+    $scope.dateSingle = '';
+    $scope.procentSingle = '';
+    $scope.positionSingle = '';
 
     startLoad()
 
@@ -353,6 +360,9 @@ function SitesCtrl($scope, $stateParams, $rootScope, $alert, $aside, $timeout, $
 
                 vm.loading = false;
                 //return res.data;
+                $scope.dateSingle = '';
+                $scope.procentSingle = '';
+                $scope.positionSingle = '';
                 vm.options = standartChartConfig;
                 vm.data.chartValue = res.data;
             })
@@ -458,15 +468,29 @@ function SitesCtrl($scope, $stateParams, $rootScope, $alert, $aside, $timeout, $
     }
 
     $scope.getSpark = function () {
+        $scope.dateSingle = '';
+        $scope.procentSingle = '';
+        $scope.positionSingle = '';
         vm.options = sparkConfig;
         vm.data.chartValue =[];
+        $scope.singleData = '';
         getPosition(vm.site.data.condurl_id);
         getPercent(vm.site.data.condurl_id);
     };
 
     $scope.$on('loadSpark', function(event, data){
         var newChart = buildSpark(event, data);
-        newChart ? vm.data.chartValue.push(newChart): null;
+        if(newChart){
+            if(newChart.values.length == 1) {
+                newChart.key == 'Продвинутость' ?
+                    $scope.procentSingle = newChart.values[0].y :
+                    $scope.positionSingle = newChart.values[0].y;
+
+                $scope.dateSingle = d3.time.format('%d/%m/%Y')(new Date(newChart.values[0].x));
+            } else {
+                vm.data.chartValue.push(newChart);
+            }
+        }
         vm.chartApi.update();
     });
 }
