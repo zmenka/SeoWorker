@@ -4,6 +4,7 @@ var tPgConditions = require('./server/pg/conditions');
 var api = require('../utils/api')
 var tApiConditions = require('./server/api/conditions');
 var tApiCalc = require('./server/api/calc');
+var tApiUsers = require('./server/api/users');
 
 describe('SERVER', function () {
 
@@ -23,7 +24,12 @@ describe('SERVER', function () {
 
         describe('CALC', function () {
             //долгий тест
-            it.skip('updateCondition', tApiCalc.updateCondition)
+            it.only('updateCondition', tApiCalc.updateCondition)
+        });
+
+        describe('USERS', function () {
+            //долгий тест
+            it('getUsers', tApiUsers.getUsers)
         });
     });
 });
