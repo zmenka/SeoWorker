@@ -13,6 +13,12 @@ function SitesCtrl($scope, $stateParams, $rootScope, $alert, $aside, $timeout, $
                     left: 70
                 },
                 interpolate: "cardinal-open",
+                lines1: {
+                    forceX: []
+                },
+                lines2: {
+                    forceX: []
+                },
                 x: function (xd) {
                     var date = new Date(xd.x);
                     return date.getTime();
@@ -446,24 +452,30 @@ function SitesCtrl($scope, $stateParams, $rootScope, $alert, $aside, $timeout, $
         numberorder = function (a, b) {
             return a.x - b.x;
         };
-        if(values.flag == 'position' && values.data.length) {
-            res.key = 'Место в выдаче';
-            res.yAxis = 2;
-            res.color = '#1F77B4';
-            res.values = values.data.map(function(obj) {
-                return {x: (new Date(obj.date_create)).getTime(), y: obj.position_n+0};
-            });
-            res.values.sort(numberorder);
-            return res;
-        }
-        if(values.flag == 'percent' && values.data.length) {
-            res.key = 'Продвинутость';
-            res.yAxis = 1;
-            res.values = values.data.map(function(obj) {
-                return {x: (new Date(obj.date_create)).getTime(), y: obj.percent+0};
-            });
-            res.values.sort(numberorder);
-            return res;
+        if(values.data.length){
+            if(values.flag == 'position') {
+                res.key = 'Место в выдаче';
+                res.yAxis = 2;
+                res.color = '#1F77B4';
+                res.values = values.data.map(function(obj) {
+                    vm.options.chart.lines1.forceX.push((new Date(obj.date_create)).getTime());
+                    vm.options.chart.lines2.forceX.push((new Date(obj.date_create)).getTime());
+                    return {x: (new Date(obj.date_create)).getTime(), y: obj.position_n+0};
+                });
+                res.values.sort(numberorder);
+                return res;
+            }
+            if(values.flag == 'percent') {
+                res.key = 'Продвинутость';
+                res.yAxis = 1;
+                res.values = values.data.map(function(obj) {
+                    vm.options.chart.lines1.forceX.push((new Date(obj.date_create)).getTime());
+                    vm.options.chart.lines2.forceX.push((new Date(obj.date_create)).getTime());
+                    return {x: (new Date(obj.date_create)).getTime(), y: obj.percent+0};
+                });
+                res.values.sort(numberorder);
+                return res;
+            }
         }
     }
 
@@ -473,7 +485,8 @@ function SitesCtrl($scope, $stateParams, $rootScope, $alert, $aside, $timeout, $
         $scope.positionSingle = '';
         vm.options = sparkConfig;
         vm.data.chartValue =[];
-        $scope.singleData = '';
+        vm.options.chart.lines1.forceX = [];
+        vm.options.chart.lines2.forceX = [];
         getPosition(vm.site.data.condurl_id);
         getPercent(vm.site.data.condurl_id);
     };
@@ -492,6 +505,7 @@ function SitesCtrl($scope, $stateParams, $rootScope, $alert, $aside, $timeout, $
             }
         }
         vm.chartApi.update();
+        console.log(vm.options,vm.data.chartValue);
     });
 }
 
